@@ -1,0 +1,6 @@
+FROM debian:buster
+
+RUN mkdir /app/src/
+
+COPY src/ /app/src/
+
