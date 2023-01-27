@@ -1,6 +1,11 @@
-FROM debian:buster
+FROM node:latest
 
-RUN mkdir /app/src/
+WORKDIR /app/src
 
-COPY src/ /app/src/
+COPY backend-src/ /app/src/
 
+RUN	npm install
+
+EXPOSE 3000
+
+ENTRYPOINT ["npm", "start"]
