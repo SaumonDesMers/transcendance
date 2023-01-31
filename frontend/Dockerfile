@@ -4,7 +4,7 @@ WORKDIR /app/src
 
 COPY frontend-src/ /app/src/
 
-RUN	npm install
+RUN	npm install axios && npm install
 
 EXPOSE 3000
 
