@@ -6,6 +6,8 @@ COPY backend-src/ /app/src/
 
 RUN	npm install
 
+RUN openssl req -x509 -newkey rsa:4096 -sha256 -days 365 -nodes -subj '/CN=localhost' -keyout ./ssl/server.key -out ./ssl/server.crt
+
 EXPOSE 3001
 
 ENTRYPOINT ["npm", "start"]

@@ -4,37 +4,35 @@ import {
 	SubscribeMessage,
 	OnGatewayConnection,
 	OnGatewayDisconnect,
+	OnGatewayInit,
 	MessageBody,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io'
 
-@WebSocketGateway()
-export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
+@WebSocketGateway({ namespace: '/game'})
+export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
 
 	@WebSocketServer()
 	server: Server;
-
 	users: number = 0;
 
-	handleConnection() {
-		// A client has connected
-		this.users++;
+	afterInit() {
+		console.log("GameGateway initialized")
+	}
 
-		// Notify connected clients of current users
-		this.server.emit('game', this.users);
+	handleConnection() {
+		this.users++;
+		this.server.emit('user', this.users);
 	}
 
 	handleDisconnect() {
-		// A client has disconnected
 		this.users--;
-
-		// Notify connected clients of current users
-		this.server.emit('game', this.users);
+		this.server.emit('user', this.users);
 	}
 
-	@SubscribeMessage('game')
+	@SubscribeMessage('event')
 	onGame(@MessageBody() body: any) {
 		console.log(body)
-		// client.broadcast.emit('game', message);
+		this.server.emit('event', body);
 	}
 }
