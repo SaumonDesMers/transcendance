@@ -23,7 +23,7 @@ export default {
 		},
 		connectToServer() {
 			console.log("Starting connection to WebSocket Server")
-			this.connection = new WebSocket('ws://localhost:3001/game')
+			this.connection = new WebSocket('ws://localhost:3001')
 
 			this.connection.onmessage = function(event) {
 				console.log("Received message from server")
@@ -44,7 +44,7 @@ export default {
 				console.log("Error connecting to the game websocket server...")
 				console.log(event)
 			}
-		}
+		},
 	},
 
 	mounted: function() {
