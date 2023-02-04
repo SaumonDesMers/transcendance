@@ -8,20 +8,6 @@ import {
 	MessageBody,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io'
-import * as fs from 'fs'
-
-const getCircularReplacer = () => {
-	const seen = new WeakSet();
-	return (key, value) => {
-		if (typeof value === "object" && value !== null) {
-			if (seen.has(value)) {
-				return;
-			}
-			seen.add(value);
-		}
-		return value;
-	};
-};
 
 @WebSocketGateway({
 	cors: true,
@@ -34,9 +20,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
 	afterInit() {
 		// console.log("Chat gateway initialized")
-		this.server.on('connection', (socket: any) => {
-			console.log(socket.request._query)
-		})
 	}
 
 	handleConnection(socket: any) {
