@@ -5,7 +5,7 @@ import io from "socket.io-client"
 export default {
 
 
-	data: function() {
+	data() {
 		return {
 			socket: null,
 			chat: {
@@ -55,9 +55,9 @@ export default {
 		}
 	},
 
-	mounted: function() {},
+	mounted() {},
 
-	created: function() {
+	created() {
 		this.initSocket()
 	}
 }

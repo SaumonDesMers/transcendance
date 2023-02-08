@@ -11,7 +11,7 @@ export default {
 		chat
 	},
 
-	data: function() {
+	data() {
 		return {
 			loggedIn: false,
 		}
@@ -19,9 +19,9 @@ export default {
 
 	methods: {},
 
-	mounted: function() {},
+	mounted() {},
 
-	created: function() {}
+	created() {}
 }
 </script>
 

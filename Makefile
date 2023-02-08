@@ -5,3 +5,6 @@ build:
 
 down:
 	docker-compose down
+
+clear:
+	docker rm -f $(docker ps -a -q)
