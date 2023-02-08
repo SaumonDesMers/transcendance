@@ -1,17 +1,18 @@
 version: '3.7'
 
 services:
-    # db:
-    #     image: postgres:12
-    #     restart: on-failure
-    #     environment:
-    #         POSTGRES_PASSWORD: password
-    #         POSTGRES_USER: user
-    #         POSTGRES_DB: db
-    #     ports:
-    #         - 80:80
-    #     # volumes:
-    #     #     - db_data:/var/lib/postgresql/data
+
+    db:
+        image: postgres:12
+        restart: always
+        environment:
+          - POSTGRES_USER=${POSTGRES_USER}
+          - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+          - POSTGRES_DB=${POSTGRES_DB}
+        ports:
+            - '5432:5432'
+        volumes:
+            - postgres:/var/lib/postgresql/data
 
     backend:
         build:
@@ -20,6 +21,14 @@ services:
         ports:
           - 3001:3001
         restart: on-failure
+        volumes:
+          - ./backend/backend-src/:/usr/app/
+          - /user/app/nodes_modules
+        environment:
+          - POSTGRES_USER=${POSTGRES_USER}
+          - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+          - POSTGRES_DB=${POSTGRES_DB}
+          - DATABASE_URL=${DATABASE_URL}
     
     frontend:
         build:
@@ -28,4 +37,7 @@ services:
         ports:
           - 3000:3000
         restart: on-failure
-        
+
+
+volumes:
+  postgres:
