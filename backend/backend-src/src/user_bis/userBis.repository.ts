@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "src/database/prisma.service";
+import { User } from "src/user/user.model";
 import { UserBis } from "./userBis.model";
 
 @Injectable()
@@ -21,6 +22,15 @@ export class UserBisRepository {
 	}): Promise<UserBis[]> {
 		const {skip, take, cursor, where, orderBy } = params;
 		return this.prisma.user.findMany({skip, take, cursor, where, orderBy});
+	}
+
+	async getUserById(params: {id: UserBis['id']}) : Promise<UserBis> {
+		const {id } = params;
+		return this.prisma.user.findUniqueOrThrow({
+			where: {
+				id: id,
+			},
+		});
 	}
 
 	async updateUser(params: {
