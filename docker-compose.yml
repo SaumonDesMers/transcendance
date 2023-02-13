@@ -21,6 +21,8 @@ services:
         ports:
           - 3001:3001
         restart: on-failure
+        depends_on:
+          - db
         volumes:
           - ./backend/backend-src/:/usr/app/
           - /user/app/nodes_modules
