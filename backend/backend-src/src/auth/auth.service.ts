@@ -6,7 +6,10 @@ import { AxiosError } from "axios";
 
 @Injectable()
 export class AuthService {
-	constructor(private readonly httpService: HttpService, private readonly configService: ConfigService) {}
+	constructor(
+		private readonly httpService: HttpService,
+		private readonly configService: ConfigService
+	) {}
 	
 	requestAuth(code: number) {
 		const uid: string = this.configService.get<string>('UID')
@@ -20,25 +23,20 @@ export class AuthService {
 			}
 		}
 
-		try {
-			var res = firstValueFrom(
-				this.httpService.post('https://api.intra.42.fr/oauth/token', {
-					grant_type: 'authorization_code',
-					client_id: uid,
-					client_secret: secretKey,
-					code: code,
-					redirect_uri: 'http://localhost:3000'
-				}).pipe(
-					catchError((error: AxiosError) => {
-						console.error(error.response.data);
-						throw 'An error happened!';
-					}),
-				)
-			)
-			console.log(res)
-		} catch(err) {
-			console.log(err)
-		}
+		const FortyTwoStrategy = require('passport-42').Strategy
+
+		passport.use(new FortyTwoStrategy({
+				clientID: uid,
+				clientSecret: secretKey,
+				callbackURL: "http://127.0.0.1:3000/auth/42/callback"
+			},
+			function(accessToken, refreshToken, profile, cb) {
+				User.findOrCreate({ fortytwoId: profile.id }, function (err, user) {
+					return cb(err, user);
+				});
+			}
+		));
+		
 
 		return {
 			auth: true
