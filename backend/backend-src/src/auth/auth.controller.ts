@@ -7,6 +7,6 @@ export class AuthController {
 
 	@Get()
 	requestAuth(@Query('code') code: number) {
-		return this.authService.requestAuth(code);
+		// return this.authService.requestAuth(code);
 	}
 }
