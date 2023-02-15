@@ -5,6 +5,12 @@ import { User } from "./user.model";
 export class UserService {
 	users: User[] = [];
 
+	async validateUser(profile): Promise<[any, any]> {
+		// const user = await this.users.find(user => user.name = name);
+		// return user;
+		return [null, 'no error'];
+	}
+
 	addUser(name: string, email: string, password: string) {
 		const userId = Math.random().toString();
 		const newUser = new User(userId, name, email, password);
