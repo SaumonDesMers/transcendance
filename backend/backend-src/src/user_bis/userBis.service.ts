@@ -1,14 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { User } from "@prisma/client";
-import { UserBis } from "./userBis.model";
 import { UserBisRepository } from "./userBis.repository";
 
 @Injectable()
 export class UserBisService {
 	constructor(private repository: UserBisRepository) {}
 
-	async createUser(params: {email: UserBis['email'];
-	password: UserBis['password']; username: UserBis['username']}){
+	async createUser(params: {email: User['email'];
+	password: User['password']; username: User['username']}){
 		const { email, password, username } = params;
 
 		const user = await this.repository.createUser({
@@ -22,13 +21,13 @@ export class UserBisService {
 		return user;
 	}
 
-	async getUser() {
+	async getUsers() {
 		const users = await this.repository.getUsers({});
 
 		return users;
 	}
 
-	async getUserById(params: {id: UserBis['id']})
+	async getUserById(params: {id: User['id']})
 	{
 		const { id } = params;
 		const user = await this.repository.getUserById({id});
@@ -36,7 +35,7 @@ export class UserBisService {
 		return user;
 	}
 
-	async getUserByEmail(params: {email: UserBis['email']})
+	async getUserByEmail(params: {email: User['email']})
 	{
 		const { email } = params;
 		const user = await this.repository.getUsers({

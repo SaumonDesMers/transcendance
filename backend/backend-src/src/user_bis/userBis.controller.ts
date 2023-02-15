@@ -1,6 +1,5 @@
 import { Controller, Get, Param, Patch, Post } from "@nestjs/common";
 import { User } from "@prisma/client";
-import { UserBis } from "./userBis.model";
 import { UserBisService } from "./userBis.service";
 
 @Controller('userBis')
@@ -8,12 +7,12 @@ export class UserBisController {
 	constructor(private userBisService: UserBisService) {}
 
 	@Get()
-	getUsers(): Promise<UserBis[]> {
-		return this.userBisService.getUser();
+	getUsers(): Promise<User[]> {
+		return this.userBisService.getUsers();
 	}
 
 	@Get(':id')
-	getOneUser(@Param() params): Promise<UserBis> {
+	getOneUser(@Param() params): Promise<User> {
 		return this.userBisService.getUserById(params.id);
 	}
 
