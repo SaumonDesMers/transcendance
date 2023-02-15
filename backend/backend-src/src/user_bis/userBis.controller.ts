@@ -1,5 +1,13 @@
-import { Controller, Get, Param, Patch, Post } from "@nestjs/common";
-import { User } from "@prisma/client";
+import { Body,
+		Controller,
+		Get,
+		Param,
+		Patch,
+		Post,
+		Query,
+		ParseIntPipe} from "@nestjs/common";
+import { Prisma, User } from "@prisma/client";
+import { isNumberObject, isStringObject } from "util/types";
 import { UserBisService } from "./userBis.service";
 
 @Controller('userBis')
@@ -12,12 +20,12 @@ export class UserBisController {
 	}
 
 	@Get(':id')
-	getOneUser(@Param() params): Promise<User> {
-		return this.userBisService.getUserById(params.id);
+	getOneUser(@Param('id', ParseIntPipe) id: number): Promise<User> {
+		return this.userBisService.getOneUser({id});
 	}
 
-	// @Patch()
-	// updateUser() : Promise<UserBis> {
-	// 	return this.userBisService.
-	// }
+	@Patch(':id')
+	async updateUser(@Param('id', ParseIntPipe) id: number, @Body() UserUpdate: Prisma.UserUpdateInput) : Promise<User> {
+		return this.userBisService.updateUser(id, UserUpdate);
+	}
 }

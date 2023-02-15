@@ -22,13 +22,10 @@ export class UserBisRepository {
 		return this.prisma.user.findMany({skip, take, cursor, where, orderBy});
 	}
 
-	async getUserById(params: {id: User['id']}) : Promise<User> {
-		const {id } = params;
-		return this.prisma.user.findUniqueOrThrow({
-			where: {
-				id: id,
-			},
-		});
+	async getSingleUser(params: Prisma.UserWhereUniqueInput) : Promise<User> {
+		return this.prisma.user.findUniqueOrThrow(
+			{where: params}
+		);
 	}
 
 	async updateUser(params: {

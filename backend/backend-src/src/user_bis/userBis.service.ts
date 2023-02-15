@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { User } from "@prisma/client";
+import { Prisma, PrismaClient, User } from "@prisma/client";
 import { UserBisRepository } from "./userBis.repository";
 
 @Injectable()
@@ -21,38 +21,41 @@ export class UserBisService {
 		return user;
 	}
 
-	async getUsers() {
+	async getUsers() : Promise<User[]> {
 		const users = await this.repository.getUsers({});
 
 		return users;
 	}
 
-	async getUserById(params: {id: User['id']})
+	async getOneUser(params: Prisma.UserWhereUniqueInput) : Promise<User>
 	{
-		const { id } = params;
-		const user = await this.repository.getUserById({id});
+		const user = await this.repository.getSingleUser(params);
 
 		return user;
 	}
 
-	async getUserByEmail(params: {email: User['email']})
+	// async getUserByEmail(params: {email: User['email']})
+	// {
+	// 	const { email } = params;
+	// 	const user = await this.repository.getUsers({
+	// 		where: {
+	// 			email: email,
+	// 		},
+	// 	});
+
+	// 	return user;
+	// }
+
+	async updateUser(id : User['id'], data: Prisma.UserUpdateInput) : Promise<User>
 	{
-		const { email } = params;
-		const user = await this.repository.getUsers({
+
+		const user = await this.repository.updateUser({
 			where: {
-				email: email,
+				id
 			},
+			data: data,
 		});
 
 		return user;
 	}
-
-	// async updateUser(params: {update: UserBis})
-	// {
-	// 	const { update } = params;
-
-	// 	const user = await this.repository.updateUser({
-	// 		where:
-	// 	})
-	// }
 }
