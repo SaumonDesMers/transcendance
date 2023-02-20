@@ -58,4 +58,15 @@ export class UserBisService {
 
 		return user;
 	}
+
+	async removeUser(id : User['id']) : Promise<User>
+	{
+		const user = this.repository.deleteUser({
+			where: {
+				id
+			}
+		});
+
+		return user;
+	}
 }
