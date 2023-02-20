@@ -8,8 +8,16 @@ import { AuthModule } from './auth/auth.module';
 import { UserBisModule } from './user_bis/userBis.module';
 
 @Module({
-  imports: [ChatModule, AuthModule, ConfigModule.forRoot({ isGlobal:true }), UserBisModule],
-  controllers: [AppController],
-  providers: [AppService],
+	imports: [
+		ChatModule,
+		AuthModule,
+		ConfigModule.forRoot({
+			envFilePath: ['.env', '.env.ft_app'],
+			isGlobal: true
+		}),
+		UserBisModule
+	],
+	controllers: [AppController],
+	providers: [AppService],
 })
 export class AppModule {}

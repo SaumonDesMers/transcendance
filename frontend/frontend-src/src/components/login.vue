@@ -6,7 +6,7 @@ export default {
 		return {
 			connectionErrorMsg: '',
 			// url: 'https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-83a9e79a18485926a5999f8d21d7a446e76d4e9e3cda5ac0c65f0198f390f2d0&redirect_uri=http%3A%2F%2Flocalhost%3A3000&response_type=code'
-			url: 'http://localhost:3000/auth/42/callback'
+			url: 'http://localhost:3001/auth/login'
 		}
 	},
 
@@ -42,7 +42,7 @@ export default {
 
 	mounted() {
 		console.log(window.location.search)
-		this.requestAuth()
+		// this.requestAuth()
 	},
 
 	created() {}
