@@ -10,14 +10,14 @@ export class AuthController {
 	@UseGuards(FortyTwoAuthGuard)
 	@Get('login')
 	login(@Req() req: any, @Res() response: Response) {
-		// return this.authService.requestAuth(code);
-		// console.log(req.user)
+		console.log('GET auth/login from', req.user.username)
+
+		// see URL type
 		// const url = new URL(`${req.protocol}:${req.hostname}`);
-		// url.port = process.env.FRONT_PORT;
+		// url.port = `3000`;
 		// url.pathname = 'login';
 		// url.searchParams.set('code', token);
-		// console.log(url.href)
 
-		// response.status(302).redirect(url.href);
+		response.status(302).redirect('http://localhost:3000/login');
 	}
 }

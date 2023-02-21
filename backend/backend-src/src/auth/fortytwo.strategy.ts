@@ -13,13 +13,12 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy) {
 		super({
 			clientID: configService.get<string>('UID'),
 			clientSecret: configService.get<string>('SECRET_KEY'),
-			callbackURL: "http://localhost:3000"
+			callbackURL: "http://localhost:3001/auth/login"
 		});
 	}
 
 	async validate(accessToken, refreshToken, profile, cb): Promise<any> {
-		this.authService.validateUser(accessToken, refreshToken, profile, function (err, user) {
-			return cb(err, user);
-		});
+		// console.log('validate:', accessToken, refreshToken)
+		return profile
 	}
 }
