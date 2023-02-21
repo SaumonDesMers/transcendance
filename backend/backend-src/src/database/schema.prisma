@@ -13,4 +13,60 @@ datasource db {
 model User {
 	id Int	@id
 	username String @unique
+
+	profile Profile?
+	chatUser ChatUser?
+}
+
+model Profile {
+	userId Int @id
+	user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+	
+	username String
+}
+
+model ChatUser {
+	userId Int @id
+	user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+	messages Message[]
+	joinedChannels Channel[]
+
+
+	// adminChannels Channel[] @ignore //this is here to implement the one to many relation regarding admins of channel
+									// <<one user can be the admin of many channels>>
+}
+
+model Message {
+	id Int @id @default(autoincrement())
+	content String
+	author ChatUser? @relation(fields: [chatUserId], references: [userId])
+	channel Channel @relation(fields: [channelId], references: [id])
+	chatUserId Int
+	channelId Int
+}
+
+// The objective for channels is to have some kind of hierarchy
+// with base being Channel and two derived version being TextChannel and DMChannel
+//so the black magic used here is in this noble objective please forgive me
+
+model Channel {
+	id Int @id @default(autoincrement())
+	users ChatUser[]
+	messages Message[]
+
+	dmChannel DMChannel?
+	textChannel TextChannel?
+
+}
+
+model DMChannel {
+	channel Channel @relation(fields: [channelId], references: [id])
+	channelId Int @unique
+}
+
+model TextChannel {
+	channel Channel @relation(fields: [channelId], references: [id])
+	channelId Int @unique
+
 }
