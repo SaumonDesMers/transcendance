@@ -56,7 +56,7 @@ model Channel {
 	messages Message[]
 
 	dmChannel DMChannel?
-	textChannel TextChannel?
+	textChannel GroupChannel?
 
 }
 
@@ -65,7 +65,7 @@ model DMChannel {
 	channelId Int @unique
 }
 
-model TextChannel {
+model GroupChannel {
 	channel Channel @relation(fields: [channelId], references: [id])
 	channelId Int @unique
 
