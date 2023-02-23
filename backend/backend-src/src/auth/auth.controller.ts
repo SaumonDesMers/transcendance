@@ -13,11 +13,10 @@ export class AuthController {
 		console.log('GET auth/login from', req.user.username)
 
 		// see URL type
-		// const url = new URL(`${req.protocol}:${req.hostname}`);
-		// url.port = `3000`;
-		// url.pathname = 'login';
-		// url.searchParams.set('code', token);
+		const url = new URL(`${req.protocol}:${req.hostname}`);
+		url.port = `3000`;
+		url.searchParams.set('code', 'no token yet');
 
-		response.status(302).redirect('http://localhost:3000/login');
+		response.status(302).redirect(url.href);
 	}
 }
