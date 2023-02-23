@@ -14,6 +14,7 @@ export default {
 	data() {
 		return {
 			loggedIn: false,
+			user: null
 		}
 	},
 
@@ -28,9 +29,10 @@ export default {
 <template>
 
 	<h1>Transcendence (lol) !</h1>
+	<p v-if="user != null">You are logged as {{ user.username }}</p>
 	
 	<div v-if="!loggedIn">
-		<loginPage @loggedIn="loggedIn = true"></loginPage>
+		<loginPage @loggedIn="loggedUser => {loggedIn = true; user = loggedUser}"></loginPage>
 	</div>
 
 	<div v-else>

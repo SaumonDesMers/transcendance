@@ -5,20 +5,40 @@ export default {
 	data() {
 		return {
 			connectionErrorMsg: '',
-			url: 'http://localhost:3001/auth/login'
+			jwt: ''
 		}
 	},
 
 	methods: {
 		login() {
-			window.location.href = this.url
+			window.location.href = 'http://localhost:3001/auth/login'
 		},
+		getJwt() {
+			let uri = window.location.search.substring(1);
+			let params = new URLSearchParams(uri);
+			this.jwt = params.get("code");
+		},
+		requestUserWithJwt() {
+			axios.get('http://localhost:3001/auth/profile', {
+				headers: {
+					Authorization : `Bearer ${this.jwt}`
+				}
+			})
+			.then(res => {
+				this.$emit('loggedIn', res.data);
+			})
+			.catch(err => {
+				this.jwt = '';
+			})
+		}
 	},
 
 	emits: ['loggedIn'],
 
 	mounted() {
-		console.log(window.location.search)
+		this.getJwt();
+		if (this.jwt)
+			this.requestUserWithJwt();
 	},
 
 	created() {}
