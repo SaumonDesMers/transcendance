@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma, PrismaClient, User } from "@prisma/client";
-import { UserBisRepository } from "./userBis.repository";
+import { UserRepository } from "./User.repository";
 
 @Injectable()
-export class UserBisService {
-	constructor(private repository: UserBisRepository) {}
+export class UserService {
+	constructor(private repository: UserRepository) {}
 
 	async createUser(params: {email: User['email'];
 	password: User['password']; username: User['username']}){

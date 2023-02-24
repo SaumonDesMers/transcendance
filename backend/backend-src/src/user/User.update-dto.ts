@@ -1,6 +1,6 @@
 import { IsDefined, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
-export class UpdateUserBisDto
+export class UpdateUserDto
 {
 	@IsString()
 	@IsOptional()
