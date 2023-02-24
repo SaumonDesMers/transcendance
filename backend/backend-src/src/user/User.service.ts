@@ -3,6 +3,7 @@ import { Prisma, PrismaClient, User } from "@prisma/client";
 import { UserWithProfile } from "./User.module";
 import { UserRepository } from "./User.repository";
 import { CreateUserDto } from "./User.create-dto";
+import { UpdateUserDto } from "./User.update-dto";
 
 @Injectable()
 export class UserService {
@@ -36,7 +37,7 @@ export class UserService {
 		return user;
 	}
 
-	async updateUser(id : User['id'], data: Prisma.UserUpdateInput) : Promise<User>
+	async updateUser(id : User['id'], data: UpdateUserDto) : Promise<User>
 	{
 
 		const user = await this.repository.updateUser({
