@@ -1,9 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { Prisma, User } from "@prisma/client";
+import { Prisma, User, Profile } from "@prisma/client";
 import { PrismaService } from "src/database/prisma.service";
+import { UserWithProfile } from "./User.module";
+
+const userProfile = Prisma.validator<Prisma.UserInclude>()({ profile:true })
 
 @Injectable()
-export class UserBisRepository {
+export class UserRepository {
 	constructor(private prisma: PrismaService) {}
 
 	async createUser(params: { data: Prisma.UserCreateInput }): Promise<User> {
@@ -23,9 +26,17 @@ export class UserBisRepository {
 	}
 
 	async getSingleUser(params: Prisma.UserWhereUniqueInput) : Promise<User> {
-		return this.prisma.user.findUniqueOrThrow(
-			{where: params}
+		return this.prisma.user.findUniqueOrThrow({
+				where: params
+			}
 		);
+	}
+
+	async getSingleUserWithProfile(params: Prisma.UserWhereUniqueInput) : Promise<UserWithProfile> {
+		return this.prisma.user.findUniqueOrThrow({
+			where:params,
+			include: userProfile
+		});
 	}
 
 	async updateUser(params: {

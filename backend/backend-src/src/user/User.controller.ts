@@ -10,16 +10,16 @@ import { Body,
 		Delete} from "@nestjs/common";
 import { Prisma, User } from "@prisma/client";
 import { isNumberObject, isStringObject } from "util/types";
-import { UserBisService } from "./userBis.service";
-import { UserEntity } from "./userBis.entity";
+import { UserService } from "./User.service";
+import { UserEntity } from "./User.entity";
 import { ApiTags, ApiCreatedResponse, ApiOkResponse } from "@nestjs/swagger";
-import { CreateUserBisDto } from "./userBis.create-dto";
-import { UpdateUserBisDto } from "./userBis.update-dto";
+import { CreateUserDto } from "./User.create-dto";
+import { UpdateUserDto } from "./User.update-dto";
 
-@Controller('userBis')
-@ApiTags('UserBis')
-export class UserBisController {
-	constructor(private userBisService: UserBisService) {}
+@Controller('user')
+@ApiTags('User')
+export class UserController {
+	constructor(private userBisService: UserService) {}
 
 	@Get()
 	@ApiOkResponse({type: UserEntity, isArray: true})
@@ -29,25 +29,25 @@ export class UserBisController {
 
 	@Post()
 	@ApiOkResponse({type: UserEntity})
-	createUser(@Body() UserCreate: CreateUserBisDto) : Promise<User> {
+	createUser(@Body() UserCreate: CreateUserDto) : Promise<User> {
 		return this.userBisService.createUser(UserCreate);
 	}
 
 	@Get(':id')
 	@ApiOkResponse({type: UserEntity})
 	getOneUser(@Param('id', ParseIntPipe) id: number): Promise<User> {
-		return this.userBisService.getOneUser({id});
+		return this.userBisService.getOneUser(id);
 	}
 
 	@Put(':id')
 	@ApiOkResponse({type: UserEntity})
-	async replaceUser(@Param('id', ParseIntPipe) id: number, @Body() UserUpdate: CreateUserBisDto) : Promise<User> {
+	async replaceUser(@Param('id', ParseIntPipe) id: number, @Body() UserUpdate: CreateUserDto) : Promise<User> {
 		return this.userBisService.updateUser(id, UserUpdate);
 	}
 
 	@Patch(':id')
 	@ApiOkResponse({type: UserEntity})
-	async updateUser(@Param('id', ParseIntPipe) id: number, @Body() UserUpdate: UpdateUserBisDto) {
+	async updateUser(@Param('id', ParseIntPipe) id: number, @Body() UserUpdate: UpdateUserDto) {
 		return this.userBisService.updateUser(id, UserUpdate);
 	}
 
