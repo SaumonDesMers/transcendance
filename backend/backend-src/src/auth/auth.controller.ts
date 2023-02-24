@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { FortyTwoAuthGuard } from './fortytwo/fortytwo.guard';
@@ -28,7 +28,11 @@ export class AuthController {
 
 	@Get('profile')
 	getProfile(@Req() req: any) {
-		console.log('user =', req.user)
 		return this.authService.getUser(req.user.id);
+	}
+
+	@Post('register')
+	register(@Body() body: any) {
+		
 	}
 }
