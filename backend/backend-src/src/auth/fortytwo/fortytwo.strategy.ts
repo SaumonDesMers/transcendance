@@ -19,11 +19,10 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy) {
 
 	async validate(accessToken, refreshToken, ft_profile, cb): Promise<any> {
 		// console.log('validate:', accessToken, refreshToken)
-		// let user: any = this.authService.findOrCreateUser(ft_profile);
-		// return user;
-		return {
+		let user: any = this.authService.findOrCreateUser({
 			username: ft_profile.username,
-			id: ft_profile.id
-		};
+			id: +ft_profile.id,
+		});
+		return user;
 	}
 }

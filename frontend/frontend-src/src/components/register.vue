@@ -4,11 +4,15 @@ import axios from 'axios'
 export default {
 	data() {
 		return {
-			
+			username: ''
 		}
 	},
 
-	methods: {},
+	methods: {
+		register() {
+			axios.post()
+		}
+	},
 
 	mounted() {},
 
@@ -17,7 +21,8 @@ export default {
 </script>
 
 <template>
-	
+	<input v-model="username">
+	<button>Submit</button>
 </template>
 
 <style scoped>
