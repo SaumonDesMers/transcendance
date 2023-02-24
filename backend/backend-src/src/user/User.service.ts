@@ -1,21 +1,18 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma, PrismaClient, User } from "@prisma/client";
+import { UserWithProfile } from "./User.module";
 import { UserRepository } from "./User.repository";
+import { CreateUserDto } from "./User.create-dto";
 
 @Injectable()
 export class UserService {
 	constructor(private repository: UserRepository) {}
 
-	async createUser(params: {email: User['email'];
-	password: User['password']; username: User['username']}){
-		const { email, password, username } = params;
+	async createUser(params: {createDto: CreateUserDto}){
+		const { createDto } = params;
 
 		const user = await this.repository.createUser({
-			data: {
-				username,
-				password,
-				email
-			}
+			data: createDto
 		});
 
 		return user;
@@ -27,24 +24,18 @@ export class UserService {
 		return users;
 	}
 
-	async getOneUser(params: Prisma.UserWhereUniqueInput) : Promise<User>
+	async getOneUser(id: User['id']) : Promise<User>
 	{
-		const user = await this.repository.getSingleUser(params);
-
+		const user = await this.repository.getSingleUser({id});
 		return user;
 	}
 
-	// async getUserByEmail(params: {email: User['email']})
-	// {
-	// 	const { email } = params;
-	// 	const user = await this.repository.getUsers({
-	// 		where: {
-	// 			email: email,
-	// 		},
-	// 	});
+	async getOneUserWithProfile(id: User['id']) : Promise<UserWithProfile>
+	{
+		const user = await this.repository.getSingleUserWithProfile({id});
 
-	// 	return user;
-	// }
+		return user;
+	}
 
 	async updateUser(id : User['id'], data: Prisma.UserUpdateInput) : Promise<User>
 	{
