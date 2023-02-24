@@ -36,7 +36,7 @@ export class UserController {
 	@Get(':id')
 	@ApiOkResponse({type: UserEntity})
 	getOneUser(@Param('id', ParseIntPipe) id: number): Promise<User> {
-		return this.userBisService.getOneUser({id});
+		return this.userBisService.getOneUser(id);
 	}
 
 	@Put(':id')

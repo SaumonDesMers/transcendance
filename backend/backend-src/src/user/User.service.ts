@@ -8,8 +8,7 @@ import { CreateUserDto } from "./User.create-dto";
 export class UserService {
 	constructor(private repository: UserRepository) {}
 
-	async createUser(params: {createDto: CreateUserDto}){
-		const { createDto } = params;
+	async createUser(createDto: CreateUserDto){
 
 		const user = await this.repository.createUser({
 			data: createDto
