@@ -3,11 +3,14 @@ import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { FortyTwoAuthGuard } from './fortytwo/fortytwo.guard';
 import { JwtAuthGuard } from './jwt/jwt.guard';
+import { Public } from './public.decorator';
+import { HttpStatus } from '@nestjs/common';
 
 @Controller('auth')
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
+	@Public()
 	@UseGuards(FortyTwoAuthGuard)
 	@Get('login')
 	login(@Req() req: any, @Res() response: Response) {
@@ -23,9 +26,9 @@ export class AuthController {
 		response.status(302).redirect(url.href);
 	}
 
-	@UseGuards(JwtAuthGuard)
 	@Get('profile')
 	getProfile(@Req() req: any) {
-		return req.user;
+		console.log('user =', req.user)
+		return this.authService.getUser(req.user.id);
 	}
 }

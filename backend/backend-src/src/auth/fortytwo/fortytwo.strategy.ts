@@ -17,8 +17,13 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy) {
 		});
 	}
 
-	async validate(accessToken, refreshToken, profile, cb): Promise<any> {
+	async validate(accessToken, refreshToken, ft_profile, cb): Promise<any> {
 		// console.log('validate:', accessToken, refreshToken)
-		return profile
+		// let user: any = this.authService.findOrCreateUser(ft_profile);
+		// return user;
+		return {
+			username: ft_profile.username,
+			id: ft_profile.id
+		};
 	}
 }
