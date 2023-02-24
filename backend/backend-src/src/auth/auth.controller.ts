@@ -13,10 +13,10 @@ export class AuthController {
 	@Public()
 	@UseGuards(FortyTwoAuthGuard)
 	@Get('login')
-	login(@Req() req: any, @Res() response: Response) {
-		console.log('GET auth/login from', req.user.username)
+	async login(@Req() req: any, @Res() response: Response) {
+		console.log(req.user.username, 'connected with 42')
 
-		const jwt: string = this.authService.generateJWT(req.user)
+		const jwt: string = await this.authService.generateJWT(req.user)
 
 		// see URL type
 		const url = new URL(`${req.protocol}:${req.hostname}`);
@@ -27,12 +27,12 @@ export class AuthController {
 	}
 
 	@Get('profile')
-	getProfile(@Req() req: any) {
+	async getProfile(@Req() req: any) {
 		return this.authService.getUser(req.user.id);
 	}
 
 	@Post('register')
-	register(@Body() body: any) {
-		
+	async register(@Body() body: any) {
+
 	}
 }

@@ -1,6 +1,8 @@
-import { Injectable } from "@nestjs/common";
-import { UserService } from "../user/user.service";
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { UserService } from "../user/User.service";
 import { JwtService } from "@nestjs/jwt"
+import { CreateUserDto } from "src/user/User.create-dto";
+import { NotFoundError } from "rxjs";
 
 @Injectable()
 export class AuthService {
@@ -9,30 +11,29 @@ export class AuthService {
 		private readonly jwtService: JwtService
 	) {}
 
-	generateJWT(user: any): string {
+	async generateJWT(user: any): Promise<string> {
 		const payload = { username: user.username, sub: user.id };
 		return this.jwtService.sign(payload)
 	}
 
-	findOrCreateUser(ft_profile: any): any {
+	async findOrCreateUser(userDto: CreateUserDto): Promise<any> {
 		let user: any = null;
-		// try {
-		// 	user = this.userService.getOneUser(ft_profile.id);
-		// } catch {
-		// 	user = this.userService.createUser({
-		// 		username: ft_profile.username,
-		// 		id: ft_profile.id
-		// 	});
-		// }
-		// return user;
-		return {
-			username: ft_profile.username,
-			id: ft_profile.id
-		};
+		try {
+			user = await this.userService.getOneUser(userDto.id);
+		} catch {
+			user = this.userService.createUser(userDto);
+		}
+		return user;
 	}
 
-	getUser(userId: number): any {
-		// return this.userService.getOneUser(userId);
+	async getUser(userId: number): Promise<any> {
+		let user: any = null;
+		try {
+			user = await this.userService.getOneUser(userId);
+		} catch {
+			throw new NotFoundException()
+		}
+		return user;
 	}
 	
 }

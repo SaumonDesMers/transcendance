@@ -4,7 +4,7 @@ import axios from 'axios'
 export default {
 	data() {
 		return {
-			connectionErrorMsg: '',
+			errorMsg: '',
 			jwt: ''
 		}
 	},
@@ -29,6 +29,7 @@ export default {
 			})
 			.catch(err => {
 				this.jwt = '';
+				this.errorMsg = err.message;
 			})
 		}
 	},
@@ -49,7 +50,7 @@ export default {
 	<div>
 		<div>
 			<button type="submit" @click="login">Log in</button>
-			<small class="error">{{ connectionErrorMsg }}</small>
+			<small class="error">{{ errorMsg }}</small>
 		</div>
 	</div>
 </template>
