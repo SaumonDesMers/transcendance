@@ -8,6 +8,7 @@ import { ProfileModule } from './profile/Profile.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/jwt/jwt.guard';
+import { GameModule } from './game/game.module';
 
 @Module({
 	imports: [
@@ -19,6 +20,7 @@ import { JwtAuthGuard } from './auth/jwt/jwt.guard';
 		}),
 		UserModule,
 		ProfileModule,
+		GameModule,
 	],
 	controllers: [AppController],
 	providers: [

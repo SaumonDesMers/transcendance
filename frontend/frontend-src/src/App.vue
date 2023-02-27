@@ -3,12 +3,14 @@ import axios from 'axios'
 import io from "socket.io-client"
 import loginPage from './components/login.vue'
 import chat from './components/chat.vue'
+import game from './components/game.vue'
 
 export default {
 
 	components: {
 		loginPage,
-		chat
+		chat,
+		game
 	},
 
 	data() {
@@ -37,6 +39,7 @@ export default {
 
 	<div v-else>
 		<chat></chat>
+		<game></game>
 	</div>
 
 </template>
