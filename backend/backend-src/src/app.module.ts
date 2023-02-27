@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/User.module';
-import { ChatModule } from './chat/chat.module';
+import { OldChatModule } from './chat/old.chat.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/jwt/jwt.guard';
@@ -11,7 +11,7 @@ import { GameModule } from './game/game.module';
 
 @Module({
 	imports: [
-		ChatModule,
+		OldChatModule,
 		AuthModule,
 		ConfigModule.forRoot({
 			envFilePath: ['.env', '.env.ft_app'],
