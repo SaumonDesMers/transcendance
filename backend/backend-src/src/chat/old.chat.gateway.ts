@@ -12,7 +12,7 @@ import { Server } from 'socket.io'
 @WebSocketGateway({
 	cors: true,
 })
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
+export class OldChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
 
 	@WebSocketServer()
 	server: Server;
