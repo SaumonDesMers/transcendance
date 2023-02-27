@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/User.module';
 import { ChatModule } from './chat/chat.module';
+import { ProfileModule } from './profile/Profile.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/jwt/jwt.guard';
@@ -17,6 +18,7 @@ import { JwtAuthGuard } from './auth/jwt/jwt.guard';
 			isGlobal: true
 		}),
 		UserModule,
+		ProfileModule,
 	],
 	controllers: [AppController],
 	providers: [
