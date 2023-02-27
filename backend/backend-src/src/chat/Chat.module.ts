@@ -14,6 +14,12 @@ export type MessageWithAuthor = Prisma.MessageGetPayload<typeof messageWithAutho
 export type MessageWithChannel = Prisma.MessageGetPayload<typeof messageWithChannel>;
 export type MessageWithAll = Prisma.MessageGetPayload<typeof messageWithChannel & typeof messageWithAuthor>;
 
+const dmChannelWithBase = Prisma.validator<Prisma.DMChannelArgs>()({include:{channel: true}});
+const groupChannelWithBase = Prisma.validator<Prisma.GroupChannelArgs>()({include:{channel: true}});
+export type DMChannelWithBase = Prisma.DMChannelGetPayload<typeof dmChannelWithBase>;
+export type GroupChannelWithBase = Prisma.GroupChannelGetPayload<typeof groupChannelWithBase>;
+
+
 @Module({
 	imports: [PrismaModule],
 	providers: [MessageRepository],
