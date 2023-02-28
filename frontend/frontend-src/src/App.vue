@@ -20,7 +20,8 @@ export default {
 		}
 	},
 
-	methods: {},
+	methods: {
+	},
 
 	mounted() {},
 

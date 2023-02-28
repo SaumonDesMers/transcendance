@@ -26,6 +26,7 @@ export default {
 			})
 			.then(res => {
 				this.$emit('loggedIn', res.data);
+				axios.defaults.headers.common['Authorization'] = `Bearer ${this.jwt}`;
 			})
 			.catch(err => {
 				this.jwt = '';

@@ -22,7 +22,7 @@ export default {
 			this.socket = io('http://localhost:3001/game', {
 				autoConnect: false,
 				extraHeaders: {
-					Authorization: 'Bearer '
+					authorization: 'Bearer '
 				}
 			});
 			
