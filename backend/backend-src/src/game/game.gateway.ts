@@ -6,7 +6,9 @@ import {
 	OnGatewayDisconnect,
 	OnGatewayInit,
 	MessageBody,
+	ConnectedSocket,
 } from '@nestjs/websockets';
+import { Socket } from 'net';
 import { Server } from 'socket.io'
 import { GameService } from './game.service';
 
@@ -29,6 +31,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
 	async handleConnection(socket: any) {
 		this.server.emit('event', 'connected');
+		console.log(socket.handshake)
 	}
 
 	async handleDisconnect(socket: any) {
