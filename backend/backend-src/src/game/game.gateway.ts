@@ -31,7 +31,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
 	async handleConnection(socket: any) {
 		this.server.emit('event', 'connected');
-		console.log(socket.handshake)
+		console.log(socket.handshake.headers)
 	}
 
 	async handleDisconnect(socket: any) {

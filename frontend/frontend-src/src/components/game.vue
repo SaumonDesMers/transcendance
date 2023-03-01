@@ -12,10 +12,6 @@ export default {
 		}
 	},
 
-	props: {
-		jwt: String
-	},
-
 	methods: {
 
 		connectToGameGateway() {
@@ -26,8 +22,7 @@ export default {
 			this.socket = io('http://localhost:3001/game', {
 				autoConnect: false,
 				extraHeaders: {
-					// authorization: `Bearer ${this.jwt}`
-					authorization: `Bearer `
+					authorization: `Bearer ${localStorage.jwt}`
 				}
 			});
 			
