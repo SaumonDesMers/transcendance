@@ -16,11 +16,15 @@ export default {
 	data() {
 		return {
 			loggedIn: false,
-			user: null
+			user: null,
 		}
 	},
 
 	methods: {
+		onLogin(user) {
+			this.loggedIn = true;
+			this.user = user;
+		}
 	},
 
 	mounted() {},
@@ -35,7 +39,7 @@ export default {
 	<p v-if="user != null">You are logged as {{ user.username }}</p>
 	
 	<div v-if="!loggedIn">
-		<loginPage @loggedIn="loggedUser => {loggedIn = true; user = loggedUser}"></loginPage>
+		<loginPage @loggedIn="user => onLogin(user)"></loginPage>
 	</div>
 
 	<div v-else>

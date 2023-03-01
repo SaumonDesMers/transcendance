@@ -12,6 +12,10 @@ export default {
 		}
 	},
 
+	props: {
+		jwt: String
+	},
+
 	methods: {
 
 		connectToGameGateway() {
@@ -22,12 +26,13 @@ export default {
 			this.socket = io('http://localhost:3001/game', {
 				autoConnect: false,
 				extraHeaders: {
-					authorization: 'Bearer '
+					// authorization: `Bearer ${this.jwt}`
+					authorization: `Bearer `
 				}
 			});
 			
 			this.socket.on('connect', () => {
-				console.log("Successfully connected to the game websocket server...")
+				console.log("Successfull connected to the game websocket server...")
 			});
 			
 			this.socket.on('disconnect', function(reason) {
@@ -62,8 +67,9 @@ export default {
 		},
 	},
 
-	mounted() {},
-
+	mounted() {
+	},
+	
 	created() {
 		this.initSocket();
 		this.connectToGameGateway();

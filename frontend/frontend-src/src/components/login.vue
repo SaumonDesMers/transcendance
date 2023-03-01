@@ -5,7 +5,6 @@ export default {
 	data() {
 		return {
 			errorMsg: '',
-			jwt: ''
 		}
 	},
 
@@ -16,20 +15,20 @@ export default {
 		getJwt() {
 			let uri = window.location.search.substring(1);
 			let params = new URLSearchParams(uri);
-			this.jwt = params.get("code");
+			return params.get("code");
 		},
-		requestUserWithJwt() {
+		requestUserWithJwt(jwt) {
 			axios.get('http://localhost:3001/auth/profile', {
 				headers: {
-					Authorization : `Bearer ${this.jwt}`
+					Authorization : `Bearer ${jwt}`
 				}
 			})
 			.then(res => {
 				this.$emit('loggedIn', res.data);
-				axios.defaults.headers.common['Authorization'] = `Bearer ${this.jwt}`;
+				localStorage.jwt = jwt;
+				axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 			})
 			.catch(err => {
-				this.jwt = '';
 				this.errorMsg = err.message;
 			})
 		}
@@ -38,9 +37,9 @@ export default {
 	emits: ['loggedIn'],
 
 	mounted() {
-		this.getJwt();
-		if (this.jwt)
-			this.requestUserWithJwt();
+		let jwt = this.getJwt();
+		if (jwt)
+			this.requestUserWithJwt(jwt);
 	},
 
 	created() {}
