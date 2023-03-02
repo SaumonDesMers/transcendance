@@ -15,6 +15,7 @@ const includeGroupChannel = Prisma.validator<Prisma.GroupChannelInclude>()({chan
 type AllDMChannels = DMChannelWithBase | DMChannelWithMembers;
 type AllGroupChannels = GroupChannelWithBase | GroupChannelWithMembers;
 
+//go see the comments in message.repository
 export class ChannelRepository {
 	constructor(private prisma: PrismaService) {}
 

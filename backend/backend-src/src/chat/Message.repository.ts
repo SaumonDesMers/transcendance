@@ -5,6 +5,13 @@ import { MessageWithAll, MessageWithAuthor, MessageWithChannel } from "./Chat.mo
 
 type AllMessagesTypes = Message | MessageWithAll | MessageWithAuthor | MessageWithChannel;
 
+
+//I dont know how to type all these wrapper functions
+//i'd like to find a way to strongly type them in a genereic/templatey way
+//but that seems impossible/too complex for me
+//so i'm jutse letting the types infer automatically
+//another option would be to decide at this layer what the includes will be and then strongly type in a not
+//generic/templatey way my functions but i dont like this
 export class MessageRepository {
 	constructor(private prisma: PrismaService) {}
 
