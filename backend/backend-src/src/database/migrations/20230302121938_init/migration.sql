@@ -7,14 +7,6 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
-CREATE TABLE "Profile" (
-    "userId" INTEGER NOT NULL,
-    "username" TEXT NOT NULL,
-
-    CONSTRAINT "Profile_pkey" PRIMARY KEY ("userId")
-);
-
--- CreateTable
 CREATE TABLE "ChatUser" (
     "userId" INTEGER NOT NULL,
 
@@ -68,9 +60,6 @@ CREATE UNIQUE INDEX "_ChannelToChatUser_AB_unique" ON "_ChannelToChatUser"("A", 
 
 -- CreateIndex
 CREATE INDEX "_ChannelToChatUser_B_index" ON "_ChannelToChatUser"("B");
-
--- AddForeignKey
-ALTER TABLE "Profile" ADD CONSTRAINT "Profile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ChatUser" ADD CONSTRAINT "ChatUser_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
