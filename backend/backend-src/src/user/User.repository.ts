@@ -3,8 +3,6 @@ import { Prisma, User, Profile } from "@prisma/client";
 import { PrismaService } from "src/database/prisma.service";
 import { UserWithProfile } from "./User.module";
 
-const userProfile = Prisma.validator<Prisma.UserInclude>()({ profile:true })
-
 @Injectable()
 export class UserRepository {
 	constructor(private prisma: PrismaService) {}
@@ -32,10 +30,9 @@ export class UserRepository {
 		);
 	}
 
-	async getSingleUserWithProfile(params: Prisma.UserWhereUniqueInput) : Promise<UserWithProfile> {
+	async getSingleUserWithProfile(params: Prisma.UserWhereUniqueInput) : Promise<User> {
 		return this.prisma.user.findUniqueOrThrow({
 			where:params,
-			include: userProfile
 		});
 	}
 
