@@ -13,13 +13,11 @@ datasource db {
 model User {
 	id Int	@id
 	username String @unique
-
 	profile Profile?
 	chatUser ChatUser?
 }
 
 model Profile {
-	userId Int @id
 	userId Int @id
 	user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 	
