@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma, PrismaClient, User } from "@prisma/client";
-import { UserWithProfile } from "./User.module";
 import { UserRepository } from "./User.repository";
 import { CreateUserDto } from "./User.create-dto";
 import { UpdateUserDto } from "./User.update-dto";
+
 
 @Injectable()
 export class UserService {
@@ -30,7 +30,7 @@ export class UserService {
 		return user;
 	}
 
-	async getOneUserWithProfile(id: User['id']) : Promise<UserWithProfile>
+	async getOneUserWithProfile(id: User['id']) : Promise<User>
 	{
 		const user = await this.repository.getSingleUserWithProfile({id});
 

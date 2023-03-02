@@ -18,5 +18,10 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "watchOptions": {
+    "excludeFiles": ["**/chat/*"]
+  },
+  "include": ["**/src/*"],
+  "exclude": ["**/chat/*"],
 }

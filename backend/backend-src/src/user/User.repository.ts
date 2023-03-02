@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { Prisma, User, Profile } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import { PrismaService } from "src/database/prisma.service";
-import { UserWithProfile } from "./User.module";
 
 @Injectable()
 export class UserRepository {
@@ -12,6 +11,7 @@ export class UserRepository {
 		return this.prisma.user.create({ data });
 	}
 
+	
 	async getUsers(params: {
 		skip?: number;
 		take?: number;
