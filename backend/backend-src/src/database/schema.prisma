@@ -16,13 +16,6 @@ model User {
 	chatUser ChatUser?
 }
 
-model Profile {
-	userId Int @id
-	user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-	
-	username String
-}
-
 model ChatUser {
 	userId Int @id
 	user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
