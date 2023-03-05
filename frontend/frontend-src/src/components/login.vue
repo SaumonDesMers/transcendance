@@ -86,13 +86,11 @@ $blue-grey: #3F4C5C;
 
 html,
 body {
-	background: $white;
 	display: flex;
 	flex-direction: columns;
 	width: 100vw;
 	height: 100vh;
 	align-items: center;
-	justify-content: center;
 	font-size: 16px;
 	font-family: "Roboto Mono", sans-serif;
 	text-rendering: optimizeLegibility;

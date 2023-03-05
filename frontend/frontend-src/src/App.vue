@@ -5,7 +5,7 @@ import loginPage from './components/login.vue'
 import chat from './components/chat.vue'
 import game from './components/game.vue'
 import register from './components/register.vue'
-
+import mainPage from './components/mainPage.vue'
 
 export default {
 
@@ -14,6 +14,7 @@ export default {
 		chat,
 		game,
 		register,
+		mainPage,
 	},
 
 	data() {
@@ -43,7 +44,8 @@ export default {
 		<loginPage @loggedIn="user => onLogin(user)"></loginPage>
 	</div>
 	<div v-else> -->
-		<register></register>
+		<!-- <register></register> -->
+		<mainPage></mainPage>
 		<!-- <chat></chat> -->
 		<!-- <game></game> -->
 	<!-- </div> -->
