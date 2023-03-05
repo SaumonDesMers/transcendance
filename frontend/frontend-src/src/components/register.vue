@@ -117,7 +117,7 @@ export default {
 							width="100%" /></span></form>
 				<div :class="[isDark ? 'btn dark' : 'btn blue']">
 					<label for="files" ref="onFileChange"><span>Avatar</span></label>
-					<input id="files" width="100%" type="file" style="visibility:hidden; height: 0;"/>
+					<input id="files" width="100%" type="file" style="visibility:hidden; height: 0;" />
 				</div>
 			</div>
 			<div style="display: flex; justify-content: space-between; gap: 4px">
@@ -173,6 +173,9 @@ export default {
 						</path>
 					</svg>
 				</button>
+			</div>
+			<div class="actions-content">
+				<div :class="[isDark ? 'btn dark' : 'btn dark']"><span>Save and submit</span></div>
 			</div>
 		</div>
 	</div>
