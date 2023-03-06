@@ -15,19 +15,20 @@ export default {
 	methods: {
 
 		connectToGameGateway() {
+			this.socket.io.opts.extraHeaders = {
+				authorization: `Bearer ${localStorage.jwt}`
+			};
+			console.log(this.socket.io.opts.extraHeaders);
 			this.socket.connect();
 		},
 
 		initSocket() {
 			this.socket = io('http://localhost:3001/game', {
-				autoConnect: false,
-				extraHeaders: {
-					authorization: `Bearer ${localStorage.jwt}`
-				}
+				autoConnect: false
 			});
 			
 			this.socket.on('connect', () => {
-				console.log("Successfull connected to the game websocket server...")
+				console.log("Successfully connected to the game websocket server...")
 			});
 			
 			this.socket.on('disconnect', function(reason) {

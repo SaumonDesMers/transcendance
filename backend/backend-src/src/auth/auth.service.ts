@@ -16,6 +16,10 @@ export class AuthService {
 		return this.jwtService.sign(payload)
 	}
 
+	async verifyJWT(jwt: string): Promise<any> {
+		return this.jwtService.verify(jwt);
+	}
+
 	async findOrCreateUser(userDto: CreateUserDto): Promise<any> {
 		let user: any = null;
 		try {
