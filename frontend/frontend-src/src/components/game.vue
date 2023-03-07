@@ -49,12 +49,12 @@ export default {
 		joinQueue() {
 			this.socket.emit('queue', 'join');
 			if (this.state == 'none')
-				this.state = 'inQueue';
+				this.state = 'queue';
 		},
 
 		leaveQueue() {
 			this.socket.emit('queue', 'leave');
-			if (this.state == 'inQueue')
+			if (this.state == 'queue')
 				this.state = 'none';
 		},
 
@@ -85,7 +85,7 @@ export default {
 		<div v-if="state == 'none'">
 			<button @click="joinQueue">Play !</button>
 		</div>
-		<div v-else-if="state == 'inQueue'">
+		<div v-else-if="state == 'queue'">
 			<p>Waiting for another player...</p>
 			<button @click="leaveQueue">Leave queue</button>
 		</div>
