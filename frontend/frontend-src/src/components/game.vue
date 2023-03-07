@@ -47,15 +47,19 @@ export default {
 		},
 
 		joinQueue() {
-			this.socket.emit('queue', 'join');
-			if (this.state == 'none')
-				this.state = 'queue';
+			this.socket.emit('queue', 'joi', res => {
+				if (res != 'error') {
+					this.state = 'queue';
+				}
+			});
 		},
 
 		leaveQueue() {
-			this.socket.emit('queue', 'leave');
-			if (this.state == 'queue')
-				this.state = 'none';
+			this.socket.emit('queue', 'leave', res => {
+				if (res != 'error') {
+					this.state = 'none';
+				}
+			});
 		},
 
 		onGameUpdate(event) {
@@ -69,6 +73,15 @@ export default {
 	created() {
 		this.initSocket();
 		this.connectToGameGateway();
+
+		window.addEventListener('keydown', e => {
+			// console.log('key:', e.key);
+			if (e.key == 'ArrowUp') {
+				this.socket.emit('input', 'up');
+			} else if (e.key == 'ArrowDown') {
+				this.socket.emit('input', 'down');
+			}
+		})
 	}
 }
 </script>
