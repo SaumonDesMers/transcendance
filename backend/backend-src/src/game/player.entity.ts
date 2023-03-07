@@ -4,15 +4,17 @@ export class PlayerEntity {
 
 	id: number
 	state: string = 'none'
-	sockets: Array<any> = []
+	socket: any
 	game: GameEntity | null = null
 
-	constructor(userId: number) {
-		this.id = userId;
+	constructor(socket: any) {
+		this.id = socket.userId;
+		this.socket = socket;
 	}
 
 	joinGame(game: GameEntity) {
 		if (this.state != 'game') {
+			this.socket.join(game.UID);
 			this.game = game;
 			this.state = 'game';
 		} else {
@@ -22,6 +24,8 @@ export class PlayerEntity {
 
 	leaveGame() {
 		if (this.state == 'game') {
+			this.socket.leave(this.game.UID);
+			this.game = null;
 			this.state = 'none';
 		} else {
 			throw new Error('Player cannot leave game (he is not part of one)');
@@ -31,8 +35,7 @@ export class PlayerEntity {
 	log() {
 		console.log(
 			'{ id: ' + this.id
-			+ ', state: ' + this.state
-			+ ', sockets_nb: ' + this.sockets.length + ' }'
+			+ ', state: ' + this.state + ' }'
 		)
 	}
 
