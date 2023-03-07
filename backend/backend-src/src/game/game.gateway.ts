@@ -7,6 +7,7 @@ import {
 	OnGatewayInit,
 	MessageBody,
 	ConnectedSocket,
+	WsException,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io'
 import { AuthService } from 'src/auth/auth.service';
@@ -37,6 +38,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 			payload = await this.authService.verifyJWT(jwt.split(' ')[1]);
 		} catch {
 			console.log('Error: game.gateway: jwt =', jwt);
+			// throw new WsException('Invalid credentials.')
 			socket.disconnect();
 		}
 
@@ -49,15 +51,23 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
 	async handleDisconnect(socket: any) {
 		console.log(socket.userId, ': disconnect');
-		this.gameService.disconnection(socket);
+		await this.gameService.disconnection(socket);
 	}
 
 	@SubscribeMessage('queue')
-	async onMessage(
+	async onQueue(
 		@MessageBody() body: any,
 		@ConnectedSocket() socket: any	
 	) {
 		console.log(socket.userId, ': queue :', body);
-		this.gameService.updateQueue(socket, body)
+		return await this.gameService.updateQueue(socket, body);
+	}
+
+	@SubscribeMessage('input')
+	async onInput(
+		@MessageBody() body: any,
+		@ConnectedSocket() socket: any	
+	) {
+		console.log(socket.userId, ': input :', body);
 	}
 }

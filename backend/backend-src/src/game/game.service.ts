@@ -1,38 +1,31 @@
 import { Injectable } from "@nestjs/common";
 import { PlayerEntity } from "./player.entity"
 import { GameEntity } from "./game.entity"
+import { WsException } from "@nestjs/websockets";
 
 @Injectable()
 export class GameService {
-	onlineUser = new Map<number, PlayerEntity>();
+	onlineUser = new WeakMap<any, PlayerEntity>();
 	queue = new Array<PlayerEntity>();
 	games = new Array<GameEntity>();
 
 	async connection(socket: any) {
-		let user = this.onlineUser.get(socket.userId);
-
-		if (user === undefined) {
-			// create user in onlineUser
-			this.onlineUser.set(socket.userId, new PlayerEntity(socket.userId));
-			user = this.onlineUser.get(socket.userId);
-		}
-		user.sockets.push(socket);
-		user.log()
+		this.onlineUser.set(socket, new PlayerEntity(socket));
 	}
 
 	async disconnection(socket: any) {
-		let user = this.onlineUser.get(socket.userId);
+		let user = this.onlineUser.get(socket);
 		if (user.state == 'game') {
 			// wait some time before delete to let him reconnect
-			this.onlineUser.delete(socket.userId);
+			this.onlineUser.delete(socket);
 		} else {
-			this.onlineUser.delete(socket.userId);
+			this.onlineUser.delete(socket);
 		}
 		user.log()
 	}
 
-	async updateQueue(socket: any, msg: string) {
-		let user = this.onlineUser.get(socket.userId);
+	async updateQueue(socket: any, msg: string): Promise<string> {
+		let user = this.onlineUser.get(socket);
 
 		if (msg == 'join' && user.state == 'none') {
 			if (this.queue.length > 0) {
@@ -44,16 +37,19 @@ export class GameService {
 		} else if (msg == 'leave' && user.state == 'queue') {
 			this.queue = this.queue.filter(u => u != user);
 			user.state = 'none';
+		} else {
+			return 'error';
 		}
 		this.logQueue()
-	}
-
-	async createGame(player_1: PlayerEntity, player_2: PlayerEntity) {
-		this.games.push(new GameEntity(player_1, player_2));
+		return msg;
 	}
 
 	logQueue() {
 		console.log(`Game queue (${this.queue.length} elements):`)
 		this.queue.forEach(u => u.log());
+	}
+
+	async createGame(player_1: PlayerEntity, player_2: PlayerEntity) {
+		this.games.push(new GameEntity(player_1, player_2));
 	}
 }
