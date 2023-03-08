@@ -12,6 +12,7 @@ import {
 import { Server } from 'socket.io'
 import { AuthService } from 'src/auth/auth.service';
 import { GameService } from './game.service';
+import { BroadcastService } from './broadcast.service'
 
 @WebSocketGateway({
 	namespace: 'game',
@@ -19,15 +20,18 @@ import { GameService } from './game.service';
 })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
 
-	constructor(
-		private readonly gameService: GameService,
-		private readonly authService: AuthService
-	) {}
-
 	@WebSocketServer()
 	server: Server;
 
-	async afterInit() {}
+	constructor(
+		private readonly gameService: GameService,
+		private readonly authService: AuthService,
+		private readonly broadcastService: BroadcastService,
+	) {}
+
+	async afterInit() {
+		this.broadcastService.server = this.server;
+	}
 
 	async handleConnection(socket: any) {
 

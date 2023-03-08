@@ -2,12 +2,19 @@ import { Injectable } from "@nestjs/common";
 import { PlayerEntity } from "./player.entity"
 import { GameEntity } from "./game.entity"
 import { WsException } from "@nestjs/websockets";
+import { Server } from 'socket.io'
+import { BroadcastService } from './broadcast.service'
 
 @Injectable()
 export class GameService {
+
 	onlineUser = new WeakMap<any, PlayerEntity>();
 	queue = new Array<PlayerEntity>();
 	games = new Array<GameEntity>();
+
+	constructor(
+		private readonly broadcastService: BroadcastService,
+	) {}
 
 	async connection(socket: any) {
 		this.onlineUser.set(socket, new PlayerEntity(socket));
@@ -50,6 +57,7 @@ export class GameService {
 	}
 
 	async createGame(player_1: PlayerEntity, player_2: PlayerEntity) {
-		this.games.push(new GameEntity(player_1, player_2));
+		this.games.push(new GameEntity(this.broadcastService, player_1, player_2));
 	}
+
 }

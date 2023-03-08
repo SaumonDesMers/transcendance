@@ -1,5 +1,6 @@
 import { PlayerEntity } from "./player.entity"
 import { v4 as uuid } from "uuid";
+import { BroadcastService } from './broadcast.service'
 
 const maxScore = 10;
 
@@ -31,18 +32,41 @@ export class GameEntity {
 
 	watchers = new Array<PlayerEntity>()
 
-	constructor(player_1: PlayerEntity, player_2: PlayerEntity) {
-		this.side.set(player_1, { paddlePos: { x: player_1_paddlePos_x, y: 0.5 }, score: 1 });
-		this.side.set(player_2, { paddlePos: { x: player_2_paddlePos_x, y: 0.5 }, score: 1 });
+	constructor(
+		private readonly broadcastService: BroadcastService,
+		player_1: PlayerEntity, player_2: PlayerEntity
+	) {
+		this.side.set(player_1, { paddlePos: { x: player_1_paddlePos_x, y: 0.5 }, score: 0 });
+		this.side.set(player_2, { paddlePos: { x: player_2_paddlePos_x, y: 0.5 }, score: 0 });
 
 		player_1.joinGame(this);
 		player_2.joinGame(this);
 
 		console.log('Game '+this.UID);
+
+			this.broadcastCurrentState();
+	}
+
+	currentState() {
+		return {
+			side: [ this.side[0], this.side[1] ],
+			ball: this.ball
+		}
+	}
+
+	broadcastCurrentState() {
+		console.log(this.UID, 'broadcast current state')
+		this.broadcastService.to(this.UID, 'gameUpdate', this.currentState());
+		setTimeout(this.broadcastCurrentState, 1000);
 	}
 
 	async update() {
 
+	}
+
+	async endGame() {
+		this.side[0].leaveGame();
+		this.side[1].leaveGame();
 	}
 
 	async addWatcher(watcher: PlayerEntity) {
