@@ -31,6 +31,7 @@ export class PlayerEntity {
 			throw new Error('Player cannot leave game (he is not part of one)');
 		}
 	}
+	
 
 	log() {
 		console.log(
