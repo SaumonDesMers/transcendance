@@ -4,22 +4,21 @@ import { BroadcastService } from './broadcast.service'
 
 const maxScore = 10;
 
-const player_1_paddlePos_x = 0.1;
-const player_2_paddlePos_x = 0.9;
+const player1_paddlePos_x = 0.1;
+const player2_paddlePos_x = 0.9;
 
 export class GameEntity {
 
 	UID: string = uuid()
 
-	side = new WeakMap<PlayerEntity,
-		{
-			paddlePos: {
-				x: number, // in %
-				y: number, // in %
-			},
-			score: number
-		}
-	>()
+	side : {
+		player: PlayerEntity,
+		paddlePos: {
+			x: number, // in %
+			y: number, // in %
+		},
+		score: number
+	}[]
 
 	ball = {
 		position: {
@@ -34,39 +33,52 @@ export class GameEntity {
 
 	constructor(
 		private readonly broadcastService: BroadcastService,
-		player_1: PlayerEntity, player_2: PlayerEntity
+		player1: PlayerEntity, player2: PlayerEntity
 	) {
-		this.side.set(player_1, { paddlePos: { x: player_1_paddlePos_x, y: 0.5 }, score: 0 });
-		this.side.set(player_2, { paddlePos: { x: player_2_paddlePos_x, y: 0.5 }, score: 0 });
+		this.side = [
+			{ player: player1, paddlePos: { x: player1_paddlePos_x, y: 0.5 }, score: 0 },
+			{ player: player2, paddlePos: { x: player2_paddlePos_x, y: 0.5 }, score: 0 },
+		]
 
-		player_1.joinGame(this);
-		player_2.joinGame(this);
+		player1.joinGame(this);
+		player2.joinGame(this);
+		this.broadcastService.to(this.UID, 'start');
 
-		console.log('Game '+this.UID);
-
-			this.broadcastCurrentState();
+		setInterval(this.broadcastCurrentState, 1000, this)
 	}
 
 	currentState() {
 		return {
-			side: [ this.side[0], this.side[1] ],
+			side: [
+				{ paddlePos: this.side[0].paddlePos, score: this.side[0].score },
+				{ paddlePos: this.side[1].paddlePos, score: this.side[1].score },
+			],
 			ball: this.ball
 		}
 	}
 
-	broadcastCurrentState() {
-		console.log(this.UID, 'broadcast current state')
-		this.broadcastService.to(this.UID, 'gameUpdate', this.currentState());
-		setTimeout(this.broadcastCurrentState, 1000);
+	broadcastCurrentState(game: GameEntity) {
+		// console.log(game.UID, 'broadcast current state');
+		game.broadcastService.to(game.UID, 'update', game.currentState());
 	}
 
-	async update() {
+	async update() {}
 
+	async playerInput(player: PlayerEntity, input: string) {
+		let side = this.side.find(side => side.player.socket.id == player.socket.id);
+		console.log('game: input:', input);
 	}
 
-	async endGame() {
-		this.side[0].leaveGame();
-		this.side[1].leaveGame();
+	async playerSurrende(player: PlayerEntity) {
+		let side = this.side.find(side => side.player.socket.id != player.socket.id);
+		this.endGame(side.player);
+		console.log('game: surrende');
+	}
+
+	async endGame(winner: PlayerEntity) {
+		this.broadcastService.to(this.UID, 'end');
+		this.side[0].player.leaveGame();
+		this.side[1].player.leaveGame();
 	}
 
 	async addWatcher(watcher: PlayerEntity) {

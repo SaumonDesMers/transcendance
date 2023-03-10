@@ -29,6 +29,7 @@ export default {
 			
 			this.socket.on('connect', () => {
 				console.log("Successfully connected to the game websocket server...")
+				this.state = 'none';
 			});
 			
 			this.socket.on('disconnect', function(reason) {
@@ -39,16 +40,14 @@ export default {
 				console.log("Error connecting to the game websocket server: ", error)
 			});
 
-			this.socket.on('gameUpdate', this.onGameUpdate);
-
-			this.socket.onAnyOutgoing((event, ...args) => {
-				console.log(event, args)
-			});
+			this.socket.on('start', this.onGameStart);
+			this.socket.on('update', this.onGameUpdate);
+			this.socket.on('end', this.onGameEnd);
 		},
 
 		joinQueue() {
-			this.socket.emit('queue', 'joi', res => {
-				if (res != 'error') {
+			this.socket.emit('queue', 'join', res => {
+				if (res == 'join') {
 					this.state = 'queue';
 				}
 			});
@@ -56,15 +55,42 @@ export default {
 
 		leaveQueue() {
 			this.socket.emit('queue', 'leave', res => {
-				if (res != 'error') {
+				if (res == 'leave') {
 					this.state = 'none';
 				}
 			});
 		},
+		
+		onGameStart(event) {
+			console.log('game start', this.state);
+			this.state = 'game';
+			window.addEventListener('keydown', this.handleKeydownEvent);
+		},
 
 		onGameUpdate(event) {
 			console.log('game update');
+			this.game = event;
 		},
+		
+		onGameEnd(event) {
+			console.log('game end');
+			this.state = 'none';
+			window.removeEventListener('keydown', this.handleKeydownEvent);
+		},
+
+		surrende() {
+			this.socket.emit('surrende');
+		},
+
+		handleKeydownEvent(e) {
+			// console.log('key:', e.key);
+			if (e.key == 'ArrowUp') {
+				this.socket.emit('input', 'up');
+			} else if (e.key == 'ArrowDown') {
+				this.socket.emit('input', 'down');
+			}
+		},
+
 	},
 
 	mounted() {
@@ -73,22 +99,13 @@ export default {
 	created() {
 		this.initSocket();
 		this.connectToGameGateway();
-
-		window.addEventListener('keydown', e => {
-			// console.log('key:', e.key);
-			if (e.key == 'ArrowUp') {
-				this.socket.emit('input', 'up');
-			} else if (e.key == 'ArrowDown') {
-				this.socket.emit('input', 'down');
-			}
-		})
 	}
 }
 </script>
 
 <template>
 
-	<h4>Game :</h4>
+	<h4>Game (state: {{ state }}) :</h4>
 
 	<div v-if="socket.disconnected">
 		<p class="error">You are disconnected !</p>
@@ -103,7 +120,8 @@ export default {
 			<button @click="leaveQueue">Leave queue</button>
 		</div>
 		<div v-else>
-			<p>You are in a game</p>
+			<p>{{ game }}</p>
+			<button @click="surrende">Surrende</button>
 		</div>
 	</div>
 
