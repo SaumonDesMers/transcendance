@@ -3,30 +3,62 @@ import { Prisma, Channel, ChatUser, Message } from "@prisma/client";
 import { MessageRepository } from "./Message.repository";
 import { ChannelRepository } from "./Channel.repository";
 import { MessageWithAll, MessageWithAuthor, MessageWithChannel } from "./Chat.module";
+import { CreateMessageDto } from "./message.create.dto";
+import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
+import { CreateDMChannelDto } from "./DMChannel.create.dto";
 
 @Injectable()
 export class ChatService {
 	constructor(private channelRepository: ChannelRepository,
 				private messageRepository: MessageRepository) {}
 
-	async createGroupChannel()	{	
-	}
+	async createGroupChannel(newGroupChannel: CreateGroupChannelDto) {
+		//im sorry for these ugly things i dont know how to do this any other way
+		let my_arr: Prisma.ChatUserWhereUniqueInput[];
+		newGroupChannel.usersId.forEach(userId => my_arr.push({userId}));
 
-	async createDMChannel() {
-
-	}
-
-	async sendMessage(params: {
-		author: ChatUser;
-		channel: Channel;
-		content: string;}) {
-		const {author, channel, content} = params;
-		const message = await this.messageRepository.createMessage({
-			content: content,
+		const channel = await this.channelRepository.createGroupChannel({
 			channel: {
-				connect: {id: channel.id}},
+				create: {
+					users: {
+						connect: my_arr
+					}
+				}
+			}
+		}, true);
+
+		return channel;
+	}
+
+	async createDMChannel(newDMChannel: CreateDMChannelDto) {
+		let my_arr: Prisma.ChatUserWhereUniqueInput[];
+
+		newDMChannel.usersId.forEach(userId => my_arr.push({userId}));
+
+		const channel = await this.channelRepository.createDMChannel({
+			channel: {
+				create: {
+					users: {
+						connect: my_arr
+					}
+				}
+			}
+		}, true);
+
+		return channel;
+	}
+
+	async sendMessage(newMessage: CreateMessageDto) {
+
+		//should do checks about mute in the future
+
+
+		const message = await this.messageRepository.createMessage({
+			content: newMessage.content,
+			channel: {
+				connect: {id: newMessage.ChannelId}},
 			author: {
-				connect: {userId: author.userId}},
+				connect: {userId: newMessage.authorId}},
 			},
 			{channel: true, author: true},
 		);
@@ -49,7 +81,42 @@ export class ChatService {
 		)
 	}
 
-	async joinChannel()
+	async joinChannel(channelId: number, userId: number) {
 
-	async leaveChannel()
+
+		//might do checks that the user isnt banned
+
+		const update = await this.channelRepository.updateGroupChannel({
+			where: {channelId},
+			data: {
+				channel: {
+					update: {
+						users: {
+							delete:{userId}
+						}
+					}
+				}
+
+			}
+		}, true);
+
+		return update;
+	}
+
+	async leaveChannel(channelId: number, userId: number) {
+		const update = await this.channelRepository.updateGroupChannel({
+			where:{channelId},
+			data: {
+				channel: {
+					update: {
+						users: {
+							delete: {userId}
+						}
+					}
+				}
+			}
+		}, true);
+
+		return update;
+	}
 }
