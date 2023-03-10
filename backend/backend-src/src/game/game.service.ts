@@ -24,6 +24,7 @@ export class GameService {
 		let user = this.onlineUser.get(socket);
 		if (user.state == 'game') {
 			// wait some time before delete to let him reconnect
+			user.surrende();
 			this.onlineUser.delete(socket);
 		} else {
 			this.onlineUser.delete(socket);
@@ -37,6 +38,7 @@ export class GameService {
 		if (msg == 'join' && user.state == 'none') {
 			if (this.queue.length > 0) {
 				this.createGame(user, this.queue.pop());
+				return 'game';
 			} else {
 				user.state = 'queue';
 				this.queue.push(user);
@@ -47,7 +49,6 @@ export class GameService {
 		} else {
 			return 'error';
 		}
-		this.logQueue()
 		return msg;
 	}
 
@@ -58,6 +59,26 @@ export class GameService {
 
 	async createGame(player_1: PlayerEntity, player_2: PlayerEntity) {
 		this.games.push(new GameEntity(this.broadcastService, player_1, player_2));
+	}
+
+	async playerInput(socket: any, input: string) {
+		let user = this.onlineUser.get(socket);
+
+		if (user.state == 'game') {
+			user.play(input);
+		} else {
+			console.log('Received user input wihtout a game.')
+		}
+	}
+
+	async playerSurrende(socket: any) {
+		let user = this.onlineUser.get(socket);
+
+		if (user.state == 'game') {
+			user.surrende();
+		} else {
+			console.log('Received user input wihtout a game.')
+		}
 	}
 
 }

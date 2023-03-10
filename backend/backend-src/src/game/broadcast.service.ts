@@ -6,7 +6,7 @@ export class BroadcastService {
 
 	server: Server;
 
-	to(roomName: string, event: string, data: any) {
+	to(roomName: string, event: string, data?: any) {
 		this.server.to(roomName).emit(event, data);
 	}
 

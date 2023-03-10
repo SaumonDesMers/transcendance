@@ -31,7 +31,14 @@ export class PlayerEntity {
 			throw new Error('Player cannot leave game (he is not part of one)');
 		}
 	}
-	
+
+	play(input: string) {
+		this.game.playerInput(this, input);
+	}
+
+	surrende() {
+		this.game.playerSurrende(this);
+	}
 
 	log() {
 		console.log(

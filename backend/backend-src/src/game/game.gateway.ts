@@ -61,7 +61,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 	@SubscribeMessage('queue')
 	async onQueue(
 		@MessageBody() body: any,
-		@ConnectedSocket() socket: any	
+		@ConnectedSocket() socket: any
 	) {
 		console.log(socket.userId, ': queue :', body);
 		return await this.gameService.updateQueue(socket, body);
@@ -70,8 +70,17 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 	@SubscribeMessage('input')
 	async onInput(
 		@MessageBody() body: any,
-		@ConnectedSocket() socket: any	
+		@ConnectedSocket() socket: any
 	) {
 		console.log(socket.userId, ': input :', body);
+		this.gameService.playerInput(socket, body);
+	}
+
+	@SubscribeMessage('surrende')
+	async onSurrende(
+		@ConnectedSocket() socket: any
+	) {
+		console.log(socket.userId, ': surrende');
+		this.gameService.playerSurrende(socket);
 	}
 }
