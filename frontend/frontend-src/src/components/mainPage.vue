@@ -30,12 +30,12 @@ export default {
 	<div class="main-page">
 		<div class="container">
 			<nav class="side-nav">
-				<ul class="nav-menu">
-					<div class="animated-avatar">
+				<div class="nav-menu">
+					<span style="display: flex; justify-content: center; align-items: center;"><nav class="animated-avatar">
 						<div class="spinner"></div>
-					</div>
+					</nav></span>
 					<li class="nav-item"><a href="#"><i class="fas fa-tachometer-alt"></i><span
-								class="menu-text">Dashboard</span></a></li>
+								class="btn gray menu-text">Dashboard</span></a></li>
 					<li class="nav-item"><a href="#"><i class="fas fa-user"></i><span class="menu-text">Users</span></a>
 					</li>
 					<li class="nav-item active"><a href="#"><i class="fas fa-file-alt"></i><span
@@ -45,7 +45,7 @@ export default {
 					<li class="nav-item"><a href="#"><i class="fas fa-sign-out-alt"></i><span
 								class="menu-text">exit</span></a>
 					</li>
-				</ul>
+				</div>
 			</nav>
 		</div>
 	</div>
@@ -98,6 +98,8 @@ $blue-grey: #3F4C5C;
 
 .side-nav .nav-item {
 	padding: 10px 20px;
+	display: flex;
+	justify-content: center;
 }
 
 .nav-item.active {
@@ -145,8 +147,6 @@ $blue-grey: #3F4C5C;
 	position: relative;
 	display: flex;
 	flex: 0 0 auto;
-	align-items: center;
-	justify-content: center;
 	background-color: white;
 	border-radius: 100%;
 	border: 3px solid #2d4dac;
@@ -159,8 +159,6 @@ $blue-grey: #3F4C5C;
 	position: relative;
 	display: flex;
 	flex: 0 0 auto;
-	align-items: center;
-	justify-content: center;
 	height: 100%;
 	width: 100%;
 	border-radius: 100%;
@@ -191,6 +189,107 @@ $blue-grey: #3F4C5C;
 
 	to {
 		transform: rotate(1turn);
+	}
+}
+
+.btn {
+	position: relative;
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
+	width: 100%;
+	height: 5%;
+	font-size: 1.5rem;
+	align-items: center;
+	border-radius: .125rem;
+	border: 2px solid $brown-orange;
+	background-color: $brown-orange;
+	color: $white;
+	text-align: center;
+	text-decoration: none;
+	transition: color .125s ease;
+	overflow: hidden;
+	cursor: pointer;
+	outline: none;
+	margin-block: 0.5rem;
+
+	&:before {
+		background-color: $white;
+		content: "";
+		display: flex;
+		transform: scale(1, 0);
+		transition: transform .25s ease;
+		transform-origin: 50% 100%;
+		position: absolute;
+		overflow: hidden;
+		border-radius: 1px;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 0;
+	}
+
+	span {
+		display: flex;
+		position: relative;
+		z-index: 1;
+	}
+
+	&:hover,
+	&:active {
+		color: $sem-black;
+
+		&:before {
+			transform: scale(1, 1);
+		}
+	}
+
+	&.bordered {
+		background-color: transparent !important;
+		color: $brown-orange;
+
+		&:before {
+			background-color: transparent;
+		}
+
+		&:hover,
+		&:active {
+			color: $white;
+		}
+	}
+
+	&.rounded {
+		border-radius: 1.1875rem;
+	}
+
+	&.hard {
+		border-radius: 0;
+	}
+}
+
+.btn {
+	&.gray {
+		background-color: $white-smoke;
+		border-color: $white-smoke;
+
+		&:hover,
+		&:active {
+			color: $sem-black;
+		}
+
+		&.bordered {
+			color: $white-smoke;
+
+			&:before {
+				background-color: $white-smoke;
+			}
+
+			&:hover,
+			&:active {
+				color: $white;
+			}
+		}
 	}
 }
 </style>
