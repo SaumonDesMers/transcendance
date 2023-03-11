@@ -64,9 +64,7 @@ export default {
 </template>
 
 <style lang="scss">
-@import url('https://fonts.googleapis.com/css?family=Montserrat:300,400,500,700');
-@import url('https://fonts.googleapis.com/css?family=Roboto+Mono');
-@import url('https://fonts.googleapis.com/css?family=Material+Icons');
+@import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
 
 $brown-orange: #C06014;
 $grey-dark: #536162;
@@ -92,7 +90,7 @@ body {
 	height: 100vh;
 	align-items: center;
 	font-size: 16px;
-	font-family: "Roboto Mono", sans-serif;
+	font-family: 'Righteous', cursive;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;

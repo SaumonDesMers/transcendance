@@ -2,8 +2,6 @@
 <script>
 
 import axios from 'axios'
-import "../styles/darkTheme.scss"
-import "../styles/lightTheme.scss"
 
 export default {
 	data: function () {
@@ -28,30 +26,36 @@ export default {
 
 <template>
 	<div class="main-page">
-		<div class="container">
-			<nav class="side-nav">
-				<div class="nav-menu">
-					<span style="display: flex; justify-content: center; align-items: center;"><nav class="animated-avatar">
-						<div class="spinner"></div>
-					</nav></span>
-					<li class="nav-item"><a href="#"><i class="fas fa-tachometer-alt"></i><span
-								class="btn gray menu-text">Dashboard</span></a></li>
-					<li class="nav-item"><a href="#"><i class="fas fa-user"></i><span class="menu-text">Users</span></a>
-					</li>
-					<li class="nav-item active"><a href="#"><i class="fas fa-file-alt"></i><span
-								class="menu-text">Posts</span></a></li>
-					<li class="nav-item"><a href="#"><i class="fas fa-play "></i><span class="menu-text">Media</span></a>
-					</li>
-					<li class="nav-item"><a href="#"><i class="fas fa-sign-out-alt"></i><span
-								class="menu-text">exit</span></a>
-					</li>
-				</div>
-			</nav>
+
+			<input class="menu-btn" type="checkbox" id="menu-btn" />
+			<label class="menu-icon" for="menu-btn"><span class="navicon"></span></label>
+			<div class="container">
+				<nav class="side-nav">
+					<div class="nav-menu">
+						<span style="display: flex; justify-content: center; align-items: center;">
+							<div class="animated-avatar">
+								<div class="spinner"></div>
+							</div>
+						</span>
+						<div style="padding: 20px 0;">
+							<button class="but gray"><span class="menu text">GAME</span></button>
+							<button class="but gray"><span class="menu text">GAME</span></button>
+							<button class="but gray"><span class="menu text">GAME</span></button>
+							<button class="but gray"><span class="menu text">GAME</span></button>
+						</div>
+					</div>
+				</nav>
+			</div>
 		</div>
+		<div class="ocean">
+		<div class="wave alliance"></div>
+		<div class="wave alliance"></div>
 	</div>
 </template>
 
 <style lang="scss">
+@import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
+
 $brown-orange: #C06014;
 $grey-dark: #536162;
 $black: #000000;
@@ -65,6 +69,9 @@ $blue-grey: #3F4C5C;
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
+	font-family: 'Righteous', cursive;
+	text-rendering: optimizeLegibility;
+	font-size: 18px;
 }
 
 .main-page {
@@ -75,12 +82,15 @@ $blue-grey: #3F4C5C;
 }
 
 .container {
+	box-shadow: 5px 1px 4px 0 rgba(0, 0, 0, .1);
 	display: flex;
 	flex: 0 0 auto;
 	flex-direction: column;
 	height: 100vh;
 	width: 40%;
 	max-width: 300px;
+	z-index: 1;
+	background-color: rgba(255, 255, 255, .25);
 }
 
 .side-nav,
@@ -93,7 +103,8 @@ $blue-grey: #3F4C5C;
 	list-style: none;
 	padding: 40px 0;
 	width: 100%;
-	background-color: $whitesmoke;
+	background-color: rgba(255, 255, 255, .25);
+	// background-color: $whitesmoke;
 }
 
 .side-nav .nav-item {
@@ -102,54 +113,18 @@ $blue-grey: #3F4C5C;
 	justify-content: center;
 }
 
-.nav-item.active {
-	background-color: #fff;
-	box-shadow: 0px -3px rgba(0, 0, 0, 0.2), 0px 3px rgba(0, 0, 0, 0.2);
-}
-
-.nav-item.active a {
-	color: #2980b9;
-}
-
-.nav-item a {
-	text-decoration: none;
-	color: $sem-black;
-}
-
 .menu-text {
 	padding: 0 20px;
-}
-
-.side-nav .nav-item.active::before {
-	// content: "";
-	// position: absolute;
-	bottom: 100%;
-	right: 0;
-	height: 150%;
-	width: 20px;
-	// border-bottom-right-radius: 25px;
-	box-shadow: 0 20px 0 0 #fff;
-}
-
-.side-nav .nav-item.active::after {
-	content: "";
-	position: absolute;
-	// background-color: transparent;
-	top: 100%;
-	right: 0;
-	height: 150%;
-	width: 20px;
-	border-top-right-radius: 25px;
-	box-shadow: 0 -20px 0 0 #fff;
 }
 
 .animated-avatar {
 	position: relative;
 	display: flex;
 	flex: 0 0 auto;
-	background-color: white;
+	background-color: rgba(255, 255, 255, .25);
+	// background-color: white;
 	border-radius: 100%;
-	border: 3px solid #2d4dac;
+	border: 3px solid #47ac2d;
 	height: 105px;
 	width: 105px;
 	background-image: url(https://i.picsum.photos/id/502/200/200.jpg?hmac=c6mcZ5mcmjadIeDKaJClpvPz9R9-X9q6c0Un-n73Kv4);
@@ -162,18 +137,19 @@ $blue-grey: #3F4C5C;
 	height: 100%;
 	width: 100%;
 	border-radius: 100%;
+	background-color: rgba(255, 255, 255, .25);
 	animation: spin 1s linear 0s infinite;
-	box-shadow: -3px 0px 3px 0px rgba(14, 242, 136, 1);
+	box-shadow: -3px 0px 3px 0px rgb(14, 153, 9);
 }
 
 @keyframes background {
 	from {
-		background-color: red;
-		border: 3px solid pink;
+		background-color: rgb(65, 158, 28);
+		border: 3px solid rgb(8, 216, 1);
 	}
 
 	to {
-		background-color: rgb(0, 0, 0);
+		background-color: rgb(77, 173, 38);
 		border: 3px solid rgb(255, 255, 255);
 	}
 }
@@ -192,33 +168,34 @@ $blue-grey: #3F4C5C;
 	}
 }
 
-.btn {
+.but {
+	width: 100%;
+	height: 100px;
+	position: absolute;
+	background-color: transparent;
+	padding: 20% 10px;
 	position: relative;
 	display: flex;
 	flex: 0 0 auto;
-	flex-direction: column;
-	width: 100%;
-	height: 5%;
-	font-size: 1.5rem;
+	// width: 100%;
+	border: none;
 	align-items: center;
-	border-radius: .125rem;
-	border: 2px solid $brown-orange;
-	background-color: $brown-orange;
-	color: $white;
-	text-align: center;
-	text-decoration: none;
+	justify-content: center;
+	color: $sem-black;
+	flex-grow: 1;
+	// height: 5rem;
+	font-size: 1.5rem;
 	transition: color .125s ease;
 	overflow: hidden;
 	cursor: pointer;
 	outline: none;
-	margin-block: 0.5rem;
+	// margin-block: 0.5rem;
 
 	&:before {
-		background-color: $white;
+		background-color: transparent;
 		content: "";
 		display: flex;
 		transform: scale(1, 0);
-		transition: transform .25s ease;
 		transform-origin: 50% 100%;
 		position: absolute;
 		overflow: hidden;
@@ -246,8 +223,8 @@ $blue-grey: #3F4C5C;
 	}
 
 	&.bordered {
-		background-color: transparent !important;
-		color: $brown-orange;
+		background-color: transparent;
+		color: $sem-black;
 
 		&:before {
 			background-color: transparent;
@@ -258,20 +235,12 @@ $blue-grey: #3F4C5C;
 			color: $white;
 		}
 	}
-
-	&.rounded {
-		border-radius: 1.1875rem;
-	}
-
-	&.hard {
-		border-radius: 0;
-	}
 }
 
-.btn {
+.but {
 	&.gray {
-		background-color: $white-smoke;
-		border-color: $white-smoke;
+		background-color: transparent;
+		// border-color: $whitesmoke;
 
 		&:hover,
 		&:active {
@@ -279,17 +248,75 @@ $blue-grey: #3F4C5C;
 		}
 
 		&.bordered {
-			color: $white-smoke;
+			color: $sem-black;
 
 			&:before {
-				background-color: $white-smoke;
+				background-color: transparent;
 			}
 
 			&:hover,
 			&:active {
-				color: $white;
+				color: $sem-black;
 			}
 		}
 	}
+}
+
+.ocean {
+	height: 5%;
+	width: 100%;
+	z-index: 0;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	background: #4f9b38;
+}
+
+.wave {
+	position: absolute;
+	z-index: 0;
+	top: -198px;
+	width: 6400px;
+	height: 198px;
+	animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+	transform: translate3d(0, 0, 0);
+}
+
+.wave {
+	&.alliance {
+		background: url("../assets/images/wave-alliance.svg") repeat-x;
+	}
+}
+
+.wave:nth-of-type(2) {
+	top: -175px;
+	animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) -0.125s infinite, swell 7s ease -1.25s infinite;
+	opacity: 1;
+}
+
+@keyframes wave {
+	0% {
+		margin-left: 0;
+	}
+
+	100% {
+		margin-left: -1600px;
+	}
+}
+
+@keyframes swell {
+
+	0%,
+	100% {
+		transform: translate3d(0, -25px, 0);
+	}
+
+	50% {
+		transform: translate3d(0, 5px, 0);
+	}
+}
+
+.endWave {
+	display: none;
 }
 </style>
