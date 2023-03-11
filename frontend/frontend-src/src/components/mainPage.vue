@@ -48,8 +48,8 @@ export default {
 			</div>
 		</div>
 		<div class="ocean">
-		<div class="wave alliance"></div>
-		<div class="wave alliance"></div>
+		<div class="wave dark"></div>
+		<div class="wave dark"></div>
 	</div>
 </template>
 
@@ -60,10 +60,11 @@ $brown-orange: #C06014;
 $grey-dark: #536162;
 $black: #000000;
 $sem-black: #1d1d1d;
+$blue-grey: #3F4C5C;
 $white: #FFFFFF;
 $whitesmoke: #F3F4ED;
 $grey: #777777;
-$blue-grey: #3F4C5C;
+
 
 * {
 	margin: 0;
@@ -76,7 +77,8 @@ $blue-grey: #3F4C5C;
 
 .main-page {
 	display: flex;
-	background: linear-gradient(to top, #a4be7b, #97b572, #8aab6a, #7da261, #709959, #659053, #5a874d, #507e47, #457341, #3b693c, #315e36, #285430);
+	background-image: linear-gradient(to top, #285430, #254e2c, #224729, #1f4125, #1c3b22, #1a371f, #17321d, #152e1a, #132a18, #112616, #102314, #0e1f11);
+	// background: linear-gradient(to top, #a4be7b, #97b572, #8aab6a, #7da261, #709959, #659053, #5a874d, #507e47, #457341, #3b693c, #315e36, #285430);
 	width: 100vw;
 	height: 100vh;
 }
@@ -262,6 +264,10 @@ $blue-grey: #3F4C5C;
 	}
 }
 
+.centered-container-dark {
+	background: $black;
+}
+
 .ocean {
 	height: 5%;
 	width: 100%;
@@ -269,7 +275,16 @@ $blue-grey: #3F4C5C;
 	position: absolute;
 	bottom: 0;
 	left: 0;
-	background: #4f9b38;
+	background: #000000;
+}
+
+.ocean {
+	&.alliance {
+		background-color: #4f9b38;
+	}
+	&.dark {
+		background: $blue-grey;
+	}
 }
 
 .wave {
@@ -285,6 +300,9 @@ $blue-grey: #3F4C5C;
 .wave {
 	&.alliance {
 		background: url("../assets/images/wave-alliance.svg") repeat-x;
+	}
+	&.dark {
+		background: url("../assets/images/wave-alliance-dark.svg") repeat-x;
 	}
 }
 
