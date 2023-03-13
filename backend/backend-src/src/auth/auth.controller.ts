@@ -5,8 +5,11 @@ import { FortyTwoAuthGuard } from './fortytwo/fortytwo.guard';
 import { JwtAuthGuard } from './jwt/jwt.guard';
 import { Public } from './public.decorator';
 import { HttpStatus } from '@nestjs/common';
+import { ApiNoContentResponse, ApiOkResponse, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { UserEntity } from 'src/user/User.entity';
 
 @Controller('auth')
+@ApiTags('auth')
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
@@ -27,6 +30,7 @@ export class AuthController {
 	}
 
 	@Get('user')
+	@ApiOkResponse({ type: UserEntity })
 	async getUser(@Req() req: any) {
 		return await this.authService.getUser(req.user.id);
 	}
