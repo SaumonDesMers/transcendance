@@ -14,9 +14,9 @@ export class AuthController {
 	@UseGuards(FortyTwoAuthGuard)
 	@Get('login')
 	async login(@Req() req: any, @Res() response: Response) {
-		console.log(req.user.username, 'connected with 42')
+		console.log(req.user.username, 'connected with 42');
 
-		const jwt: string = await this.authService.generateJWT(req.user)
+		const jwt: string = await this.authService.generateJWT(req.user);
 
 		// see URL type
 		const url = new URL(`${req.protocol}:${req.hostname}`);
@@ -28,6 +28,6 @@ export class AuthController {
 
 	@Get('user')
 	async getUser(@Req() req: any) {
-		return this.authService.getUser(req.user.id);
+		return await this.authService.getUser(req.user.id);
 	}
 }
