@@ -7,6 +7,7 @@ export default {
 	data: function () {
 		return {
 			username: '',
+			isDark: false,
 			windowSize: { width: window.innerWidth, height: window.innerHeight }
 		}
 	},
@@ -19,37 +20,50 @@ export default {
 	methods: {
 		updateWindowSize() {
 			this.windowSize = { width: window.innerWidth, height: window.innerHeight };
-		}
+		},
+		toggleDarkMode() {
+			const b = document.querySelector('body');
+			if (!this.isDark) {
+				this.isDark = true;
+			} else {
+				this.isDark = false;
+			}
+		},
 	}
 }
 </script>
 
 <template>
-	<div class="main-page">
-
-			<input class="menu-btn" type="checkbox" id="menu-btn" />
-			<label class="menu-icon" for="menu-btn"><span class="navicon"></span></label>
-			<div class="container">
-				<nav class="side-nav">
-					<div class="nav-menu">
-						<span style="display: flex; justify-content: center; align-items: center;">
-							<div class="animated-avatar">
-								<div class="spinner"></div>
-							</div>
-						</span>
-						<div style="padding: 20px 0;">
-							<button class="but gray"><span class="menu text">GAME</span></button>
-							<button class="but gray"><span class="menu text">GAME</span></button>
-							<button class="but gray"><span class="menu text">GAME</span></button>
-							<button class="but gray"><span class="menu text">GAME</span></button>
-						</div>
+	<div :class="[isDark ? 'main-page federation-dark' : 'main-page federation']">
+		<div :class="[isDark ? 'container dark' : 'container light']">
+			<nav class="side-nav">
+				<div class="nav-menu">
+					<div>
+						<input type="checkbox" id="toggle">
+						<label class="toggle" for="toggle" @click="toggleDarkMode"></label>
 					</div>
-				</nav>
-			</div>
+					<span style="display: flex; justify-content: center; align-items: center;">
+						<div class="animated-avatar">
+							<div class="spinner"></div>
+						</div>
+					</span>
+					<div style="padding: 20px 0;">
+						<button class="but gray"><span class="menu text">GAME</span></button>
+						<button class="but gray"><span class="menu text">GAME</span></button>
+						<button class="but gray"><span class="menu text">GAME</span></button>
+						<button class="but gray"><span class="menu text">GAME</span></button>
+					</div>
+				</div>
+			</nav>
 		</div>
-		<div class="ocean">
-		<div class="wave dark"></div>
-		<div class="wave dark"></div>
+		<div class="main-container">
+			<button class="main-button">GAME</button>
+			<button class="main-button">CUSTOM GAME</button>
+		</div>
+	</div>
+	<div :class="[isDark ? 'ocean dark' : 'ocean federation']">
+		<div :class="[isDark ? 'wave federation-dark' : 'wave federation']"></div>
+		<div :class="[isDark ? 'wave federation-dark' : 'wave federation']"></div>
 	</div>
 </template>
 
@@ -77,10 +91,77 @@ $grey: #777777;
 
 .main-page {
 	display: flex;
-	background-image: linear-gradient(to top, #285430, #254e2c, #224729, #1f4125, #1c3b22, #1a371f, #17321d, #152e1a, #132a18, #112616, #102314, #0e1f11);
-	// background: linear-gradient(to top, #a4be7b, #97b572, #8aab6a, #7da261, #709959, #659053, #5a874d, #507e47, #457341, #3b693c, #315e36, #285430);
 	width: 100vw;
 	height: 100vh;
+}
+
+.main-page {
+	&.alliance {
+		background-image: linear-gradient(to top, #a4be7b, #97b572, #8aab6a, #7da261, #709959, #659053, #5a874d, #507e47, #457341, #3b693c, #315e36, #285430);
+		transition: none;
+	}
+
+	&.federation {
+		background-image: linear-gradient(to top, #8bbfec, #7ab1e1, #69a2d6, #5894cc, #4686c1, #3b79b3, #306ca5, #255f97, #1f5082, #19416e, #12335a, #0a2647);
+		transition: none;
+	}
+
+	&.assembly {
+		background-image: linear-gradient(to top, #b994f0, #a681e3, #936ed5, #7f5bc8, #6b49bb, #603eb1, #5534a7, #49299d, #452394, #421d8a, #3e1781, #3a1078);
+		transition: none;
+	}
+
+	&.order {
+		background-image: linear-gradient(to top, #dea7ab, #d8a6a8, #cb8889, #bb6a6b, #aa4c4d, #9e3c3e, #922c2f, #851a21, #7c161d, #741218, #6b0e14, #630a10);
+		transition: none;
+	}
+
+	&.alliance-dark {
+		background-image: linear-gradient(to top, #285430, #254e2c, #224729, #1f4125, #1c3b22, #1a371f, #17321d, #152e1a, #132a18, #112616, #102314, #0e1f11);
+		transition: none;
+	}
+
+	&.order-dark {
+		background-image: linear-gradient(to top, #630a10, #5a0810, #50070f, #47070e, #3e060c, #38070b, #320709, #2c0607, #270607, #230506, #1e0405, #180304);
+		transition: none;
+	}
+
+	&.federation-dark {
+		background-image: linear-gradient(to top, #0a2647, #092240, #081f39, #071b33, #07182c, #061627, #051423, #04111e, #030f1a, #030c16, #020911, #02060b);
+		transition: none;
+	}
+
+	&.assembly-dark {
+		background-image: linear-gradient(to top, #3a1078, #350f6d, #2f0e62, #2a0c57, #250b4d, #210b45, #1c0b3e, #190a36, #16092f, #140728, #110521, #0c031a);
+		transition: none;
+	}
+}
+
+.main-container {
+	width: 80%;
+	left: 20%;
+	flex: 0 0 auto;
+	flex-direction: column;
+	height: 100vh;
+	position: absolute;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+}
+
+.main-button {
+	background-color: rgba(0, 0, 0, 0.25);
+	border: none;
+	color: $white;
+	width: 50%;
+	font-size: xxx-large;
+	height: 100px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-bottom: 2%;
+	margin-top: 2%;
 }
 
 .container {
@@ -89,10 +170,20 @@ $grey: #777777;
 	flex: 0 0 auto;
 	flex-direction: column;
 	height: 100vh;
-	width: 40%;
-	max-width: 300px;
+	width: 20%;
+	max-width: 20%;
 	z-index: 1;
-	background-color: rgba(255, 255, 255, .25);
+}
+
+.container {
+	&.light {
+		background-color: rgba(255, 255, 255, .25);
+	}
+
+	&.dark {
+		background-color: rgba(0, 0, 0, 0.25);
+		color: $white;
+	}
 }
 
 .side-nav,
@@ -106,7 +197,6 @@ $grey: #777777;
 	padding: 40px 0;
 	width: 100%;
 	background-color: rgba(255, 255, 255, .25);
-	// background-color: $whitesmoke;
 }
 
 .side-nav .nav-item {
@@ -124,9 +214,8 @@ $grey: #777777;
 	display: flex;
 	flex: 0 0 auto;
 	background-color: rgba(255, 255, 255, .25);
-	// background-color: white;
 	border-radius: 100%;
-	border: 3px solid #47ac2d;
+	border: 3px solid #dadada;
 	height: 105px;
 	width: 105px;
 	background-image: url(https://i.picsum.photos/id/502/200/200.jpg?hmac=c6mcZ5mcmjadIeDKaJClpvPz9R9-X9q6c0Un-n73Kv4);
@@ -141,18 +230,18 @@ $grey: #777777;
 	border-radius: 100%;
 	background-color: rgba(255, 255, 255, .25);
 	animation: spin 1s linear 0s infinite;
-	box-shadow: -3px 0px 3px 0px rgb(14, 153, 9);
+	box-shadow: -3px 0px 3px 0px rgb(184, 184, 184);
 }
 
 @keyframes background {
 	from {
-		background-color: rgb(65, 158, 28);
-		border: 3px solid rgb(8, 216, 1);
+		background-color: rgb(255, 255, 255);
+		border: 3px solid rgb(163, 163, 163);
 	}
 
 	to {
-		background-color: rgb(77, 173, 38);
-		border: 3px solid rgb(255, 255, 255);
+		background-color: rgb(151, 151, 151);
+		border: 3px solid rgb(75, 75, 75);
 	}
 }
 
@@ -179,19 +268,16 @@ $grey: #777777;
 	position: relative;
 	display: flex;
 	flex: 0 0 auto;
-	// width: 100%;
 	border: none;
 	align-items: center;
 	justify-content: center;
 	color: $sem-black;
 	flex-grow: 1;
-	// height: 5rem;
 	font-size: 1.5rem;
 	transition: color .125s ease;
 	overflow: hidden;
 	cursor: pointer;
 	outline: none;
-	// margin-block: 0.5rem;
 
 	&:before {
 		background-color: transparent;
@@ -242,7 +328,6 @@ $grey: #777777;
 .but {
 	&.gray {
 		background-color: transparent;
-		// border-color: $whitesmoke;
 
 		&:hover,
 		&:active {
@@ -275,15 +360,27 @@ $grey: #777777;
 	position: absolute;
 	bottom: 0;
 	left: 0;
-	background: #000000;
 }
 
 .ocean {
 	&.alliance {
 		background-color: #4f9b38;
 	}
+
+	&.federation {
+		background-color: #19416e;
+	}
+
+	&.order {
+		background-color: #741218;
+	}
+
+	&.assembly {
+		background-color: #3e1781;
+	}
+
 	&.dark {
-		background: $blue-grey;
+		background: #000000;
 	}
 }
 
@@ -299,10 +396,35 @@ $grey: #777777;
 
 .wave {
 	&.alliance {
-		background: url("../assets/images/wave-alliance.svg") repeat-x;
+		background: url("../assets/images/wave/wave-alliance.svg") repeat-x;
 	}
-	&.dark {
-		background: url("../assets/images/wave-alliance-dark.svg") repeat-x;
+
+	&.federation {
+		background: url("../assets/images/wave/wave-federation.svg") repeat-x;
+	}
+
+	&.order {
+		background: url("../assets/images/wave/wave-order.svg") repeat-x;
+	}
+
+	&.assembly {
+		background: url("../assets/images/wave/wave-assembly.svg") repeat-x;
+	}
+
+	&.alliance-dark {
+		background: url("../assets/images/wave/wave-alliance-dark.svg") repeat-x;
+	}
+
+	&.federation-dark {
+		background: url("../assets/images/wave/wave-federation-dark.svg") repeat-x;
+	}
+
+	&.order-dark {
+		background: url("../assets/images/wave/wave-order-dark.svg") repeat-x;
+	}
+
+	&.assembly-dark {
+		background: url("../assets/images/wave/wave-assembly-dark.svg") repeat-x;
 	}
 }
 
@@ -332,6 +454,42 @@ $grey: #777777;
 	50% {
 		transform: translate3d(0, 5px, 0);
 	}
+}
+
+.toggle {
+	cursor: pointer;
+	top: -4%;
+	left: 78%;
+	display: inline-block;
+	background: $sem-black;
+	width: 60px;
+	height: 25px;
+	border-radius: 50px;
+	position: relative;
+	transition: 0.2s all ease-in-out;
+}
+
+.toggle::before {
+	content: '';
+	display: inline-block;
+	background: #fff;
+	width: 21px;
+	height: 21px;
+	border-radius: 50px;
+	transition: 0.2s all cubic-bezier(0.85, 0.05, 0.18, 1.35);
+	margin: 2px 0 0 2px;
+}
+
+input[type="checkbox"] {
+	display: none;
+}
+
+input[type="checkbox"]:checked~label {
+	background: $sem-black;
+}
+
+input[type="checkbox"]:checked~label::before {
+	transform: translateX(35px);
 }
 
 .endWave {
