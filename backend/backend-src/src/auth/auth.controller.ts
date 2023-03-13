@@ -26,13 +26,8 @@ export class AuthController {
 		response.status(302).redirect(url.href);
 	}
 
-	@Get('profile')
-	async getProfile(@Req() req: any) {
+	@Get('user')
+	async getUser(@Req() req: any) {
 		return this.authService.getUser(req.user.id);
-	}
-
-	@Post('register')
-	async register(@Body() body: any) {
-
 	}
 }
