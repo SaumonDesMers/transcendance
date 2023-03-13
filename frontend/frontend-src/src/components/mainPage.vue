@@ -48,10 +48,10 @@ export default {
 						</div>
 					</span>
 					<div style="padding: 20px 0;">
-						<button class="but gray"><span class="menu text">GAME</span></button>
-						<button class="but gray"><span class="menu text">GAME</span></button>
-						<button class="but gray"><span class="menu text">GAME</span></button>
-						<button class="but gray"><span class="menu text">GAME</span></button>
+						<button class="but gray"><span class="menu-text">🫂 GAME</span></button>
+						<button class="but gray"><span class="menu-text">GAME</span></button>
+						<button class="but gray"><span class="menu-text">GAME</span></button>
+						<button class="but gray"><span class="menu-text">GAME</span></button>
 					</div>
 				</div>
 			</nav>
@@ -206,7 +206,11 @@ $grey: #777777;
 }
 
 .menu-text {
-	padding: 0 20px;
+	padding: 30px 30%;
+	border: rgba(0, 0, 0, 0.10);
+	background-color: rgba(0, 0, 0, 0.05);
+	color: $white;
+    border-style: solid;
 }
 
 .animated-avatar {
@@ -264,7 +268,7 @@ $grey: #777777;
 	height: 100px;
 	position: absolute;
 	background-color: transparent;
-	padding: 20% 10px;
+	padding: 22% 10px;
 	position: relative;
 	display: flex;
 	flex: 0 0 auto;
