@@ -1,5 +1,6 @@
 <script>
 import axios from 'axios'
+import { api } from '../api'
 
 export default {
 	data() {
@@ -17,24 +18,34 @@ export default {
 			let params = new URLSearchParams(uri);
 			return params.get("code");
 		},
-		requestUserWithJwt(jwt) {
-			axios.get('http://localhost:3001/auth/profile', {
-				headers: {
-					Authorization : `Bearer ${jwt}`
+		async requestUserWithJwt(jwt) {
+			// axios.get('http://localhost:3001/auth/profile', {
+			// 	headers: {
+			// 		Authorization : `Bearer ${jwt}`
+			// 	}
+			// })
+			// .then(res => {
+			// 	this.$emit('loggedIn', res.data);
+			// 	localStorage.jwt = jwt;
+			// 	axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
+			// })
+			// .catch(err => {
+			// 	this.errorMsg = err.message;
+			// })
+			let res = await api.login(jwt);
+			if (!res.err) {
+				if (res.data != null) {
+					this.$emit('loggedIn', res.data);
+				} else {
+					this.$emit('toRegister');
 				}
-			})
-			.then(res => {
-				this.$emit('loggedIn', res.data);
-				localStorage.jwt = jwt;
-				axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
-			})
-			.catch(err => {
-				this.errorMsg = err.message;
-			})
+			} else {
+				this.errorMsg = res.err;
+			}
 		}
 	},
 
-	emits: ['loggedIn'],
+	emits: ['loggedIn', 'toRegister'],
 
 	mounted() {
 		let jwt = this.getJwt();
