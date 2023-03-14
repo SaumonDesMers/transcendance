@@ -42,7 +42,8 @@ export default {
 		<link rel="stylesheet" href="./sidebar.css">
 		<title>SideBAr</title>
 	</head>
-	<div :class="[isDark ? 'main-page dark federation-dark' : 'main-page federation']">
+	<div :class="[isDark ? 'main-page dark federation-dark' : 'main-page light federation']">
+		<div class="sun"></div>
 		<div class="moon">
 			<div class="dark">
 			</div>
@@ -150,24 +151,38 @@ $grey: #777777;
 }
 
 .main-page {
-	&.alliance {
-		background-image: linear-gradient(to top, #a4be7b, #97b572, #8aab6a, #7da261, #709959, #659053, #5a874d, #507e47, #457341, #3b693c, #315e36, #285430);
-		transition: none;
-	}
+	&.light {
+		&.alliance {
+			background-image: linear-gradient(to top, #a4be7b, #97b572, #8aab6a, #7da261, #709959, #659053, #5a874d, #507e47, #457341, #3b693c, #315e36, #285430);
+			transition: none;
+		}
 
-	&.federation {
-		background-image: linear-gradient(to top, #8bbfec, #7ab1e1, #69a2d6, #5894cc, #4686c1, #3b79b3, #306ca5, #255f97, #1f5082, #19416e, #12335a, #0a2647);
-		transition: none;
-	}
+		&.federation {
+			background-image: linear-gradient(to top, #8bbfec, #7ab1e1, #69a2d6, #5894cc, #4686c1, #3b79b3, #306ca5, #255f97, #1f5082, #19416e, #12335a, #0a2647);
+			transition: none;
+		}
 
-	&.assembly {
-		background-image: linear-gradient(to top, #b994f0, #a681e3, #936ed5, #7f5bc8, #6b49bb, #603eb1, #5534a7, #49299d, #452394, #421d8a, #3e1781, #3a1078);
-		transition: none;
-	}
+		&.assembly {
+			background-image: linear-gradient(to top, #b994f0, #a681e3, #936ed5, #7f5bc8, #6b49bb, #603eb1, #5534a7, #49299d, #452394, #421d8a, #3e1781, #3a1078);
+			transition: none;
+		}
 
-	&.order {
-		background-image: linear-gradient(to top, #dea7ab, #d8a6a8, #cb8889, #bb6a6b, #aa4c4d, #9e3c3e, #922c2f, #851a21, #7c161d, #741218, #6b0e14, #630a10);
-		transition: none;
+		&.order {
+			background-image: linear-gradient(to top, #dea7ab, #d8a6a8, #cb8889, #bb6a6b, #aa4c4d, #9e3c3e, #922c2f, #851a21, #7c161d, #741218, #6b0e14, #630a10);
+			transition: none;
+		}
+		.sun {
+			width: 190px;
+			height: 190px;
+			border-radius: 140px;
+			position: relative;
+			display: flex;
+			// margin-top: 320px;
+			background: radial-gradient(hsl(50, 100%, 50%) 20%, hsl(39, 100%, 50%));
+			box-shadow: inset 0 0 20px 2px hsl(39, 100%, 80%), 0 0 90px 40px hsla(39, 100%, 90%, .4);
+			left: 85vw;
+			top: 2vw;
+		}
 	}
 
 	&.dark {
@@ -193,19 +208,21 @@ $grey: #777777;
 
 		.moon {
 			background: whitesmoke;
+			display: flex;
 			width: 190px;
 			height: 190px;
 			border-radius: 100%;
 			position: relative;
-
 			box-shadow: inset -11px -8px 0px 4px rgb(0, 0, 0, 0.05),
 				0px 0px 10px 0px rgb(250, 250, 250),
 				0px 0px 50px 0px rgb(250, 250, 250),
 				0px 0px 500px 0px rgb(250, 250, 250);
-			margin: 50px 30px 0;
+			left: 85vw;
+			top: 2vw;
 		}
 
 		.moon .dark {
+			// justify-content: right;			
 			content: "";
 			background: rgb(0, 0, 0, 0.25);
 			position: absolute;
@@ -217,6 +234,7 @@ $grey: #777777;
 		}
 
 		.moon .dark:nth-child(1) {
+			// justify-content: right;
 			content: "";
 			background: rgb(0, 0, 0, 0.25);
 			position: absolute;
@@ -228,6 +246,7 @@ $grey: #777777;
 		}
 
 		.moon .dark:nth-child(1)::after {
+			// justify-content: right;
 			content: "";
 			background: rgb(250, 250, 250, 0.6);
 			width: 78px;
@@ -239,6 +258,7 @@ $grey: #777777;
 		}
 
 		.moon .dark::after {
+			// justify-content: right;
 			content: "";
 			background: rgb(250, 250, 250, 0.6);
 			width: 45px;
@@ -250,6 +270,7 @@ $grey: #777777;
 		}
 
 		.moon .dark:nth-child(2) {
+			// justify-content: right;
 			content: "";
 			background: rgb(0, 0, 0, 0.35);
 			position: absolute;
@@ -261,6 +282,7 @@ $grey: #777777;
 		}
 
 		.moon .dark:nth-child(2)::after {
+			// justify-content: right;
 			content: "";
 			background: rgb(250, 250, 250, 0.6);
 			width: 18px;
