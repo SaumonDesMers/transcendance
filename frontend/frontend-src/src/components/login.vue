@@ -47,7 +47,7 @@ export default {
 </script>
 
 <template>
-	<div class="actions">
+	<div class="actions" style="align-items: center; justify-content: center;">
 		<div style="display: flex; justify-content: flex-end;">
 			<img src="/src/assets/images/pio-chick.gif" alt="chick-gif"
 				style="width: 100px;height: 100px;animation: 1s steps(23) 5s infinite normal none running anim-ss;">
@@ -88,7 +88,6 @@ body {
 	flex-direction: columns;
 	width: 100vw;
 	height: 100vh;
-	align-items: center;
 	font-size: 16px;
 	font-family: 'Righteous', cursive;
 	text-rendering: optimizeLegibility;
@@ -96,10 +95,14 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 	margin: 0;
 	overflow: hidden;
+	justify-content: center;
+	align-items: center;
 }
 
 .centered-container {
 	background: $whitesmoke;
+	justify-content: center;
+	align-items: center;
 	padding: 5rem 10rem;
 	border-radius: .250rem;
 	border: 1px solid rgba($black, .1);

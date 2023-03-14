@@ -1,4 +1,3 @@
-
 <script>
 
 import axios from 'axios'
@@ -34,27 +33,82 @@ export default {
 </script>
 
 <template>
-	<div :class="[isDark ? 'main-page federation-dark' : 'main-page federation']">
-		<div :class="[isDark ? 'container dark' : 'container light']">
-			<nav class="side-nav">
-				<div class="nav-menu">
-					<div>
-						<input type="checkbox" id="toggle">
-						<label class="toggle" for="toggle" @click="toggleDarkMode"></label>
-					</div>
-					<span style="display: flex; justify-content: center; align-items: center;">
-						<div class="animated-avatar">
-							<div class="spinner"></div>
-						</div>
-					</span>
-					<div style="padding: 20px 0;">
-						<button class="but gray"><span class="menu-text">🫂 GAME</span></button>
-						<button class="but gray"><span class="menu-text">GAME</span></button>
-						<button class="but gray"><span class="menu-text">GAME</span></button>
-						<button class="but gray"><span class="menu-text">GAME</span></button>
-					</div>
-				</div>
-			</nav>
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+		<link rel="stylesheet" href="https://kit.fontawesome.com/76ec232e00.css" crossorigin="anonymous">
+		<link rel="stylesheet" href="./sidebar.css">
+		<title>SideBAr</title>
+	</head>
+	<div :class="[isDark ? 'main-page dark federation-dark' : 'main-page federation']">
+		<div class="moon">
+			<div class="dark">
+			</div>
+			<div class="dark">
+			</div>
+			<div class="dark">
+			</div>
+		</div>
+		<div id="App" class="navigation">
+			<ul>
+				<li>
+					<a href="#">
+						<span class="avatar"></span>
+						<span class="title">Username</span>
+					</a>
+				</li>
+				<li>
+					<a href="#">
+						<span class="icon"><i class="fa-solid fa-user"></i></span>
+						<span class="title">Profile</span>
+					</a>
+				</li>
+				<li>
+					<a href="#">
+						<span class="icon"><i class="fa-solid fa-comments"></i></span>
+						<span class="title">Messages</span>
+					</a>
+				</li>
+				<li>
+					<a href="#">
+						<span class="icon"><i class="fa-solid fa-bullseye"></i></span>
+						<span class="title">Quests</span>
+					</a>
+				</li>
+				<li>
+					<a href="#">
+						<span class="icon"><i class="fa-solid fa-trophy"></i></span>
+						<span class="title">Statistics</span>
+					</a>
+				</li>
+				<li>
+					<a href="#">
+						<span class="icon"><i class="fa-solid fa-floppy-disk"></i></span>
+						<span class="title">Game history</span>
+					</a>
+				</li>
+				<li>
+					<a href="#">
+						<span class="icon"><i class="fa-solid fa-users"></i></span>
+						<span class="title">Friends</span>
+					</a>
+				</li>
+				<li>
+					<a href="#">
+						<span class="icon" @click="toggleDarkMode"><i
+								:class="[isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun']"></i></span>
+						<span class="title" @click="toggleDarkMode">Theme</span>
+					</a>
+				</li>
+				<li>
+					<a href="#">
+						<span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span>
+						<span class="title">SignOut</span>
+					</a>
+				</li>
+			</ul>
 		</div>
 		<div class="main-container">
 			<button class="main-button">GAME</button>
@@ -116,30 +170,112 @@ $grey: #777777;
 		transition: none;
 	}
 
-	&.alliance-dark {
-		background-image: linear-gradient(to top, #285430, #254e2c, #224729, #1f4125, #1c3b22, #1a371f, #17321d, #152e1a, #132a18, #112616, #102314, #0e1f11);
-		transition: none;
+	&.dark {
+		&.alliance-dark {
+			background-image: linear-gradient(to top, #285430, #254e2c, #224729, #1f4125, #1c3b22, #1a371f, #17321d, #152e1a, #132a18, #112616, #102314, #0e1f11);
+			transition: none;
+		}
+
+		&.order-dark {
+			background-image: linear-gradient(to top, #630a10, #5a0810, #50070f, #47070e, #3e060c, #38070b, #320709, #2c0607, #270607, #230506, #1e0405, #180304);
+			transition: none;
+		}
+
+		&.federation-dark {
+			background-image: linear-gradient(to top, #0a2647, #092240, #081f39, #071b33, #07182c, #061627, #051423, #04111e, #030f1a, #030c16, #020911, #02060b);
+			transition: none;
+		}
+
+		&.assembly-dark {
+			background-image: linear-gradient(to top, #3a1078, #350f6d, #2f0e62, #2a0c57, #250b4d, #210b45, #1c0b3e, #190a36, #16092f, #140728, #110521, #0c031a);
+			transition: none;
+		}
+
+		.moon {
+			background: whitesmoke;
+			width: 190px;
+			height: 190px;
+			border-radius: 100%;
+			position: relative;
+
+			box-shadow: inset -11px -8px 0px 4px rgb(0, 0, 0, 0.05),
+				0px 0px 10px 0px rgb(250, 250, 250),
+				0px 0px 50px 0px rgb(250, 250, 250),
+				0px 0px 500px 0px rgb(250, 250, 250);
+			margin: 50px 30px 0;
+		}
+
+		.moon .dark {
+			content: "";
+			background: rgb(0, 0, 0, 0.25);
+			position: absolute;
+			width: 50px;
+			height: 50px;
+			bottom: 8px;
+			left: 50px;
+			border-radius: 100%;
+		}
+
+		.moon .dark:nth-child(1) {
+			content: "";
+			background: rgb(0, 0, 0, 0.25);
+			position: absolute;
+			width: 80px;
+			height: 80px;
+			top: 50px;
+			left: 25px;
+			border-radius: 100%;
+		}
+
+		.moon .dark:nth-child(1)::after {
+			content: "";
+			background: rgb(250, 250, 250, 0.6);
+			width: 78px;
+			height: 78px;
+			position: absolute;
+			bottom: 0px;
+			left: 7px;
+			border-radius: 100%;
+		}
+
+		.moon .dark::after {
+			content: "";
+			background: rgb(250, 250, 250, 0.6);
+			width: 45px;
+			height: 45px;
+			position: absolute;
+			bottom: 0px;
+			left: 7px;
+			border-radius: 100%;
+		}
+
+		.moon .dark:nth-child(2) {
+			content: "";
+			background: rgb(0, 0, 0, 0.35);
+			position: absolute;
+			width: 20px;
+			height: 20px;
+			bottom: 40px;
+			left: 25px;
+			border-radius: 100%;
+		}
+
+		.moon .dark:nth-child(2)::after {
+			content: "";
+			background: rgb(250, 250, 250, 0.6);
+			width: 18px;
+			height: 18px;
+			position: absolute;
+			bottom: 0px;
+			left: 4px;
+			border-radius: 100%;
+		}
 	}
 
-	&.order-dark {
-		background-image: linear-gradient(to top, #630a10, #5a0810, #50070f, #47070e, #3e060c, #38070b, #320709, #2c0607, #270607, #230506, #1e0405, #180304);
-		transition: none;
-	}
-
-	&.federation-dark {
-		background-image: linear-gradient(to top, #0a2647, #092240, #081f39, #071b33, #07182c, #061627, #051423, #04111e, #030f1a, #030c16, #020911, #02060b);
-		transition: none;
-	}
-
-	&.assembly-dark {
-		background-image: linear-gradient(to top, #3a1078, #350f6d, #2f0e62, #2a0c57, #250b4d, #210b45, #1c0b3e, #190a36, #16092f, #140728, #110521, #0c031a);
-		transition: none;
-	}
 }
 
 .main-container {
-	width: 80%;
-	left: 20%;
+	width: 100%;
 	flex: 0 0 auto;
 	flex-direction: column;
 	height: 100vh;
@@ -155,13 +291,23 @@ $grey: #777777;
 	border: none;
 	color: $white;
 	width: 50%;
-	font-size: xxx-large;
+	font-size: 4vw;
 	height: 100px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	margin-bottom: 2%;
 	margin-top: 2%;
+
+	&:hover,
+	&:active {
+		text-shadow:
+			0 0 5px #fff,
+			0 0 10px #fff,
+			0 0 20px #fff,
+			0 0 30px rgb(199, 199, 199),
+			0 0 40px rgb(134, 134, 134);
+	}
 }
 
 .container {
@@ -184,33 +330,6 @@ $grey: #777777;
 		background-color: rgba(0, 0, 0, 0.25);
 		color: $white;
 	}
-}
-
-.side-nav,
-.nav-menu {
-	height: 100%;
-	justify-content: left;
-}
-
-.side-nav .nav-menu {
-	list-style: none;
-	padding: 40px 0;
-	width: 100%;
-	background-color: rgba(255, 255, 255, .25);
-}
-
-.side-nav .nav-item {
-	padding: 10px 20px;
-	display: flex;
-	justify-content: center;
-}
-
-.menu-text {
-	padding: 30px 30%;
-	border: rgba(0, 0, 0, 0.10);
-	background-color: rgba(0, 0, 0, 0.05);
-	color: $white;
-    border-style: solid;
 }
 
 .animated-avatar {
@@ -353,6 +472,144 @@ $grey: #777777;
 	}
 }
 
+.navigation {
+	position: fixed;
+	z-index: 1;
+	width: 70px;
+	max-width: 15%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.25);
+	color: $white;
+	overflow: hidden;
+	transition: 0.5s;
+}
+
+.navigation:hover,
+.navigation.active {
+	width: 200px;
+}
+
+.navigation ul {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+}
+
+.navigation ul li {
+	position: relative;
+	width: 100%;
+	list-style: none;
+	transition: 1s;
+}
+
+.navigation ul li:hover {
+	background: rgba(0, 0, 0, 0.5);
+}
+
+.navigation ul li a {
+	position: relative;
+	display: block;
+	width: 100%;
+	display: flex;
+	height: 10vh;
+	text-decoration: none;
+	color: $white;
+}
+
+.navigation ul li a .icon {
+	position: relative;
+	display: flex;
+	width: 70px;
+	min-width: 63px;
+	height: 100px;
+	line-height: 60px;
+	text-align: center;
+	flex-direction: column-reverse;
+	justify-content: space-around;
+}
+
+.navigation ul li a .avatar {
+	background-color: rgba(255, 255, 255, .25);
+	border-radius: 20%;
+	// border: 3px solid #dadada;
+	position: relative;
+	display: flex;
+	min-width: 55px;
+	height: 60px;
+	line-height: 55px;
+	margin: 20px 7px;
+	text-align: center;
+	flex-direction: column-reverse;
+	justify-content: space-around;
+}
+
+.navigation ul li a .icon .fa {
+	font-size: 24px;
+}
+
+.navigation ul li a .title {
+	position: relative;
+	display: flex;
+	padding: 0 10px;
+	height: 10px;
+	line-height: 100px;
+	text-align: center;
+	white-space: nowrap;
+	font-size: 1vw;
+
+	&:hover,
+	&:active {
+		text-shadow:
+			0 0 5px #fff,
+			0 0 10px #777777,
+			0 0 15px #000000,
+	}
+}
+
+.toggle {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 60px;
+	height: 60px;
+	background: #074848;
+	// cursor: pointer;
+	transition: 0.7s;
+}
+
+.toggle.active {
+	background: #ff7700;
+}
+
+.toggle::before {
+	content: "\f0c9";
+	font-family: fontAwesome;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	line-height: 60px;
+	text-align: center;
+	font-size: 24px;
+	color: #fff;
+}
+
+.toggle.active::before {
+	content: "\f00d";
+}
+
+@media (max-width: 767px) {
+	.navigation {
+		left: -60px;
+	}
+
+	.navigation.active {
+		left: 0px;
+		width: 100%;
+	}
+}
+
+
 .centered-container-dark {
 	background: $black;
 }
@@ -461,7 +718,7 @@ $grey: #777777;
 }
 
 .toggle {
-	cursor: pointer;
+	// cursor: pointer;
 	top: -4%;
 	left: 78%;
 	display: inline-block;
@@ -499,4 +756,84 @@ input[type="checkbox"]:checked~label::before {
 .endWave {
 	display: none;
 }
+
+// .moon {
+// 	background: whitesmoke;
+// 	width: 190px;
+// 	height: 190px;
+// 	border-radius: 100%;
+// 	position: relative;
+
+// 	box-shadow: inset -11px -8px 0px 4px rgb(0, 0, 0, 0.05),
+// 		0px 0px 10px 0px rgb(250, 250, 250),
+// 		0px 0px 50px 0px rgb(250, 250, 250),
+// 		0px 0px 500px 0px rgb(250, 250, 250);
+// 	margin: 50px 30px 0;
+// }
+
+// .moon .dark {
+// 	content: "";
+// 	background: rgb(0, 0, 0, 0.25);
+// 	position: absolute;
+// 	width: 50px;
+// 	height: 50px;
+// 	bottom: 8px;
+// 	left: 50px;
+// 	border-radius: 100%;
+// }
+
+// .moon .dark:nth-child(1) {
+// 	content: "";
+// 	background: rgb(0, 0, 0, 0.25);
+// 	position: absolute;
+// 	width: 80px;
+// 	height: 80px;
+// 	top: 50px;
+// 	left: 25px;
+// 	border-radius: 100%;
+// }
+
+// .moon .dark:nth-child(1)::after {
+// 	content: "";
+// 	background: rgb(250, 250, 250, 0.6);
+// 	width: 78px;
+// 	height: 78px;
+// 	position: absolute;
+// 	bottom: 0px;
+// 	left: 7px;
+// 	border-radius: 100%;
+// }
+
+// .moon .dark::after {
+// 	content: "";
+// 	background: rgb(250, 250, 250, 0.6);
+// 	width: 45px;
+// 	height: 45px;
+// 	position: absolute;
+// 	bottom: 0px;
+// 	left: 7px;
+// 	border-radius: 100%;
+// }
+
+// .moon .dark:nth-child(2) {
+// 	content: "";
+// 	background: rgb(0, 0, 0, 0.35);
+// 	position: absolute;
+// 	width: 20px;
+// 	height: 20px;
+// 	bottom: 40px;
+// 	left: 25px;
+// 	border-radius: 100%;
+// }
+
+// .moon .dark:nth-child(2)::after {
+// 	content: "";
+// 	background: rgb(250, 250, 250, 0.6);
+// 	width: 18px;
+// 	height: 18px;
+// 	position: absolute;
+// 	bottom: 0px;
+// 	left: 4px;
+// 	border-radius: 100%;
+// }
 </style>

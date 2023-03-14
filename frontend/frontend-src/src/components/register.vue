@@ -110,7 +110,7 @@ export default {
 		<div :class="[isDark ? 'centered-container-dark' : 'centered-container']">
 			<div style="display: flex; align-content: flex-start; flex-flow: column wrap;">
 				<input type="checkbox" id="toggle">
-				<label class="toggle" for="toggle" @click="toggleDarkMode"></label>
+				<label class="toggle-main" for="toggle" @click="toggleDarkMode"></label>
 			</div>
 			<div class="actions">
 				<div class="actions-content">
@@ -245,7 +245,7 @@ svg {
 	flex-direction: column;
 }
 
-.toggle {
+.toggle-main {
 	cursor: pointer;
 	display: inline-block;
 	background: $sem-black;
@@ -256,7 +256,7 @@ svg {
 	transition: 0.2s all ease-in-out;
 }
 
-.toggle::before {
+.toggle-main::before {
 	content: '';
 	display: inline-block;
 	background: #fff;
