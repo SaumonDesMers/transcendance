@@ -42,9 +42,9 @@ export default {
 		<link rel="stylesheet" href="./sidebar.css">
 		<title>SideBAr</title>
 	</head>
-	<div :class="[isDark ? 'main-page dark federation-dark' : 'main-page light federation']">
-		<div class="sun"></div>
-		<div class="moon">
+	<div :class="[isDark ? 'main-page dark order-dark' : 'main-page light order']">
+		<div class="sun" @click="toggleDarkMode"></div>
+		<div class="moon" @click="toggleDarkMode">
 			<div class="dark">
 			</div>
 			<div class="dark">
@@ -98,8 +98,7 @@ export default {
 				</li>
 				<li>
 					<a href="#">
-						<span class="icon" @click="toggleDarkMode"><i
-								:class="[isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun']"></i></span>
+						<span class="icon" @click="toggleDarkMode"><i :class="[isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun']"></i></span>
 						<span class="title" @click="toggleDarkMode">Theme</span>
 					</a>
 				</li>
@@ -116,9 +115,9 @@ export default {
 			<button class="main-button">CUSTOM GAME</button>
 		</div>
 	</div>
-	<div :class="[isDark ? 'ocean dark' : 'ocean federation']">
-		<div :class="[isDark ? 'wave federation-dark' : 'wave federation']"></div>
-		<div :class="[isDark ? 'wave federation-dark' : 'wave federation']"></div>
+	<div :class="[isDark ? 'ocean dark' : 'ocean order']">
+		<div :class="[isDark ? 'wave order-dark' : 'wave order']"></div>
+		<div :class="[isDark ? 'wave order-dark' : 'wave order']"></div>
 	</div>
 </template>
 
@@ -177,9 +176,8 @@ $grey: #777777;
 			border-radius: 140px;
 			position: relative;
 			display: flex;
-			// margin-top: 320px;
 			background: radial-gradient(hsl(50, 100%, 50%) 20%, hsl(39, 100%, 50%));
-			box-shadow: inset 0 0 20px 2px hsl(39, 100%, 80%), 0 0 90px 40px hsla(39, 100%, 90%, .4);
+			box-shadow: inset 0 0 20px 2px hsl(39, 100%, 80%), 0 0 90px 40px hsla(39, 96%, 52%, 0.4);
 			left: 85vw;
 			top: 2vw;
 		}
@@ -222,7 +220,6 @@ $grey: #777777;
 		}
 
 		.moon .dark {
-			// justify-content: right;			
 			content: "";
 			background: rgb(0, 0, 0, 0.25);
 			position: absolute;
@@ -234,7 +231,6 @@ $grey: #777777;
 		}
 
 		.moon .dark:nth-child(1) {
-			// justify-content: right;
 			content: "";
 			background: rgb(0, 0, 0, 0.25);
 			position: absolute;
@@ -246,7 +242,6 @@ $grey: #777777;
 		}
 
 		.moon .dark:nth-child(1)::after {
-			// justify-content: right;
 			content: "";
 			background: rgb(250, 250, 250, 0.6);
 			width: 78px;
@@ -258,7 +253,6 @@ $grey: #777777;
 		}
 
 		.moon .dark::after {
-			// justify-content: right;
 			content: "";
 			background: rgb(250, 250, 250, 0.6);
 			width: 45px;
@@ -270,7 +264,6 @@ $grey: #777777;
 		}
 
 		.moon .dark:nth-child(2) {
-			// justify-content: right;
 			content: "";
 			background: rgb(0, 0, 0, 0.35);
 			position: absolute;
@@ -282,7 +275,6 @@ $grey: #777777;
 		}
 
 		.moon .dark:nth-child(2)::after {
-			// justify-content: right;
 			content: "";
 			background: rgb(250, 250, 250, 0.6);
 			width: 18px;
@@ -312,7 +304,7 @@ $grey: #777777;
 	background-color: rgba(0, 0, 0, 0.25);
 	border: none;
 	color: $white;
-	width: 50%;
+	width: 35%;
 	font-size: 4vw;
 	height: 100px;
 	display: flex;
@@ -351,56 +343,6 @@ $grey: #777777;
 	&.dark {
 		background-color: rgba(0, 0, 0, 0.25);
 		color: $white;
-	}
-}
-
-.animated-avatar {
-	position: relative;
-	display: flex;
-	flex: 0 0 auto;
-	background-color: rgba(255, 255, 255, .25);
-	border-radius: 100%;
-	border: 3px solid #dadada;
-	height: 105px;
-	width: 105px;
-	background-image: url(https://i.picsum.photos/id/502/200/200.jpg?hmac=c6mcZ5mcmjadIeDKaJClpvPz9R9-X9q6c0Un-n73Kv4);
-}
-
-.spinner {
-	position: relative;
-	display: flex;
-	flex: 0 0 auto;
-	height: 100%;
-	width: 100%;
-	border-radius: 100%;
-	background-color: rgba(255, 255, 255, .25);
-	animation: spin 1s linear 0s infinite;
-	box-shadow: -3px 0px 3px 0px rgb(184, 184, 184);
-}
-
-@keyframes background {
-	from {
-		background-color: rgb(255, 255, 255);
-		border: 3px solid rgb(163, 163, 163);
-	}
-
-	to {
-		background-color: rgb(151, 151, 151);
-		border: 3px solid rgb(75, 75, 75);
-	}
-}
-
-@keyframes spin {
-	0% {
-		transform: rotate(0deg);
-	}
-
-	50% {
-		transform: rotate(180deg);
-	}
-
-	to {
-		transform: rotate(1turn);
 	}
 }
 
@@ -552,9 +494,9 @@ $grey: #777777;
 }
 
 .navigation ul li a .avatar {
-	background-color: rgba(255, 255, 255, .25);
-	border-radius: 20%;
-	// border: 3px solid #dadada;
+	border-radius: 10px 100px / 120px;
+	background: url("../assets/images/sekiro-avatar.png") no-repeat;
+	background-size: contain;
 	position: relative;
 	display: flex;
 	min-width: 55px;
@@ -596,7 +538,6 @@ $grey: #777777;
 	width: 60px;
 	height: 60px;
 	background: #074848;
-	// cursor: pointer;
 	transition: 0.7s;
 }
 
@@ -647,7 +588,7 @@ $grey: #777777;
 
 .ocean {
 	&.alliance {
-		background-color: #4f9b38;
+		background-color: #315e36;
 	}
 
 	&.federation {
@@ -778,84 +719,4 @@ input[type="checkbox"]:checked~label::before {
 .endWave {
 	display: none;
 }
-
-// .moon {
-// 	background: whitesmoke;
-// 	width: 190px;
-// 	height: 190px;
-// 	border-radius: 100%;
-// 	position: relative;
-
-// 	box-shadow: inset -11px -8px 0px 4px rgb(0, 0, 0, 0.05),
-// 		0px 0px 10px 0px rgb(250, 250, 250),
-// 		0px 0px 50px 0px rgb(250, 250, 250),
-// 		0px 0px 500px 0px rgb(250, 250, 250);
-// 	margin: 50px 30px 0;
-// }
-
-// .moon .dark {
-// 	content: "";
-// 	background: rgb(0, 0, 0, 0.25);
-// 	position: absolute;
-// 	width: 50px;
-// 	height: 50px;
-// 	bottom: 8px;
-// 	left: 50px;
-// 	border-radius: 100%;
-// }
-
-// .moon .dark:nth-child(1) {
-// 	content: "";
-// 	background: rgb(0, 0, 0, 0.25);
-// 	position: absolute;
-// 	width: 80px;
-// 	height: 80px;
-// 	top: 50px;
-// 	left: 25px;
-// 	border-radius: 100%;
-// }
-
-// .moon .dark:nth-child(1)::after {
-// 	content: "";
-// 	background: rgb(250, 250, 250, 0.6);
-// 	width: 78px;
-// 	height: 78px;
-// 	position: absolute;
-// 	bottom: 0px;
-// 	left: 7px;
-// 	border-radius: 100%;
-// }
-
-// .moon .dark::after {
-// 	content: "";
-// 	background: rgb(250, 250, 250, 0.6);
-// 	width: 45px;
-// 	height: 45px;
-// 	position: absolute;
-// 	bottom: 0px;
-// 	left: 7px;
-// 	border-radius: 100%;
-// }
-
-// .moon .dark:nth-child(2) {
-// 	content: "";
-// 	background: rgb(0, 0, 0, 0.35);
-// 	position: absolute;
-// 	width: 20px;
-// 	height: 20px;
-// 	bottom: 40px;
-// 	left: 25px;
-// 	border-radius: 100%;
-// }
-
-// .moon .dark:nth-child(2)::after {
-// 	content: "";
-// 	background: rgb(250, 250, 250, 0.6);
-// 	width: 18px;
-// 	height: 18px;
-// 	position: absolute;
-// 	bottom: 0px;
-// 	left: 4px;
-// 	border-radius: 100%;
-// }
 </style>
