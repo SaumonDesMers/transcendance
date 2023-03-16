@@ -1,4 +1,4 @@
-import { IsDefined, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsDefined, IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class UpdateUserDto
@@ -8,4 +8,9 @@ export class UpdateUserDto
 	@IsNotEmpty()
 	@ApiProperty()
 	username?: string;
+
+	@IsBoolean()
+	@IsOptional()
+	@ApiProperty()
+	darkMode?: boolean;
 }
