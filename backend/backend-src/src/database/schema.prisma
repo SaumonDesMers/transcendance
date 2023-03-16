@@ -14,8 +14,9 @@ model User {
 	id Int	@id
 	username String @unique
 	chatUser ChatUser?
-}
 
+	darkMode Boolean
+}
 model ChatUser {
 	userId Int @id
 	user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
