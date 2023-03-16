@@ -18,7 +18,7 @@ export default {
 			return params.get("code");
 		},
 		requestUserWithJwt(jwt) {
-			axios.get('http://localhost:3001/auth/profile', {
+			axios.get('http://localhost:3001/auth/user', {
 				headers: {
 					Authorization : `Bearer ${jwt}`
 				}
