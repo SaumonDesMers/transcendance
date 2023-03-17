@@ -4,8 +4,8 @@ import { BroadcastService } from './broadcast.service'
 
 const maxScore = 10;
 
-const player1_paddlePos_x = 0.1;
-const player2_paddlePos_x = 0.9;
+const player1_paddlePos_x = 0.05;
+const player2_paddlePos_x = 0.95;
 
 export class GameEntity {
 
@@ -44,7 +44,7 @@ export class GameEntity {
 		player2.joinGame(this);
 		this.broadcastService.to(this.UID, 'start');
 
-		setInterval(this.broadcastCurrentState, 1000, this)
+		setInterval(this.broadcastCurrentState, 100, this)
 	}
 
 	currentState() {
@@ -66,7 +66,12 @@ export class GameEntity {
 
 	async playerInput(player: PlayerEntity, input: string) {
 		let side = this.side.find(side => side.player.socket.id == player.socket.id);
-		console.log('game: input:', input);
+		// console.log('game: input:', input);
+		if (side.paddlePos.y > 0 && input == "up") {
+			side.paddlePos.y -= 0.05;
+		} else if (side.paddlePos.y < 1 && input == "down") {
+			side.paddlePos.y += 0.05;
+		}
 	}
 
 	async playerSurrende(player: PlayerEntity) {

@@ -29,7 +29,6 @@ export class GameService {
 		} else {
 			this.onlineUser.delete(socket);
 		}
-		user.log()
 	}
 
 	async updateQueue(socket: any, msg: string): Promise<string> {

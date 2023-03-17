@@ -1,14 +1,20 @@
 <script>
 import axios from 'axios'
 import io from "socket.io-client"
+import gameCanvas from './gameCanvas.vue'
 
 export default {
+
+	components: {
+		gameCanvas
+	},
 
 	data() {
 		return {
 			socket: null,
 			state: 'none',
-			game: null
+			game: null,
+			canvas: null,
 		}
 	},
 
@@ -62,7 +68,7 @@ export default {
 		},
 		
 		onGameStart(event) {
-			console.log('game start', this.state);
+			console.log('game start');
 			this.state = 'game';
 			window.addEventListener('keydown', this.handleKeydownEvent);
 		},
@@ -91,10 +97,10 @@ export default {
 			}
 		},
 
+
 	},
 
-	mounted() {
-	},
+	mounted() {},
 	
 	created() {
 		this.initSocket();
@@ -120,7 +126,8 @@ export default {
 			<button @click="leaveQueue">Leave queue</button>
 		</div>
 		<div v-else>
-			<p>{{ game }}</p>
+			<!-- <p>{{ game }}</p> -->
+			<gameCanvas :game="game"></gameCanvas>
 			<button @click="surrende">Surrende</button>
 		</div>
 	</div>
