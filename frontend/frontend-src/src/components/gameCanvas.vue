@@ -28,6 +28,15 @@ export default {
 			// paddle
 			this.drawPaddle(this.game.side[0].paddlePos);
 			this.drawPaddle(this.game.side[1].paddlePos);
+
+			// ball
+			this.canvas.arc(
+				this.arena.width * this.game.ball.position.x,
+				this.arena.height * this.game.ball.position.y,
+				20, 0, 2 * Math.PI
+			);
+			this.canvas.fillStyle = "lightgrey";
+			this.canvas.fill();
 		},
 
 		drawPaddle(paddle) {
@@ -43,14 +52,12 @@ export default {
 
 	watch: {
 		game() {
-			// console.log("gameCanvas: watch: game");
 			this.draw();
 		}
 	},
 
 	mounted() {
 		this.canvas = document.getElementById("c").getContext("2d");
-		// this.draw();
 	},
 	
 	created() {
