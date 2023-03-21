@@ -5,13 +5,9 @@ export default {
 		return {
 			canvas: null,
 			arena: {
-				width: 800,
-				height: 500,
+				width: 0,
+				height: 0,
 			},
-			paddle: {
-				width: 20,
-				height: 100,
-			}
 		}
 	},
 
@@ -22,18 +18,21 @@ export default {
 	methods: {
 		draw() {
 			// background
+			this.arena = this.game.arena;
 			this.canvas.fillStyle = "black";
-			this.canvas.fillRect(0, 0, this.arena.width, this.arena.height);
+			this.canvas.fillRect(0, 0, this.game.arena.width, this.game.arena.height);
 
 			// paddle
 			this.drawPaddle(this.game.side[0].paddlePos);
 			this.drawPaddle(this.game.side[1].paddlePos);
 
 			// ball
+			this.canvas.beginPath();
 			this.canvas.arc(
-				this.arena.width * this.game.ball.position.x,
-				this.arena.height * this.game.ball.position.y,
-				20, 0, 2 * Math.PI
+				this.game.ball.pos.x,
+				this.game.ball.pos.y,
+				this.game.ball.size,
+				0, 2 * Math.PI
 			);
 			this.canvas.fillStyle = "lightgrey";
 			this.canvas.fill();
@@ -42,10 +41,10 @@ export default {
 		drawPaddle(paddle) {
 			this.canvas.fillStyle = "lightgrey";
 			this.canvas.fillRect(
-				(this.arena.width * paddle.x) - this.paddle.width / 2,
-				(this.arena.height * paddle.y) - this.paddle.height / 2,
-				this.paddle.width,
-				this.paddle.height,
+				paddle.x - this.game.paddle.width / 2,
+				paddle.y - this.game.paddle.height / 2,
+				this.game.paddle.width,
+				this.game.paddle.height,
 			);
 		}
 	},
