@@ -7,4 +7,7 @@ export class UserEntity implements User {
 
 	@ApiProperty()
 	username: string;
+
+	@ApiProperty()
+	darkMode: boolean;
 }
