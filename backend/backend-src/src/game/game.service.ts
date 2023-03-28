@@ -24,7 +24,7 @@ export class GameService {
 		let user = this.onlineUser.get(socket);
 		if (user.state == 'game') {
 			// wait some time before delete to let him reconnect
-			user.surrende();
+			user.surrender();
 			this.onlineUser.delete(socket);
 		} else {
 			this.onlineUser.delete(socket);
@@ -70,11 +70,11 @@ export class GameService {
 		}
 	}
 
-	async playerSurrende(socket: any) {
+	async playerSurrender(socket: any) {
 		let user = this.onlineUser.get(socket);
 
 		if (user.state == 'game') {
-			user.surrende();
+			user.surrender();
 		} else {
 			console.log('Received user input wihtout a game.')
 		}

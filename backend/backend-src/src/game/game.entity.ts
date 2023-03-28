@@ -45,10 +45,13 @@ export class GameEntity {
 			y: this.arena.height / 2,
 		},
 		orientation: Math.PI / 4, // in radian
-		speed: 20
+		speed: 20,
+		lastHit: -1
 	}
 
 	watchers = new Array<PlayerEntity>()
+
+	updateIntervalId: NodeJS.Timer
 
 	constructor(
 		private readonly broadcastService: BroadcastService,
@@ -77,7 +80,7 @@ export class GameEntity {
 		player2.joinGame(this);
 		this.broadcastService.to(this.UID, 'start');
 
-		setInterval(this.update, updateInterval, this);
+		this.updateIntervalId = setInterval(this.update, updateInterval, this);
 	}
 
 	currentState() {
@@ -101,23 +104,45 @@ export class GameEntity {
 		let ball = game.ball;
 		ball.pos.x += ball.speed / 100 * updateInterval * Math.cos(ball.orientation);
 		ball.pos.y -= ball.speed / 100 * updateInterval * Math.sin(ball.orientation);
-		// update ball orientation
 		// bounce up and down
 		if (ball.pos.y + ball.size > game.arena.height || ball.pos.y - ball.size < 0)
 			ball.orientation = -ball.orientation;
-		// bounce left and right
-		if (ball.pos.x + ball.size > game.arena.width || ball.pos.x - ball.size < 0)
+		// reach left
+		if (ball.pos.x - ball.size < 0)
+			game.playerScorePoint(1);
+		// reach right
+		if (ball.pos.x + ball.size > game.arena.width)
+			game.playerScorePoint(0);
+		// bounce on left paddle
+		if (ball.lastHit != 0 && game.collideWithPaddle(game.side[0].paddlePos, game.ball.pos.x - game.ball.size)) {
 			ball.orientation = Math.PI - ball.orientation;
-		if (
-			// bounce on left paddle
-			game.collideWithPaddle(game.side[0].paddlePos, game.ball.pos.x - game.ball.size)
-			// or bounce on right paddle
-			|| game.collideWithPaddle(game.side[1].paddlePos, game.ball.pos.x + game.ball.size)
-			)
+			ball.lastHit = 0;
+		}
+		// bounce on right paddle
+		if (ball.lastHit != 1 && game.collideWithPaddle(game.side[1].paddlePos, game.ball.pos.x + game.ball.size)) {
 			ball.orientation = Math.PI - ball.orientation;
-		
+			ball.lastHit = 1;
+		}
 
 		game.broadcastCurrentState();
+
+		// check for winner
+		if (game.side[0].score >= maxScore)
+			game.endGame(game.side[0].player);
+		else if (game.side[1].score >= maxScore)
+			game.endGame(game.side[1].player);
+	}
+
+	playerScorePoint(n: number) {
+		this.side[n].score++;
+		this.resetBall();
+	}
+
+	resetBall() {
+		this.ball.pos.x = this.arena.width / 2;
+		this.ball.pos.y = this.arena.height / 2;
+		this.ball.orientation = Math.PI / 4;
+		this.ball.lastHit = -1;
 	}
 
 	collideWithPaddle(paddle: any, ballCollidePointX: any): boolean {
@@ -138,14 +163,15 @@ export class GameEntity {
 		}
 	}
 
-	async playerSurrende(player: PlayerEntity) {
+	async playerSurrender(player: PlayerEntity) {
 		let side = this.side.find(side => side.player.socket.id != player.socket.id);
 		this.endGame(side.player);
-		console.log('game: surrende');
+		console.log('game: surrender');
 	}
 
 	async endGame(winner: PlayerEntity) {
-		this.broadcastService.to(this.UID, 'end');
+		clearInterval(this.updateIntervalId);
+		this.broadcastService.to(this.UID, 'end', { winner: winner });
 		this.side[0].player.leaveGame();
 		this.side[1].player.leaveGame();
 	}

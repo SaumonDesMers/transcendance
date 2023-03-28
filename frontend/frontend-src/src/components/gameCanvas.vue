@@ -22,6 +22,34 @@ export default {
 			this.canvas.fillStyle = "black";
 			this.canvas.fillRect(0, 0, this.game.arena.width, this.game.arena.height);
 
+			// separator
+			this.canvas.strokeStyle = "grey";
+			this.canvas.lineWidth = 10;
+			this.canvas.beginPath();
+			const h = this.game.arena.height;
+			const n = 10;
+			const x = 35;
+			const y = ((-n - 1) * x + h) / n;
+			this.canvas.setLineDash([x, y]);
+			this.canvas.moveTo(this.game.arena.width / 2, 0);
+			this.canvas.lineTo(this.game.arena.width / 2, this.game.arena.height);
+			this.canvas.stroke();
+
+			// score
+			this.canvas.fillStyle = "lightgrey";
+			this.canvas.font = "30px Arial";
+			this.canvas.textAlign = "center";
+			this.canvas.fillText(
+				this.game.side[0].score.toString(),
+				this.game.arena.width / 2 - 50,
+				40
+			);
+			this.canvas.fillText(
+				this.game.side[1].score.toString(),
+				this.game.arena.width / 2 + 50,
+				40
+			);
+
 			// paddle
 			this.drawPaddle(this.game.side[0].paddlePos);
 			this.drawPaddle(this.game.side[1].paddlePos);

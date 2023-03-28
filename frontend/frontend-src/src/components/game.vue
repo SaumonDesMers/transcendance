@@ -84,8 +84,8 @@ export default {
 			window.removeEventListener('keydown', this.handleKeydownEvent);
 		},
 
-		surrende() {
-			this.socket.emit('surrende');
+		surrender() {
+			this.socket.emit('surrender');
 		},
 
 		handleKeydownEvent(e) {
@@ -128,7 +128,7 @@ export default {
 		<div v-else>
 			<!-- <p>{{ game }}</p> -->
 			<gameCanvas :game="game"></gameCanvas>
-			<button @click="surrende">Surrende</button>
+			<button @click="surrender">Surrender</button>
 		</div>
 	</div>
 

@@ -76,11 +76,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 		this.gameService.playerInput(socket, body);
 	}
 
-	@SubscribeMessage('surrende')
-	async onSurrende(
+	@SubscribeMessage('surrender')
+	async onSurrender(
 		@ConnectedSocket() socket: any
 	) {
-		console.log(socket.userId, ': surrende');
-		this.gameService.playerSurrende(socket);
+		console.log(socket.userId, ': surrender');
+		this.gameService.playerSurrender(socket);
 	}
 }
