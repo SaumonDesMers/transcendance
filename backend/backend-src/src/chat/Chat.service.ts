@@ -6,11 +6,14 @@ import { MessageWithAll, MessageWithAuthor, MessageWithChannel } from "./Chat.mo
 import { CreateMessageDto } from "./message.create.dto";
 import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { CreateDMChannelDto } from "./DMChannel.create.dto";
+import { PrismaModule } from "src/database/prisma.module";
+import { PrismaService } from "src/database/prisma.service";
 
 @Injectable()
 export class ChatService {
 	constructor(private channelRepository: ChannelRepository,
-				private messageRepository: MessageRepository) {}
+				private messageRepository: MessageRepository,
+				private prisma: PrismaService) {}
 
 	async createGroupChannel(newGroupChannel: CreateGroupChannelDto, include: Prisma.GroupChannelInclude) {
 		//im sorry for these ugly things i dont know how to do this any other way
@@ -119,6 +122,10 @@ export class ChatService {
 
 		return update;
 	}
+
+	// async leaveAllChannels(userId: number)
+	// {
+	// }
 
 	async findChannel(channelId: number)
 	{

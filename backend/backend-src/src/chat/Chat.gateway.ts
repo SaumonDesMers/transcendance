@@ -1,9 +1,12 @@
 import {
 	ConnectedSocket,
 	MessageBody,
+	OnGatewayConnection,
+	OnGatewayDisconnect,
 	SubscribeMessage,
 	WebSocketGateway,
 	WebSocketServer,
+	WsException,
 } from "@nestjs/websockets";	
 
 import { Server,
@@ -12,13 +15,23 @@ import { CreateMessageDto } from "./message.create.dto";
 import { ChatService } from "./Chat.service";
 import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { Channel, GroupChannel } from "@prisma/client";
+import { Public } from "src/auth/public.decorator";
 
-export class ChatGateway {
+@Public()
+@WebSocketGateway(
+	{namespace: "chat"}
+)
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	constructor(private chatService: ChatService) {}
 
 	@WebSocketServer() server: Server = new Server();
 
+	async handleConnection(socket: Socket) {
+		
+	}
 
+	async handleDisconnect(@ConnectedSocket() socket: any) {
+	}
 
 	@SubscribeMessage('chat')
 	async handleChatEvent(@MessageBody() payload: CreateMessageDto)
@@ -37,14 +50,18 @@ export class ChatGateway {
 		}, @ConnectedSocket() socket: any)
 	{
 		let channel: any;
-		if (payload.channelId)
+		if (payload.channelId !== undefined)
+		{
 			channel = await this.chatService.findChannel(payload.channelId);
-		else
+			await this.chatService.joinChannel(payload.channelId, payload.userId);
+		}
+		else if (payload.channel_name !== undefined)
 			channel = await this.chatService.createGroupChannel({
 				ownerId:payload.userId,
-				usersId: null
+				usersId: [payload.userId]
 			}, {channel:true});
-
+		else
+			throw WsException
 		socket.join(channel.id.toString());
 	}
 }
