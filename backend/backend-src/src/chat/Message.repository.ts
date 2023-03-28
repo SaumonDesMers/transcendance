@@ -12,6 +12,7 @@ type AllMessagesTypes = Message | MessageWithAll | MessageWithAuthor | MessageWi
 //so i'm jutse letting the types infer automatically
 //another option would be to decide at this layer what the includes will be and then strongly type in a not
 //generic/templatey way my functions but i dont like this
+@Injectable()
 export class MessageRepository {
 	constructor(private prisma: PrismaService) {}
 

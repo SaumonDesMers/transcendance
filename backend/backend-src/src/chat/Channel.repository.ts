@@ -16,6 +16,7 @@ type AllDMChannels = DMChannelWithBase | DMChannelWithMembers;
 type AllGroupChannels = GroupChannelWithBase | GroupChannelWithMembers;
 
 //go see the comments in message.repository
+@Injectable()
 export class ChannelRepository {
 	constructor(private prisma: PrismaService) {}
 
