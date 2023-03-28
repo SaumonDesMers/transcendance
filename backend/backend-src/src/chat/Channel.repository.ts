@@ -27,11 +27,10 @@ export class ChannelRepository {
 			});
 	}
 
-	async createGroupChannel(input: Prisma.GroupChannelCreateInput, includeMembers: boolean)
-		: Promise<AllGroupChannels> {
+	async createGroupChannel(input: Prisma.GroupChannelCreateInput, include: Prisma.GroupChannelInclude) {
 			return this.prisma.groupChannel.create({
 				data: input,
-				include: {channel: {include: { users: includeMembers}}},
+				include,
 			});
 	}
 
@@ -72,6 +71,12 @@ export class ChannelRepository {
 		return this.prisma.groupChannel.findUniqueOrThrow({
 			where:params,
 			include: {channel: {include: { users: includeMembers}}},
+		});
+	}
+
+	async getSingleChannel(params: Prisma.ChannelWhereUniqueInput) {
+		return this.prisma.channel.findUnique({
+			where: params,
 		});
 	}
 

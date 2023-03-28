@@ -7,6 +7,7 @@ import { Prisma,
 		ChatUser,
 		GroupChannel,
 		DMChannel } from "@prisma/client";
+import { ChatGateway } from "./Chat.gateway";
 
 const messageWithAuthor = Prisma.validator<Prisma.MessageArgs>()({include: {author: true}});
 const messageWithChannel = Prisma.validator<Prisma.MessageArgs>()({include: {channel: true}});
@@ -28,7 +29,7 @@ export type GroupChannelWithMembers = Prisma.GroupChannelGetPayload<typeof inclu
 
 @Module({
 	imports: [PrismaModule],
-	providers: [MessageRepository],
+	providers: [MessageRepository, ChatGateway],
 	exports: [],
 })
-export class MessageModule {}
+export class ChatModule {}

@@ -12,7 +12,7 @@ export class ChatService {
 	constructor(private channelRepository: ChannelRepository,
 				private messageRepository: MessageRepository) {}
 
-	async createGroupChannel(newGroupChannel: CreateGroupChannelDto) {
+	async createGroupChannel(newGroupChannel: CreateGroupChannelDto, include: Prisma.GroupChannelInclude) {
 		//im sorry for these ugly things i dont know how to do this any other way
 		let my_arr: Prisma.ChatUserWhereUniqueInput[];
 		newGroupChannel.usersId.forEach(userId => my_arr.push({userId}));
@@ -25,7 +25,7 @@ export class ChatService {
 					}
 				}
 			}
-		}, true);
+		}, include);
 
 		return channel;
 	}
@@ -118,5 +118,14 @@ export class ChatService {
 		}, true);
 
 		return update;
+	}
+
+	async findChannel(channelId: number)
+	{
+		const channel = await this.channelRepository.getSingleChannel({
+			id:channelId
+		});
+
+		return channel;
 	}
 }

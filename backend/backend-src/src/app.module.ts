@@ -9,6 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/jwt/jwt.guard';
 import { Jwt2faAuthGuard } from './auth/jwt-2fa/jwt-2fa.guard';
 import { GameModule } from './game/game.module';
+import { ChatModule } from './chat/Chat.module';
 
 @Module({
 	imports: [
@@ -20,6 +21,7 @@ import { GameModule } from './game/game.module';
 		}),
 		UserModule,
 		GameModule,
+		ChatModule,
 	],
 	controllers: [AppController],
 	providers: [
