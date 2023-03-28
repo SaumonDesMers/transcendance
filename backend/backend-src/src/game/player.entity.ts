@@ -17,8 +17,10 @@ export class PlayerEntity {
 			this.socket.join(game.UID);
 			this.game = game;
 			this.state = 'game';
+			console.log(this.id, ": join game");
 		} else {
-			throw new Error('Player cannot join more than one game');
+			// throw new Error('Player cannot join more than one game');
+			console.log('Player cannot join more than one game');
 		}
 	}
 
@@ -27,8 +29,10 @@ export class PlayerEntity {
 			this.socket.leave(this.game.UID);
 			this.game = null;
 			this.state = 'none';
+			console.log(this.id, ": leave game");
 		} else {
-			throw new Error('Player cannot leave game (he is not part of one)');
+			// throw new Error('Player cannot leave game (he is not part of one)');
+			console.log('Player cannot leave game (he is not part of one)');
 		}
 	}
 
@@ -36,8 +40,8 @@ export class PlayerEntity {
 		this.game.playerInput(this, input);
 	}
 
-	surrende() {
-		this.game.playerSurrende(this);
+	surrender() {
+		this.game.playerSurrender(this);
 	}
 
 	log() {
