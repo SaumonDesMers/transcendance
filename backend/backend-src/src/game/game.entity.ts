@@ -171,7 +171,7 @@ export class GameEntity {
 
 	async endGame(winner: PlayerEntity) {
 		clearInterval(this.updateIntervalId);
-		this.broadcastService.to(this.UID, 'end', { winner: winner });
+		this.broadcastService.to(this.UID, 'end', { winner: winner.id });
 		this.side[0].player.leaveGame();
 		this.side[1].player.leaveGame();
 	}
