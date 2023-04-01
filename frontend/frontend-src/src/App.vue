@@ -44,8 +44,8 @@ export default {
 		<loginPage @loggedIn="user => onLogin(user)"></loginPage>
 	</div>
 	<div v-else> -->
-		<!-- <register></register> -->
-		<mainPage></mainPage>
+		<register></register>
+		<!-- <mainPage></mainPage> -->
 		<!-- <chat></chat> -->
 		<!-- <game></game> -->
 	<!-- </div> -->

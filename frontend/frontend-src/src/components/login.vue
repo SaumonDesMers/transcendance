@@ -101,8 +101,6 @@ body {
 
 .centered-container {
 	background: $whitesmoke;
-	justify-content: center;
-	align-items: center;
 	padding: 5rem 10rem;
 	border-radius: .250rem;
 	border: 1px solid rgba($black, .1);

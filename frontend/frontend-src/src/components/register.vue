@@ -38,9 +38,10 @@ export default {
 		register() {
 			axios.post()
 		},
-		applyTheme(themeToApply) {
+		applyTheme(themeClass) {
 			const b = document.querySelector('body');
 			b.classList.add(themeClass);
+			this.coalition = themeClass;
 			if (this.isDark) {
 				b.classList.add(`${themeClass}-dark`);
 			}
@@ -54,11 +55,15 @@ export default {
 			}
 		},
 		applyThemeOnMouseOver(themeClass) {
+			if (this.coalition)
+				return ;
 			const b = document.querySelector('body');
 			b.classList.remove('centered-container', 'light-theme', 'dark-theme', 'centered-container-dark');
 			this.setTheme(themeClass);
 		},
 		applyPreviousThemeOnMouseOut() {
+			if (this.coalition)
+				return ;
 			const b = document.querySelector('body');
 			b.classList.remove('alliance-theme', 'order-theme', 'federation-theme', 'assembly-theme', 'alliance-theme-dark', 'order-theme-dark', 'federation-theme-dark', 'assembly-theme-dark');
 			if (this.isDark) {
@@ -108,7 +113,7 @@ export default {
 <template>
 	<div style="display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw;">
 		<div :class="[isDark ? 'centered-container-dark' : 'centered-container']">
-			<div style="display: flex; align-content: flex-start; flex-flow: column wrap;">
+			<div style="display: flex; align-content: flex-end; flex-flow: column wrap;">
 				<input type="checkbox" id="toggle">
 				<label class="toggle-main" for="toggle" @click="toggleDarkMode"></label>
 			</div>

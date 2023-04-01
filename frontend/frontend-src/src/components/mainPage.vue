@@ -42,7 +42,7 @@ export default {
 		<link rel="stylesheet" href="./sidebar.css">
 		<title>SideBAr</title>
 	</head>
-	<div :class="[isDark ? 'main-page dark order-dark' : 'main-page light order']">
+	<div :class="[isDark ? 'main-page dark assembly-dark' : 'main-page light assembly']">
 		<div class="sun" @click="toggleDarkMode"></div>
 		<div class="moon" @click="toggleDarkMode">
 			<div class="dark">
@@ -115,9 +115,9 @@ export default {
 			<button class="main-button">CUSTOM GAME</button>
 		</div>
 	</div>
-	<div :class="[isDark ? 'ocean dark' : 'ocean order']">
-		<div :class="[isDark ? 'wave order-dark' : 'wave order']"></div>
-		<div :class="[isDark ? 'wave order-dark' : 'wave order']"></div>
+	<div :class="[isDark ? 'ocean dark' : 'ocean assembly']">
+		<div :class="[isDark ? 'wave assembly-dark' : 'wave assembly']"></div>
+		<div :class="[isDark ? 'wave assembly-dark' : 'wave assembly']"></div>
 	</div>
 </template>
 
