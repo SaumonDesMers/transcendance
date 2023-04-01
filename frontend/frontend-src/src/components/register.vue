@@ -39,52 +39,47 @@ export default {
 			axios.post()
 		},
 		applyTheme(themeClass) {
-			const b = document.querySelector('body');
-			b.classList.add(themeClass);
-			this.coalition = themeClass;
-			if (this.isDark) {
-				b.classList.add(`${themeClass}-dark`);
-			}
+			if (themeClass == this.coalition)
+				this.coalition = '';
+			else
+				this.coalition = themeClass;
 		},
 		setTheme(themeClass) {
-			const b = document.querySelector('body');
-			b.classList.remove('alliance-theme', 'order-theme', 'federation-theme', 'assembly-theme', 'alliance-theme-dark', 'order-theme-dark', 'federation-theme-dark', 'assembly-theme-dark');
-			b.classList.add(themeClass);
-			if (this.isDark) {
-				b.classList.add(`${themeClass}-dark`);
+			var		theme = themeClass;
+			const	b = document.querySelector('body');
+
+			if (!theme)
+			{
+				if (this.isDark)
+					theme = 'dark-theme';
+				else
+					theme = 'light-theme'
 			}
-		},
-		applyThemeOnMouseOver(themeClass) {
-			if (this.coalition)
-				return ;
-			const b = document.querySelector('body');
-			b.classList.remove('centered-container', 'light-theme', 'dark-theme', 'centered-container-dark');
-			this.setTheme(themeClass);
+			else if (this.isDark)
+				theme += '-dark';
+			b.classList.remove (
+				'alliance-theme',
+				'order-theme',
+				'federation-theme',
+				'assembly-theme',
+				'alliance-theme-dark',
+				'order-theme-dark',
+				'federation-theme-dark',
+				'assembly-theme-dark',
+				'dark-theme',
+				'light-theme',
+				'centered-container',
+				'centered-container-dark'
+			);
+			console.log('setting theme (' + themeClass + ') computed as ' + theme);
+			b.classList.add(theme);
 		},
 		applyPreviousThemeOnMouseOut() {
-			if (this.coalition)
-				return ;
-			const b = document.querySelector('body');
-			b.classList.remove('alliance-theme', 'order-theme', 'federation-theme', 'assembly-theme', 'alliance-theme-dark', 'order-theme-dark', 'federation-theme-dark', 'assembly-theme-dark');
-			if (this.isDark) {
-				b.classList.add('dark-theme');
-			} else {
-				b.classList.add('light-theme');
-			}
+			this.setTheme(this.coalition);
 		},
 		toggleDarkMode() {
-			const b = document.querySelector('body');
-			if (!this.isDark) {
-				if (!b.classList.contains('dark-theme'))
-					b.classList.add('dark-theme');
-				this.isDark = true;
-				b.classList.remove('centered-container', 'light-theme');
-			} else {
-				if (!b.classList.contains('light-theme'))
-					b.classList.add('light-theme');
-				this.isDark = false;
-				b.classList.remove('centered-container-dark', 'dark-theme');
-			}
+			this.isDark = !this.isDark;
+			this.setTheme(this.coalition);
 		},
 		onFileChange(e) {
 			var files = e.target.files || e.dataTransfer.files;
@@ -128,9 +123,9 @@ export default {
 				</div>
 				<div style="display: flex; justify-content: space-between; gap: 4px">
 					<button class="svg" :class="[isDark ? 'btn-coa-dark alliance' : 'btn-coa alliance']"
-						@mouseover="!isDark ? setTheme('alliance-theme') : setTheme('alliance-theme-dark')"
+						@mouseover="setTheme('alliance-theme')"
 						@mouseout="applyPreviousThemeOnMouseOut()"
-						@click="!isDark ? applyTheme('alliance') : applyTheme('alliance-theme-dark')">
+						@click="applyTheme('alliance-theme')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -141,9 +136,9 @@ export default {
 						</svg>
 					</button>
 					<button class="svg" :class="isDark ? 'btn-coa-dark order' : 'btn-coa order'"
-						@mouseover="!isDark ? setTheme('order-theme') : setTheme('order-theme-dark')"
+						@mouseover="setTheme('order-theme')"
 						@mouseout="applyPreviousThemeOnMouseOut()"
-						@click="!isDark ? setTheme('order') : setTheme('order-theme-dark')">
+						@click="applyTheme('order-theme')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -154,9 +149,9 @@ export default {
 						</svg>
 					</button>
 					<button class="svg" :class="isDark ? 'btn-coa-dark federation' : 'btn-coa federation'"
-						@mouseover="!isDark ? setTheme('federation-theme') : setTheme('federation-theme-dark')"
+						@mouseover="setTheme('federation-theme')"
 						@mouseout="applyPreviousThemeOnMouseOut()"
-						@click="!isDark ? setTheme('federation') : setTheme('federation-theme-dark')">
+						@click="applyTheme('federation-theme')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -167,9 +162,9 @@ export default {
 						</svg>
 					</button>
 					<button class="bsvg" :class="isDark ? 'btn-coa-dark assembly' : 'btn-coa assembly'"
-						@mouseover="!isDark ? setTheme('assembly-theme') : setTheme('assembly-theme-dark')"
+						@mouseover="setTheme('assembly-theme')"
 						@mouseout="applyPreviousThemeOnMouseOut()"
-						@click="!isDark ? setTheme('assembly') : setTheme('assembly-theme-dark')">
+						@click="applyTheme('assembly-theme')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
