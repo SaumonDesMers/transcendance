@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, IS_ALPHA } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsNumber, IsString, IS_ALPHA } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateUserDto {
@@ -11,4 +11,9 @@ export class CreateUserDto {
 	@IsNotEmpty()
 	@ApiProperty()
 	username: string;
+
+	@IsBoolean()
+	@IsNotEmpty()
+	@ApiProperty()
+	darkMode: boolean;
 }

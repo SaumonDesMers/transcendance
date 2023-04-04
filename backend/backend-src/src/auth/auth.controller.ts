@@ -5,8 +5,11 @@ import { FortyTwoAuthGuard } from './fortytwo/fortytwo.guard';
 import { JwtAuthGuard } from './jwt/jwt.guard';
 import { Public } from './public.decorator';
 import { HttpStatus } from '@nestjs/common';
+import { ApiNoContentResponse, ApiOkResponse, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { UserEntity } from 'src/user/User.entity';
 
 @Controller('auth')
+@ApiTags('auth')
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
@@ -14,9 +17,9 @@ export class AuthController {
 	@UseGuards(FortyTwoAuthGuard)
 	@Get('login')
 	async login(@Req() req: any, @Res() response: Response) {
-		console.log(req.user.username, 'connected with 42')
+		console.log(req.user.username, 'connected with 42');
 
-		const jwt: string = await this.authService.generateJWT(req.user)
+		const jwt: string = await this.authService.generateJWT(req.user);
 
 		// see URL type
 		const url = new URL(`${req.protocol}:${req.hostname}`);
@@ -27,12 +30,8 @@ export class AuthController {
 	}
 
 	@Get('user')
-	async getProfile(@Req() req: any) {
-		return this.authService.getUser(req.user.id);
-	}
-
-	@Post('register')
-	async register(@Body() body: any) {
-
+	@ApiOkResponse({ type: UserEntity })
+	async getUser(@Req() req: any) {
+		return await this.authService.getUser(req.user.id);
 	}
 }
