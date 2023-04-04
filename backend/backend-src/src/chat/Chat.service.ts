@@ -62,6 +62,7 @@ export class ChatService {
 				connect: {id: newMessage.ChannelId}},
 			author: {
 				connect: {userId: newMessage.authorId}},
+			postedAt: Date()
 			},
 			{channel: true, author: true},
 		);

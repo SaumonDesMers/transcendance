@@ -52,6 +52,7 @@ model Message {
 	channel Channel @relation(fields: [channelId], references: [id])
 	chatUserId Int
 	channelId Int
+	postedAt DateTime
 }
 
 // The objective for channels is to have some kind of hierarchy
