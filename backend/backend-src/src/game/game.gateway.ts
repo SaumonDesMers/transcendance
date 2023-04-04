@@ -10,6 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'net';
 import { Server } from 'socket.io'
+import { AuthService } from 'src/auth/auth.service';
 import { GameService } from './game.service';
 
 @WebSocketGateway({
@@ -19,7 +20,8 @@ import { GameService } from './game.service';
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
 
 	constructor(
-		private readonly gameService: GameService
+		private readonly gameService: GameService,
+		private readonly authService: AuthService
 	) {}
 
 	@WebSocketServer()
@@ -30,13 +32,20 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 	}
 
 	async handleConnection(socket: any) {
-		this.server.emit('event', 'connected');
-		console.log(socket.handshake.headers)
+		// this.server.emit('event', 'connected');
+		const jwt = socket.handshake.headers.authorization;
+
+		try {
+			await this.authService.verifyJWT(jwt.split(' ')[1]);
+		} catch {
+			console.log('Error: game.gateway: jwt =', jwt);
+			socket.disconnect();
+		}
+
 	}
 
 	async handleDisconnect(socket: any) {
 		// console.log("Game gateway disconnect")
-		this.server.emit('event', 'disconnected');
 	}
 
 	@SubscribeMessage('queue')
