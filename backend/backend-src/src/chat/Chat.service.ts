@@ -136,4 +136,44 @@ export class ChatService {
 
 		return channel;
 	}
+
+	async getChatUser(userId: number)
+	{
+		const user = await this.prisma.chatUser.findUnique({
+			include:
+			{
+				joinedChannels:
+				{
+					include:
+					{
+						users:
+						{
+							select:
+							{
+								user: {select: {username: true}},
+								userId: true,
+							}
+						},
+						messages:
+						{
+							select: {
+								content: true,
+								author: {
+									select: {
+										user: {select: {username: true}},
+										userId: true,
+									}
+								}
+							},
+							orderBy: {
+								postedAt : 'asc'
+							},
+							take: 10,
+						}
+					}
+				}
+			},
+			where: {userId}
+		});
+	}
 }
