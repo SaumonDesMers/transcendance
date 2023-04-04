@@ -19,6 +19,15 @@ export default {
 
 	data() {
 		return {
+			State: {
+				LOGIN: 0,
+				REGISTER: 1,
+				MAIN: 2,
+				GAME: 3,
+				CHAT: 4,
+				USER: 5,
+			},
+			state: 0,
 			loggedIn: false,
 			user: null,
 		}
@@ -26,12 +35,16 @@ export default {
 
 	methods: {
 		onLogin(user) {
-			this.loggedIn = true;
+			this.state = this.State.MAIN;
 			this.user = user;
+		},
+		onRegister() {
+			this.state = this.State.REGISTER;
+
 		}
 	},
 
-	mounted() { },
+	mounted() { this.state = this.State.LOGIN },
 
 	created() { },
 }
@@ -40,15 +53,17 @@ export default {
 <template>
 	<!-- <p v-if="user != null">You are logged as {{ user.username }}</p> -->
 
-	<!-- <div v-if="!loggedIn">
-		<loginPage @loggedIn="user => onLogin(user)"></loginPage>
+	<div v-if="state == State.LOGIN">
+		<loginPage @loggedIn="user => onLogin(user)" @toRegister="onRegister()"></loginPage>
 	</div>
-	<div v-else> -->
+	<div v-else-if="state == State.REGISTER">
 		<register></register>
-		<!-- <mainPage></mainPage> -->
-		<!-- <chat></chat> -->
-		<!-- <game></game> -->
-	<!-- </div> -->
+	</div>
+	<div v-else-if="state == State.MAIN">
+		<mainPage></mainPage>
+	</div>
+	<!-- <chat></chat> -->
+	<!-- <game></game> -->
 </template>
 
 <style scoped></style>

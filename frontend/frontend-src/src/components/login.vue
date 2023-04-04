@@ -18,23 +18,28 @@ export default {
 			return params.get("code");
 		},
 		requestUserWithJwt(jwt) {
-			axios.get('http://localhost:3001/auth/profile', {
+			axios.get('http://localhost:3001/auth/user', {
 				headers: {
 					Authorization: `Bearer ${jwt}`
 				}
 			})
 				.then(res => {
-					this.$emit('loggedIn', res.data);
+					if (res.data == null)
+						this.$emit('onRegister', res.data);
+					else
+						this.$emit('loggedIn', res.data);
+					// console.log(res);
 					localStorage.jwt = jwt;
 					axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 				})
 				.catch(err => {
 					this.errorMsg = err.message;
+					console.log(err);
 				})
 		}
 	},
 
-	emits: ['loggedIn'],
+	emits: ['loggedIn', 'toRegister'],
 
 	mounted() {
 		let jwt = this.getJwt();
@@ -48,10 +53,10 @@ export default {
 
 <template>
 	<div class="actions" style="align-items: center; justify-content: center;">
-		<div style="display: flex; justify-content: flex-end;">
+		<!-- <div style="display: flex; justify-content: flex-end;">
 			<img src="/src/assets/images/pio-chick.gif" alt="chick-gif"
 				style="width: 100px;height: 100px;animation: 1s steps(23) 5s infinite normal none running anim-ss;">
-		</div>
+		</div> -->
 		<div class="centered-container">
 			<div class="actions-content">
 				<button class="btn brown" type="submit" @click="login">

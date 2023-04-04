@@ -19,6 +19,12 @@ export default {
 	methods: {
 		updateWindowSize() {
 			this.windowSize = { width: window.innerWidth, height: window.innerHeight };
+			console.log(this.windowSize);
+		},
+		windowSize() {
+			// 768 * 700;
+			console.log(window.innerWidth * window.innerHeight);
+			return (window.innerWidth);
 		},
 		toggleDarkMode() {
 			const b = document.querySelector('body');
@@ -52,7 +58,9 @@ export default {
 			<div class="dark">
 			</div>
 		</div>
-		<div id="App" class="navigation">
+	</div>
+	<div :style="[windowSize.width < 620 ? 'display : none' : 'display : flex' ]">
+		<div class="navigation">
 			<ul>
 				<li>
 					<a href="#">
@@ -98,7 +106,8 @@ export default {
 				</li>
 				<li>
 					<a href="#">
-						<span class="icon" @click="toggleDarkMode"><i :class="[isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun']"></i></span>
+						<span class="icon" @click="toggleDarkMode"><i
+								:class="[isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun']"></i></span>
 						<span class="title" @click="toggleDarkMode">Theme</span>
 					</a>
 				</li>
@@ -114,11 +123,11 @@ export default {
 			<button class="main-button">GAME</button>
 			<button class="main-button">CUSTOM GAME</button>
 		</div>
-	</div>
-	<div :class="[isDark ? 'ocean dark' : 'ocean assembly']">
-		<div :class="[isDark ? 'wave assembly-dark' : 'wave assembly']"></div>
-		<div :class="[isDark ? 'wave assembly-dark' : 'wave assembly']"></div>
-	</div>
+		</div>
+		<div :class="[isDark ? 'ocean dark' : 'ocean assembly']">
+			<div :class="[isDark ? 'wave assembly-dark' : 'wave assembly']"></div>
+			<div :class="[isDark ? 'wave assembly-dark' : 'wave assembly']"></div>
+		</div>
 </template>
 
 <style lang="scss">
@@ -145,6 +154,9 @@ $grey: #777777;
 
 .main-page {
 	display: flex;
+	top: 0;
+	left: 0;
+	position: absolute;
 	width: 100vw;
 	height: 100vh;
 }
@@ -170,6 +182,7 @@ $grey: #777777;
 			background-image: linear-gradient(to top, #dea7ab, #d8a6a8, #cb8889, #bb6a6b, #aa4c4d, #9e3c3e, #922c2f, #851a21, #7c161d, #741218, #6b0e14, #630a10);
 			transition: none;
 		}
+
 		.sun {
 			width: 190px;
 			height: 190px;
@@ -290,14 +303,16 @@ $grey: #777777;
 
 .main-container {
 	width: 100%;
-	flex: 0 0 auto;
 	flex-direction: column;
 	height: 100vh;
+	left: 0;
+	top: 0;
 	position: absolute;
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
 	align-items: center;
+	z-index: 2;
 }
 
 .main-button {
@@ -437,10 +452,11 @@ $grey: #777777;
 }
 
 .navigation {
-	position: fixed;
-	z-index: 1;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 3;
 	width: 70px;
-	max-width: 15%;
 	height: 100%;
 	background-color: rgba(0, 0, 0, 0.25);
 	color: $white;
@@ -455,8 +471,12 @@ $grey: #777777;
 
 .navigation ul {
 	position: absolute;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
 	top: 0;
 	left: 0;
+	height: 100%;
 	width: 100%;
 }
 
@@ -520,7 +540,7 @@ $grey: #777777;
 	line-height: 100px;
 	text-align: center;
 	white-space: nowrap;
-	font-size: 1vw;
+	font-size: 17px;
 
 	&:hover,
 	&:active {
@@ -561,17 +581,16 @@ $grey: #777777;
 	content: "\f00d";
 }
 
-@media (max-width: 767px) {
-	.navigation {
-		left: -60px;
-	}
+// @media (max-width: 621px) {
+// 	.navigation {
+// 		left: -60px;
+// 	}
 
-	.navigation.active {
-		left: 0px;
-		width: 100%;
-	}
-}
-
+// 	.navigation.active {
+// 		left: 0px;
+// 		width: 100%;
+// 	}
+// }
 
 .centered-container-dark {
 	background: $black;
