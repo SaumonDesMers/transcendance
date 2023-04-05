@@ -2,6 +2,7 @@
 CREATE TABLE "User" (
     "id" INTEGER NOT NULL,
     "username" TEXT NOT NULL,
+    "darkMode" BOOLEAN NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -19,6 +20,7 @@ CREATE TABLE "Message" (
     "content" TEXT NOT NULL,
     "chatUserId" INTEGER NOT NULL,
     "channelId" INTEGER NOT NULL,
+    "postedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
 );

@@ -1,56 +1,85 @@
-<script>
-import axios from 'axios'
-import io from "socket.io-client"
+<script lang="ts">
+import io from 'socket.io-client'
+import { Socket } from 'socket.io-client';
+import { ChatUser } from './chatUser.interface.ts';
+
 
 export default {
 
-
 	data() {
 		return {
-			socket: null,
+			socket: Socket,
+			user : ,
 			chat: {
-				events: [],
+				receivedMessages[],
+				channel: {
+					channelId: number,
+
+				},
 				messageBuffer: '',
 			}
 		}
 	},
 
 	methods: {
-
-		sendMessage(event, message = this.chat.messageBuffer) {
-			console.log(this.socket)
-			this.socket.emit('message', message)
-		},
-
-		handleEvent(event) {
-			this.chat.events.push(event)
-		},
-
 		connectToServer() {
-			this.socket.connect()
+			this.socket.io.opts.extraHeaders = {
+				authorization: `Bearer ${localStorage.jwt}`
+			};
+			this.socket.connect();
+		},
+
+		disconnectFromServer() {
+			this.socket.disconnect();
+		},
+
+		async sendTest() {
+			this.socket.emit('test_event', (answer) => {
+				console.log(answer);
+			});
+		},
+
+		async joinChannel() {
+
+		},
+
+		async SendMessage() {
+			const msg = {
+
+			}
 		},
 
 		initSocket() {
-			this.socket = io('http://localhost:3001', {
+			this.socket = io('http://localhost:3001/chat', {
 				autoConnect: false,
-			})
-			
-			this.socket.on('connect', () => {
-				console.log("Successfully connected to the game websocket server...")
-			})
-			
-			this.socket.on('disconnect', function(reason) {
-				console.log("Connection to the game websocket server closed: ", reason)
-			})
-			
-			this.socket.on('connect_error', function(error) {
-				console.log("Error connecting to the game websocket server: ", error)
-			})
+			});
 
-			this.socket.on('event', this.handleEvent)
+			this.socket.on('connect', () => {
+				console.log("Connected to chat");
+			});
+
+			this.socket.on('disconnect', () => {
+				console.log("Connection to chat websocket closed");
+			});
+
+			this.socket.on('connect_error', () => {
+				console.log("Error connecting to chat websocket");
+			});
+
+			this.socket.on("error", (reason) => {
+				console.log("received an error from server");
+			});
+
+			this.socket.on("exception", (reason) => {
+				console.log("received an error from server");
+			});
 
 			this.socket.onAnyOutgoing((event, ...args) => {
-				console.log(event, args)
+				// console.log(event, args);
+			});
+
+			this.socket.onAny((event, ...args) => {
+				console.log(event);
 			})
 		}
 	},
@@ -58,26 +87,31 @@ export default {
 	mounted() {},
 
 	created() {
-		this.initSocket()
-	}
+		this.initSocket();
+	},
 }
+
 </script>
 
 <template>
 	<div>
 		<div>
-			<button v-if="socket.disconnected" @click="socket.connect">Connect to webSocket</button>
-			<button v-else @click="socket.disconnect">Disconnect from webSocket</button>
+			<button v-if="socket.disconnected" @click="connectToServer">Connect To Chat</button>
+			<button v-else @click="disconnectFromServer">Disconnect from Chat</button>
+			<button @click="sendTest">Get chehd</button>
 		</div>
-		<input type="text" v-model="chat.messageBuffer">
-		<button @click="sendMessage">Send</button>
 
-		<div v-for="event in chat.events">
+		<div>
+			<input type="text" v-model="chat.messageBuffer">
+			<button @click="sendMessage">Send</button>
+		</div>
+
+		<div v-for="message in chat.receivedMessages">
 			{{ event }}
 		</div>
 	</div>
-
 </template>
 
 <style scoped>
+
 </style>
