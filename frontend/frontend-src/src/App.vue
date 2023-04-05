@@ -40,7 +40,6 @@ export default {
 		},
 		onRegister() {
 			this.state = this.State.REGISTER;
-
 		}
 	},
 
@@ -53,15 +52,15 @@ export default {
 <template>
 	<!-- <p v-if="user != null">You are logged as {{ user.username }}</p> -->
 
-	<div v-if="state == State.LOGIN">
+	<!-- <div v-if="state == State.LOGIN">
 		<loginPage @loggedIn="user => onLogin(user)" @toRegister="onRegister()"></loginPage>
 	</div>
 	<div v-else-if="state == State.REGISTER">
 		<register></register>
 	</div>
-	<div v-else-if="state == State.MAIN">
+	<div v-else-if="state == State.MAIN"> -->
 		<mainPage></mainPage>
-	</div>
+	<!-- </div> -->
 	<!-- <chat></chat> -->
 	<!-- <game></game> -->
 </template>

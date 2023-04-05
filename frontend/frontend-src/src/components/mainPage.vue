@@ -49,17 +49,23 @@ export default {
 		<title>SideBAr</title>
 	</head>
 	<div :class="[isDark ? 'main-page dark assembly-dark' : 'main-page light assembly']">
-		<div class="sun" @click="toggleDarkMode"></div>
-		<div class="moon" @click="toggleDarkMode">
-			<div class="dark">
+		<div class="sky" style="width: 100vw; height: 100vh; display: block; position:relative;">
+			<div class="sun" @click="toggleDarkMode"></div>
+			<div class="moon" @click="toggleDarkMode">
+				<div class="dark">
+				</div>
+				<div class="dark">
+				</div>
+				<div class="dark">
+				</div>
 			</div>
-			<div class="dark">
-			</div>
-			<div class="dark">
-			</div>
+			<div class="stars"></div>
+			<div class="stars1"></div>
+			<div class="stars2"></div>
+			<div class="shooting-stars"></div>
 		</div>
 	</div>
-	<div :style="[windowSize.width < 620 ? 'display : none' : 'display : flex' ]">
+	<div :style="[windowSize.width < 620 ? 'display : none' : 'display : flex']">
 		<div class="navigation">
 			<ul>
 				<li>
@@ -123,11 +129,11 @@ export default {
 			<button class="main-button">GAME</button>
 			<button class="main-button">CUSTOM GAME</button>
 		</div>
-		</div>
-		<div :class="[isDark ? 'ocean dark' : 'ocean assembly']">
-			<div :class="[isDark ? 'wave assembly-dark' : 'wave assembly']"></div>
-			<div :class="[isDark ? 'wave assembly-dark' : 'wave assembly']"></div>
-		</div>
+	</div>
+	<div :class="[isDark ? 'ocean dark' : 'ocean assembly']">
+		<div :class="[isDark ? 'wave assembly-dark' : 'wave assembly']"></div>
+		<div :class="[isDark ? 'wave assembly-dark' : 'wave assembly']"></div>
+	</div>
 </template>
 
 <style lang="scss">
@@ -141,7 +147,16 @@ $blue-grey: #3F4C5C;
 $white: #FFFFFF;
 $whitesmoke: #F3F4ED;
 $grey: #777777;
-
+$starFieldWidth: 2560;
+$starFieldHeight: 2560;
+$starStartOffset: 600px;
+$starOneScrollDuration: 100s;
+$starTwoScrollDuration: 125s;
+$starThreeScrollDuration: 175s;
+$numStarOneStars: 1700;
+$numStarTwoStars: 700;
+$numStarThreeStars: 200;
+$numShootingStars: 10;
 
 * {
 	margin: 0;
@@ -218,6 +233,7 @@ $grey: #777777;
 		}
 
 		.moon {
+			z-index: 10;
 			background: whitesmoke;
 			display: flex;
 			width: 190px;
@@ -233,6 +249,7 @@ $grey: #777777;
 		}
 
 		.moon .dark {
+			z-index: 10;
 			content: "";
 			background: rgb(0, 0, 0, 0.25);
 			position: absolute;
@@ -244,6 +261,7 @@ $grey: #777777;
 		}
 
 		.moon .dark:nth-child(1) {
+			z-index: 10;
 			content: "";
 			background: rgb(0, 0, 0, 0.25);
 			position: absolute;
@@ -255,6 +273,7 @@ $grey: #777777;
 		}
 
 		.moon .dark:nth-child(1)::after {
+			z-index: 10;
 			content: "";
 			background: rgb(250, 250, 250, 0.6);
 			width: 78px;
@@ -266,6 +285,7 @@ $grey: #777777;
 		}
 
 		.moon .dark::after {
+			z-index: 10;
 			content: "";
 			background: rgb(250, 250, 250, 0.6);
 			width: 45px;
@@ -277,6 +297,7 @@ $grey: #777777;
 		}
 
 		.moon .dark:nth-child(2) {
+			z-index: 10;
 			content: "";
 			background: rgb(0, 0, 0, 0.35);
 			position: absolute;
@@ -288,6 +309,7 @@ $grey: #777777;
 		}
 
 		.moon .dark:nth-child(2)::after {
+			z-index: 10;
 			content: "";
 			background: rgb(250, 250, 250, 0.6);
 			width: 18px;
@@ -737,5 +759,107 @@ input[type="checkbox"]:checked~label::before {
 
 .endWave {
 	display: none;
+}
+
+// .container
+//   display: block
+//   position: relative
+//   width: 100%
+//   height: 100%
+//   background: linear-gradient(to bottom, #020107 0%, #201b46 100%)
+//   .text
+//     color: #FFF
+//     position: absolute
+//     top: 50%
+//     right: 50%
+//     margin: -10px -75px 0 0
+//     font-size: 20px
+//     font-family: sans-serif
+//     font-weight: bold
+
+@function create-stars($n) {
+	$stars: "#{random($starFieldWidth)}px #{random($starFieldHeight)}px #FFF";
+
+	@for $i from 2 through $n {
+		$stars: "#{$stars} , #{random($starFieldWidth)}px #{random($starFieldHeight)}px #FFF";
+	}
+
+	@return unquote($stars);
+}
+
+@mixin star-template($numStars, $starSize, $scrollSpeed) {
+	z-index: 4;
+	width: $starSize;
+	height: $starSize;
+	border-radius: 50%;
+	// background: transparent;
+	box-shadow: create-stars($numStars);
+	animation: animStar $scrollSpeed linear infinite;
+
+	&:after {
+		content: " ";
+		top: -$starStartOffset;
+		width: $starSize;
+		height: $starSize;
+		border-radius: 50%;
+		position: absolute;
+		// background: transparent;
+		box-shadow: create-stars($numStars);
+	}
+}
+
+
+@mixin shooting-star-template($numStars, $starSize, $speed) {
+	z-index: 5;
+	width: $starSize;
+	height: $starSize + 80px;
+	border-top-left-radius: 50%;
+	border-top-right-radius: 50%;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	// background: linear-gradient(to top, rgba(255,255,255,0), rgba(255,255,255,1));
+	animation: animShootingStar $speed linear infinite;
+}
+
+.stars {
+	@include star-template($numStarOneStars, 1px, $starOneScrollDuration);
+}
+
+.stars1 {
+	@include star-template($numStarTwoStars, 2px, $starTwoScrollDuration);
+}
+
+.stars2 {
+	@include star-template($numStarThreeStars, 3px, $starThreeScrollDuration);
+}
+
+.shooting-stars {
+	@include shooting-star-template($numShootingStars, 5px, 10s);
+}
+
+@keyframes animStar {
+	from {
+		transform: translateY(0px);
+	}
+
+	to {
+		transform: translateY(-#{$starFieldHeight}px) translateX(-#{$starFieldWidth}px);
+	}
+}
+
+
+@keyframes animShootingStar {
+	from {
+		transform: translateY(0px) translateX(0px) rotate(-45deg);
+		opacity: 1;
+		height: 5px;
+	}
+
+	to {
+		transform: translateY(-#{$starFieldHeight}px) translateX(-#{$starFieldWidth}px) rotate(-45deg);
+		opacity: 1;
+		height: 800px;
+	}
 }
 </style>

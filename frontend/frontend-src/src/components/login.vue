@@ -24,7 +24,7 @@ export default {
 				}
 			})
 				.then(res => {
-					if (res.data == null)
+					if (res.data === null)
 						this.$emit('onRegister', res.data);
 					else
 						this.$emit('loggedIn', res.data);
