@@ -71,6 +71,7 @@ export default {
 			console.log('game start');
 			this.state = 'game';
 			window.addEventListener('keydown', this.handleKeydownEvent);
+			window.addEventListener('keyup', this.handleKeyupEvent);
 		},
 
 		onGameUpdate(event) {
@@ -82,6 +83,7 @@ export default {
 			console.log('game end');
 			this.state = 'none';
 			window.removeEventListener('keydown', this.handleKeydownEvent);
+			window.removeEventListener('keyup', this.handleKeyupEvent);
 		},
 
 		surrender() {
@@ -94,6 +96,13 @@ export default {
 				this.socket.emit('input', 'up');
 			} else if (e.key == 'ArrowDown') {
 				this.socket.emit('input', 'down');
+			}
+		},
+
+		handleKeyupEvent(e) {
+			// console.log('key:', e.key);
+			if (e.key == 'ArrowUp' || e.key == 'ArrowDown') {
+				this.socket.emit('input', 'none');
 			}
 		},
 

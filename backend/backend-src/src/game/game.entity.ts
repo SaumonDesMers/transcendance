@@ -5,21 +5,16 @@ import { BroadcastService } from './broadcast.service'
 const LEFT = 0;
 const RIGHT = 1;
 
+const NONE = 0;
+const UP = 1;
+const DOWN = 2;
+
 const updateInterval = 10;
 
 const maxScore = 10;
 
 const player1_paddlePos_x = 0.05;
 const player2_paddlePos_x = 0.95;
-
-function degrees_to_radians(degrees: number)
-{
-	return degrees * Math.PI / 180;
-}
-
-function getRandomInt(max: number) {
-	return Math.floor(Math.random() * max);
-}
 
 export class GameEntity {
 
@@ -33,7 +28,7 @@ export class GameEntity {
 	paddle = {
 		width: 20,
 		height: 100,
-		speed: 10,
+		speed: 12,
 	}
 
 	side : {
@@ -42,6 +37,7 @@ export class GameEntity {
 			x: number,
 			y: number,
 		},
+		moving: string,
 		score: number
 	}[]
 
@@ -80,6 +76,7 @@ export class GameEntity {
 					x: player1_paddlePos_x * this.arena.width,
 					y: this.arena.height / 2
 				},
+				moving: 'none',
 				score: 0
 			},
 			{
@@ -88,6 +85,7 @@ export class GameEntity {
 					x: player2_paddlePos_x * this.arena.width,
 					y: this.arena.height / 2
 				},
+				moving: 'none',
 				score: 0
 			},
 		]
@@ -116,6 +114,9 @@ export class GameEntity {
 	}
 
 	async update(game: GameEntity) {
+		// update player position
+		game.movePlayer(game.side[LEFT]);
+		game.movePlayer(game.side[RIGHT]);
 		// update ball position
 		let ball = game.ball;
 		ball.pos.x += ball.speed / 100 * updateInterval * Math.cos(ball.orientation);
@@ -140,6 +141,14 @@ export class GameEntity {
 			game.endGame(game.side[0].player);
 		else if (game.side[1].score >= maxScore)
 			game.endGame(game.side[1].player);
+	}
+
+	movePlayer(side: any) {
+		if (side.moving == "up") {
+			side.paddlePos.y = Math.max(side.paddlePos.y - this.paddle.speed / 50 * updateInterval, 0);
+		} else if (side.moving == "down") {
+			side.paddlePos.y = Math.min(side.paddlePos.y + this.paddle.speed / 50 * updateInterval, this.arena.height);
+		}
 	}
 
 	playerScorePoint(n: number) {
@@ -173,18 +182,14 @@ export class GameEntity {
 			else
 				this.ball.orientation = Math.PI + collidePointY * Math.PI / 4;
 
-			this.ball.speed++;
+			this.ball.speed += 2;
 			this.ball.lastHit = sideNb;
 		}
 	}
 
 	async playerInput(player: PlayerEntity, input: string) {
 		let side = this.side.find(side => side.player.socket.id == player.socket.id);
-		if (input == "up") {
-			side.paddlePos.y = Math.max(side.paddlePos.y - this.paddle.speed, 0);
-		} else if (input == "down") {
-			side.paddlePos.y = Math.min(side.paddlePos.y + this.paddle.speed, this.arena.height);
-		}
+		side.moving = input;
 	}
 
 	async playerSurrender(player: PlayerEntity) {
