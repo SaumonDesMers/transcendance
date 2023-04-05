@@ -22,7 +22,6 @@ export default {
 			console.log(this.windowSize);
 		},
 		windowSize() {
-			// 768 * 700;
 			console.log(window.innerWidth * window.innerHeight);
 			return (window.innerWidth);
 		},

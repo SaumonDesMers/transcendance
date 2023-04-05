@@ -6,6 +6,8 @@ import chat from './components/chat.vue'
 import game from './components/game.vue'
 import register from './components/register.vue'
 import mainPage from './components/mainPage.vue'
+import user from './components/profil.vue'
+
 
 export default {
 
@@ -15,6 +17,7 @@ export default {
 		game,
 		register,
 		mainPage,
+		user,
 	},
 
 	data() {
@@ -43,7 +46,10 @@ export default {
 		}
 	},
 
-	mounted() { this.state = this.State.LOGIN },
+	mounted() { 
+		// this.state = this.State.LOGIN;
+		this.state = this.State.USER; 
+	},
 
 	created() { },
 }
@@ -52,15 +58,18 @@ export default {
 <template>
 	<!-- <p v-if="user != null">You are logged as {{ user.username }}</p> -->
 
-	<!-- <div v-if="state == State.LOGIN">
+	<div v-if="state == State.LOGIN">
 		<loginPage @loggedIn="user => onLogin(user)" @toRegister="onRegister()"></loginPage>
 	</div>
 	<div v-else-if="state == State.REGISTER">
 		<register></register>
 	</div>
-	<div v-else-if="state == State.MAIN"> -->
+	<div v-else-if="state == State.MAIN">
 		<mainPage></mainPage>
-	<!-- </div> -->
+	</div>
+	<div v-else-if="state == State.USER">
+		<user></user>
+	</div>
 	<!-- <chat></chat> -->
 	<!-- <game></game> -->
 </template>
