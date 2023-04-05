@@ -2,6 +2,9 @@ import { PlayerEntity } from "./player.entity"
 import { v4 as uuid } from "uuid";
 import { BroadcastService } from './broadcast.service'
 
+const LEFT = 0;
+const RIGHT = 1;
+
 const updateInterval = 10;
 
 const maxScore = 10;
@@ -12,6 +15,10 @@ const player2_paddlePos_x = 0.95;
 function degrees_to_radians(degrees: number)
 {
 	return degrees * Math.PI / 180;
+}
+
+function getRandomInt(max: number) {
+	return Math.floor(Math.random() * max);
 }
 
 export class GameEntity {
@@ -43,6 +50,15 @@ export class GameEntity {
 		pos: {
 			x: this.arena.width / 2,
 			y: this.arena.height / 2,
+		},
+		collidePoint(sideNb: number) {
+			return {
+				x: this.pos.x + (sideNb == 0 ? -this.size: this.size),
+				y: this.pos.y
+			};
+		},
+		newStartingOrientation() {
+			this.orientation = (Math.random()<0.5?Math.PI:0) + ((Math.random()*2-1) * Math.PI/4);
 		},
 		orientation: Math.PI / 4, // in radian
 		speed: 20,
@@ -109,20 +125,13 @@ export class GameEntity {
 			ball.orientation = -ball.orientation;
 		// reach left
 		if (ball.pos.x - ball.size < 0)
-			game.playerScorePoint(1);
+			game.playerScorePoint(RIGHT);
 		// reach right
 		if (ball.pos.x + ball.size > game.arena.width)
-			game.playerScorePoint(0);
-		// bounce on left paddle
-		if (ball.lastHit != 0 && game.collideWithPaddle(game.side[0].paddlePos, game.ball.pos.x - game.ball.size)) {
-			ball.orientation = Math.PI - ball.orientation;
-			ball.lastHit = 0;
-		}
-		// bounce on right paddle
-		if (ball.lastHit != 1 && game.collideWithPaddle(game.side[1].paddlePos, game.ball.pos.x + game.ball.size)) {
-			ball.orientation = Math.PI - ball.orientation;
-			ball.lastHit = 1;
-		}
+			game.playerScorePoint(LEFT);
+		// bounce on paddle
+		game.bounceOnPaddle(LEFT);
+		game.bounceOnPaddle(RIGHT);
 
 		game.broadcastCurrentState();
 
@@ -141,17 +150,32 @@ export class GameEntity {
 	resetBall() {
 		this.ball.pos.x = this.arena.width / 2;
 		this.ball.pos.y = this.arena.height / 2;
-		this.ball.orientation = Math.PI / 4;
+		this.ball.newStartingOrientation();
+		this.ball.speed = 20;
 		this.ball.lastHit = -1;
 	}
 
-	collideWithPaddle(paddle: any, ballCollidePointX: any): boolean {
-		return (
-			ballCollidePointX < paddle.x + this.paddle.width / 2
-			&& ballCollidePointX > paddle.x - this.paddle.width / 2
-			&& this.ball.pos.y > paddle.y - this.paddle.height / 2
-			&& this.ball.pos.y < paddle.y + this.paddle.height / 2
-		)
+	bounceOnPaddle(sideNb: number) {
+
+		let paddle = this.side[sideNb].paddlePos;
+		let ball = this.ball.collidePoint(sideNb);
+
+		if (this.ball.lastHit != sideNb
+			&& ball.x < paddle.x + this.paddle.width / 2
+			&& ball.x > paddle.x - this.paddle.width / 2
+			&& ball.y > paddle.y - this.paddle.height / 2
+			&& ball.y < paddle.y + this.paddle.height / 2) {
+			
+			// compute new orientation with collide point
+			let collidePointY = (ball.y - paddle.y) / (this.paddle.height / 2);
+			if (sideNb == LEFT)
+				this.ball.orientation = -collidePointY * Math.PI / 4;
+			else
+				this.ball.orientation = Math.PI + collidePointY * Math.PI / 4;
+
+			this.ball.speed++;
+			this.ball.lastHit = sideNb;
+		}
 	}
 
 	async playerInput(player: PlayerEntity, input: string) {
@@ -176,7 +200,4 @@ export class GameEntity {
 		this.side[1].player.leaveGame();
 	}
 
-	async addWatcher(watcher: PlayerEntity) {
-
-	}
 }

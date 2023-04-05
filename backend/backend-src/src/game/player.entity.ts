@@ -8,7 +8,7 @@ export class PlayerEntity {
 	game: GameEntity | null = null
 
 	constructor(socket: any) {
-		this.id = socket.userId;
+		this.id = socket.data.userId;
 		this.socket = socket;
 	}
 
