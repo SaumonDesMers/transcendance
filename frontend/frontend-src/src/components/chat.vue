@@ -1,7 +1,6 @@
 <script lang="ts">
 import io from 'socket.io-client'
 import { Socket } from 'socket.io-client';
-import { ChatUser } from './chatUser.interface.ts';
 
 
 export default {
@@ -9,15 +8,10 @@ export default {
 	data() {
 		return {
 			socket: Socket,
-			user : ,
-			chat: {
-				receivedMessages[],
-				channel: {
-					channelId: number,
-
-				},
-				messageBuffer: '',
-			}
+			user : null,
+			inputBuffer: '',
+			channels: undefined,
+			receivedMessages: [],
 		}
 	},
 
@@ -45,8 +39,11 @@ export default {
 
 		async SendMessage() {
 			const msg = {
+				content: this.inputBuffer,
+				ChannelId: this.channels[0].id,
+				authorId: this.user.userId
+			};
 
-			}
 		},
 
 		initSocket() {
@@ -102,12 +99,12 @@ export default {
 		</div>
 
 		<div>
-			<input type="text" v-model="chat.messageBuffer">
-			<button @click="sendMessage">Send</button>
+			<input type="text" v-model="inputBuffer">
+			<button @click="SendMessage">Send</button>
 		</div>
 
-		<div v-for="message in chat.receivedMessages">
-			{{ event }}
+		<div v-for="message in receivedMessages">
+			{{ message }}
 		</div>
 	</div>
 </template>
