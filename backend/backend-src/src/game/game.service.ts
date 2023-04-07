@@ -2,13 +2,14 @@ import { Injectable } from "@nestjs/common";
 import { PlayerEntity } from "./player.entity"
 import { GameEntity } from "./game.entity"
 import { WsException } from "@nestjs/websockets";
-import { Server } from 'socket.io'
+import { Socket } from 'socket.io'
 import { BroadcastService } from './broadcast.service'
 
 @Injectable()
 export class GameService {
 
-	onlineUser = new WeakMap<any, PlayerEntity>();
+	onlinePlayer = new WeakMap<any, PlayerEntity>();
+	reconnectionHub = new Array<PlayerEntity>();
 	queue = new Array<PlayerEntity>();
 	games = new Array<GameEntity>();
 
@@ -16,35 +17,55 @@ export class GameService {
 		private readonly broadcastService: BroadcastService,
 	) {}
 
-	async connection(socket: any) {
-		this.onlineUser.set(socket, new PlayerEntity(socket));
-	}
+	async connection(socket: Socket) {
+		// check for existing player waiting for reconnection
+		let player: PlayerEntity = this.reconnectionHub.find(p => { return p.id == socket.data.userId; });
 
-	async disconnection(socket: any) {
-		let user = this.onlineUser.get(socket);
-		if (user.state == 'game') {
-			// wait some time before delete to let him reconnect
-			user.surrender();
-			this.onlineUser.delete(socket);
-		} else {
-			this.onlineUser.delete(socket);
+		if (player) {
+			this.reconnectionHub = this.reconnectionHub.filter(p => { return p != player });
+			player.socket = socket;
+			if (player.state == 'game')
+				player.reconnectToGame();
 		}
+		else
+			player = new PlayerEntity(socket);
+		
+		this.onlinePlayer.set(socket, player);
 	}
 
-	async updateQueue(socket: any, msg: string): Promise<string> {
-		let user = this.onlineUser.get(socket);
+	async disconnection(socket: Socket) {
+		let player: PlayerEntity = this.onlinePlayer.get(socket);
+		if (player.state == 'game') {
+			// wait some time before delete to let him reconnect
+			player.disconnectInGame();
+			this.reconnectionHub.push(player);
+			setTimeout(this.disconnectionAfterDelay.bind(this), 30 * 1000, player);
+		}
+		this.onlinePlayer.delete(socket);
+	}
 
-		if (msg == 'join' && user.state == 'none') {
+	async disconnectionAfterDelay(player: PlayerEntity) {
+		if (player.socket != null)
+			return;
+
+		
+		this.reconnectionHub = this.reconnectionHub.filter(p => { return p != player });
+	}
+
+	async updateQueue(socket: Socket, msg: string): Promise<string> {
+		let player: PlayerEntity = this.onlinePlayer.get(socket);
+
+		if (msg == 'join' && player.state == 'none') {
 			if (this.queue.length > 0) {
-				this.createGame(user, this.queue.pop());
+				this.createGame(player, this.queue.pop());
 				return 'game';
 			} else {
-				user.state = 'queue';
-				this.queue.push(user);
+				player.state = 'queue';
+				this.queue.push(player);
 			}
-		} else if (msg == 'leave' && user.state == 'queue') {
-			this.queue = this.queue.filter(u => u != user);
-			user.state = 'none';
+		} else if (msg == 'leave' && player.state == 'queue') {
+			this.queue = this.queue.filter(u => u != player);
+			player.state = 'none';
 		} else {
 			return 'error';
 		}
@@ -60,23 +81,23 @@ export class GameService {
 		this.games.push(new GameEntity(this.broadcastService, player_1, player_2));
 	}
 
-	async playerInput(socket: any, input: string) {
-		let user = this.onlineUser.get(socket);
+	async playerInput(socket: Socket, input: string) {
+		let player: PlayerEntity = this.onlinePlayer.get(socket);
 
-		if (user.state == 'game') {
-			user.play(input);
+		if (player.state == 'game') {
+			player.play(input);
 		} else {
-			console.log('Received user input wihtout a game.')
+			console.log('Received player input wihtout a game.')
 		}
 	}
 
-	async playerSurrender(socket: any) {
-		let user = this.onlineUser.get(socket);
+	async playerSurrender(socket: Socket) {
+		let player: PlayerEntity = this.onlinePlayer.get(socket);
 
-		if (user.state == 'game') {
-			user.surrender();
+		if (player.state == 'game') {
+			player.surrender();
 		} else {
-			console.log('Received user input wihtout a game.')
+			console.log('Received player input wihtout a game.')
 		}
 	}
 

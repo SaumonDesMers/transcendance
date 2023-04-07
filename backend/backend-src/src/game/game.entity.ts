@@ -2,12 +2,9 @@ import { PlayerEntity } from "./player.entity"
 import { v4 as uuid } from "uuid";
 import { BroadcastService } from './broadcast.service'
 
+// side
 const LEFT = 0;
 const RIGHT = 1;
-
-const NONE = 0;
-const UP = 1;
-const DOWN = 2;
 
 const updateInterval = 10;
 
@@ -61,6 +58,14 @@ export class GameEntity {
 		lastHit: -1
 	}
 
+	pause = {
+		value: false,
+		reason: 'start', // start, goal, end, player_disconnection
+		startTime: Date.now(),
+		totalTime: 3000,
+		timeLeft: 3000
+	}
+
 	watchers = new Array<PlayerEntity>()
 
 	updateIntervalId: NodeJS.Timer
@@ -94,10 +99,10 @@ export class GameEntity {
 		player2.joinGame(this);
 		this.broadcastService.to(this.UID, 'start');
 
-		this.updateIntervalId = setInterval(this.update, updateInterval, this);
+		this.updateIntervalId = setInterval(this.update.bind(this), updateInterval);
 	}
 
-	currentState() {
+	private currentState() {
 		return {
 			arena: this.arena,
 			paddle: this.paddle,
@@ -105,45 +110,63 @@ export class GameEntity {
 				{ paddlePos: this.side[0].paddlePos, score: this.side[0].score },
 				{ paddlePos: this.side[1].paddlePos, score: this.side[1].score },
 			],
-			ball: this.ball
+			ball: {
+				pos: this.ball.pos,
+				size: this.ball.size
+			},
+			pause: this.pause
 		}
 	}
 
-	broadcastCurrentState() {
+	private broadcastCurrentState() {
 		this.broadcastService.to(this.UID, 'update', this.currentState());
 	}
 
-	async update(game: GameEntity) {
+	private async update() {
+
+		if (this.pause.value == false) {
+
+			// update game physics
+			this.updatePhysics();
+
+			// reach left
+			if (this.ball.pos.x - this.ball.size < 0)
+				this.playerScorePoint(RIGHT);
+			// reach right
+			if (this.ball.pos.x + this.ball.size > this.arena.width)
+				this.playerScorePoint(LEFT);
+
+			this.broadcastCurrentState();
+	
+			// check for winner
+			if (this.side[0].score >= maxScore)
+				this.endGame(this.side[0].player);
+			else if (this.side[1].score >= maxScore)
+				this.endGame(this.side[1].player);
+
+		} else {
+			this.updatePause();
+		}
+		
+	}
+
+	private updatePhysics() {
 		// update player position
-		game.movePlayer(game.side[LEFT]);
-		game.movePlayer(game.side[RIGHT]);
+		this.movePlayer(this.side[LEFT]);
+		this.movePlayer(this.side[RIGHT]);
 		// update ball position
-		let ball = game.ball;
+		let ball = this.ball;
 		ball.pos.x += ball.speed / 100 * updateInterval * Math.cos(ball.orientation);
 		ball.pos.y -= ball.speed / 100 * updateInterval * Math.sin(ball.orientation);
 		// bounce up and down
-		if (ball.pos.y + ball.size > game.arena.height || ball.pos.y - ball.size < 0)
+		if (ball.pos.y + ball.size > this.arena.height || ball.pos.y - ball.size < 0)
 			ball.orientation = -ball.orientation;
-		// reach left
-		if (ball.pos.x - ball.size < 0)
-			game.playerScorePoint(RIGHT);
-		// reach right
-		if (ball.pos.x + ball.size > game.arena.width)
-			game.playerScorePoint(LEFT);
 		// bounce on paddle
-		game.bounceOnPaddle(LEFT);
-		game.bounceOnPaddle(RIGHT);
-
-		game.broadcastCurrentState();
-
-		// check for winner
-		if (game.side[0].score >= maxScore)
-			game.endGame(game.side[0].player);
-		else if (game.side[1].score >= maxScore)
-			game.endGame(game.side[1].player);
+		this.bounceOnPaddle(LEFT);
+		this.bounceOnPaddle(RIGHT);
 	}
 
-	movePlayer(side: any) {
+	private movePlayer(side: any) {
 		if (side.moving == "up") {
 			side.paddlePos.y = Math.max(side.paddlePos.y - this.paddle.speed / 50 * updateInterval, 0);
 		} else if (side.moving == "down") {
@@ -151,12 +174,12 @@ export class GameEntity {
 		}
 	}
 
-	playerScorePoint(n: number) {
+	private playerScorePoint(n: number) {
 		this.side[n].score++;
 		this.resetBall();
 	}
 
-	resetBall() {
+	private resetBall() {
 		this.ball.pos.x = this.arena.width / 2;
 		this.ball.pos.y = this.arena.height / 2;
 		this.ball.newStartingOrientation();
@@ -164,7 +187,7 @@ export class GameEntity {
 		this.ball.lastHit = -1;
 	}
 
-	bounceOnPaddle(sideNb: number) {
+	private bounceOnPaddle(sideNb: number) {
 
 		let paddle = this.side[sideNb].paddlePos;
 		let ball = this.ball.collidePoint(sideNb);
@@ -187,6 +210,42 @@ export class GameEntity {
 		}
 	}
 
+	private updatePause() {
+		this.pause.timeLeft = this.pause.totalTime - (Date.now() - this.pause.startTime);
+
+		if (this.pause.timeLeft < 0)
+			this.continue();
+	}
+
+	private stop(reason: string, time: number) {
+
+		if (reason != 'start' && reason != 'goal' && reason != 'end' && reason != 'player_disconnection') {
+			console.log(`game: stop: error: \"${reason}\" is not a valide reason`);
+			return;
+		}
+
+		this.pause.value = true;
+		this.pause.reason = reason;
+		this.pause.startTime = Date.now();
+		this.pause.totalTime = time;
+		this.pause.timeLeft = time;
+	}
+
+	private continue() {
+		this.pause.value = false;
+		this.pause.reason = '';
+		this.pause.startTime = 0;
+		this.pause.totalTime = 0;
+		this.pause.timeLeft = 0;
+	}
+
+	private endGame(winner: PlayerEntity) {
+		clearInterval(this.updateIntervalId);
+		this.broadcastService.to(this.UID, 'end', { winner: winner.id });
+		this.side[0].player.leaveGame();
+		this.side[1].player.leaveGame();
+	}
+	
 	async playerInput(player: PlayerEntity, input: string) {
 		let side = this.side.find(side => side.player.socket.id == player.socket.id);
 		side.moving = input;
@@ -198,11 +257,14 @@ export class GameEntity {
 		console.log('game: surrender');
 	}
 
-	async endGame(winner: PlayerEntity) {
-		clearInterval(this.updateIntervalId);
-		this.broadcastService.to(this.UID, 'end', { winner: winner.id });
-		this.side[0].player.leaveGame();
-		this.side[1].player.leaveGame();
+	async playerDisconnected(player: PlayerEntity) {
+		this.stop('player_disconnection', 30 * 1000);
 	}
+
+	async playerReconnected(player: PlayerEntity) {
+		player.socket.emit('start');
+		this.continue();
+	}
+
 
 }
