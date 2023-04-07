@@ -22,7 +22,6 @@ import { UserWithoutSecret } from "./User.module";
 
 @Controller('users')
 @ApiTags('users')
-@Public()
 export class UserController {
 	constructor(private userService: UserService) {}
 
