@@ -47,8 +47,7 @@ export default {
 	},
 
 	mounted() { 
-		// this.state = this.State.LOGIN;
-		this.state = this.State.USER; 
+		this.state = this.State.LOGIN;
 	},
 
 	created() { },
@@ -59,10 +58,10 @@ export default {
 	<!-- <p v-if="user != null">You are logged as {{ user.username }}</p> -->
 
 	<div v-if="state == State.LOGIN">
-		<loginPage @loggedIn="user => onLogin(user)" @toRegister="onRegister()"></loginPage>
+		<loginPage @onLogin="user => onLogin(user)" @onRegister="onRegister()"></loginPage>
 	</div>
 	<div v-else-if="state == State.REGISTER">
-		<register></register>
+		<register @registered="user => onLogin(user)"></register>
 	</div>
 	<div v-else-if="state == State.MAIN">
 		<mainPage></mainPage>

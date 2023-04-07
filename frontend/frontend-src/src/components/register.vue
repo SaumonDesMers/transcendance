@@ -8,31 +8,10 @@ export default {
 		return {
 			coalition: '',
 			isDark: false,
-			username: '',
+			username: 'LOGIN',
 		};
 	},
 	mounted() {
-		// Récupérer le formulaire
-		const form = this.$refs.LoginForm;
-
-		// Ecouter l'événement submit
-		form.addEventListener('Save and submit', (event) => {
-			// Empêcher le rechargement de la page
-			event.preventDefault();
-
-			// Récupérer les données du formulaire
-			const formData = new FormData(form);
-
-			// Envoyer une requête POST au serveur
-			axios
-				.post('/mon/url', formData)
-				.then((response) => {
-					// Traiter la réponse du serveur
-				})
-				.catch((error) => {
-					// Gérer les erreurs
-				});
-		});
 	},
 	methods: {
 		register() {
@@ -40,24 +19,23 @@ export default {
 		},
 		applyTheme(themeClass) {
 			if (themeClass == this.coalition)
-				this.coalition = '';
+			this.coalition = '';
 			else
-				this.coalition = themeClass;
+			this.coalition = themeClass;
 		},
 		setTheme(themeClass) {
-			var		theme = themeClass;
-			const	b = document.querySelector('body');
-
-			if (!theme)
-			{
+			var theme = themeClass;
+			const b = document.querySelector('body');
+			
+			if (!theme) {
 				if (this.isDark)
-					theme = 'dark-theme';
+				theme = 'dark-theme';
 				else
-					theme = 'light-theme'
+				theme = 'light-theme'
 			}
 			else if (this.isDark)
-				theme += '-dark';
-			b.classList.remove (
+			theme += '-dark';
+			b.classList.remove(
 				'alliance-theme',
 				'order-theme',
 				'federation-theme',
@@ -70,13 +48,13 @@ export default {
 				'light-theme',
 				'centered-container',
 				'centered-container-dark'
-			);
-			console.log('setting theme (' + themeClass + ') computed as ' + theme);
-			b.classList.add(theme);
-		},
-		applyPreviousThemeOnMouseOut() {
-			this.setTheme(this.coalition);
-		},
+				);
+				console.log('setting theme (' + themeClass + ') computed as ' + theme);
+				b.classList.add(theme);
+			},
+			applyPreviousThemeOnMouseOut() {
+				this.setTheme(this.coalition);
+			},
 		toggleDarkMode() {
 			this.isDark = !this.isDark;
 			this.setTheme(this.coalition);
@@ -84,14 +62,14 @@ export default {
 		onFileChange(e) {
 			var files = e.target.files || e.dataTransfer.files;
 			if (!files.length)
-				return;
+			return;
 			this.createImage(files[0]);
 		},
 		createImage(file) {
 			var image = new Image();
 			var reader = new FileReader();
 			var vm = this;
-
+			
 			reader.onload = (e) => {
 				vm.image = e.target.result;
 			};
@@ -99,8 +77,25 @@ export default {
 		},
 		removeImage: function (e) {
 			this.image = '';
+		},
+		saveAndSubmit() {
+			axios
+				.post('http://localhost:3001/users', 
+				{ 
+					"id": 0,
+					"username": this.username,
+					"darkMode": this.isDark,
+				})
+				.then((res) => {
+					this.$emit('registered', res.data)
+				})
+				.catch((error) => {
+					console.log(error);
+				});
+			console.log(this.username, this.coalition);
 		}
 	},
+	emits: ['registered']
 }
 
 </script>
@@ -114,8 +109,11 @@ export default {
 			</div>
 			<div class="actions">
 				<div class="actions-content">
-					<form ref="LoginForm" :class="[isDark ? 'btn dark' : 'btn brown']"><span><input placeholder
-								value="LOGIN" width="100%" /></span></form>
+					<form ref="LoginForm" :class="[isDark ? 'btn dark' : 'btn brown']">
+						<span>
+							<input width="100%" v-model='username' />
+						</span>
+					</form>
 					<div :class="[isDark ? 'btn dark' : 'btn blue']">
 						<label for="files" ref="onFileChange"><span>AVATAR</span></label>
 						<input id="files" width="100%" type="file" style="visibility:hidden; height: 0;" />
@@ -123,8 +121,7 @@ export default {
 				</div>
 				<div style="display: flex; justify-content: space-between; gap: 4px">
 					<button class="svg" :class="[isDark ? 'btn-coa-dark alliance' : 'btn-coa alliance']"
-						@mouseover="setTheme('alliance-theme')"
-						@mouseout="applyPreviousThemeOnMouseOut()"
+						@mouseover="setTheme('alliance-theme')" @mouseout="applyPreviousThemeOnMouseOut()"
 						@click="applyTheme('alliance-theme')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
@@ -136,8 +133,7 @@ export default {
 						</svg>
 					</button>
 					<button class="svg" :class="isDark ? 'btn-coa-dark order' : 'btn-coa order'"
-						@mouseover="setTheme('order-theme')"
-						@mouseout="applyPreviousThemeOnMouseOut()"
+						@mouseover="setTheme('order-theme')" @mouseout="applyPreviousThemeOnMouseOut()"
 						@click="applyTheme('order-theme')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
@@ -149,8 +145,7 @@ export default {
 						</svg>
 					</button>
 					<button class="svg" :class="isDark ? 'btn-coa-dark federation' : 'btn-coa federation'"
-						@mouseover="setTheme('federation-theme')"
-						@mouseout="applyPreviousThemeOnMouseOut()"
+						@mouseover="setTheme('federation-theme')" @mouseout="applyPreviousThemeOnMouseOut()"
 						@click="applyTheme('federation-theme')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
@@ -162,8 +157,7 @@ export default {
 						</svg>
 					</button>
 					<button class="bsvg" :class="isDark ? 'btn-coa-dark assembly' : 'btn-coa assembly'"
-						@mouseover="setTheme('assembly-theme')"
-						@mouseout="applyPreviousThemeOnMouseOut()"
+						@mouseover="setTheme('assembly-theme')" @mouseout="applyPreviousThemeOnMouseOut()"
 						@click="applyTheme('assembly-theme')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
@@ -176,7 +170,8 @@ export default {
 					</button>
 				</div>
 				<div class="actions-content">
-					<div :class="[isDark ? 'btn dark' : 'btn dark']"><span>SAVE AND SUBMIT</span></div>
+					<button :class="[isDark ? 'btn dark' : 'btn dark']" @click="saveAndSubmit()"><span>SAVE AND
+							SUBMIT</span></button>
 				</div>
 			</div>
 		</div>

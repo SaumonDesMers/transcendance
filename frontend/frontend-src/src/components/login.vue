@@ -24,10 +24,11 @@ export default {
 				}
 			})
 				.then(res => {
-					if (res.data === null)
+					console.log('data :', res);
+					if (res.data == '')
 						this.$emit('onRegister', res.data);
 					else
-						this.$emit('loggedIn', res.data);
+						this.$emit('onLogin', res.data);
 					// console.log(res);
 					localStorage.jwt = jwt;
 					axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
@@ -39,7 +40,7 @@ export default {
 		}
 	},
 
-	emits: ['loggedIn', 'toRegister'],
+	emits: ['onLogin', 'onRegister'],
 
 	mounted() {
 		let jwt = this.getJwt();
