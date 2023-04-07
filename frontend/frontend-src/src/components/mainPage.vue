@@ -32,11 +32,40 @@ export default {
 				this.isDark = false;
 			}
 		},
-		buttonGame() {
-			this.$emits('onGame', res.data);
+		switchPage(page) {
+			this.$emit(page);
+		},
+		getUser() {
+			axios.get('http://localhost:3001/auth/user',)
+				.then(res => {
+					console.log('data :', res);
+					if (res.data == '')
+						this.$emit('onRegister', res.data);
+					else
+						this.$emit('onLogin', res.data);
+					// console.log(res);
+					localStorage.jwt = jwt;
+					axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
+				})
+				.catch(err => {
+					this.errorMsg = err.message;
+					console.log(err);
+				})
 		}
 	},
-	emits: ['onGame'],
+	mounted()  {
+			axios.get('http://localhost:3001/auth/user',)
+				.then(res => {
+					console.log('data :', res);
+					this.username = res.data.username;
+					this.isDark = res.data.darkMode;
+				})
+				.catch(err => {
+					this.errorMsg = err.message;
+					console.log(err);
+				})		
+	},
+	emits: ['onGame', 'onProfil', 'onChat'],
 }
 </script>
 
@@ -73,19 +102,13 @@ export default {
 				<li>
 					<a href="#">
 						<span class="avatar"></span>
-						<span class="title">Username</span>
-					</a>
-				</li>
-				<li>
-					<a href="#">
-						<span class="icon"><i class="fa-solid fa-user"></i></span>
-						<span class="title">Profile</span>
+						<span class="title" @click ="switchPage('onProfil')">{{ this.username }}</span>
 					</a>
 				</li>
 				<li>
 					<a href="#">
 						<span class="icon"><i class="fa-solid fa-comments"></i></span>
-						<span class="title">Messages</span>
+						<span class="title" @click ="switchPage('onChat')">Messages</span>
 					</a>
 				</li>
 				<li>
@@ -128,7 +151,7 @@ export default {
 			</ul>
 		</div>
 		<div class="main-container">
-			<button class="main-button" @click="buttonGame()">GAME</button>
+			<button class="main-button" @click="switchPage('onGame')">GAME</button>
 			<button class="main-button">CUSTOM GAME</button>
 		</div>
 	</div>

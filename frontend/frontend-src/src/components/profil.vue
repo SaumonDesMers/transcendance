@@ -7,6 +7,8 @@ export default {
 		return {
 			isDark: false,
 			status: false,
+			user: null,
+			username: '',
 		}
 	},
 	methods: {
@@ -24,7 +26,21 @@ export default {
 			else
 				return (false);
 		},
-	}
+		editProfil() {
+		}
+	},
+	mounted()  {
+			axios.get('http://localhost:3001/auth/user',)
+				.then(res => {
+					console.log('data :', res);
+					this.username = res.data.username;
+					this.isDark = res.data.darkMode;
+				})
+				.catch(err => {
+					this.errorMsg = err.message;
+					console.log(err);
+				})		
+	},
 }
 </script>
 
@@ -39,20 +55,20 @@ export default {
 		<title>SideBAr</title>
 	</head>
 	<div :class="[isDark ? 'main-page dark assembly-dark' : 'main-page light assembly']">
-		<div class="sky" style="width: 100vw; height: 100vh;">
+		<div style="width: 100vw; height: 100vh;">
 			<div class="profil-container">
 				<div class="banner-profil">
 					<div class="avatar-profil">
-						<div class="status-profil" :style="[status ? 'background-color: green' : 'background-color: gray']">
-						</div>
+						<div class="status-profil" :style="[status ? 'background-color: green' : 'background-color: gray']"></div>
 					</div>
 					<span class="profil-togle" @click="toggleDarkMode" style="display: flex;">
 						<div :class="[isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun']" style="font-size: 1.5vw"></div>
 					</span>
-					<span class="profil-title" @click="toggleDarkMode"></span>
+					<span class="profil-title"></span>
 					<button class="edit-profil fa-solid fa-pencil" style="font-size: 1.5vw"></button>
 				</div>
 			</div>
+			<div button="username-profil">{{ this.username }}</div>
 			<div class="stars"></div>
 			<div class="stars1"></div>
 			<div class="stars2"></div>
@@ -143,19 +159,26 @@ $numShootingStars: 10;
 	border-image-slice: 1;
 }
 
+.username-profil {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	font-size: 40px;
+	z-index: 10;
+	// color: transparent;
+}
+
 .avatar-profil {
 	border-radius: 50%;
 	z-index: 4;
 	background: url("../assets/images/sekiro-avatar.png");
 	background-size: contain;
 	position: relative;
-	display: flex;
 	min-width: 120px;
 	height: 120px;
 	text-align: center;
 	flex-direction: column-reverse;
 	justify-content: center;
-	display: flex;
 	margin: auto;
 	$border: 5px;
 	background-clip: padding-box;
@@ -181,8 +204,7 @@ $numShootingStars: 10;
 	width: 20%;
 	height: 20%;
 	z-index: 10;
-	top: 40%;
-	// background-color: white;
+	top: 75%;
 	display: flex;
 }
 

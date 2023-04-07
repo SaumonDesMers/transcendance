@@ -46,7 +46,13 @@ export default {
 		},
 		onGame() {
 			this.state = this.State.GAME;
-		}
+		},
+		onProfil() {
+			this.state = this.State.USER;
+		},
+		onChat() {
+			this.state = this.State.CHAT;
+		},
 	},
 
 	mounted() { 
@@ -65,7 +71,8 @@ export default {
 		<register @registered="user => onLogin(user)"></register>
 	</div>
 	<div v-else-if="state == State.MAIN">
-		<mainPage @onGame ="user => onGame()"></mainPage>
+		<mainPage @onGame="onGame()" @onProfil="onProfil()" @onChat="onChat()">
+		</mainPage>
 	</div>
 	<div v-else-if="state == State.USER">
 		<user></user>
@@ -73,7 +80,9 @@ export default {
 	<div v-else-if="state == State.GAME">
 		<game></game>
 	</div>
-	<!-- <chat></chat> -->
+	<div v-else-if="state == State.CHAT">
+		<chat></chat>
+	</div>
 </template>
 
 <style scoped></style>
