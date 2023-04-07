@@ -7,11 +7,12 @@ import {
 	OnGatewayInit,
 	MessageBody,
 	ConnectedSocket,
+	WsException,
 } from '@nestjs/websockets';
-import { Socket } from 'net';
-import { Server } from 'socket.io'
+import { Server, Socket } from 'socket.io'
 import { AuthService } from 'src/auth/auth.service';
 import { GameService } from './game.service';
+import { BroadcastService } from './broadcast.service'
 
 @WebSocketGateway({
 	namespace: 'game',
@@ -19,40 +20,67 @@ import { GameService } from './game.service';
 })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
 
-	constructor(
-		private readonly gameService: GameService,
-		private readonly authService: AuthService
-	) {}
-
 	@WebSocketServer()
 	server: Server;
 
+	constructor(
+		private readonly gameService: GameService,
+		private readonly authService: AuthService,
+		private readonly broadcastService: BroadcastService,
+	) {}
+
 	async afterInit() {
-		// console.log("Game gateway initialized")
+		this.broadcastService.server = this.server;
 	}
 
-	async handleConnection(socket: any) {
-		// this.server.emit('event', 'connected');
-		const jwt = socket.handshake.headers.authorization;
+	async handleConnection(socket: Socket) {
 
+		// verify jwt
+		let payload: any;
+		const jwt = socket.handshake.headers.authorization;
 		try {
-			await this.authService.verifyJWT(jwt.split(' ')[1]);
+			payload = await this.authService.verifyJWT(jwt.split(' ')[1]);
 		} catch {
 			console.log('Error: game.gateway: jwt =', jwt);
+			// throw new WsException('Invalid credentials.')
 			socket.disconnect();
 		}
 
+		// attach userId to socket
+		socket.data.userId = payload.id;
+
+		console.log(socket.data.userId, ': connect');
+		this.gameService.connection(socket);
 	}
 
 	async handleDisconnect(socket: any) {
-		// console.log("Game gateway disconnect")
+		console.log(socket.data.userId, ': disconnect');
+		await this.gameService.disconnection(socket);
 	}
 
 	@SubscribeMessage('queue')
-	async onMessage(@MessageBody() body: any) {
-		console.log(body)
+	async onQueue(
+		@MessageBody() body: any,
+		@ConnectedSocket() socket: Socket
+	) {
+		console.log(socket.data.userId, ': queue :', body);
+		return await this.gameService.updateQueue(socket, body);
+	}
+
+	@SubscribeMessage('input')
+	async onInput(
+		@MessageBody() body: any,
+		@ConnectedSocket() socket: Socket
+	) {
+		// console.log(socket.data.userId, ': input :', body);
+		this.gameService.playerInput(socket, body);
+	}
+
+	@SubscribeMessage('surrender')
+	async onSurrender(
+		@ConnectedSocket() socket: Socket
+	) {
+		console.log(socket.data.userId, ': surrender');
+		this.gameService.playerSurrender(socket);
 	}
 }
-
-// un user peut-il avoir plusieurs session ?
-// si oui, peut-il faire plusieurs games en simultane ?
