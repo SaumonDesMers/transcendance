@@ -9,10 +9,13 @@ import { UpdateUserDto } from "./User.update-dto";
 export class UserService {
 	constructor(private repository: UserRepository) {}
 
-	async createUser(createDto: CreateUserDto){
+	async createUser(createDto: CreateUserDto, id: number){
+		let params;
 
+		params = createDto;
+		params.id = id;
 		const user = await this.repository.createUser({
-			data: createDto
+			data : params
 		});
 
 		return user;

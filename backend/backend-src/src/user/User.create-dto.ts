@@ -2,11 +2,6 @@ import { IsBoolean, IsNotEmpty, IsNumber, IsString, IS_ALPHA } from "class-valid
 import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateUserDto {
-	@IsNumber()
-	@IsNotEmpty()
-	@ApiProperty()
-	id: number;
-
 	@IsString()
 	@IsNotEmpty()
 	@ApiProperty()
