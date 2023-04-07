@@ -9,21 +9,7 @@ export default {
 			status: false,
 		}
 	},
-	created() {
-		window.addEventListener('resize', this.updateWindowSize);
-	},
-	destroyed() {
-		window.removeEventListener('resize', this.updateWindowSize);
-	},
 	methods: {
-		updateWindowSize() {
-			this.windowSize = { width: window.innerWidth, height: window.innerHeight };
-			console.log(this.windowSize);
-		},
-		windowSize() {
-			console.log(window.innerWidth * window.innerHeight);
-			return (window.innerWidth);
-		},
 		toggleDarkMode() {
 			const b = document.querySelector('body');
 			if (!this.isDark) {
@@ -97,67 +83,6 @@ $numStarTwoStars: 700;
 $numStarThreeStars: 200;
 $numShootingStars: 10;
 
-.main-page {
-	display: flex;
-	flex-direction: columns;
-	width: 100vw;
-	height: 100vh;
-	font-family: 'Righteous', cursive;
-	text-rendering: optimizeLegibility;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	margin: 0;
-	overflow: hidden;
-	justify-content: center;
-	align-items: center;
-}
-
-.main-page {
-	&.light {
-		&.alliance {
-			background-image: linear-gradient(to top, #a4be7b, #97b572, #8aab6a, #7da261, #709959, #659053, #5a874d, #507e47, #457341, #3b693c, #315e36, #285430);
-			transition: none;
-		}
-
-		&.federation {
-			background-image: linear-gradient(to top, #8bbfec, #7ab1e1, #69a2d6, #5894cc, #4686c1, #3b79b3, #306ca5, #255f97, #1f5082, #19416e, #12335a, #0a2647);
-			transition: none;
-		}
-
-		&.assembly {
-			background-image: linear-gradient(to top, #b994f0, #a681e3, #936ed5, #7f5bc8, #6b49bb, #603eb1, #5534a7, #49299d, #452394, #421d8a, #3e1781, #3a1078);
-			transition: none;
-		}
-
-		&.order {
-			background-image: linear-gradient(to top, #dea7ab, #d8a6a8, #cb8889, #bb6a6b, #aa4c4d, #9e3c3e, #922c2f, #851a21, #7c161d, #741218, #6b0e14, #630a10);
-			transition: none;
-		}
-	}
-
-	&.dark {
-		&.alliance-dark {
-			background-image: linear-gradient(to top, #285430, #254e2c, #224729, #1f4125, #1c3b22, #1a371f, #17321d, #152e1a, #132a18, #112616, #102314, #0e1f11);
-			transition: none;
-		}
-
-		&.order-dark {
-			background-image: linear-gradient(to top, #630a10, #5a0810, #50070f, #47070e, #3e060c, #38070b, #320709, #2c0607, #270607, #230506, #1e0405, #180304);
-			transition: none;
-		}
-
-		&.federation-dark {
-			background-image: linear-gradient(to top, #0a2647, #092240, #081f39, #071b33, #07182c, #061627, #051423, #04111e, #030f1a, #030c16, #020911, #02060b);
-			transition: none;
-		}
-
-		&.assembly-dark {
-			background-image: linear-gradient(to top, #3a1078, #350f6d, #2f0e62, #2a0c57, #250b4d, #210b45, #1c0b3e, #190a36, #16092f, #140728, #110521, #0c031a);
-			transition: none;
-		}
-	}
-}
-
 .profil-container {
 	position: absolute;
 	width: 98%;
@@ -204,7 +129,6 @@ $numShootingStars: 10;
 }
 
 .banner-profil {
-	// z-index: 10;
 	display: flex;
 	width: 100%;
 	margin: auto;
@@ -262,89 +186,4 @@ $numShootingStars: 10;
 	display: flex;
 }
 
-@function create-stars($n) {
-	$stars: "#{random($starFieldWidth)}px #{random($starFieldHeight)}px #FFF";
-
-	@for $i from 2 through $n {
-		$stars: "#{$stars} , #{random($starFieldWidth)}px #{random($starFieldHeight)}px #FFF";
-	}
-
-	@return unquote($stars);
-}
-
-@mixin star-template($numStars, $starSize, $scrollSpeed) {
-	z-index: 4;
-	width: $starSize;
-	height: $starSize;
-	border-radius: 50%;
-	background: transparent;
-	box-shadow: create-stars($numStars);
-	animation: animStar $scrollSpeed linear infinite;
-
-	&:after {
-		content: " ";
-		top: -$starStartOffset;
-		width: $starSize;
-		height: $starSize;
-		border-radius: 50%;
-		position: absolute;
-		background: transparent;
-		box-shadow: create-stars($numStars);
-	}
-}
-
-
-@mixin shooting-star-template($numStars, $starSize, $speed) {
-	z-index: 5;
-	width: $starSize;
-	height: $starSize + 80px;
-	border-top-left-radius: 50%;
-	border-top-right-radius: 50%;
-	position: absolute;
-	bottom: 0;
-	right: 0;
-	// background: linear-gradient(to top, rgba(255,255,255,0), rgba(255,255,255,1));
-	animation: animShootingStar $speed linear infinite;
-}
-
-.stars {
-	@include star-template($numStarOneStars, 1px, $starOneScrollDuration);
-}
-
-.stars1 {
-	@include star-template($numStarTwoStars, 2px, $starTwoScrollDuration);
-}
-
-.stars2 {
-	@include star-template($numStarThreeStars, 3px, $starThreeScrollDuration);
-}
-
-.shooting-stars {
-	@include shooting-star-template($numShootingStars, 5px, 10s);
-}
-
-@keyframes animStar {
-	from {
-		transform: translateY(0px);
-	}
-
-	to {
-		transform: translateY(-#{$starFieldHeight}px) translateX(-#{$starFieldWidth}px);
-	}
-}
-
-
-@keyframes animShootingStar {
-	from {
-		transform: translateY(0px) translateX(0px) rotate(-45deg);
-		opacity: 1;
-		height: 5px;
-	}
-
-	to {
-		transform: translateY(-#{$starFieldHeight}px) translateX(-#{$starFieldWidth}px) rotate(-45deg);
-		opacity: 1;
-		height: 800px;
-	}
-}
 </style>

@@ -23,7 +23,6 @@ export default {
 		},
 		windowSize() {
 			console.log(window.innerWidth * window.innerHeight);
-			return (window.innerWidth);
 		},
 		toggleDarkMode() {
 			const b = document.querySelector('body');
@@ -33,7 +32,11 @@ export default {
 				this.isDark = false;
 			}
 		},
-	}
+		buttonGame() {
+			this.$emits('onGame', res.data);
+		}
+	},
+	emits: ['onGame'],
 }
 </script>
 
@@ -125,7 +128,7 @@ export default {
 			</ul>
 		</div>
 		<div class="main-container">
-			<button class="main-button">GAME</button>
+			<button class="main-button" @click="buttonGame()">GAME</button>
 			<button class="main-button">CUSTOM GAME</button>
 		</div>
 	</div>
