@@ -27,19 +27,19 @@ export default {
 				return (false);
 		},
 		editProfil() {
-		}
+		},
 	},
-	mounted()  {
-			axios.get('http://localhost:3001/auth/user',)
-				.then(res => {
-					console.log('data :', res);
-					this.username = res.data.username;
-					this.isDark = res.data.darkMode;
-				})
-				.catch(err => {
-					this.errorMsg = err.message;
-					console.log(err);
-				})		
+	mounted() {
+		axios.get('http://localhost:3001/auth/user',)
+			.then(res => {
+				console.log('data :', res);
+				this.username = res.data.username;
+				this.isDark = res.data.darkMode;
+			})
+			.catch(err => {
+				this.errorMsg = err.message;
+				console.log(err);
+			})
 	},
 }
 </script>
@@ -64,15 +64,29 @@ export default {
 					<span class="profil-togle" @click="toggleDarkMode" style="display: flex;">
 						<div :class="[isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun']" style="font-size: 1.5vw"></div>
 					</span>
-					<span class="profil-title"></span>
-					<button class="edit-profil fa-solid fa-pencil" style="font-size: 1.5vw"></button>
+					<button class="edit-profil fa-solid fa-edit" style="font-size: 1.5vw"></button>
 				</div>
 			</div>
-			<div button="username-profil">{{ this.username }}</div>
-			<div class="stars"></div>
-			<div class="stars1"></div>
-			<div class="stars2"></div>
-			<div class="shooting-stars"></div>
+			<div v-if ="this.isDark == false">
+				<div class="cloud large cloud-1"><div></div><div></div><div></div><div></div></div>
+				<div class="cloud normal cloud-2"><div></div><div></div><div></div><div></div></div>
+				<div class="cloud small cloud-3"><div></div><div></div><div></div><div></div></div>
+				<div class="cloud tiny cloud-4"><div></div><div></div><div></div><div></div></div>
+				<div class="cloud large cloud-5"><div></div><div></div><div></div><div></div></div>
+				<div class="cloud normal cloud-6"><div></div><div></div><div></div><div></div></div>
+				<div class="cloud small cloud-7"><div></div><div></div><div></div><div></div></div>
+				<div class="cloud tiny cloud-8"><div></div><div></div><div></div><div></div></div>
+				<div class="cloud small cloud-9"><div></div><div></div><div></div><div></div></div>
+				<div class="cloud normal cloud-10"><div></div><div></div><div></div><div></div></div>
+				<div class="cloud tiny cloud-11"><div></div><div></div><div></div><div></div></div>
+				<div class="cloud small cloud-12"><div></div><div></div><div></div><div></div></div>
+			</div>
+			<div v-else>
+				<div class="stars"></div>
+				<div class="stars1"></div>
+				<div class="stars2"></div>
+				<div class="shooting-stars"></div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -106,6 +120,7 @@ $numShootingStars: 10;
 	height: 98%;
 	top: 1%;
 	left: 1%;
+	z-index: 4;
 	background-color: rgba(0, 0, 0, 0.5);
 	border-radius: .250rem;
 	border: 1px solid rgba($black, .1);
@@ -114,15 +129,16 @@ $numShootingStars: 10;
 	flex-direction: column;
 }
 
-.profil-title {
-	position: relative;
+.profil-togle {
+	position: absolute;
 	display: flex;
-	padding: 0 10px;
-	height: 10px;
-	line-height: 100px;
+	left: .05vw;
+	height: 20%;
+	z-index: 10;
+	color: white;
 	text-align: center;
-	white-space: nowrap;
-	font-size: 17px;
+	flex-direction: column-reverse;
+	justify-content: space-around;
 
 	&:hover,
 	&:active {
@@ -133,23 +149,13 @@ $numShootingStars: 10;
 	}
 }
 
-.profil-togle {
-	position: absolute;
-	display: flex;
-	left: .05vw;
-	height: 20%;
-	color: white;
-	text-align: center;
-	flex-direction: column-reverse;
-	justify-content: space-around;
-}
-
 .banner-profil {
 	display: flex;
 	width: 100%;
 	margin: auto;
 	position: absolute;
 	background: url("../assets/images/assembly_background.jpg");
+	opacity: 0.9;
 	height: 20%;
 	$border: 5px;
 	color: #FFF;
@@ -162,10 +168,11 @@ $numShootingStars: 10;
 .username-profil {
 	position: relative;
 	display: flex;
-	justify-content: center;
-	font-size: 40px;
-	z-index: 10;
-	// color: transparent;
+	justify-content: right;
+	font-size: 30px;
+	z-index: 2;
+	height: 40px;
+	color: white;
 }
 
 .avatar-profil {
@@ -195,6 +202,14 @@ $numShootingStars: 10;
 	display: flex;
 	top: 40%;
 	position: relative;
+
+	&:hover,
+	&:active {
+		text-shadow:
+			0 0 5px #fff,
+			0 0 10px #777777,
+			0 0 15px #000000,
+	}
 }
 
 .status-profil {
