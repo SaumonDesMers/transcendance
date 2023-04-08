@@ -26,7 +26,7 @@ export default {
 			else
 				return (false);
 		},
-		editProfil() {
+		editProfile() {
 		},
 	},
 	mounted() {
@@ -54,24 +54,58 @@ export default {
 		<link rel="stylesheet" href="./sidebar.css">
 		<title>SideBAr</title>
 	</head>
-	<div :class="[isDark ? 'main-page dark assembly-dark' : 'main-page light assembly']">
+	<div :class="[isDark ? 'main-page dark federation-dark' : 'main-page light federation']">
 		<div style="width: 100vw; height: 100vh;">
-		<div :class="[isDark ? 'profil-container profil-container-dark' : 'profil-container profil-container-light']">
-				<div class="banner-profil">
-					<div class="avatar-profil">
-						<div class="status-profil" :style="[status ? 'background-color: green' : 'background-color: gray']"></div>
+		<div :class="[isDark ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
+				<div class="banner-profile">
+					<div class="avatar-profile">
+						<div class="status-profile" :style="[status ? 'background-color: green' : 'background-color: gray']"></div>
 					</div>
-					<span class="profil-togle" @click="toggleDarkMode" style="display: flex;">
+					<span class="profile-toggle" @click="toggleDarkMode" style="display: flex;">
 						<div :class="[isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun']" style="font-size: 1.5vw"></div>
 					</span>
-					<button class="edit-profil fa-solid fa-edit" style="font-size: 1.5vw"></button>
 				</div>
-				<div class="information-profil-container">
-					<div :class="[isDark ? 'username-profil text-color-dark' : 'username-profil text-color-light']"> {{ this.username }}</div>
-					<div :class="[isDark ? 'username-profil text-color-dark' : 'username-profil text-color-light']"> chat </div>
-					<div :class="[isDark ? 'username-profil text-color-dark' : 'username-profil text-color-light']"> coalition </div>
-					<div :class="[isDark ? 'username-profil text-color-dark' : 'username-profil text-color-light']">edit</div>
-
+				<div class="profile-grid">
+					<div class="information-profile-container">
+						<td :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{ this.username }}</td>
+						<td :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> chat </td>
+						<td :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> xp </td>
+						<td :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> coalition </td>
+						<td :class="[isDark ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']" @click="editProfile()"></td>
+					</div>
+					<div class="bio-container grid-border">
+						<div :class="[isDark ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">Bio</div>
+						<div class="child-container">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non porttitor sem. Vestibulum ac massa tempus, auctor ex ut, lobortis tellus. Phasellus id tortor viverra, dictum diam nec, efficitur dui. Nullam placerat viverra tortor in ultricies. Quisque pellentesque hendrerit vulputate. Aenean dapibus dui lectus, nec dapibus arcu aliquam eget. Aenean dignissim arcu quis iaculis auctor.</div>
+					</div>
+					<div class="friend-container grid-border">
+						<div :class="[isDark ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">friends</div>
+						<div class="grid-friend">
+							<div class="friend">
+								<div>PixelPaddle</div>
+							</div>
+							<div class="friend">
+								<div>BallBattler</div>
+							</div>
+							<div class="friend"><div>RetroRacket</div></div>
+							<div class="friend"><div>ScoreSmasher</div></div>
+							<div class="friend"><div>PongProphet</div></div>
+							<div class="friend"><div>ArcadeAce</div></div>
+							<div class="friend"><div>VirtualVolley</div></div>
+							<div class="friend"><div>GameGuru</div></div>
+							<div class="friend"><div>SpinMaster</div></div>
+							<div class="friend"><div>PaddlePal</div></div>
+							<div class="friend"><div>BlockBuster</div></div>
+							<div class="friend"><div>NetNinja</div></div>
+						</div>
+					</div>
+					<div class="stats-container grid-border">
+						<div :class="[isDark ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">stats</div>
+						<div class="child-container">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non porttitor sem. Vestibulum ac massa tempus, auctor ex ut, lobortis tellus. Phasellus id tortor viverra, dictum diam nec, efficitur dui. Nullam placerat viverra tortor in ultricies. Quisque pellentesque hendrerit vulputate. Aenean dapibus dui lectus, nec dapibus arcu aliquam eget. Aenean dignissim arcu quis iaculis auctor.</div>
+					</div>
+					<div class="history-container grid-border">
+						<div :class="[isDark ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">history</div>
+						<div class="child-container">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non porttitor sem. Vestibulum ac massa tempus, auctor ex ut, lobortis tellus. Phasellus id tortor viverra, dictum diam nec, efficitur dui. Nullam placerat viverra tortor in ultricies. Quisque pellentesque hendrerit vulputate. Aenean dapibus dui lectus, nec dapibus arcu aliquam eget. Aenean dignissim arcu quis iaculis auctor.</div>
+					</div>
 				</div>
 			</div>
 			<div v-if ="this.isDark == false">
@@ -120,7 +154,7 @@ $numStarTwoStars: 700;
 $numStarThreeStars: 200;
 $numShootingStars: 10;
 
-.profil-container {
+.profile-container {
 	position: absolute;
 	width: 98%;
 	font-size: 4vw;
@@ -135,19 +169,21 @@ $numShootingStars: 10;
 	flex-direction: column;
 }
 
-.profil-container-light {
-	background-color: rgba(255, 255, 255, 0.4);	
+.profile-container-light {
+	background-color: rgba(131, 131, 131, 0.4);	
 }
 
-.profil-container-dark {
+.profile-container-dark {
 	background-color: rgba(0, 0, 0, 0.5);	
 }
 
-.profil-togle {
+.profile-toggle {
 	position: absolute;
 	display: flex;
-	left: .05vw;
-	height: 20%;
+	height: 2rem;
+	width: 2rem;
+	top: .05vw;
+	right: .05vw;
 	z-index: 10;
 	color: white;
 	text-align: center;
@@ -163,12 +199,11 @@ $numShootingStars: 10;
 	}
 }
 
-.banner-profil {
+.banner-profile {
 	display: flex;
 	width: 100%;
 	margin: auto;
-	position: absolute;
-	background: url("../assets/images/assembly_background.jpg");
+	background: url("../assets/images/federation_background.jpg");
 	opacity: 0.9;
 	height: 20%;
 	$border: 5px;
@@ -179,11 +214,11 @@ $numShootingStars: 10;
 	border-image-slice: 1;
 }
 
-.avatar-profil {
+.avatar-profile {
 	border-radius: 50%;
 	z-index: 4;
-	background: url("../assets/images/sekiro-avatar.png");
-	background-size: contain;
+	background: url(https://unsplash.it/120/120) no-repeat;
+	background-size: cover;
 	position: relative;
 	min-width: 120px;
 	height: 120px;
@@ -191,15 +226,9 @@ $numShootingStars: 10;
 	flex-direction: column-reverse;
 	justify-content: center;
 	margin: auto;
-	$border: 5px;
-	background-clip: padding-box;
-	box-sizing: border-box;
-	border-bottom: 2px solid;
-	border-image-slice: 1;
-	border-image: linear-gradient(0.25turn, rgb(66, 66, 66, 0), rgb(158, 158, 158, 10), rgb(255, 255, 255), rgb(158, 158, 158, 10), rgb(66, 66, 66, 0));
 }
 
-.edit-profil {
+.edit-profile {
 	background-color: transparent;
 	color: white;
 	border: none;
@@ -216,7 +245,7 @@ $numShootingStars: 10;
 	}
 }
 
-.status-profil {
+.status-profile {
 	border-radius: 50%;
 	position: relative;
 	left: 75%;
@@ -227,18 +256,17 @@ $numShootingStars: 10;
 	display: flex;
 }
 
-.information-profil-container {
+.information-profile-container {
 	display: flex;
-	position: relative;
 	justify-content:space-evenly;
 	background-color: rgba(255, 255, 255, 0.1);
 	height: 65px;
-	width: 96vw;
-	top: 22vh;
-	left: 1vw;
+	margin: 1vw;
+	grid-column: 1/3;
+	border-color: transparent;
 }
 
-.username-profil {
+.text-nav {
 	position: relative;
 	text-transform: uppercase;
 	display: flex;
@@ -246,7 +274,6 @@ $numShootingStars: 10;
 	justify-content: center;
 	font-size: 30px;
 	padding: 1.5vh;
-	height: 40px;
 	color: white;
 }
 
@@ -268,5 +295,99 @@ $numShootingStars: 10;
 		color: rgb(0,0,0,1);
 	}
 }
+
+.profile-grid {
+	display: grid;
+	background: rgb(0,0,0,0);
+	width: 100%;
+	height: 100%;
+	grid-template-columns: 1fr 1fr;
+	grid-template-rows: auto 1fr 1fr;
+}
+
+.grid-border {
+	$border: 5px;
+	color: #FFF;
+	border-top: 1px solid;
+	border-image: linear-gradient(0.25turn, rgb(66, 66, 66, 0), rgb(158, 158, 158, 10), rgb(255, 255, 255), rgb(158, 158, 158, 10), rgb(66, 66, 66, 0));
+	border-image-slice: 1;
+}
+
+.bio-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	background-color: transparent;
+}
+
+.friend-container {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	background-color: transparent;
+}
+
+.grid-friend {
+	display: grid;
+	background-color: rgba(255, 255, 255, 0.1);
+	padding: 1rem;
+	margin: 3rem;
+	margin-top: 1rem;
+	grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+	grid-template-rows: 1fr 1fr;
+	gap: 1rem;
+	flex-grow: 1;
+}
+
+.friend {
+	background-image: url(https://unsplash.it/85/78);
+	background-size: cover;
+	opacity: 0.8;
+}
+
+.friend div {
+	height: 100%;
+	width: 100%;
+	margin-top: auto;
+	color: transparent;
+	font-size: 15px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	&:hover,
+	&:focus {
+		color: white;
+		background-color: rgba(0, 0, 0, 0.8);
+		text-shadow:
+			0 0 5px #fff,
+			0 0 10px #777777,
+			0 0 15px #000000,
+	}
+}
+
+.history-container {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	background-color: transparent;
+}
+
+.stats-container {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	background-color: transparent;
+}
+
+.child-container {
+	justify-content: center;
+	text-align: justify;
+	padding: 1rem;
+	flex-grow: 1;
+	margin: 3rem;
+	margin-top: 1rem;
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
 
 </style>
