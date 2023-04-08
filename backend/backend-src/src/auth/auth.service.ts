@@ -3,6 +3,9 @@ import { UserService } from "../user/User.service";
 import { JwtService } from "@nestjs/jwt"
 import { CreateUserDto } from "src/user/User.create-dto";
 import { NotFoundError } from "rxjs";
+import { authenticator } from 'otplib';
+import { UserEntity } from '../user/User.entity'
+import { toDataURL } from 'qrcode';
 
 @Injectable()
 export class AuthService {
@@ -29,6 +32,48 @@ export class AuthService {
 			// throw new NotFoundException();
 		}
 		return user;
+	}
+
+	async generateTwoFactorAuthenticationSecret(user: UserEntity): Promise<{
+		secret: string;
+		otpauthUrl: string;
+	}> {
+		const secret = authenticator.generateSecret();
+	
+		const otpauthUrl = authenticator.keyuri(user.username, 'TRANSCENDENCE_APP', secret);
+
+		user.twoFactorAuthenticationSecret = secret;
+	
+		return {
+		  secret,
+		  otpauthUrl
+		}
+	}
+
+	async generateQrCodeDataURL(otpAuthUrl: string): Promise<any> {
+		return toDataURL(otpAuthUrl);
+	}
+
+	async turnOnTwoFactorAuthentication(userId: number) {
+		let user = await this.userService.getOneUser(userId);
+		user.isTwoFactorAuthenticationEnabled = true;
+	}
+
+	isTwoFactorAuthenticationCodeValid(twoFactorAuthenticationCode: string, user: UserEntity) {
+		return authenticator.verify({
+			token: twoFactorAuthenticationCode,
+			secret: user.twoFactorAuthenticationSecret,
+		});
+	}
+
+	async loginWith2fa(user: UserEntity) {
+		const payload = {
+			id: user.id,
+			isTwoFactorAuthenticationEnabled: !!user.isTwoFactorAuthenticationEnabled,
+			isTwoFactorAuthenticated: true,
+		};
+	
+		return this.jwtService.sign(payload);
 	}
 	
 }

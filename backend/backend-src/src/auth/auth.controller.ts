@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { FortyTwoAuthGuard } from './fortytwo/fortytwo.guard';
@@ -33,5 +33,33 @@ export class AuthController {
 	@ApiOkResponse({ type: UserEntity })
 	async getUser(@Req() req: any) {
 		return await this.authService.getUser(parseInt(req.user.id));
+	}
+
+	@Post('2fa/turn-on')
+	@UseGuards(JwtAuthGuard)
+	async turnOnTwoFactorAuthentication(@Req() request: any, @Body() body: any) {
+		const isCodeValid =
+		this.authService.isTwoFactorAuthenticationCodeValid(
+			body.twoFactorAuthenticationCode,
+			request.user,
+		);
+		if (!isCodeValid) {
+			throw new UnauthorizedException('Wrong authentication code');
+		}
+		await this.authService.turnOnTwoFactorAuthentication(request.user.id);
+	}
+
+	@Post('2fa/authenticate')
+	async authenticate(@Req() request: any, @Body() body: any) {
+		const isCodeValid = this.authService.isTwoFactorAuthenticationCodeValid(
+			body.twoFactorAuthenticationCode,
+			request.user,
+		);
+
+		if (!isCodeValid) {
+		throw new UnauthorizedException('Wrong authentication code');
+		}
+
+		return this.authService.loginWith2fa(request.user);
 	}
 }

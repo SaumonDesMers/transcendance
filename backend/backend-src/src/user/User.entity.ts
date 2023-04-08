@@ -10,4 +10,10 @@ export class UserEntity implements User {
 
 	@ApiProperty()
 	darkMode: boolean;
+
+	@ApiProperty()
+	twoFactorAuthenticationSecret: string;
+
+	@ApiProperty()
+	isTwoFactorAuthenticationEnabled: boolean;
 }
