@@ -9,7 +9,7 @@ import {
 	ConnectedSocket,
 	WsException,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io'
+import { Server, Socket } from 'socket.io'
 import { AuthService } from 'src/auth/auth.service';
 import { GameService } from './game.service';
 import { BroadcastService } from './broadcast.service'
@@ -33,7 +33,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 		this.broadcastService.server = this.server;
 	}
 
-	async handleConnection(socket: any) {
+	async handleConnection(socket: Socket) {
 
 		// verify jwt
 		let payload: any;
@@ -47,40 +47,40 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 		}
 
 		// attach userId to socket
-		socket.userId = payload.sub;
+		socket.data.userId = payload.id;
 
-		console.log(socket.userId, ': connect');
+		console.log(socket.data.userId, ': connect');
 		this.gameService.connection(socket);
 	}
 
 	async handleDisconnect(socket: any) {
-		console.log(socket.userId, ': disconnect');
+		console.log(socket.data.userId, ': disconnect');
 		await this.gameService.disconnection(socket);
 	}
 
 	@SubscribeMessage('queue')
 	async onQueue(
 		@MessageBody() body: any,
-		@ConnectedSocket() socket: any
+		@ConnectedSocket() socket: Socket
 	) {
-		console.log(socket.userId, ': queue :', body);
+		console.log(socket.data.userId, ': queue :', body);
 		return await this.gameService.updateQueue(socket, body);
 	}
 
 	@SubscribeMessage('input')
 	async onInput(
 		@MessageBody() body: any,
-		@ConnectedSocket() socket: any
+		@ConnectedSocket() socket: Socket
 	) {
-		console.log(socket.userId, ': input :', body);
+		// console.log(socket.data.userId, ': input :', body);
 		this.gameService.playerInput(socket, body);
 	}
 
 	@SubscribeMessage('surrender')
 	async onSurrender(
-		@ConnectedSocket() socket: any
+		@ConnectedSocket() socket: Socket
 	) {
-		console.log(socket.userId, ': surrender');
+		console.log(socket.data.userId, ': surrender');
 		this.gameService.playerSurrender(socket);
 	}
 }
