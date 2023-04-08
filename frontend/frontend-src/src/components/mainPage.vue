@@ -31,6 +31,18 @@ export default {
 			} else {
 				this.isDark = false;
 			}
+			axios
+				.post('http://localhost:3001/users', 
+				{ 
+					"id": 0,
+					"username": this.username,
+					"darkMode": this.isDark,
+				})
+				.then((res) => {
+				})
+				.catch((error) => {
+					console.log(error);
+				});
 		},
 		switchPage(page) {
 			this.$emit(page);

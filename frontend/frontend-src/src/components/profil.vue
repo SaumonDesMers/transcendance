@@ -56,7 +56,7 @@ export default {
 	</head>
 	<div :class="[isDark ? 'main-page dark assembly-dark' : 'main-page light assembly']">
 		<div style="width: 100vw; height: 100vh;">
-			<div class="profil-container">
+		<div :class="[isDark ? 'profil-container profil-container-dark' : 'profil-container profil-container-light']">
 				<div class="banner-profil">
 					<div class="avatar-profil">
 						<div class="status-profil" :style="[status ? 'background-color: green' : 'background-color: gray']"></div>
@@ -65,6 +65,13 @@ export default {
 						<div :class="[isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun']" style="font-size: 1.5vw"></div>
 					</span>
 					<button class="edit-profil fa-solid fa-edit" style="font-size: 1.5vw"></button>
+				</div>
+				<div class="information-profil-container">
+					<div :class="[isDark ? 'username-profil text-color-dark' : 'username-profil text-color-light']"> {{ this.username }}</div>
+					<div :class="[isDark ? 'username-profil text-color-dark' : 'username-profil text-color-light']"> chat </div>
+					<div :class="[isDark ? 'username-profil text-color-dark' : 'username-profil text-color-light']"> coalition </div>
+					<div :class="[isDark ? 'username-profil text-color-dark' : 'username-profil text-color-light']">edit</div>
+
 				</div>
 			</div>
 			<div v-if ="this.isDark == false">
@@ -121,12 +128,19 @@ $numShootingStars: 10;
 	top: 1%;
 	left: 1%;
 	z-index: 4;
-	background-color: rgba(0, 0, 0, 0.5);
 	border-radius: .250rem;
 	border: 1px solid rgba($black, .1);
 	box-shadow: 0 .125rem .25rem rgba($black, .04);
 	display: flex;
 	flex-direction: column;
+}
+
+.profil-container-light {
+	background-color: rgba(255, 255, 255, 0.4);	
+}
+
+.profil-container-dark {
+	background-color: rgba(0, 0, 0, 0.5);	
 }
 
 .profil-togle {
@@ -163,16 +177,6 @@ $numShootingStars: 10;
 	border-bottom: 2px solid;
 	border-image: linear-gradient(0.25turn, rgb(66, 66, 66, 0), rgb(158, 158, 158, 10), rgb(255, 255, 255), rgb(158, 158, 158, 10), rgb(66, 66, 66, 0));
 	border-image-slice: 1;
-}
-
-.username-profil {
-	position: relative;
-	display: flex;
-	justify-content: right;
-	font-size: 30px;
-	z-index: 2;
-	height: 40px;
-	color: white;
 }
 
 .avatar-profil {
@@ -221,6 +225,48 @@ $numShootingStars: 10;
 	z-index: 10;
 	top: 75%;
 	display: flex;
+}
+
+.information-profil-container {
+	display: flex;
+	position: relative;
+	justify-content:space-evenly;
+	background-color: rgba(255, 255, 255, 0.1);
+	height: 65px;
+	width: 96vw;
+	top: 22vh;
+	left: 1vw;
+}
+
+.username-profil {
+	position: relative;
+	text-transform: uppercase;
+	display: flex;
+	align-content: center;
+	justify-content: center;
+	font-size: 30px;
+	padding: 1.5vh;
+	height: 40px;
+	color: white;
+}
+
+.text-color-dark {
+	color: white;
+	&:hover,
+	&:active {
+	text-shadow :
+		0 0 10px #fff,
+		0 0 15px #777777,
+		0 0 25px #000000,
+	}
+}
+
+.text-color-light {
+	color: rgb(0,0,0,0.6);
+	&:hover,
+	&:active {
+		color: rgb(0,0,0,1);
+	}
 }
 
 </style>
