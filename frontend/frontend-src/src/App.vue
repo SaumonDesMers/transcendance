@@ -7,18 +7,20 @@ import game from './components/game.vue'
 import register from './components/register.vue'
 import mainPage from './components/mainPage.vue'
 import user from './components/profil.vue'
+import Test2fa from './components/test2fa.vue'
 
 
 export default {
 
 	components: {
-		loginPage,
-		chat,
-		game,
-		register,
-		mainPage,
-		user,
-	},
+    loginPage,
+    chat,
+    game,
+    register,
+    mainPage,
+    user,
+    Test2fa
+},
 
 	data() {
 		return {
@@ -65,7 +67,8 @@ export default {
 		<register @registered="user => onLogin(user)"></register>
 	</div>
 	<div v-else-if="state == State.MAIN">
-		<mainPage @onGame ="user => onGame()"></mainPage>
+		<!-- <mainPage @onGame ="user => onGame()"></mainPage> -->
+		<Test2fa></Test2fa>
 	</div>
 	<div v-else-if="state == State.USER">
 		<user></user>

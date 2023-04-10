@@ -6,6 +6,7 @@ import { NotFoundError } from "rxjs";
 import { authenticator } from 'otplib';
 import { UserEntity } from '../user/User.entity'
 import { toDataURL } from 'qrcode';
+import { User } from "@prisma/client";
 
 @Injectable()
 export class AuthService {
@@ -43,6 +44,9 @@ export class AuthService {
 		const otpauthUrl = authenticator.keyuri(user.username, 'TRANSCENDENCE_APP', secret);
 
 		user.twoFactorAuthenticationSecret = secret;
+
+		console.log('secret =', secret);
+		console.log('otpauthUrl =', otpauthUrl);
 	
 		return {
 		  secret,
@@ -57,6 +61,7 @@ export class AuthService {
 	async turnOnTwoFactorAuthentication(userId: number) {
 		let user = await this.userService.getOneUser(userId);
 		user.isTwoFactorAuthenticationEnabled = true;
+		this.generateTwoFactorAuthenticationSecret(user);
 	}
 
 	isTwoFactorAuthenticationCodeValid(twoFactorAuthenticationCode: string, user: UserEntity) {
@@ -66,7 +71,7 @@ export class AuthService {
 		});
 	}
 
-	async loginWith2fa(user: UserEntity) {
+	async generateJwtWith2fa(user: UserEntity) {
 		const payload = {
 			id: user.id,
 			isTwoFactorAuthenticationEnabled: !!user.isTwoFactorAuthenticationEnabled,

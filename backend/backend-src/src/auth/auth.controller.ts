@@ -36,30 +36,28 @@ export class AuthController {
 	}
 
 	@Post('2fa/turn-on')
-	@UseGuards(JwtAuthGuard)
 	async turnOnTwoFactorAuthentication(@Req() request: any, @Body() body: any) {
-		const isCodeValid =
-		this.authService.isTwoFactorAuthenticationCodeValid(
-			body.twoFactorAuthenticationCode,
-			request.user,
-		);
-		if (!isCodeValid) {
-			throw new UnauthorizedException('Wrong authentication code');
-		}
-		await this.authService.turnOnTwoFactorAuthentication(request.user.id);
-	}
-
-	@Post('2fa/authenticate')
-	async authenticate(@Req() request: any, @Body() body: any) {
 		const isCodeValid = this.authService.isTwoFactorAuthenticationCodeValid(
 			body.twoFactorAuthenticationCode,
 			request.user,
 		);
 
-		if (!isCodeValid) {
-		throw new UnauthorizedException('Wrong authentication code');
-		}
+		if (!isCodeValid)
+			throw new UnauthorizedException('Wrong authentication code');
 
-		return this.authService.loginWith2fa(request.user);
+		await this.authService.turnOnTwoFactorAuthentication(request.user.id);
+	}
+
+	@Post('2fa/authenticate')
+	async authenticate(@Req() req: any, @Body() body: any) {
+		const isCodeValid = this.authService.isTwoFactorAuthenticationCodeValid(
+			body.twoFactorAuthenticationCode,
+			req.user,
+		);
+
+		if (!isCodeValid)
+			throw new UnauthorizedException('Wrong authentication code');
+
+		return this.authService.generateJwtWith2fa(req.user);
 	}
 }

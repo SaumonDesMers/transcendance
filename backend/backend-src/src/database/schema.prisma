@@ -17,8 +17,8 @@ model User {
 
 	darkMode Boolean
 
-	twoFactorAuthenticationSecret String
-	isTwoFactorAuthenticationEnabled Boolean
+	twoFactorAuthenticationSecret String?
+	isTwoFactorAuthenticationEnabled Boolean?
 }
 model ChatUser {
 	userId Int @id
