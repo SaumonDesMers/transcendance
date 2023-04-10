@@ -1,10 +1,13 @@
 import { CreateMessageDto } from './message.create.dto'
 
+export interface InterServerEvents {
+	ping: () => void;
+}
 
 export interface ServerToClientEvents {
 	noArg: () => void;
 
-	message: (message: Message) => void;
+	message: (message: MessageDTO) => void;
 }
 
 export interface ClientToServerEvents {
@@ -12,13 +15,13 @@ export interface ClientToServerEvents {
 	 * event emitted when a client wants to
 	 * join a new channel
 	 */
-	join_room: (channel_name: string) => void;
+	join_room: (channelName: string) => void;
 
 	/**
 	 * event emitted when a client wants to
 	 * join a new channel
 	 */
-	leave_room: (channel_name: string) => void;
+	leave_room: (channelName: string) => void;
 
 	// /**
 	//  * event emitted when a client wants to
@@ -30,7 +33,7 @@ export interface ClientToServerEvents {
 	 * event for the client to request its
 	 * corresponding user object
 	 */
-	get_user: (callback: (user: ChatUser) => void) => void;
+	get_user: (callback: (user: ChatUserDTO) => void) => void;
 
 
 	/**
@@ -39,28 +42,35 @@ export interface ClientToServerEvents {
 	send_message: (message: CreateMessageDto) => void;
 }
 
-export interface Message {
-	id: number;
-	content: string;
-	author: ChatUser;
-	postedAt: Date;
-}
-
-export interface Channel {
+export interface MessageDTO {
 	id: number,
-	users: ChatUser[],
-	messages: Message[]
+	channeldId: number,
+	content: string,
+	author: ChatUserDTO,
+	postedAt: Date,
 }
 
-export interface ChatUser {
+export interface joinRequestDTO {
+	channelId?: number,
+	channelName?: string,
+}
+
+export interface ChannelDTO {
+	id: number,
+	name: string,
+	users: ChatUserDTO[],
+	messages: MessageDTO[]
+}
+
+export interface ChatUserDTO {
 	userId: number,
 	user: {
 		id: number,
 		username: string
 	},
-	joinedChannels?: Channel[];
+	joinedChannels?: ChannelDTO[];
 }
 
 export interface SocketData {
-	userId: number;
+	userId: number,
 }

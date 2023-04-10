@@ -21,13 +21,16 @@ export class ChatService {
 		newGroupChannel.usersId.forEach(userId => my_arr.push({userId}));
 
 		const channel = await this.channelRepository.createGroupChannel({
+			
 			channel: {
 				create: {
+					name: newGroupChannel.name,
 					users: {
 						connect: my_arr
 					}
 				}
-			}
+			},
+			
 		}, include);
 
 		return channel;
@@ -41,6 +44,7 @@ export class ChatService {
 		const channel = await this.channelRepository.createDMChannel({
 			channel: {
 				create: {
+					name: newDMChannel.name,
 					users: {
 						connect: my_arr
 					}
@@ -128,12 +132,20 @@ export class ChatService {
 	// {
 	// }
 
-	async findChannel(channelId: number)
+	async findChannelbyId(channelId: number)
 	{
 		const channel = await this.channelRepository.getSingleChannel({
 			id:channelId
 		});
 
+		return channel;
+	}
+
+	async findChannelbyName(channelName: string)
+	{
+		const channel = await this.channelRepository.getSingleChannel({
+			name: channelName
+		});
 		return channel;
 	}
 
@@ -175,5 +187,7 @@ export class ChatService {
 			},
 			where: {userId}
 		});
+
+		return user;
 	}
 }

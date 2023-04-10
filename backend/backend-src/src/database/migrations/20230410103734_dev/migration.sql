@@ -28,6 +28,7 @@ CREATE TABLE "Message" (
 -- CreateTable
 CREATE TABLE "Channel" (
     "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
 
     CONSTRAINT "Channel_pkey" PRIMARY KEY ("id")
 );
@@ -50,6 +51,9 @@ CREATE TABLE "_ChannelToChatUser" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Channel_name_key" ON "Channel"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "DMChannel_channelId_key" ON "DMChannel"("channelId");

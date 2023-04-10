@@ -10,6 +10,17 @@ import {
 	WsException,
 } from "@nestjs/websockets";	
 
+import {
+	ClientToServerEvents,
+	ServerToClientEvents,
+	InterServerEvents,
+	SocketData,
+	MessageDTO,
+	ChannelDTO,
+	ChatUserDTO,
+	joinRequestDTO
+} from './Chat.events'
+
 import { Server, Socket } from 'socket.io';
 import { CreateMessageDto } from "./message.create.dto";
 import { ChatService } from "./Chat.service";
@@ -48,7 +59,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		private chatService: ChatService,
 		private authService: AuthService) {}
 
-	@WebSocketServer() server: Server = new Server();
+	@WebSocketServer() server: Server = new Server<
+		ClientToServerEvents,
+		ServerToClientEvents,
+		InterServerEvents,
+		SocketData>();
 
 	async handleConnection(@ConnectedSocket() socket: Socket) {
 		let payload : any;
@@ -69,42 +84,92 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			socket.disconnect(true);
 		}
 
+		//joining every channel the user was connected to
+		user.joinedChannels.forEach(channel => {
+			socket.join(channel.id.toString());
+			console.log(socket.data.userId, " : joined channel [", channel.name)
+		});
+
 		console.log(socket.data.userId, ': connected to chat');
 	}
 
 	async handleDisconnect(@ConnectedSocket() socket: any) {
+
+		console.log(socket.data.userId, " : disconnected from chat");
 	}
 
-	@SubscribeMessage('chat')
-	async handleChatEvent(@MessageBody() payload: CreateMessageDto)
-	{
-		this.chatService.sendMessage(payload);
-		this.server.to(payload.ChannelId.toString()).emit('chat', payload);
-		return payload;
-	}
-
-	@SubscribeMessage('join_room')
-	async handleJoinEvent(@MessageBody()
-		payload: {
-			userId: number,
-			channelId?: number,
-			channel_name?: string
-		}, @ConnectedSocket() socket: any)
+	@SubscribeMessage("create_room")
+	async handleCreateEvent(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() createChannel: CreateGroupChannelDto
+	)
 	{
 		let channel: any;
-		if (payload.channelId !== undefined)
-		{
-			channel = await this.chatService.findChannel(payload.channelId);
-			await this.chatService.joinChannel(payload.channelId, payload.userId);
+
+		try {
+			channel = await this.chatService.createGroupChannel(createChannel, {channel: true});
+		} catch (e) {
+			console.log(e);
+			throw WsException;
 		}
-		else if (payload.channel_name !== undefined)
-			channel = await this.chatService.createGroupChannel({
-				ownerId:payload.userId,
-				usersId: [payload.userId]
-			}, {channel:true});
-		else
-			throw WsException
-		socket.join(channel.id.toString());
+
+		try {
+			await this.chatService.joinChannel(channel.id, socket.data.userId);
+		} catch (e) {
+			console.log(e);
+			throw WsException;
+		}
+
+		socket.join(channel.name);
+	}
+
+	@SubscribeMessage("join_room")
+	async handleJoinEvent(
+		@MessageBody() channelName: string,
+		@ConnectedSocket() socket: Socket)
+	{
+		let channel: any;
+
+		try {
+			channel = await this.chatService.findChannelbyName(channelName);
+		} catch (e) {
+			console.log(e);
+			throw WsException;
+		}
+
+		try {
+			await this.chatService.joinChannel(channel.id, socket.data.userId);
+		} catch (e) {
+			console.log(e);
+			throw WsException;
+		}
+
+		socket.join(channelName);
+	}
+
+	@SubscribeMessage("leave_room")
+	async handleLeaveEvent(
+		@MessageBody() channelName: string,
+		@ConnectedSocket() socket: Socket
+	)
+	{
+		let channel: any;
+
+		try {
+			channel = await this.chatService.findChannelbyName(channelName);
+		} catch (e) {
+			console.log(e);
+			throw WsException;
+		}
+
+		try {
+			await this.chatService.leaveChannel(channel.id, socket.data.userId);
+		} catch (e) {
+			console.log(e);
+			throw WsException;
+		}
+
+		socket.leave(channelName);
 	}
 
 	@SubscribeMessage('test_event')
@@ -119,6 +184,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	async handleGetUser(@ConnectedSocket() socket: Socket)
 	{
 		return this.chatService.getChatUser(socket.data.userId);
+	}
+
+	@SubscribeMessage("send_message")
+	async sendMessage(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() messageCreate: CreateMessageDto
+		)
+	{
+		let message: any; 
+		try {
+			message = await this.chatService.sendMessage(messageCreate);
+		}
+		catch (e) {
+			console.log(e);
+			throw WsException;
+		}
+
+		this.server.to(message.channelId.toString()).emit("message", message);
 	}
 
 }

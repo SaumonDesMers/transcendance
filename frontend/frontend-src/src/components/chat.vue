@@ -33,7 +33,14 @@ export default {
 			});
 		},
 
+		async createChannel() {
+		},
+
 		async joinChannel() {
+
+		},
+
+		async leaveChannel() {
 
 		},
 
@@ -64,11 +71,11 @@ export default {
 			});
 
 			this.socket.on("error", (reason) => {
-				console.log("received an error from server");
+				console.log("received an error from server :", reason);
 			});
 
 			this.socket.on("exception", (reason) => {
-				console.log("received an error from server");
+				console.log("received an error from server :", reason);
 			});
 
 			this.socket.onAnyOutgoing((event, ...args) => {
