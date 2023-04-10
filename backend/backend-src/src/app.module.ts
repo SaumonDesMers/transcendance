@@ -7,6 +7,7 @@ import { OldChatModule } from './chat/old.chat.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/jwt/jwt.guard';
+import { Jwt2faAuthGuard } from './auth/jwt-2fa/jwt-2fa.guard';
 import { GameModule } from './game/game.module';
 
 @Module({
@@ -25,7 +26,7 @@ import { GameModule } from './game/game.module';
 		AppService,
 		{
 			provide: APP_GUARD,
-			useClass: JwtAuthGuard,
+			useClass: Jwt2faAuthGuard,
 		}
 	],
 })

@@ -19,7 +19,7 @@ export class AuthController {
 	async login(@Req() req: any, @Res() response: Response) {
 		console.log(req.user.username, 'connected with 42');
 
-		const jwt: string = await this.authService.generateJWT(req.user);
+		const jwt: string = await this.authService.generateJwtWith2fa(req.user);
 
 		// see URL type
 		const url = new URL(`${req.protocol}:${req.hostname}`);
@@ -38,7 +38,6 @@ export class AuthController {
 	@Post('2fa/turn-on')
 	async turnOnTwoFactorAuthentication(@Req() req: any, @Body() body: any) {
 		console.log('2fa/turn-on');
-		// console.log('authorization =', req.headers);
 		// const isCodeValid = this.authService.isTwoFactorAuthenticationCodeValid(
 		// 	body.twoFactorAuthenticationCode,
 		// 	req.user,

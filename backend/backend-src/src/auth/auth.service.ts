@@ -28,9 +28,10 @@ export class AuthService {
 		let user: any = null;
 		try {
 			user = await this.userService.getOneUser(userId);
+			delete user.isTwoFactorAuthenticationEnabled;
+			delete user.twoFactorAuthenticationSecret;
 		} catch {
 			user = null;
-			// throw new NotFoundException();
 		}
 		return user;
 	}
@@ -54,7 +55,7 @@ export class AuthService {
 	}
 
 	async turnOnTwoFactorAuthentication(userId: number) {
-		let user = await this.userService.getOneUser((userId));
+		let user = await this.userService.getOneUser(userId);
 		let res = await this.generateTwoFactorAuthenticationSecret(user);
 		this.userService.updateUser(userId, {
 			twoFactorAuthenticationSecret: res.secret,
@@ -65,8 +66,8 @@ export class AuthService {
 
 	async isTwoFactorAuthenticationCodeValid(twoFactorAuthenticationCode: string, userId: number) {
 		let user = await this.userService.getOneUser(userId);
-		console.log('twoFactorAuthenticationCode =', twoFactorAuthenticationCode);
-		console.log('twoFactorAuthenticationSecret =', user.twoFactorAuthenticationSecret);
+		// console.log('twoFactorAuthenticationCode =', twoFactorAuthenticationCode);
+		// console.log('twoFactorAuthenticationSecret =', user.twoFactorAuthenticationSecret);
 		return authenticator.verify({
 			token: twoFactorAuthenticationCode,
 			secret: user.twoFactorAuthenticationSecret,
@@ -76,7 +77,7 @@ export class AuthService {
 	async generateJwtWith2fa(user: UserEntity) {
 		const payload = {
 			id: user.id,
-			isTwoFactorAuthenticationEnabled: !!user.isTwoFactorAuthenticationEnabled,
+			isTwoFactorAuthenticationEnabled: user.isTwoFactorAuthenticationEnabled,
 			isTwoFactorAuthenticated: true,
 		};
 	
