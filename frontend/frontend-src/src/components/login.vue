@@ -25,13 +25,13 @@ export default {
 			})
 				.then(res => {
 					console.log('data :', res);
+					localStorage.jwt = jwt;
+					axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 					if (res.data == '')
 						this.$emit('onRegister', res.data);
 					else
 						this.$emit('onLogin', res.data);
 					// console.log(res);
-					localStorage.jwt = jwt;
-					axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 				})
 				.catch(err => {
 					this.errorMsg = err.message;

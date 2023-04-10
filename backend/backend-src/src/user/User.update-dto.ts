@@ -13,4 +13,14 @@ export class UpdateUserDto
 	@IsOptional()
 	@ApiProperty()
 	darkMode?: boolean;
+
+	@IsString()
+	@IsOptional()
+	@ApiProperty()
+	twoFactorAuthenticationSecret?: string;
+
+	@IsBoolean()
+	@IsOptional()
+	@ApiProperty()
+	isTwoFactorAuthenticationEnabled?: boolean;
 }

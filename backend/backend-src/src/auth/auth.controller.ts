@@ -36,23 +36,26 @@ export class AuthController {
 	}
 
 	@Post('2fa/turn-on')
-	async turnOnTwoFactorAuthentication(@Req() request: any, @Body() body: any) {
-		const isCodeValid = this.authService.isTwoFactorAuthenticationCodeValid(
-			body.twoFactorAuthenticationCode,
-			request.user,
-		);
+	async turnOnTwoFactorAuthentication(@Req() req: any, @Body() body: any) {
+		console.log('2fa/turn-on');
+		// console.log('authorization =', req.headers);
+		// const isCodeValid = this.authService.isTwoFactorAuthenticationCodeValid(
+		// 	body.twoFactorAuthenticationCode,
+		// 	req.user,
+		// );
 
-		if (!isCodeValid)
-			throw new UnauthorizedException('Wrong authentication code');
+		// if (!isCodeValid)
+		// 	throw new UnauthorizedException('Wrong authentication code');
 
-		await this.authService.turnOnTwoFactorAuthentication(request.user.id);
+		return await this.authService.turnOnTwoFactorAuthentication(parseInt(req.user.id));
 	}
 
 	@Post('2fa/authenticate')
 	async authenticate(@Req() req: any, @Body() body: any) {
-		const isCodeValid = this.authService.isTwoFactorAuthenticationCodeValid(
+		console.log('2fa/authenticate');
+		const isCodeValid = await this.authService.isTwoFactorAuthenticationCodeValid(
 			body.twoFactorAuthenticationCode,
-			req.user,
+			parseInt(req.user.id),
 		);
 
 		if (!isCodeValid)

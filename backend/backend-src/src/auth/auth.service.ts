@@ -42,11 +42,6 @@ export class AuthService {
 		const secret = authenticator.generateSecret();
 	
 		const otpauthUrl = authenticator.keyuri(user.username, 'TRANSCENDENCE_APP', secret);
-
-		user.twoFactorAuthenticationSecret = secret;
-
-		console.log('secret =', secret);
-		console.log('otpauthUrl =', otpauthUrl);
 	
 		return {
 		  secret,
@@ -59,12 +54,19 @@ export class AuthService {
 	}
 
 	async turnOnTwoFactorAuthentication(userId: number) {
-		let user = await this.userService.getOneUser(userId);
-		user.isTwoFactorAuthenticationEnabled = true;
-		this.generateTwoFactorAuthenticationSecret(user);
+		let user = await this.userService.getOneUser((userId));
+		let res = await this.generateTwoFactorAuthenticationSecret(user);
+		this.userService.updateUser(userId, {
+			twoFactorAuthenticationSecret: res.secret,
+			isTwoFactorAuthenticationEnabled: true
+		});
+		return this.generateQrCodeDataURL(res.otpauthUrl);
 	}
 
-	isTwoFactorAuthenticationCodeValid(twoFactorAuthenticationCode: string, user: UserEntity) {
+	async isTwoFactorAuthenticationCodeValid(twoFactorAuthenticationCode: string, userId: number) {
+		let user = await this.userService.getOneUser(userId);
+		console.log('twoFactorAuthenticationCode =', twoFactorAuthenticationCode);
+		console.log('twoFactorAuthenticationSecret =', user.twoFactorAuthenticationSecret);
 		return authenticator.verify({
 			token: twoFactorAuthenticationCode,
 			secret: user.twoFactorAuthenticationSecret,
