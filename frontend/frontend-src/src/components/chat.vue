@@ -10,9 +10,10 @@ export default {
 			socket: Socket,
 			user : null,
 			messageInputBuffer: '',
+			channelInputBuffer: '',
 			channels: [],
 			receivedMessages: [],
-			current_channel: 0,
+			current_channelId: 0,
 		}
 	},
 
@@ -23,6 +24,7 @@ export default {
 			};
 			this.socket.connect();
 
+			// this.user = await fetch()
 			this.socket.emit("get_user", (user) => {
 				this.user = user;
 				this.channels = user.joinedChannels;
@@ -34,7 +36,7 @@ export default {
 		},
 
 		selectChannel(id: number) {
-			this.current_channel = id;
+			this.current_channelId = id;
 		},
 
 		async sendTest() {
@@ -44,6 +46,13 @@ export default {
 		},
 
 		async createChannel() {
+			const channel = {
+				ownerId: this.user.userId,
+				name: this.channelInputBuffer,
+				usersId: [],
+			}
+
+			this.socket.emit("create_room", channel);
 		},
 
 		async joinChannel() {
@@ -57,10 +66,11 @@ export default {
 		async SendMessage() {
 			const msg = {
 				content: this.messageInputBuffer,
-				ChannelId: this.current_channel,
+				ChannelId: this.current_channelId,
 				authorId: this.user.userId
 			};
-
+			console.log("sending mesage in channel:", this.current_channelId);
+			this.messageInputBuffer = "";
 			this.socket.emit("send_message", msg);
 		},
 
@@ -100,6 +110,11 @@ export default {
 			this.socket.on("message", (message) => {
 				this.receivedMessages.push(message);
 			})
+
+			this.socket.on("join_room", (channel) => {
+				console.log(channel)
+				this.channels.push(channel);
+			})
 		}
 	},
 
@@ -120,6 +135,11 @@ export default {
 			<button @click="sendTest">Get chehd</button>
 		</div>
 
+	<div v-if="socket.connected">
+		<div>
+			<input type='test' v-model="channelInputBuffer">
+			<button @click="createChannel">Create Channel</button>
+		</div>
 		<div v-for="channel in this.channels">
 			<button @click="selectChannel(channel.id)">{{channel.name}}</button>
 		</div>
@@ -130,8 +150,11 @@ export default {
 		</div>
 
 		<div v-for="message in receivedMessages">
-			{{message.channel.name }} {{ message.content }} 
+			<p v-if="message.channel.id == this.current_channelId">
+				{{message.channel.name }} {{ message.content }}
+			</p>
 		</div>
+	</div>
 	</div>
 </template>
 

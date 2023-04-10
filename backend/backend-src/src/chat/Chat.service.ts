@@ -94,17 +94,16 @@ export class ChatService {
 		//might do checks that the user isnt banned
 
 		const update = await this.channelRepository.updateGroupChannel({
-			where: {channelId},
+			where: {channelId:channelId},
 			data: {
 				channel: {
 					update: {
 						users: {
-							delete:{userId}
+							connect: {userId:userId}
 						}
 					}
 				}
-
-			}
+			},
 		}, true);
 
 		return update;
