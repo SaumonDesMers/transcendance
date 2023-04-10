@@ -8,7 +8,8 @@ import { Body,
 		Query,
 		ParseIntPipe,
 		Delete,
-		NotFoundException} from "@nestjs/common";
+		NotFoundException,
+		Req} from "@nestjs/common";
 import { Prisma, User } from "@prisma/client";
 import { isNumberObject, isStringObject } from "util/types";
 import { UserService } from "./User.service";
@@ -30,8 +31,10 @@ export class UserController {
 
 	@Post()
 	@ApiOkResponse({type: UserEntity})
-	async createUser(@Body() UserCreate: CreateUserDto) : Promise<User> {
-		return this.userService.createUser(UserCreate);
+	async createUser(
+		@Body() UserCreate: CreateUserDto,
+		@Req() req: any) : Promise<User> {
+		return this.userService.createUser(UserCreate, parseInt(req.user.id));
 	}
 
 	@Get(':id')

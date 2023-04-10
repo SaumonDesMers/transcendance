@@ -32,6 +32,6 @@ export class AuthController {
 	@Get('user')
 	@ApiOkResponse({ type: UserEntity })
 	async getUser(@Req() req: any) {
-		return await this.authService.getUser(req.user.id);
+		return await this.authService.getUser(parseInt(req.user.id));
 	}
 }

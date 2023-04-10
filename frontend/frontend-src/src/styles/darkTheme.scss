@@ -1,0 +1,206 @@
+$brown-orange: #C06014;
+$grey-dark: #536162;
+$sem-black: #3A3535;
+$black: #000000;
+$white: #FFFFFF;
+$whitesmoke: #F3F4ED;
+$blue-grey: #3F4C5C;
+
+.centered-container-dark {
+	background: $black;
+	padding: 5rem 10rem;
+	border-radius: .250rem;
+	border: 1px solid rgba($black, .1);
+	box-shadow: 0 .125rem .25rem rgba($black, .04);
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
+}
+
+.btn-coa-dark {
+	background-color: $whitesmoke;
+	position: relative;
+	display: flex;
+	flex: 0 0 auto;
+	border-radius: .125rem;
+	border: 2px solid;
+	align-items: center;
+	justify-content: center;
+	fill: $white;
+	flex-grow: 1;
+	height: 5rem;
+	// font-size: 1.5rem;
+	transition: color .125s ease;
+	overflow: hidden;
+	cursor: pointer;
+	outline: none;
+	margin-block: 0.5rem;
+
+	&:before {
+		background-color: black;
+		content: "";
+		display: flex;
+		transform: scale(1, 0);
+		transform-origin: 50% 100%;
+		position: absolute;
+		overflow: hidden;
+		border-radius: 1px;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 0;
+	}
+
+	&:hover,
+	&:active {
+		fill: $sem-black;
+		color: $sem-black;
+
+		&:before {
+			transform: scale(1, 1);
+		}
+	}
+
+	&.bordered {
+		background-color: transparent !important;
+		fill: $sem-black;
+		color: $sem-black;
+
+		&:before {
+			background-color: transparent;
+		}
+
+		&:hover,
+		&:active {
+			fill: $sem-black;
+			color: $sem-black;
+		}
+	}
+
+	&.rounded {
+		border-radius: 1.1875rem;
+	}
+
+	&.hard {
+		border-radius: 0;
+	}
+}
+
+.btn-coa-dark {
+	&.alliance {
+		background-color: #5F8D4E;
+		border-color: $black;
+
+		&:hover,
+		&:active {
+			fill: $white;
+		}
+
+		&.bordered {
+			color: $black;
+
+			&:before {
+				background-color: #5F8D4E;
+			}
+
+			&:hover,
+			&:active {
+				fill: $black;
+			}
+		}
+	}
+
+	&.order {
+		background-color: #911F27;
+		border-color: $black;
+
+		&:hover,
+		&:active {
+			fill: $white;
+		}
+
+		&.bordered {
+			color: $black;
+
+			&:before {
+				background-color: #911F27;
+			}
+
+			&:hover,
+			&:active {
+				fill: $black;
+			}
+		}
+	}
+
+	&.assembly {
+		background-color: #674188;
+		border-color: $black;
+
+		&:hover,
+		&:active {
+			fill: $white;
+		}
+
+		&.bordered {
+			color: $black;
+
+			&:before {
+				background-color: #674188;
+			}
+
+			&:hover,
+			&:active {
+				fill: $black;
+			}
+		}
+	}
+
+	&.federation {
+		background-color: #205295;
+		border-color: $black;
+
+		&:hover,
+		&:active {
+			fill: $white;
+		}
+
+		&.bordered {
+			color: $black;
+
+			&:before {
+				background-color: #205295;
+			}
+
+			&:hover,
+			&:active {
+				fill: $black;
+			}
+		}
+	}
+}
+
+.dark-theme {
+	background-color: #292c35;
+}
+
+.alliance-theme-dark {
+	background-image: linear-gradient(to top, #285430, #254e2c, #224729, #1f4125, #1c3b22, #1a371f, #17321d, #152e1a, #132a18, #112616, #102314, #0e1f11);
+	transition: none;
+}
+
+.order-theme-dark {
+	background-image: linear-gradient(to top, #630a10, #5a0810, #50070f, #47070e, #3e060c, #38070b, #320709, #2c0607, #270607, #230506, #1e0405, #180304);
+	transition: none;
+}
+
+.federation-theme-dark {
+	background-image: linear-gradient(to top, #0a2647, #092240, #081f39, #071b33, #07182c, #061627, #051423, #04111e, #030f1a, #030c16, #020911, #02060b);
+	transition: none;
+}
+
+.assembly-theme-dark {
+	background-image: linear-gradient(to top, #3a1078, #350f6d, #2f0e62, #2a0c57, #250b4d, #210b45, #1c0b3e, #190a36, #16092f, #140728, #110521, #0c031a);
+	transition: none;
+}

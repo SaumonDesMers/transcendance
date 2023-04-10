@@ -4,17 +4,33 @@ import io from "socket.io-client"
 import loginPage from './components/login.vue'
 import chat from './components/chat.vue'
 import game from './components/game.vue'
+import register from './components/register.vue'
+import mainPage from './components/mainPage.vue'
+import user from './components/profil.vue'
+
 
 export default {
 
 	components: {
 		loginPage,
 		chat,
-		game
+		game,
+		register,
+		mainPage,
+		user,
 	},
 
 	data() {
 		return {
+			State: {
+				LOGIN: 0,
+				REGISTER: 1,
+				MAIN: 2,
+				GAME: 3,
+				CHAT: 4,
+				USER: 5,
+			},
+			state: 0,
 			loggedIn: false,
 			user: null,
 		}
@@ -22,32 +38,51 @@ export default {
 
 	methods: {
 		onLogin(user) {
-			this.loggedIn = true;
+			this.state = this.State.MAIN;
 			this.user = user;
-		}
+		},
+		onRegister() {
+			this.state = this.State.REGISTER;
+		},
+		onGame() {
+			this.state = this.State.GAME;
+		},
+		onProfil() {
+			this.state = this.State.USER;
+		},
+		onChat() {
+			this.state = this.State.CHAT;
+		},
 	},
 
-	mounted() {},
+	mounted() { 
+		this.state = this.State.LOGIN;
+	},
 
-	created() {}
+	created() { },
 }
 </script>
 
 <template>
-
-	<h1>Transcendence (lol) !</h1>
-	<p v-if="user != null">You are logged as {{ user.username }}</p>
-	
-	<div v-if="!loggedIn">
-		<loginPage @loggedIn="user => onLogin(user)"></loginPage>
+	<div v-if="state == State.LOGIN">
+		<loginPage @onLogin="user => onLogin(user)" @onRegister="onRegister()"></loginPage>
 	</div>
-
-	<div v-else>
-		<chat></chat>
+	<div v-else-if="state == State.REGISTER">
+		<register @registered="user => onLogin(user)"></register>
+	</div>
+	<div v-else-if="state == State.MAIN">
+		<mainPage @onGame="onGame()" @onProfil="onProfil()" @onChat="onChat()">
+		</mainPage>
+	</div>
+	<div v-else-if="state == State.USER">
+		<user></user>
+	</div>
+	<div v-else-if="state == State.GAME">
 		<game></game>
 	</div>
-
+	<div v-else-if="state == State.CHAT">
+		<chat></chat>
+	</div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

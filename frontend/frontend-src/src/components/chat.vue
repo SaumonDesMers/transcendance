@@ -64,7 +64,6 @@ export default {
 </script>
 
 <template>
-
 	<div>
 		<div>
 			<button v-if="socket.disconnected" @click="socket.connect">Connect to webSocket</button>
