@@ -8,18 +8,18 @@ export class UserRepository {
 
 	async createUser(params: { data: Prisma.UserCreateInput }): Promise<User> {
 		const { data } = params;
-		const user = this.prisma.user.create({ data });
+		const user = await this.prisma.user.create({ data });
 
-		this.prisma.chatUser.create({
+		await this.prisma.chatUser.create({
 			data: {
 				user: {
-					connect: {id: data.id},
+					connect : {id:params.data.id}
 				},
 			},
 		});
+
 		return user;
 	}
-
 	
 	async getUsers(params: {
 		skip?: number;

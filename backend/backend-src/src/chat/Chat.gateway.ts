@@ -77,17 +77,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			console.log(payload.sub);
 			socket.data.userId = payload.sub;
 			console.log(socket.data.userId);
-			user = this.chatService.getChatUser(parseInt(socket.data.userId));
+			user = await this.chatService.getChatUser(parseInt(socket.data.userId));
 		}
 		catch (e) {
+			console.log("ERROR WHILE CONNECTING");
 			console.log(e);
 			socket.disconnect(true);
 		}
 
+		console.log(user);
 		//joining every channel the user was connected to
 		user.joinedChannels.forEach(channel => {
 			socket.join(channel.id.toString());
-			console.log(socket.data.userId, " : joined channel [", channel.name)
+			console.log(socket.data.userId, " : joined channel [", channel.name, "]")
 		});
 
 		console.log(socket.data.userId, ': connected to chat');
@@ -183,7 +185,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	@SubscribeMessage('get_user')
 	async handleGetUser(@ConnectedSocket() socket: Socket)
 	{
-		return this.chatService.getChatUser(socket.data.userId);
+		return this.chatService.getChatUser(parseInt(socket.data.userId));
 	}
 
 	@SubscribeMessage("send_message")

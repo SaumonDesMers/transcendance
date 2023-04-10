@@ -9,9 +9,10 @@ export default {
 		return {
 			socket: Socket,
 			user : null,
-			inputBuffer: '',
-			channels: undefined,
+			messageInputBuffer: '',
+			channels: [],
 			receivedMessages: [],
+			current_channel: 0,
 		}
 	},
 
@@ -21,10 +22,19 @@ export default {
 				authorization: `Bearer ${localStorage.jwt}`
 			};
 			this.socket.connect();
+
+			this.socket.emit("get_user", (user) => {
+				this.user = user;
+				this.channels = user.joinedChannels;
+			});
 		},
 
 		disconnectFromServer() {
 			this.socket.disconnect();
+		},
+
+		selectChannel(id: number) {
+			this.current_channel = id;
 		},
 
 		async sendTest() {
@@ -46,11 +56,12 @@ export default {
 
 		async SendMessage() {
 			const msg = {
-				content: this.inputBuffer,
-				ChannelId: this.channels[0].id,
+				content: this.messageInputBuffer,
+				ChannelId: this.current_channel,
 				authorId: this.user.userId
 			};
 
+			this.socket.emit("send_message", msg);
 		},
 
 		initSocket() {
@@ -85,6 +96,10 @@ export default {
 			this.socket.onAny((event, ...args) => {
 				console.log(event);
 			})
+			
+			this.socket.on("message", (message) => {
+				this.receivedMessages.push(message);
+			})
 		}
 	},
 
@@ -105,13 +120,17 @@ export default {
 			<button @click="sendTest">Get chehd</button>
 		</div>
 
+		<div v-for="channel in this.channels">
+			<button @click="selectChannel(channel.id)">{{channel.name}}</button>
+		</div>
+
 		<div>
-			<input type="text" v-model="inputBuffer">
+			<input type="text" v-model="messageInputBuffer">
 			<button @click="SendMessage">Send</button>
 		</div>
 
 		<div v-for="message in receivedMessages">
-			{{ message }}
+			{{message.channel.name }} {{ message.content }} 
 		</div>
 	</div>
 </template>

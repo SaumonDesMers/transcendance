@@ -59,14 +59,13 @@ export class ChatService {
 
 		//should do checks about mute in the future
 
-
 		const message = await this.messageRepository.createMessage({
 			content: newMessage.content,
 			channel: {
 				connect: {id: newMessage.ChannelId}},
 			author: {
 				connect: {userId: newMessage.authorId}},
-			postedAt: Date()
+			postedAt: new Date
 			},
 			{channel: true, author: true},
 		);
@@ -151,7 +150,7 @@ export class ChatService {
 
 	async getChatUser(userId: number)
 	{
-		const user = await this.prisma.chatUser.findUnique({
+		const user = await this.prisma.chatUser.findUniqueOrThrow({
 			include:
 			{
 				joinedChannels:
