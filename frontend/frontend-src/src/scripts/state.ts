@@ -1,0 +1,9 @@
+export enum State {
+	LOGIN,
+	TWOFACTORAUTHENTICATION,
+	REGISTER,
+	MAIN,
+	GAME,
+	CHAT,
+	USER,
+}

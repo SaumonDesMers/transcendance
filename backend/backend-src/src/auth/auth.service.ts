@@ -77,7 +77,7 @@ export class AuthService {
 	async generateJwtWith2fa(user: UserEntity) {
 		const payload = {
 			id: user.id,
-			isTwoFactorAuthenticationEnabled: user.isTwoFactorAuthenticationEnabled,
+			isTwoFactorAuthenticationEnabled: !!user.isTwoFactorAuthenticationEnabled,
 			isTwoFactorAuthenticated: true,
 		};
 	

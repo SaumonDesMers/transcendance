@@ -21,7 +21,6 @@ export class AuthController {
 
 		const jwt: string = await this.authService.generateJwtWith2fa(req.user);
 
-		// see URL type
 		const url = new URL(`${req.protocol}:${req.hostname}`);
 		url.port = `3000`;
 		url.searchParams.set('code', jwt);
