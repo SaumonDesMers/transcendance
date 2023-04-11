@@ -88,7 +88,7 @@ $blue-grey: #3F4C5C;
 }
 
 .btn-coa-dark {
-	&.alliance {
+	&.alliance-btn {
 		background-color: #5F8D4E;
 		border-color: $black;
 
@@ -111,7 +111,7 @@ $blue-grey: #3F4C5C;
 		}
 	}
 
-	&.order {
+	&.order-btn {
 		background-color: #911F27;
 		border-color: $black;
 
@@ -134,7 +134,7 @@ $blue-grey: #3F4C5C;
 		}
 	}
 
-	&.assembly {
+	&.assembly-btn {
 		background-color: #674188;
 		border-color: $black;
 
@@ -157,7 +157,7 @@ $blue-grey: #3F4C5C;
 		}
 	}
 
-	&.federation {
+	&.federation-btn {
 		background-color: #205295;
 		border-color: $black;
 
@@ -185,22 +185,22 @@ $blue-grey: #3F4C5C;
 	background-color: #292c35;
 }
 
-.alliance-theme-dark {
+.alliance-dark {
 	background-image: linear-gradient(to top, #285430, #254e2c, #224729, #1f4125, #1c3b22, #1a371f, #17321d, #152e1a, #132a18, #112616, #102314, #0e1f11);
 	transition: none;
 }
 
-.order-theme-dark {
+.order-dark {
 	background-image: linear-gradient(to top, #630a10, #5a0810, #50070f, #47070e, #3e060c, #38070b, #320709, #2c0607, #270607, #230506, #1e0405, #180304);
 	transition: none;
 }
 
-.federation-theme-dark {
+.federation-dark {
 	background-image: linear-gradient(to top, #0a2647, #092240, #081f39, #071b33, #07182c, #061627, #051423, #04111e, #030f1a, #030c16, #020911, #02060b);
 	transition: none;
 }
 
-.assembly-theme-dark {
+.assembly-dark {
 	background-image: linear-gradient(to top, #3a1078, #350f6d, #2f0e62, #2a0c57, #250b4d, #210b45, #1c0b3e, #190a36, #16092f, #140728, #110521, #0c031a);
 	transition: none;
 }

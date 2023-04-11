@@ -10,6 +10,7 @@ export default {
 			coalition: '',
 			isDark: false,
 			username: 'USERNAME',
+			bio: 'coucou'
 		};
 	},
 	mounted() {
@@ -34,25 +35,25 @@ export default {
 			else if (this.isDark)
 			theme += '-dark';
 			b.classList.remove(
-				'alliance-theme',
-				'order-theme',
-				'federation-theme',
-				'assembly-theme',
-				'alliance-theme-dark',
-				'order-theme-dark',
-				'federation-theme-dark',
-				'assembly-theme-dark',
-				'dark-theme',
-				'light-theme',
-				'centered-container',
-				'centered-container-dark'
+					'alliance',
+					'order',
+					'federation',
+					'assembly',
+					'alliance-dark',
+					'order-dark',
+					'federation-dark',
+					'assembly-dark',
+					'dark-theme',
+					'light-theme',
+					'centered-container',
+					'centered-container-dark'
 				);
 				console.log('setting theme (' + themeClass + ') computed as ' + theme);
 				b.classList.add(theme);
-			},
-			applyPreviousThemeOnMouseOut() {
-				this.setTheme(this.coalition);
-			},
+		},
+		applyPreviousThemeOnMouseOut() {
+			this.setTheme(this.coalition);
+		},
 		toggleDarkMode() {
 			this.isDark = !this.isDark;
 			this.setTheme(this.coalition);
@@ -83,6 +84,8 @@ export default {
 					"id": 0,
 					"username": this.username,
 					"darkMode": this.isDark,
+					"coa": this.coalition.toUpperCase(),
+					"bio": 'coucou',
 				})
 				.then((res) => {
 					this.$emit('user', res.data);
@@ -121,9 +124,9 @@ export default {
 					</div>
 				</div>
 				<div style="display: flex; justify-content: space-between; gap: 4px">
-					<button class="svg" :class="[isDark ? 'btn-coa-dark alliance' : 'btn-coa alliance']"
-						@mouseover="setTheme('alliance-theme')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('alliance-theme')">
+					<button class="svg" :class="[isDark ? 'btn-coa-dark alliance-btn' : 'btn-coa alliance-btn']"
+						@mouseover="setTheme('alliance')" @mouseout="applyPreviousThemeOnMouseOut()"
+						@click="applyTheme('alliance')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -133,9 +136,9 @@ export default {
 							</path>
 						</svg>
 					</button>
-					<button class="svg" :class="isDark ? 'btn-coa-dark order' : 'btn-coa order'"
-						@mouseover="setTheme('order-theme')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('order-theme')">
+					<button class="svg" :class="isDark ? 'btn-coa-dark order-btn' : 'btn-coa order-btn'"
+						@mouseover="setTheme('order')" @mouseout="applyPreviousThemeOnMouseOut()"
+						@click="applyTheme('order')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -145,9 +148,9 @@ export default {
 							</path>
 						</svg>
 					</button>
-					<button class="svg" :class="isDark ? 'btn-coa-dark federation' : 'btn-coa federation'"
-						@mouseover="setTheme('federation-theme')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('federation-theme')">
+					<button class="svg" :class="isDark ? 'btn-coa-dark federation-btn' : 'btn-coa federation-btn'"
+						@mouseover="setTheme('federation')" @mouseout="applyPreviousThemeOnMouseOut()"
+						@click="applyTheme('federation')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -157,9 +160,9 @@ export default {
 							</path>
 						</svg>
 					</button>
-					<button class="bsvg" :class="isDark ? 'btn-coa-dark assembly' : 'btn-coa assembly'"
-						@mouseover="setTheme('assembly-theme')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('assembly-theme')">
+					<button class="bsvg" :class="isDark ? 'btn-coa-dark assembly-btn' : 'btn-coa assembly-btn'"
+						@mouseover="setTheme('assembly')" @mouseout="applyPreviousThemeOnMouseOut()"
+						@click="applyTheme('assembly')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -217,7 +220,6 @@ input {
 	&:hover,
 	&:active {
 		width: 100%;
-		// color: transparent;
 		align-items: center;
 		justify-content: center;
 	}

@@ -11,6 +11,7 @@ export default {
 			isDark: false,
 			windowSize: { width: window.innerWidth, height: window.innerHeight },
 			id: 0,
+			coa : ''
 		}
 	},
 	created() {
@@ -23,9 +24,11 @@ export default {
 		updateWindowSize() {
 			this.windowSize = { width: window.innerWidth, height: window.innerHeight };
 			console.log(this.windowSize);
+			console.log(this.coa);
 		},
 		windowSize() {
 			console.log(window.innerWidth * window.innerHeight);
+			
 		},
 		toggleDarkMode() {
 			const b = document.querySelector('body');
@@ -71,6 +74,7 @@ export default {
 				this.username = res.data.username;
 				this.isDark = res.data.darkMode;
 				this.id = res.data.id;
+				this.coa = res.data.coa.toLowerCase();
 			})
 			.catch(err => {
 				this.errorMsg = err.message;
@@ -89,7 +93,7 @@ export default {
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 		<title>SideBAr</title>
 	</head>
-	<div :class="[isDark == true ? 'main-page dark federation-dark' : 'main-page light federation']">
+	<div :class="[isDark == true ? 'main-page dark alliance-dark' : 'main-page light alliance']">
 		<div class="sky" style="width: 100vw; height: 100vh; display: block; position:relative;">
 			<div class="sun" @click="toggleDarkMode"></div>
 			<div class="moon" @click="toggleDarkMode">
@@ -181,9 +185,9 @@ export default {
 			<button class="main-button">CUSTOM GAME</button>
 		</div>
 	</div>
-	<div :class="[isDark ? 'ocean dark' : 'ocean federation']">
-		<div :class="[isDark ? 'wave federation-dark' : 'wave federation']"></div>
-		<div :class="[isDark ? 'wave federation-dark' : 'wave federation']"></div>
+	<div :class="[isDark ? 'ocean dark' : 'ocean alliance']">
+		<div :class="[isDark ? 'wave alliance-dark' : 'wave alliance']"></div>
+		<div :class="[isDark ? 'wave alliance-dark' : 'wave alliance']"></div>
 	</div>
 </template>
 
