@@ -40,9 +40,11 @@ model ChatUser {
 	messages Message[]
 	joinedChannels Channel[]
 
+	blocked ChatUser[] @relation("ChatUserblocking")
+	blockedBy ChatUser[] @relation("ChatUserblocking")
 
-	// adminChannels Channel[] @ignore //this is here to implement the one to many relation regarding admins of channel
-									// <<one user can be the admin of many channels>>
+	ownedChannels GroupChannel[] @relation("ChannelOwner")
+	adminChannels GroupChannel[] @relation("ChannelAdmin")
 }
 
 model Message {
@@ -62,6 +64,7 @@ model Message {
 model Channel {
 	id Int @id @default(autoincrement())
 	name String @unique
+
 	users ChatUser[]
 	messages Message[]
 
@@ -71,13 +74,16 @@ model Channel {
 
 model DMChannel {
 	channel Channel @relation(fields: [channelId], references: [id])
-	channelId Int @unique
+	channelId Int @unique @id
 }
 
 model GroupChannel {
 	channel Channel @relation(fields: [channelId], references: [id])
-	channelId Int @unique
+	channelId Int @unique @id
 
+	ownerId Int
+	owner ChatUser @relation("ChannelOwner", fields: [ownerId], references: [userId])
+	admins ChatUser[] @relation("ChannelAdmin")
 }
 
 model Game {
