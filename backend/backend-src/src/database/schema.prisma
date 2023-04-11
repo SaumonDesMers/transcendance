@@ -10,6 +10,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Coa {
+	ORDER
+	ASSEMBLY
+	FEDERATION
+	ALLIANCE
+}
+
 model User {
 	id Int	@id
 	username String @unique
@@ -19,7 +26,13 @@ model User {
 
 	twoFactorAuthenticationSecret String?
 	isTwoFactorAuthenticationEnabled Boolean?
+	bio String @db.VarChar(200)
+	coa Coa
+
+	winningGames Game[] @relation("winner")
+	losingGames Game[] @relation("loser")
 }
+
 model ChatUser {
 	userId Int @id
 	user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -64,4 +77,17 @@ model GroupChannel {
 	channel Channel @relation(fields: [channelId], references: [id])
 	channelId Int @unique
 
+}
+
+model Game {
+	id Int @id @default(autoincrement())
+
+	winnerScore Int
+	LoserScore Int
+
+	winner User @relation("winner", fields: [winnerId], references: [id])
+	winnerId Int 
+
+	loser User @relation("loser", fields: [loserId], references: [id])
+	loserId Int
 }
