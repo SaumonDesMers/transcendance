@@ -59,6 +59,13 @@ export class ChatService {
 
 		//should do checks about mute in the future
 
+		//this prisma request 
+		// - assigns message content
+		// - connects to an existing channel using the channelId
+		// - connects to its author using an userId
+		// - assign creation date to current date
+		//
+		// includes the channel and author object in the returned object
 		const message = await this.messageRepository.createMessage({
 			content: newMessage.content,
 			channel: {
@@ -93,6 +100,14 @@ export class ChatService {
 
 		//might do checks that the user isnt banned
 
+		//this prisma request updates a group channel
+		// -the group channel is found using its base channel's channelId
+
+		// - it goes in its base channel
+		// - requests an update of the base channel
+		// - in the users fields and connects a new user
+
+		//we include the members in the returned channel
 		const update = await this.channelRepository.updateGroupChannel({
 			where: {channelId:channelId},
 			data: {
@@ -110,6 +125,11 @@ export class ChatService {
 	}
 
 	async leaveChannel(channelId: number, userId: number) {
+
+		//this prisma request is pretty similar to join channel
+		
+		//but instead of connecting a new user to the users field
+		//we delete one
 		const update = await this.channelRepository.updateGroupChannel({
 			where:{channelId},
 			data: {
