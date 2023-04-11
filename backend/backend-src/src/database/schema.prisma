@@ -10,12 +10,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Coa {
+	ORDER
+	ASSEMBLY
+	FEDERATION
+	ALLIANCE
+}
+
 model User {
 	id Int	@id
 	username String @unique
 	chatUser ChatUser?
 
 	darkMode Boolean
+	bio String @db.VarChar(200)
+	coa Coa
 
 	winningGames Game[] @relation("winner")
 	losingGames Game[] @relation("loser")
