@@ -169,6 +169,17 @@ export class ChatService {
 
 	async getChatUser(userId: number)
 	{
+
+		//this prisma request is weird i know
+		//
+		//it finds a chatUser using its corresponding userId
+		//
+		//it includes the joinedChannels in the return
+		//	- in those joinedChannels it includes the users
+		//		-in  those users in only selects the username and the userId
+		//	- in those joinedChannels it includes the messages
+		//		- in those messages it only selects the content and the author
+		//		- it only takes the last 10 sent messages ordered by posted date
 		const user = await this.prisma.chatUser.findUniqueOrThrow({
 			include:
 			{
