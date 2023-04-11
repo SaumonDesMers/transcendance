@@ -8,7 +8,7 @@ export default {
 		return {
 			coalition: '',
 			isDark: false,
-			username: 'LOGIN',
+			username: 'USERNAME',
 		};
 	},
 	mounted() {
@@ -19,9 +19,9 @@ export default {
 		},
 		applyTheme(themeClass) {
 			if (themeClass == this.coalition)
-			this.coalition = '';
+				this.coalition = '';
 			else
-			this.coalition = themeClass;
+				this.coalition = themeClass;
 		},
 		setTheme(themeClass) {
 			var theme = themeClass;
@@ -81,7 +81,7 @@ export default {
 		saveAndSubmit() {
 			axios
 				.post('http://localhost:3001/users', 
-				{ 
+				{
 					"id": 0,
 					"username": this.username,
 					"darkMode": this.isDark,
@@ -92,7 +92,6 @@ export default {
 				.catch((error) => {
 					console.log(error);
 				});
-			console.log(this.username, this.coalition);
 		}
 	},
 	emits: ['registered']
@@ -109,9 +108,9 @@ export default {
 			</div>
 			<div class="actions">
 				<div class="actions-content">
-					<form ref="LoginForm" :class="[isDark ? 'btn dark' : 'btn brown']">
+					<form :class="[isDark ? 'btn dark' : 'btn brown']">
 						<span>
-							<input width="100%" v-model='username' />
+							<input v-model='username' @click="username=''"/>
 						</span>
 					</form>
 					<div :class="[isDark ? 'btn dark' : 'btn blue']">
@@ -216,7 +215,7 @@ input {
 	&:hover,
 	&:active {
 		width: 100%;
-		color: inherit;
+		// color: transparent;
 		align-items: center;
 		justify-content: center;
 	}
@@ -278,4 +277,3 @@ input[type="checkbox"]:checked~label::before {
 	color: red;
 }
 </style>
-
