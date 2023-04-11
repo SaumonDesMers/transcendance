@@ -7,7 +7,7 @@ import game from './components/game.vue'
 import register from './components/register.vue'
 import mainPage from './components/mainPage.vue'
 import user from './components/profil.vue'
-
+import edit from './components/edit.vue'
 
 export default {
 
@@ -18,6 +18,7 @@ export default {
 		register,
 		mainPage,
 		user,
+		edit,
 	},
 
 	data() {
@@ -29,8 +30,13 @@ export default {
 				GAME: 3,
 				CHAT: 4,
 				USER: 5,
+				EDIT: 6,
+				FRIENDS: 7,
+				HISTORY: 8,
+				STATISTICS: 9,
 			},
 			state: 0,
+			previousPage: 10,
 			loggedIn: false,
 			user: null,
 		}
@@ -53,6 +59,22 @@ export default {
 		onChat() {
 			this.state = this.State.CHAT;
 		},
+		onEdit(user) {
+			this.state = this.State.EDIT;
+			this.user = user;
+		},
+		updateUser() {
+			this.state = this.State.USER;
+		},
+		onFriends() {
+			this.state = this.State.FRIENDS;
+		},
+		onHistory() {
+			this.state = this.State.HISTORY;
+		},
+		onStats() {
+			this.state = this.State.STATISTICS;
+		}
 	},
 
 	mounted() { 
@@ -71,17 +93,20 @@ export default {
 		<register @registered="user => onLogin(user)"></register>
 	</div>
 	<div v-else-if="state == State.MAIN">
-		<mainPage @onGame="onGame()" @onProfil="onProfil()" @onChat="onChat()">
+		<mainPage @onGame="onGame()" @onProfil="onProfil()" @onChat="onChat()" @onStats="onStats()" @onHistory="onHistory()" @onFriends="onFriends()">
 		</mainPage>
 	</div>
 	<div v-else-if="state == State.USER">
-		<user></user>
+		<user @onEdit="user => onEdit(user)" @onChat="onChat()"></user>
 	</div>
 	<div v-else-if="state == State.GAME">
 		<game></game>
 	</div>
 	<div v-else-if="state == State.CHAT">
 		<chat></chat>
+	</div>
+	<div v-else-if="state == State.EDIT">
+		<edit @updateUser="updateUser()"></edit>
 	</div>
 </template>
 

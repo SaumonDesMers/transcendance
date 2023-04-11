@@ -9,6 +9,11 @@ export default {
 			status: false,
 			user: null,
 			username: '',
+			federation: 1,
+			alliance: 0,
+			assembly: 0,
+			order: 0,
+			id: 0,
 		}
 	},
 	methods: {
@@ -19,6 +24,17 @@ export default {
 			} else {
 				this.isDark = false;
 			}
+			axios
+				.put(`http://localhost:3001/users/${this.id}`, 
+				{ 
+					"username": this.username,
+					"darkMode": this.isDark,
+				})
+				.then((res) => {
+				})
+				.catch((error) => {
+					console.log(error);
+				});
 		},
 		colorStatus() {
 			if (this.status)
@@ -27,20 +43,29 @@ export default {
 				return (false);
 		},
 		editProfile() {
+			this.$emit('onEdit');
 		},
+		onChat() {
+			this.$emit('onChat');
+		},
+		updateUser(user) {
+			this.username = user.username;
+			this.isDark = user.darkMode;
+    	},
 	},
 	mounted() {
 		axios.get('http://localhost:3001/auth/user',)
 			.then(res => {
-				console.log('data :', res);
 				this.username = res.data.username;
 				this.isDark = res.data.darkMode;
+				this.id = res.data.id;
 			})
 			.catch(err => {
 				this.errorMsg = err.message;
 				console.log(err);
 			})
 	},
+	emits: ['onEdit', 'onChat']
 }
 </script>
 
@@ -50,14 +75,11 @@ export default {
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
-		<link rel="stylesheet" href="https://kit.fontawesome.com/76ec232e00.css" crossorigin="anonymous">
-		<link rel="stylesheet" href="./sidebar.css">
-		<title>SideBAr</title>
 	</head>
 	<div :class="[isDark ? 'main-page dark federation-dark' : 'main-page light federation']">
 		<div style="width: 100vw; height: 100vh;">
-		<div :class="[isDark ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
-				<div class="banner-profile">
+		<div :class="[isDark == true ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
+				<div class="banner-profile federation">
 					<div class="avatar-profile">
 						<div class="status-profile" :style="[status ? 'background-color: green' : 'background-color: gray']"></div>
 					</div>
@@ -67,11 +89,12 @@ export default {
 				</div>
 				<div class="profile-grid">
 					<div class="information-profile-container">
-						<td :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{ this.username }}</td>
-						<td :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> chat </td>
-						<td :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> xp </td>
-						<td :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> coalition </td>
-						<td :class="[isDark ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']" @click="editProfile()"></td>
+						<div :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{ this.username }}</div>
+						<edit-form @updateUser="updateUser" :username="username" :isDark="isDark" :id="id" />
+						<div :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']" @click="onChat()">chat</div>
+						<div :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> xp </div>
+						<div :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> coalition </div>
+						<div :class="[isDark ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']" @click="editProfile()"></div>
 					</div>
 					<div class="bio-container grid-border">
 						<div :class="[isDark ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">Bio</div>
@@ -203,7 +226,6 @@ $numShootingStars: 10;
 	display: flex;
 	width: 100%;
 	margin: auto;
-	background: url("../assets/images/federation_background.jpg");
 	opacity: 0.9;
 	height: 20%;
 	$border: 5px;
@@ -212,6 +234,21 @@ $numShootingStars: 10;
 	border-bottom: 2px solid;
 	border-image: linear-gradient(0.25turn, rgb(66, 66, 66, 0), rgb(158, 158, 158, 10), rgb(255, 255, 255), rgb(158, 158, 158, 10), rgb(66, 66, 66, 0));
 	border-image-slice: 1;
+	&.alliance {
+		background: url("../assets/images/alliance_background.jpg");
+	}
+
+	&.federation {
+		background: url("../assets/images/federation_background.jpg");
+	}
+
+	&.assembly {
+		background: url("../assets/images/assembly_background.jpg");
+	}
+
+	&.order {
+		background: url("../assets/images/order_background.jpg");
+	}
 }
 
 .avatar-profile {

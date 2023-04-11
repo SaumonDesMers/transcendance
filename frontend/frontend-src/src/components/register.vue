@@ -19,9 +19,9 @@ export default {
 		},
 		applyTheme(themeClass) {
 			if (themeClass == this.coalition)
-			this.coalition = '';
+				this.coalition = '';
 			else
-			this.coalition = themeClass;
+				this.coalition = themeClass;
 		},
 		setTheme(themeClass) {
 			var theme = themeClass;
@@ -81,7 +81,7 @@ export default {
 		saveAndSubmit() {
 			axios
 				.post('http://localhost:3001/users', 
-				{ 
+				{
 					"id": 0,
 					"username": this.username,
 					"darkMode": this.isDark,
@@ -277,4 +277,3 @@ input[type="checkbox"]:checked~label::before {
 	color: red;
 }
 </style>
-

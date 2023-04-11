@@ -7,7 +7,8 @@ export default {
 		return {
 			username: '',
 			isDark: false,
-			windowSize: { width: window.innerWidth, height: window.innerHeight }
+			windowSize: { width: window.innerWidth, height: window.innerHeight },
+			id: 0,
 		}
 	},
 	created() {
@@ -32,9 +33,8 @@ export default {
 				this.isDark = false;
 			}
 			axios
-				.post('http://localhost:3001/users', 
+				.put(`http://localhost:3001/users/${this.id}`, 
 				{ 
-					"id": 0,
 					"username": this.username,
 					"darkMode": this.isDark,
 				})
@@ -50,12 +50,10 @@ export default {
 		getUser() {
 			axios.get('http://localhost:3001/auth/user',)
 				.then(res => {
-					console.log('data :', res);
 					if (res.data == '')
 						this.$emit('onRegister', res.data);
 					else
 						this.$emit('onLogin', res.data);
-					// console.log(res);
 					localStorage.jwt = jwt;
 					axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 				})
@@ -68,16 +66,16 @@ export default {
 	mounted() {
 		axios.get('http://localhost:3001/auth/user',)
 			.then(res => {
-				console.log('data :', res);
 				this.username = res.data.username;
 				this.isDark = res.data.darkMode;
+				this.id = res.data.id;
 			})
 			.catch(err => {
 				this.errorMsg = err.message;
 				console.log(err);
 			})
 	},
-	emits: ['onGame', 'onProfil', 'onChat'],
+	emits: ['onGame', 'onProfil', 'onChat', 'onFriends', 'onHistory', 'onStats'],
 }
 </script>
 
@@ -87,11 +85,9 @@ export default {
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
-		<link rel="stylesheet" href="https://kit.fontawesome.com/76ec232e00.css" crossorigin="anonymous">
-		<link rel="stylesheet" href="./sidebar.css">
 		<title>SideBAr</title>
 	</head>
-	<div :class="[isDark ? 'main-page dark assembly-dark' : 'main-page light assembly']">
+	<div :class="[isDark == true ? 'main-page dark federation-dark' : 'main-page light federation']">
 		<div class="sky" style="width: 100vw; height: 100vh; display: block; position:relative;">
 			<div class="sun" @click="toggleDarkMode"></div>
 			<div class="moon" @click="toggleDarkMode">
@@ -139,28 +135,28 @@ export default {
 						<span class="title" @click="switchPage('onChat')">Messages</span>
 					</a>
 				</li>
-				<li>
+				<!-- <li>
 					<a href="#">
 						<span class="icon"><i class="fa-solid fa-bullseye"></i></span>
 						<span class="title">Quests</span>
 					</a>
-				</li>
+				</li> -->
 				<li>
 					<a href="#">
 						<span class="icon"><i class="fa-solid fa-trophy"></i></span>
-						<span class="title">Statistics</span>
+						<span class="title" @click="switchPage('onStats')">Statistics</span>
 					</a>
 				</li>
 				<li>
 					<a href="#">
 						<span class="icon"><i class="fa-solid fa-floppy-disk"></i></span>
-						<span class="title">Game history</span>
+						<span class="title" @click="switchPage('onHistory')">Game history</span>
 					</a>
 				</li>
 				<li>
 					<a href="#">
 						<span class="icon"><i class="fa-solid fa-users"></i></span>
-						<span class="title">Friends</span>
+						<span class="title" @click="switchPage('onFriends')">Friends</span>
 					</a>
 				</li>
 				<li>
@@ -183,9 +179,9 @@ export default {
 			<button class="main-button">CUSTOM GAME</button>
 		</div>
 	</div>
-	<div :class="[isDark ? 'ocean dark' : 'ocean assembly']">
-		<div :class="[isDark ? 'wave assembly-dark' : 'wave assembly']"></div>
-		<div :class="[isDark ? 'wave assembly-dark' : 'wave assembly']"></div>
+	<div :class="[isDark ? 'ocean dark' : 'ocean federation']">
+		<div :class="[isDark ? 'wave federation-dark' : 'wave federation']"></div>
+		<div :class="[isDark ? 'wave federation-dark' : 'wave federation']"></div>
 	</div>
 </template>
 
