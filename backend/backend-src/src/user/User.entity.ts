@@ -1,4 +1,5 @@
-import { User } from "@prisma/client";
+import { User,
+		Coa } from "@prisma/client";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class UserEntity implements User {
@@ -10,4 +11,10 @@ export class UserEntity implements User {
 
 	@ApiProperty()
 	darkMode: boolean;
+
+	@ApiProperty()
+	coa: Coa;
+
+	@ApiProperty()
+	bio: string
 }

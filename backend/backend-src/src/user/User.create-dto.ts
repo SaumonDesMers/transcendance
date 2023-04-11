@@ -1,5 +1,6 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsString, IS_ALPHA } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsNumber, IsString, IS_ALPHA, MaxLength, IsEnum } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
+import { Coa } from "@prisma/client";
 
 export class CreateUserDto {
 	@IsString()
@@ -11,4 +12,13 @@ export class CreateUserDto {
 	@IsNotEmpty()
 	@ApiProperty()
 	darkMode: boolean;
+
+	@IsString()
+	@MaxLength(200)
+	@ApiProperty()
+	bio: string;
+
+	@IsEnum(Coa)
+	@ApiProperty()
+	coa: Coa;
 }

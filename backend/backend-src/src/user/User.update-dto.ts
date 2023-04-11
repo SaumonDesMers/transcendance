@@ -1,5 +1,6 @@
-import { IsBoolean, IsDefined, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsDefined, IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
+import { Coa } from "@prisma/client";
 
 export class UpdateUserDto
 {
@@ -13,4 +14,14 @@ export class UpdateUserDto
 	@IsOptional()
 	@ApiProperty()
 	darkMode?: boolean;
+
+	@IsString()
+	@MaxLength(200)
+	@IsOptional()
+	@ApiProperty()
+	bio: string;
+
+	@IsEnum(Coa)
+	@ApiProperty()
+	coa: Coa;
 }
