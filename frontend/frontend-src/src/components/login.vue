@@ -31,6 +31,9 @@ export default {
 					if (res.data == '') {
 						this.$emit('switchPage', State.REGISTER);
 					}
+					else if (res.data == '2fa') {
+						this.$emit('switchPage', State.TWOFACTORAUTHENTICATION);
+					}
 					else {
 						this.$emit('user', res.data);
 						this.$emit('switchPage', State.MAIN);

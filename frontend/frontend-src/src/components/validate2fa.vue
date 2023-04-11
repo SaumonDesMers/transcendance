@@ -1,5 +1,6 @@
 <script>
 import axios from 'axios'
+import { State } from '../scripts/state'
 
 export default {
 	data() {
@@ -16,20 +17,19 @@ export default {
 			})
 			.then(res => {
 				console.log('2fa/authenticate: res:', res);
-				this.$emit('validated');
+				this.switchPage(State.MAIN);
 			})
 			.catch(err => {
-				// console.log('2fa/authenticate: err:', err);
 				this.errorMsg = err.message;
 			})
 		},
 
-		cancel() {
-			this.$emit('cancel');
+		switchPage(page) {
+			this.$emit('switchPage', page);
 		},
 	},
 
-	emits: ['validated', 'cancel'],
+	emits: ['switchPage'],
 
 	mounted() {	},
 
@@ -41,6 +41,7 @@ export default {
 	<input v-model="twoFactorAuthenticationCode">
 	<p class="error">{{ errorMsg }}</p>
 	<button @click="validate2faCode">Validate</button>
+	<button @click="switchPage(State.LOGIN)">Cancel</button>
 </template>
 
 <style>

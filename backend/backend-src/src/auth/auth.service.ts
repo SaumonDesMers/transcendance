@@ -28,7 +28,6 @@ export class AuthService {
 		let user: any = null;
 		try {
 			user = await this.userService.getOneUser(userId);
-			delete user.isTwoFactorAuthenticationEnabled;
 			delete user.twoFactorAuthenticationSecret;
 		} catch {
 			user = null;
@@ -74,11 +73,11 @@ export class AuthService {
 		});
 	}
 
-	async generateJwtWith2fa(user: UserEntity) {
+	async generateJwtWith2fa(user: UserEntity, isTwoFactorAuthenticated: boolean) {
 		const payload = {
 			id: user.id,
 			isTwoFactorAuthenticationEnabled: !!user.isTwoFactorAuthenticationEnabled,
-			isTwoFactorAuthenticated: true,
+			isTwoFactorAuthenticated: isTwoFactorAuthenticated,
 		};
 	
 		return this.jwtService.sign(payload);

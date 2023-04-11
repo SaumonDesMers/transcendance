@@ -83,6 +83,8 @@ export default {
 					"id": 0,
 					"username": this.username,
 					"darkMode": this.isDark,
+					"coa": 'FEDERATION',
+					"bio": 'Vive la fede !'
 				})
 				.then((res) => {
 					this.$emit('user', res.data);

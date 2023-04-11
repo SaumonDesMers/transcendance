@@ -7,9 +7,10 @@ import game from './components/game.vue'
 import register from './components/register.vue'
 import mainPage from './components/mainPage.vue'
 import user from './components/profil.vue'
-import Test2fa from './components/test2fa.vue'
 import edit from './components/edit.vue'
 import { State } from './scripts/state'
+import validate2fa from './components/validate2fa.vue'
+import Test2fa from './components/test2fa.vue'
 
 export default {
 
@@ -21,6 +22,7 @@ export default {
 		mainPage,
 		user,
 		edit,
+		validate2fa,
 	},
 
 	data() {
@@ -52,10 +54,13 @@ export default {
 
 <template>
 	<div v-if="state == State.LOGIN">
-		<loginPage @switchPage="arg => switchPage(arg)" @user="user => setUser(user)"></loginPage>
+		<loginPage @switchPage="page => switchPage(page)" @user="user => setUser(user)"></loginPage>
+	</div>
+	<div v-if="state == State.TWOFACTORAUTHENTICATION">
+		<validate2fa @switchPage="page => switchPage(page)" @user="user => setUser(user)"></validate2fa>
 	</div>
 	<div v-else-if="state == State.REGISTER">
-		<register @switchPage="arg => switchPage(arg)" @user="user => setUser(user)"></register>
+		<register @switchPage="page => switchPage(page)" @user="user => setUser(user)"></register>
 	</div>
 	<div v-else-if="state == State.MAIN">
 		<mainPage @switchPage="page => switchPage(page)"></mainPage>

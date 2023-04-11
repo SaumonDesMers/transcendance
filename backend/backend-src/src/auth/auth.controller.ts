@@ -19,7 +19,7 @@ export class AuthController {
 	async login(@Req() req: any, @Res() response: Response) {
 		console.log(req.user.username, 'connected with 42');
 
-		const jwt: string = await this.authService.generateJwtWith2fa(req.user);
+		const jwt: string = await this.authService.generateJwtWith2fa(req.user, false);
 
 		const url = new URL(`${req.protocol}:${req.hostname}`);
 		url.port = `3000`;
@@ -31,6 +31,9 @@ export class AuthController {
 	@Get('user')
 	@ApiOkResponse({ type: UserEntity })
 	async getUser(@Req() req: any) {
+		if (req.user.isTwoFactorAuthenticationEnabled && !req.user.isTwoFactorAuthenticated) {
+			return '2fa';
+		}
 		return await this.authService.getUser(parseInt(req.user.id));
 	}
 
@@ -49,6 +52,7 @@ export class AuthController {
 	}
 
 	@Post('2fa/authenticate')
+	@ApiOkResponse({ type: String })
 	async authenticate(@Req() req: any, @Body() body: any) {
 		console.log('2fa/authenticate');
 		const isCodeValid = await this.authService.isTwoFactorAuthenticationCodeValid(
@@ -59,6 +63,6 @@ export class AuthController {
 		if (!isCodeValid)
 			throw new UnauthorizedException('Wrong authentication code');
 
-		return this.authService.generateJwtWith2fa(req.user);
+		return this.authService.generateJwtWith2fa(req.user, true);
 	}
 }
