@@ -4,6 +4,14 @@ import { GameEntity } from "./game.entity"
 import { WsException } from "@nestjs/websockets";
 import { Socket } from 'socket.io'
 import { BroadcastService } from './broadcast.service'
+import { PrismaService } from "src/database/prisma.service";
+import {
+	Prisma,
+	User,
+	Game,
+} from "@prisma/client";
+
+
 
 @Injectable()
 export class GameService {
@@ -15,6 +23,7 @@ export class GameService {
 
 	constructor(
 		private readonly broadcastService: BroadcastService,
+		private prismaService: PrismaService,
 	) {}
 
 	async connection(socket: Socket) {
@@ -101,4 +110,23 @@ export class GameService {
 		}
 	}
 
+	async saveGame(winnerId: number, loserId: number, winnerScore: number, loserScore: number)
+	{
+		this.prismaService.game.create({
+			data: {
+				loser: {
+					connect : {
+						id:loserId
+					}
+				},
+				winner: {
+					connect: {id:winnerId
+					}
+				},
+				LoserScore: loserScore,
+				winnerScore: winnerScore
+			}
+		});
+
+	}
 }
