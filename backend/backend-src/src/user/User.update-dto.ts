@@ -28,9 +28,9 @@ export class UpdateUserDto
 	@MaxLength(200)
 	@IsOptional()
 	@ApiProperty()
-	bio: string;
+	bio?: string;
 
 	@IsEnum(Coa)
 	@ApiProperty()
-	coa: Coa;
+	coa?: Coa;
 }
