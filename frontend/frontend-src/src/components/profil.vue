@@ -1,10 +1,12 @@
 <script>
 
 import axios from 'axios'
+import { State } from '../scripts/state';
 
 export default {
 	data: function () {
 		return {
+			State,
 			isDark: false,
 			status: false,
 			user: null,
@@ -42,16 +44,13 @@ export default {
 			else
 				return (false);
 		},
-		editProfile() {
-			this.$emit('onEdit');
-		},
-		onChat() {
-			this.$emit('onChat');
-		},
 		updateUser(user) {
 			this.username = user.username;
 			this.isDark = user.darkMode;
     	},
+		switchPage(page) {
+			this.$emit('switchPage', page);
+		},
 	},
 	mounted() {
 		axios.get('http://localhost:3001/auth/user',)
@@ -65,7 +64,7 @@ export default {
 				console.log(err);
 			})
 	},
-	emits: ['onEdit', 'onChat']
+	emits: ['onEdit', 'onChat', 'switchPage']
 }
 </script>
 
@@ -91,10 +90,10 @@ export default {
 					<div class="information-profile-container">
 						<div :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{ this.username }}</div>
 						<edit-form @updateUser="updateUser" :username="username" :isDark="isDark" :id="id" />
-						<div :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']" @click="onChat()">chat</div>
+						<div :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']" @click="switchPage(State.CHAT)">chat</div>
 						<div :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> xp </div>
 						<div :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> coalition </div>
-						<div :class="[isDark ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']" @click="editProfile()"></div>
+						<div :class="[isDark ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']" @click="switchPage(State.EDIT)"></div>
 					</div>
 					<div class="bio-container grid-border">
 						<div :class="[isDark ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">Bio</div>

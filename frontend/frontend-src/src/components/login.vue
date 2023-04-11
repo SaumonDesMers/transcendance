@@ -1,5 +1,6 @@
 <script>
 import axios from 'axios'
+import { State } from '../scripts/state'
 
 export default {
 	data() {
@@ -27,20 +28,26 @@ export default {
 					console.log('data :', res);
 					localStorage.jwt = jwt;
 					axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
-					if (res.data == '')
-						this.$emit('onRegister', res.data);
-					else
-						this.$emit('onLogin', res.data);
+					if (res.data == '') {
+						this.$emit('switchPage', State.REGISTER);
+					}
+					else {
+						this.$emit('user', res.data);
+						this.$emit('switchPage', State.MAIN);
+					}
 					// console.log(res);
 				})
 				.catch(err => {
 					this.errorMsg = err.message;
 					console.log(err);
 				})
-		}
+		},
+		switchPage(page) {
+			this.$emit('switchPage', page);
+		},
 	},
 
-	emits: ['onLogin', 'onRegister'],
+	emits: ['switchPage', 'user'],
 
 	mounted() {
 		let jwt = this.getJwt();

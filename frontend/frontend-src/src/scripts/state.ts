@@ -6,4 +6,8 @@ export enum State {
 	GAME,
 	CHAT,
 	USER,
+	STATS,
+	HISTORY,
+	FRIENDS,
+	EDIT,
 }

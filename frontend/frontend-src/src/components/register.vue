@@ -2,6 +2,7 @@
 import axios from 'axios'
 import "../styles/darkTheme.scss"
 import "../styles/lightTheme.scss"
+import { State } from '../scripts/state'
 
 export default {
 	data: function () {
@@ -14,9 +15,6 @@ export default {
 	mounted() {
 	},
 	methods: {
-		register() {
-			axios.post()
-		},
 		applyTheme(themeClass) {
 			if (themeClass == this.coalition)
 				this.coalition = '';
@@ -87,14 +85,18 @@ export default {
 					"darkMode": this.isDark,
 				})
 				.then((res) => {
-					this.$emit('registered', res.data)
+					this.$emit('user', res.data);
+					this.$emit('switchPage', State.MAIN);
 				})
 				.catch((error) => {
 					console.log(error);
 				});
-		}
+		},
+		switchPage(page) {
+			this.$emit('switchPage', page);
+		},
 	},
-	emits: ['registered']
+	emits: ['switchPage', 'user']
 }
 
 </script>

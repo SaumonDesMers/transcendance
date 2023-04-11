@@ -1,10 +1,12 @@
 <script>
 
 import axios from 'axios'
+import { State } from '../scripts/state';
 
 export default {
 	data: function () {
 		return {
+			State,
 			username: '',
 			isDark: false,
 			windowSize: { width: window.innerWidth, height: window.innerHeight },
@@ -45,7 +47,7 @@ export default {
 				});
 		},
 		switchPage(page) {
-			this.$emit(page);
+			this.$emit('switchPage', page);
 		},
 		getUser() {
 			axios.get('http://localhost:3001/auth/user',)
@@ -75,7 +77,7 @@ export default {
 				console.log(err);
 			})
 	},
-	emits: ['onGame', 'onProfil', 'onChat', 'onFriends', 'onHistory', 'onStats'],
+	emits: ['switchPage'],
 }
 </script>
 
@@ -126,13 +128,13 @@ export default {
 				<li>
 					<a href="#">
 						<span class="avatar"></span>
-						<span class="title" @click="switchPage('onProfil')">{{ this.username }}</span>
+						<span class="title" @click="switchPage(State.USER)">{{ this.username }}</span>
 					</a>
 				</li>
 				<li>
 					<a href="#">
 						<span class="icon"><i class="fa-solid fa-comments"></i></span>
-						<span class="title" @click="switchPage('onChat')">Messages</span>
+						<span class="title" @click="switchPage(State.CHAT)">Messages</span>
 					</a>
 				</li>
 				<!-- <li>
@@ -144,19 +146,19 @@ export default {
 				<li>
 					<a href="#">
 						<span class="icon"><i class="fa-solid fa-trophy"></i></span>
-						<span class="title" @click="switchPage('onStats')">Statistics</span>
+						<span class="title" @click="switchPage(State.STATS)">Statistics</span>
 					</a>
 				</li>
 				<li>
 					<a href="#">
 						<span class="icon"><i class="fa-solid fa-floppy-disk"></i></span>
-						<span class="title" @click="switchPage('onHistory')">Game history</span>
+						<span class="title" @click="switchPage(State.HISTORY)">Game history</span>
 					</a>
 				</li>
 				<li>
 					<a href="#">
 						<span class="icon"><i class="fa-solid fa-users"></i></span>
-						<span class="title" @click="switchPage('onFriends')">Friends</span>
+						<span class="title" @click="switchPage(State.HISTORY)">Friends</span>
 					</a>
 				</li>
 				<li>
@@ -175,7 +177,7 @@ export default {
 			</ul>
 		</div>
 		<div class="main-container">
-			<button class="main-button" @click="switchPage('onGame')">GAME</button>
+			<button class="main-button" @click="switchPage(State.GAME)">GAME</button>
 			<button class="main-button">CUSTOM GAME</button>
 		</div>
 	</div>

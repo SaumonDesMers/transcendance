@@ -1,6 +1,7 @@
 <script>
 import axios from 'axios'
 import "./profil.vue"
+import { State } from '../scripts/state';
 
 export default {
 	data: function () {
@@ -21,7 +22,7 @@ export default {
 					"darkMode": this.isDark,
 				})
 				.then((res) => {
-					this.$emit('updateUser', res.data)
+					this.$emit('switchPage', State.USER);
 				})
 				.catch((error) => {
 					console.log(error);
@@ -40,7 +41,7 @@ export default {
 				console.log(err);
 			})
 	},
-	emits: ['updateUser']
+	emits: ['switchPage']
 }
 
 </script>
