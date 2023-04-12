@@ -40,6 +40,11 @@ export interface ClientToServerEvents {
 	 * event to send a message to the chat
 	 */
 	send_message: (message: CreateMessageDto) => void;
+
+
+	set_admin_request: (request: adminRequestDTO) => void;
+
+	unset_admin_request: (request: adminRequestDTO) => void;
 }
 
 export interface MessageDTO {
@@ -53,6 +58,12 @@ export interface MessageDTO {
 export interface joinRequestDTO {
 	channelId?: number,
 	channelName?: string,
+}
+
+export interface adminRequestDTO {
+	callerUserId: number,
+	targetUserId: number,
+	groupChannelId: number,
 }
 
 export interface ChannelDTO {

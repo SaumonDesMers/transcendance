@@ -8,6 +8,7 @@ import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { CreateDMChannelDto } from "./DMChannel.create.dto";
 import { PrismaModule } from "src/database/prisma.module";
 import { PrismaService } from "src/database/prisma.service";
+import { adminRequestDTO } from "./Chat.events";
 
 @Injectable()
 export class ChatService {
@@ -230,9 +231,7 @@ export class ChatService {
 	}
 
 	async setUserAdmin(
-		callerUserId: number,
-		targetUserId: number,
-		GroupChannelId: number
+		request: adminRequestDTO
 		)
 	{
 		// const groupChannel = this.channelRepository.getSingleGroupChannel({channelId:GroupChannelId}, true);
@@ -242,12 +241,12 @@ export class ChatService {
 
 		this.channelRepository.updateGroupChannel({
 			where: {
-				channelId:GroupChannelId
+				channelId:request.groupChannelId
 			},
 			data: {
 				admins: {
 					connect: {
-						userId: targetUserId
+						userId: request.targetUserId
 					}
 				}
 			}
@@ -255,9 +254,7 @@ export class ChatService {
 	}
 
 	async unsetUserAdmin(
-		callerUserId: number,
-		targetUserId: number,
-		GroupChannelId: number
+		request: adminRequestDTO
 	)
 	{
 		// const groupChannel = this.channelRepository.getSingleGroupChannel({channelId:GroupChannelId}, true);
@@ -267,12 +264,12 @@ export class ChatService {
 
 		this.channelRepository.updateGroupChannel({
 			where: {
-				channelId:GroupChannelId
+				channelId:request.groupChannelId
 			},
 			data: {
 				admins: {
 					disconnect: {
-						userId: targetUserId
+						userId: request.targetUserId
 					}
 				}
 			}
