@@ -19,7 +19,8 @@ import {
 	ChannelDTO,
 	ChatUserDTO,
 	joinRequestDTO,
-	adminRequestDTO
+	adminRequestDTO,
+	MuteDTO
 } from './Chat.events'
 
 import { Server, Socket } from 'socket.io';
@@ -229,7 +230,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@MessageBody() request: adminRequestDTO)
 	{
 		try {
-			await this.chatService.unsetUserAdmin(request)
+			await this.chatService.unsetUserAdmin(request);
 		} catch (e) {
 			console.log(e);
 			throw WsException;
@@ -238,5 +239,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		this.server.to(request.groupChannelId.toString()).emit("unset_admin", request);
 	}
 
+	@SubscribeMessage("mute_request")
+	async muteUser(
+		@ConnectedSocket() socket: Socket,
+		@MessageBody() request: MuteDTO)
+	{
+		try {
+			await this.chatService.muteUser(request);
+		} catch (e) {
+			console.log(e);
+			throw WsException;
+		}
 
+		this.server.to(request.groupChannelId.toString()).emit("mute", request);
+	}
 }
