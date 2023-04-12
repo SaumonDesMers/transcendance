@@ -123,7 +123,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		socket.emit("join_room", channel.channel);
-		socket.join(channel.channel.name);
+		socket.join(channel.channel.id.toString());
 	}
 
 	@SubscribeMessage("join_room")
@@ -204,7 +204,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			throw WsException;
 		}
 
-		this.server.to(message.channel.name).emit("message", message);
+		this.server.to(message.channel.id.toString()).emit("message", message);
 	}
 
 }
