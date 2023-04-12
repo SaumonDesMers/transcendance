@@ -9,6 +9,8 @@ import { CreateDMChannelDto } from "./DMChannel.create.dto";
 import { PrismaModule } from "src/database/prisma.module";
 import { PrismaService } from "src/database/prisma.service";
 import { MuteDTO, adminRequestDTO } from "./Chat.events";
+import { WsException } from "@nestjs/websockets";
+import { error } from "console";
 
 @Injectable()
 export class ChatService {
@@ -238,6 +240,7 @@ export class ChatService {
 
 		//add logic here checking
 		//that users are in channels and caller has the rights to add a new admin
+		// throw error
 
 		this.channelRepository.updateGroupChannel({
 			where: {
