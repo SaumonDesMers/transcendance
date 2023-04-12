@@ -21,7 +21,16 @@ export class ChatService {
 		newGroupChannel.usersId.forEach(userId => my_arr.push({userId}));
 
 		const channel = await this.channelRepository.createGroupChannel({
-			
+			owner: {
+				connect: {
+					userId: newGroupChannel.ownerId
+				}
+			},
+			admins: {
+				connect: {
+					userId: newGroupChannel.ownerId
+				}
+			},
 			channel: {
 				create: {
 					name: newGroupChannel.name,
@@ -218,5 +227,55 @@ export class ChatService {
 		});
 
 		return user;
+	}
+
+	async setUserAdmin(
+		callerUserId: number,
+		targetUserId: number,
+		GroupChannelId: number
+		)
+	{
+		// const groupChannel = this.channelRepository.getSingleGroupChannel({channelId:GroupChannelId}, true);
+
+		//add logic here checking
+		//that users are in channels and caller has the rights to add a new admin
+
+		this.channelRepository.updateGroupChannel({
+			where: {
+				channelId:GroupChannelId
+			},
+			data: {
+				admins: {
+					connect: {
+						userId: targetUserId
+					}
+				}
+			}
+		}, false);
+	}
+
+	async unsetUserAdmin(
+		callerUserId: number,
+		targetUserId: number,
+		GroupChannelId: number
+	)
+	{
+		// const groupChannel = this.channelRepository.getSingleGroupChannel({channelId:GroupChannelId}, true);
+
+		//add logic here checking
+		//that users are in channels and caller has the rights to remove an admin
+
+		this.channelRepository.updateGroupChannel({
+			where: {
+				channelId:GroupChannelId
+			},
+			data: {
+				admins: {
+					disconnect: {
+						userId: targetUserId
+					}
+				}
+			}
+		}, false);
 	}
 }
