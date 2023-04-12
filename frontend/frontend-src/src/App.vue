@@ -10,7 +10,8 @@ import user from './components/profil.vue'
 import edit from './components/edit.vue'
 import { State } from './scripts/state'
 import validate2fa from './components/validate2fa.vue'
-import Test2fa from './components/test2fa.vue'
+import toggle2fa from './components/toggle2fa.vue'
+import { User } from './scripts/user'
 
 export default {
 
@@ -31,7 +32,7 @@ export default {
 			state: State.LOGIN,
 			previousPage: 10,
 			loggedIn: false,
-			user: null,
+			user: new User(),
 		}
 	},
 
@@ -40,7 +41,7 @@ export default {
 			this.state = arg;
 		},
 		setUser(user) {
-			this.user = user;
+			this.user.set(user);
 		}
 	},
 
@@ -56,7 +57,7 @@ export default {
 	<div v-if="state == State.LOGIN">
 		<loginPage @switchPage="page => switchPage(page)" @user="user => setUser(user)"></loginPage>
 	</div>
-	<div v-if="state == State.TWOFACTORAUTHENTICATION">
+	<div v-if="state == State.VALIDATE_2FA">
 		<validate2fa @switchPage="page => switchPage(page)" @user="user => setUser(user)"></validate2fa>
 	</div>
 	<div v-else-if="state == State.REGISTER">

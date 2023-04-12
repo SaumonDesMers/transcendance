@@ -31,6 +31,7 @@ export class UpdateUserDto
 	bio?: string;
 
 	@IsEnum(Coa)
+	@IsOptional()
 	@ApiProperty()
 	coa?: Coa;
 }

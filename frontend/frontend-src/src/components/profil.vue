@@ -2,69 +2,73 @@
 
 import axios from 'axios'
 import { State } from '../scripts/state';
+import { User } from '../scripts/user';
 
 export default {
 	data: function () {
 		return {
 			State,
-			isDark: false,
+			// isDark: false,
 			status: false,
-			user: null,
-			username: '',
-			federation: 1,
-			alliance: 0,
-			assembly: 0,
-			order: 0,
-			id: 0,
+			user: new User(),
+			// username: '',
+			// federation: 1,
+			// alliance: 0,
+			// assembly: 0,
+			// order: 0,
+			// id: 0,
 		}
 	},
 	methods: {
 		toggleDarkMode() {
-			const b = document.querySelector('body');
-			if (!this.isDark) {
-				this.isDark = true;
-			} else {
-				this.isDark = false;
-			}
-			axios
-				.put(`http://localhost:3001/users/${this.id}`, 
-				{ 
-					"username": this.username,
-					"darkMode": this.isDark,
-				})
-				.then((res) => {
-				})
-				.catch((error) => {
-					console.log(error);
-				});
+			// const b = document.querySelector('body');
+
+			// if (!this.isDark) {
+			// 	this.isDark = true;
+			// } else {
+			// 	this.isDark = false;
+			// }
+			this.user.darkMode = !this.user.darkMode;
+
+			// axios
+			// 	.patch(`http://localhost:3001/users/${this.user.id}`, 
+			// 	{ 
+			// 		"darkMode": this.isDark,
+			// 	})
+			// 	.then((res) => {
+			// 	})
+			// 	.catch((error) => {
+			// 		console.log(error);
+			// 	});
+			this.user.save();
 		},
-		colorStatus() {
-			if (this.status)
-				return (true);
-			else
-				return (false);
-		},
-		updateUser(user) {
-			this.username = user.username;
-			this.isDark = user.darkMode;
-    	},
+		// colorStatus() {
+		// 	if (this.status)
+		// 		return (true);
+		// 	else
+		// 		return (false);
+		// },
+		// updateUser(user) {
+		// 	this.username = user.username;
+		// 	this.isDark = user.darkMode;
+    	// },
 		switchPage(page) {
 			this.$emit('switchPage', page);
 		},
 	},
 	mounted() {
-		axios.get('http://localhost:3001/auth/user',)
-			.then(res => {
-				this.username = res.data.username;
-				this.isDark = res.data.darkMode;
-				this.id = res.data.id;
-			})
-			.catch(err => {
-				this.errorMsg = err.message;
-				console.log(err);
-			})
+		// axios.get('http://localhost:3001/auth/user',)
+		// 	.then(res => {
+		// 		this.username = res.data.username;
+		// 		this.isDark = res.data.darkMode;
+		// 		this.id = res.data.id;
+		// 	})
+		// 	.catch(err => {
+		// 		this.errorMsg = err.message;
+		// 		console.log(err);
+		// 	})
 	},
-	emits: ['onEdit', 'onChat', 'switchPage']
+	emits: [/*'onEdit', 'onChat', */'switchPage']
 }
 </script>
 
@@ -75,32 +79,32 @@ export default {
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	</head>
-	<div :class="[isDark ? 'main-page dark federation-dark' : 'main-page light federation']">
+	<div :class="[user.darkMode ? 'main-page dark federation-dark' : 'main-page light federation']">
 		<div style="width: 100vw; height: 100vh;">
-		<div :class="[isDark == true ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
+		<div :class="[user.darkMode == true ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
 				<div class="banner-profile federation">
 					<div class="avatar-profile">
 						<div class="status-profile" :style="[status ? 'background-color: green' : 'background-color: gray']"></div>
 					</div>
 					<span class="profile-toggle" @click="toggleDarkMode" style="display: flex;">
-						<div :class="[isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun']" style="font-size: 1.5vw"></div>
+						<div :class="[user.darkMode ? 'fa-solid fa-moon' : 'fa-solid fa-sun']" style="font-size: 1.5vw"></div>
 					</span>
 				</div>
 				<div class="profile-grid">
 					<div class="information-profile-container">
-						<div :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{ this.username }}</div>
-						<edit-form @updateUser="updateUser" :username="username" :isDark="isDark" :id="id" />
-						<div :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']" @click="switchPage(State.CHAT)">chat</div>
-						<div :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> xp </div>
-						<div :class="[isDark ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> coalition </div>
-						<div :class="[isDark ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']" @click="switchPage(State.EDIT)"></div>
+						<div :class="[user.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{ user.username }}</div>
+						<!-- <edit-form @updateUser="updateUser" :username="user.username" :isDark="user.isDark" :id="id" /> -->
+						<div :class="[user.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']" @click="switchPage(State.CHAT)">chat</div>
+						<div :class="[user.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> xp </div>
+						<div :class="[user.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> coalition </div>
+						<div :class="[user.darkMode ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']" @click="switchPage(State.EDIT)"></div>
 					</div>
 					<div class="bio-container grid-border">
-						<div :class="[isDark ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">Bio</div>
+						<div :class="[user.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">Bio</div>
 						<div class="child-container">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non porttitor sem. Vestibulum ac massa tempus, auctor ex ut, lobortis tellus. Phasellus id tortor viverra, dictum diam nec, efficitur dui. Nullam placerat viverra tortor in ultricies. Quisque pellentesque hendrerit vulputate. Aenean dapibus dui lectus, nec dapibus arcu aliquam eget. Aenean dignissim arcu quis iaculis auctor.</div>
 					</div>
 					<div class="friend-container grid-border">
-						<div :class="[isDark ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">friends</div>
+						<div :class="[user.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">friends</div>
 						<div class="grid-friend">
 							<div class="friend">
 								<div>PixelPaddle</div>
@@ -121,16 +125,16 @@ export default {
 						</div>
 					</div>
 					<div class="stats-container grid-border">
-						<div :class="[isDark ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">stats</div>
+						<div :class="[user.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">stats</div>
 						<div class="child-container">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non porttitor sem. Vestibulum ac massa tempus, auctor ex ut, lobortis tellus. Phasellus id tortor viverra, dictum diam nec, efficitur dui. Nullam placerat viverra tortor in ultricies. Quisque pellentesque hendrerit vulputate. Aenean dapibus dui lectus, nec dapibus arcu aliquam eget. Aenean dignissim arcu quis iaculis auctor.</div>
 					</div>
 					<div class="history-container grid-border">
-						<div :class="[isDark ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">history</div>
+						<div :class="[user.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">history</div>
 						<div class="child-container">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non porttitor sem. Vestibulum ac massa tempus, auctor ex ut, lobortis tellus. Phasellus id tortor viverra, dictum diam nec, efficitur dui. Nullam placerat viverra tortor in ultricies. Quisque pellentesque hendrerit vulputate. Aenean dapibus dui lectus, nec dapibus arcu aliquam eget. Aenean dignissim arcu quis iaculis auctor.</div>
 					</div>
 				</div>
 			</div>
-			<div v-if ="this.isDark == false">
+			<div v-if ="user.darkMode == false">
 				<div class="cloud large cloud-1"><div></div><div></div><div></div><div></div></div>
 				<div class="cloud normal cloud-2"><div></div><div></div><div></div><div></div></div>
 				<div class="cloud small cloud-3"><div></div><div></div><div></div><div></div></div>

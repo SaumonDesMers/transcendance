@@ -2,15 +2,17 @@
 
 import axios from 'axios'
 import { State } from '../scripts/state';
+import { User } from '../scripts/user';
 
 export default {
 	data: function () {
 		return {
 			State,
-			username: '',
-			isDark: false,
+			// username: '',
+			// isDark: false,
 			windowSize: { width: window.innerWidth, height: window.innerHeight },
-			id: 0,
+			// id: 0,
+			user: new User(),
 		}
 	},
 	created() {
@@ -22,60 +24,63 @@ export default {
 	methods: {
 		updateWindowSize() {
 			this.windowSize = { width: window.innerWidth, height: window.innerHeight };
-			console.log(this.windowSize);
+			// console.log(this.windowSize);
 		},
-		windowSize() {
-			console.log(window.innerWidth * window.innerHeight);
-		},
+		// windowSize() {
+		// 	console.log(window.innerWidth * window.innerHeight);
+		// },
 		toggleDarkMode() {
-			const b = document.querySelector('body');
-			if (!this.isDark) {
-				this.isDark = true;
-			} else {
-				this.isDark = false;
-			}
-			axios
-				.put(`http://localhost:3001/users/${this.id}`, 
-				{ 
-					"username": this.username,
-					"darkMode": this.isDark,
-				})
-				.then((res) => {
-				})
-				.catch((error) => {
-					console.log(error);
-				});
+			// const b = document.querySelector('body');
+
+			// if (!this.isDark) {
+			// 	this.isDark = true;
+			// } else {
+			// 	this.isDark = false;
+			// }
+			this.user.darkMode = !this.user.darkMode;
+
+			// axios
+			// 	.patch(`http://localhost:3001/users/${this.id}`, 
+			// 	{
+			// 		"darkMode": this.isDark,
+			// 	})
+			// 	.then((res) => {
+			// 	})
+			// 	.catch((error) => {
+			// 		console.log(error);
+			// 	});
+			this.user.save();
 		},
 		switchPage(page) {
 			this.$emit('switchPage', page);
 		},
-		getUser() {
-			axios.get('http://localhost:3001/auth/user',)
-				.then(res => {
-					if (res.data == '')
-						this.$emit('onRegister', res.data);
-					else
-						this.$emit('onLogin', res.data);
-					localStorage.jwt = jwt;
-					axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
-				})
-				.catch(err => {
-					this.errorMsg = err.message;
-					console.log(err);
-				})
-		}
+		// getUser() {
+		// 	axios.get('http://localhost:3001/auth/user',)
+		// 		.then(res => {
+		// 			if (res.data == '')
+		// 				this.$emit('onRegister', res.data);
+		// 			else
+		// 				this.$emit('onLogin', res.data);
+		// 			localStorage.jwt = jwt;
+		// 			axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
+		// 		})
+		// 		.catch(err => {
+		// 			this.errorMsg = err.message;
+		// 			console.log(err);
+		// 		})
+		// }
 	},
 	mounted() {
-		axios.get('http://localhost:3001/auth/user',)
-			.then(res => {
-				this.username = res.data.username;
-				this.isDark = res.data.darkMode;
-				this.id = res.data.id;
-			})
-			.catch(err => {
-				this.errorMsg = err.message;
-				console.log(err);
-			})
+		// axios.get('http://localhost:3001/auth/user',)
+		// 	.then(res => {
+		// 		this.username = res.data.username;
+		// 		this.isDark = res.data.darkMode;
+		// 		this.id = res.data.id;
+		// 	})
+		// 	.catch(err => {
+		// 		this.errorMsg = err.message;
+		// 		console.log(err);
+		// 	})
 	},
 	emits: ['switchPage'],
 }
@@ -89,7 +94,7 @@ export default {
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 		<title>SideBAr</title>
 	</head>
-	<div :class="[isDark == true ? 'main-page dark federation-dark' : 'main-page light federation']">
+	<div :class="[user.darkMode == true ? 'main-page dark federation-dark' : 'main-page light federation']">
 		<div class="sky" style="width: 100vw; height: 100vh; display: block; position:relative;">
 			<div class="sun" @click="toggleDarkMode"></div>
 			<div class="moon" @click="toggleDarkMode">
@@ -100,7 +105,7 @@ export default {
 				<div class="dark">
 				</div>
 			</div>
-			<div v-if ="this.isDark == false">
+			<div v-if ="user.darkMode == false">
 				<div class="cloud large cloud-1"><div></div><div></div><div></div><div></div></div>
 				<div class="cloud normal cloud-2"><div></div><div></div><div></div><div></div></div>
 				<div class="cloud small cloud-3"><div></div><div></div><div></div><div></div></div>
@@ -128,7 +133,7 @@ export default {
 				<li>
 					<a href="#">
 						<span class="avatar"></span>
-						<span class="title" @click="switchPage(State.USER)">{{ this.username }}</span>
+						<span class="title" @click="switchPage(State.USER)">{{ user.username }}</span>
 					</a>
 				</li>
 				<li>
@@ -164,14 +169,20 @@ export default {
 				<li>
 					<a href="#">
 						<span class="icon" @click="toggleDarkMode"><i
-								:class="[isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun']"></i></span>
+								:class="[user.darkMode ? 'fa-solid fa-moon' : 'fa-solid fa-sun']"></i></span>
 						<span class="title" @click="toggleDarkMode">Theme</span>
 					</a>
 				</li>
 				<li>
 					<a href="#">
 						<span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span>
-						<span class="title">SignOut</span>
+						<span class="title">2fa</span>
+					</a>
+				</li>
+				<li>
+					<a href="#">
+						<span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span>
+						<span class="title" @click="switchPage(State.HISTORY)">SignOut</span>
 					</a>
 				</li>
 			</ul>
@@ -181,9 +192,9 @@ export default {
 			<button class="main-button">CUSTOM GAME</button>
 		</div>
 	</div>
-	<div :class="[isDark ? 'ocean dark' : 'ocean federation']">
-		<div :class="[isDark ? 'wave federation-dark' : 'wave federation']"></div>
-		<div :class="[isDark ? 'wave federation-dark' : 'wave federation']"></div>
+	<div :class="[user.darkMode ? 'ocean dark' : 'ocean federation']">
+		<div :class="[user.darkMode ? 'wave federation-dark' : 'wave federation']"></div>
+		<div :class="[user.darkMode ? 'wave federation-dark' : 'wave federation']"></div>
 	</div>
 </template>
 

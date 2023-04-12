@@ -35,7 +35,7 @@ export class AuthService {
 		return user;
 	}
 
-	async generateTwoFactorAuthenticationSecret(user: UserEntity): Promise<{
+	async generate2faSecret(user: UserEntity): Promise<{
 		secret: string;
 		otpauthUrl: string;
 	}> {
@@ -53,20 +53,21 @@ export class AuthService {
 		return toDataURL(otpAuthUrl);
 	}
 
-	async turnOnTwoFactorAuthentication(userId: number) {
+	async turnOn2fa(userId: number) {
 		let user = await this.userService.getOneUser(userId);
-		let res = await this.generateTwoFactorAuthenticationSecret(user);
+		let res = await this.generate2faSecret(user);
 		this.userService.updateUser(userId, {
 			twoFactorAuthenticationSecret: res.secret,
 			isTwoFactorAuthenticationEnabled: true
 		});
-		return this.generateQrCodeDataURL(res.otpauthUrl);
+		return  {
+			qrcode: this.generateQrCodeDataURL(res.otpauthUrl),
+			jwt: this.generateJwtWith2fa(user, true),
+		};
 	}
 
-	async isTwoFactorAuthenticationCodeValid(twoFactorAuthenticationCode: string, userId: number) {
+	async is2faCodeValid(twoFactorAuthenticationCode: string, userId: number) {
 		let user = await this.userService.getOneUser(userId);
-		// console.log('twoFactorAuthenticationCode =', twoFactorAuthenticationCode);
-		// console.log('twoFactorAuthenticationSecret =', user.twoFactorAuthenticationSecret);
 		return authenticator.verify({
 			token: twoFactorAuthenticationCode,
 			secret: user.twoFactorAuthenticationSecret,
@@ -74,6 +75,7 @@ export class AuthService {
 	}
 
 	async generateJwtWith2fa(user: UserEntity, isTwoFactorAuthenticated: boolean) {
+		// console.log('generateJwtWith2fa: user:', user);
 		const payload = {
 			id: user.id,
 			isTwoFactorAuthenticationEnabled: !!user.isTwoFactorAuthenticationEnabled,
@@ -81,6 +83,14 @@ export class AuthService {
 		};
 	
 		return this.jwtService.sign(payload);
+	}
+
+	async turnOff2fa(userId: number) {
+		let user = await this.userService.getOneUser(userId);
+		this.userService.updateUser(userId, {
+			twoFactorAuthenticationSecret: '',
+			isTwoFactorAuthenticationEnabled: false
+		});
 	}
 	
 }

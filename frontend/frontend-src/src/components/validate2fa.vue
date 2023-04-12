@@ -5,6 +5,7 @@ import { State } from '../scripts/state'
 export default {
 	data() {
 		return {
+			State,
 			errorMsg: '',
 			twoFactorAuthenticationCode: ''
 		}
@@ -29,7 +30,7 @@ export default {
 		},
 	},
 
-	emits: ['switchPage'],
+	emits: ['switchPage', 'user'],
 
 	mounted() {	},
 

@@ -20,19 +20,19 @@ export default {
 		},
 		requestUserWithJwt(jwt) {
 			axios.get('http://localhost:3001/auth/user', {
-				headers: {
-					Authorization: `Bearer ${jwt}`
-				}
-			})
+					headers: {
+						Authorization: `Bearer ${jwt}`
+					}
+				})
 				.then(res => {
-					console.log('data :', res);
+					console.log('data :', res.data);
 					localStorage.jwt = jwt;
 					axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 					if (res.data == '') {
 						this.$emit('switchPage', State.REGISTER);
 					}
 					else if (res.data == '2fa') {
-						this.$emit('switchPage', State.TWOFACTORAUTHENTICATION);
+						this.$emit('switchPage', State.VALIDATE_2FA);
 					}
 					else {
 						this.$emit('user', res.data);
