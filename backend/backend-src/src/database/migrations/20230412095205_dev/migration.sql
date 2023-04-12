@@ -39,6 +39,17 @@ CREATE TABLE "Channel" (
 );
 
 -- CreateTable
+CREATE TABLE "Mute" (
+    "id" SERIAL NOT NULL,
+    "authorId" INTEGER NOT NULL,
+    "targetId" INTEGER NOT NULL,
+    "groupChannelId" INTEGER NOT NULL,
+    "endDate" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Mute_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "DMChannel" (
     "channelId" INTEGER NOT NULL,
 
@@ -120,6 +131,15 @@ ALTER TABLE "Message" ADD CONSTRAINT "Message_chatUserId_fkey" FOREIGN KEY ("cha
 
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_channelId_fkey" FOREIGN KEY ("channelId") REFERENCES "Channel"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Mute" ADD CONSTRAINT "Mute_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "ChatUser"("userId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Mute" ADD CONSTRAINT "Mute_targetId_fkey" FOREIGN KEY ("targetId") REFERENCES "ChatUser"("userId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Mute" ADD CONSTRAINT "Mute_groupChannelId_fkey" FOREIGN KEY ("groupChannelId") REFERENCES "GroupChannel"("channelId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "DMChannel" ADD CONSTRAINT "DMChannel_channelId_fkey" FOREIGN KEY ("channelId") REFERENCES "Channel"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

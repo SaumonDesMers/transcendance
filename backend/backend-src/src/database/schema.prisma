@@ -45,6 +45,9 @@ model ChatUser {
 
 	ownedChannels GroupChannel[] @relation("ChannelOwner")
 	adminChannels GroupChannel[] @relation("ChannelAdmin")
+
+	createdMutes Mute[] @relation("MuteAuthor")
+	receivedMutes Mute[] @relation("MuteTarget")
 }
 
 model Message {
@@ -72,6 +75,19 @@ model Channel {
 	textChannel GroupChannel?
 }
 
+model Mute {
+	id Int @id @default(autoincrement())
+
+	author ChatUser @relation("MuteAuthor", fields: [authorId], references: [userId])
+	target ChatUser @relation("MuteTarget", fields: [targetId], references: [userId])
+	authorId Int
+	targetId Int
+
+	groupChannel GroupChannel @relation("ChannelMute", fields: [groupChannelId], references: [channelId])
+	groupChannelId Int
+	endDate DateTime
+}
+
 model DMChannel {
 	channel Channel @relation(fields: [channelId], references: [id])
 	channelId Int @unique @id
@@ -84,6 +100,7 @@ model GroupChannel {
 	ownerId Int
 	owner ChatUser @relation("ChannelOwner", fields: [ownerId], references: [userId])
 	admins ChatUser[] @relation("ChannelAdmin")
+	mutes Mute[] @relation("ChannelMute")
 }
 
 model Game {
