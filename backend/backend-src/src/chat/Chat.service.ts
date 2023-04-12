@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Prisma, Channel, ChatUser, Message } from "@prisma/client";
+import { Prisma, Channel, ChatUser, Message, Mute } from "@prisma/client";
 import { MessageRepository } from "./Message.repository";
 import { ChannelRepository } from "./Channel.repository";
 import { MessageWithAll, MessageWithAuthor, MessageWithChannel } from "./Chat.module";
@@ -282,7 +282,7 @@ export class ChatService {
 		//and presence of target in channel
 		//and target isnt admin or owner
 		
-		this.prisma.mute.create({
+		await this.prisma.mute.create({
 			data: {
 				author: {
 					connect: {userId:request.authorUserId}
@@ -296,5 +296,38 @@ export class ChatService {
 				endDate: request.endDate
 			}
 		});
+	}
+
+	async isMuted(userId: number, groupChannelId: number) : Promise<boolean>
+	{
+		//mutes in our chat have a special way of working
+
+		//when a mute is issued it is stored in the db with its end date
+		//when we want to check if someone is muted,
+		//we select every mute that concerns a user in a given channel
+		//order them so that the mute that ends the furthest in the future is first
+		//take the first one and compare its end Date with now,
+		//if end Date is more in the future than now, user is still muted
+
+		let mute;
+		try {
+			mute = await this.prisma.mute.findFirst({
+				where: {
+					targetId: userId,
+					groupChannelId: groupChannelId
+				},
+				orderBy: {
+					endDate: 'desc'
+				},
+			});
+		} catch (e) {
+			console.log(e)
+			return false;
+		}
+
+		//"bigger" date means more in the future ( since date are stored as ms since EPOCH :p )
+		if (mute !== undefined && mute.endDate.getTime() > Date.now())
+			return true;
+		return false;
 	}
 }
