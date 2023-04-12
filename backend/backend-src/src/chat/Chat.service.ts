@@ -136,7 +136,7 @@ export class ChatService {
 				channel: {
 					update: {
 						users: {
-							delete: {userId}
+							disconnect: {userId}
 						}
 					}
 				}
