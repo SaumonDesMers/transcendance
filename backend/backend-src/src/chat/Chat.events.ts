@@ -45,6 +45,8 @@ export interface ClientToServerEvents {
 	set_admin_request: (request: adminRequestDTO) => void;
 
 	unset_admin_request: (request: adminRequestDTO) => void;
+
+	mute_request: (request: MuteDTO) => void;
 }
 
 export interface MessageDTO {
@@ -80,6 +82,13 @@ export interface ChatUserDTO {
 		username: string
 	},
 	joinedChannels?: ChannelDTO[];
+}
+
+export interface MuteDTO {
+	authorUserId: number,
+	targetUserId: number,
+	groupChannelId: number,
+	endDate: Date
 }
 
 export interface SocketData {

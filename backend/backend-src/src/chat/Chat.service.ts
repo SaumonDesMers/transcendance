@@ -8,7 +8,7 @@ import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { CreateDMChannelDto } from "./DMChannel.create.dto";
 import { PrismaModule } from "src/database/prisma.module";
 import { PrismaService } from "src/database/prisma.service";
-import { adminRequestDTO } from "./Chat.events";
+import { MuteDTO, adminRequestDTO } from "./Chat.events";
 
 @Injectable()
 export class ChatService {
@@ -274,5 +274,27 @@ export class ChatService {
 				}
 			}
 		}, false);
+	}
+
+	async muteUser(request: MuteDTO)
+	{
+		//add logic here checking admin rights from author 
+		//and presence of target in channel
+		//and target isnt admin or owner
+		
+		this.prisma.mute.create({
+			data: {
+				author: {
+					connect: {userId:request.authorUserId}
+				},
+				target: {
+					connect: {userId:request.targetUserId}
+				},
+				groupChannel: {
+					connect: {channelId:request.groupChannelId}
+				},
+				endDate: request.endDate
+			}
+		});
 	}
 }
