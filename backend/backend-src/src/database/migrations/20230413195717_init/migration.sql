@@ -35,7 +35,6 @@ CREATE TABLE "Message" (
 -- CreateTable
 CREATE TABLE "Channel" (
     "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
 
     CONSTRAINT "Channel_pkey" PRIMARY KEY ("id")
 );
@@ -61,6 +60,7 @@ CREATE TABLE "DMChannel" (
 -- CreateTable
 CREATE TABLE "GroupChannel" (
     "channelId" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
     "ownerId" INTEGER NOT NULL,
 
     CONSTRAINT "GroupChannel_pkey" PRIMARY KEY ("channelId")
@@ -99,13 +99,13 @@ CREATE TABLE "_ChannelToChatUser" (
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Channel_name_key" ON "Channel"("name");
-
--- CreateIndex
 CREATE UNIQUE INDEX "DMChannel_channelId_key" ON "DMChannel"("channelId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "GroupChannel_channelId_key" ON "GroupChannel"("channelId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GroupChannel_name_key" ON "GroupChannel"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_ChatUserblocking_AB_unique" ON "_ChatUserblocking"("A", "B");

@@ -26,12 +26,12 @@ export interface adminRequestDTO {
 
 export interface ChannelDTO {
 	id: number,
-	name: string,
 	users: ChatUserDTO[],
 	messages: MessageDTO[]
 }
 
 export interface GroupChannelDTO extends ChannelDTO {
+	name: string,
 	admins: number[],
 	owner: number
 }

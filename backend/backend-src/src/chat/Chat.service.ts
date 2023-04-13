@@ -24,6 +24,7 @@ export class ChatService {
 		newGroupChannel.usersId.forEach(userId => my_arr.push({userId}));
 
 		const channel = await this.channelRepository.createGroupChannel({
+			name: newGroupChannel.name,
 			owner: {
 				connect: {
 					userId: newGroupChannel.ownerId
@@ -36,7 +37,6 @@ export class ChatService {
 			},
 			channel: {
 				create: {
-					name: newGroupChannel.name,
 					users: {
 						connect: my_arr
 					}
@@ -56,7 +56,6 @@ export class ChatService {
 		const channel = await this.channelRepository.createDMChannel({
 			channel: {
 				create: {
-					name: newDMChannel.name,
 					users: {
 						connect: my_arr
 					}
@@ -179,16 +178,17 @@ export class ChatService {
 		return channel;
 	}
 
-	async findChannelbyName(channelName: string)
+	async findGroupChannelbyName(channelName: string)
 	{
-		const channel = await this.channelRepository.getSingleChannel({
+		const channel = await this.channelRepository.getSingleGroupChannel({
 			name: channelName
 		},{
+			channel: { include: {
 			users: {
 				include: {
 					user: true
 				}
-			}
+			}}}
 		});
 		return channel;
 	}

@@ -144,8 +144,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		let channel;
 
 		try {
-			const base_channel = await this.chatService.findChannelbyName(channelName);
-			channel = await this.chatService.findGroupChannelbyID(base_channel.id);
+			channel = await this.chatService.findGroupChannelbyName(channelName);
 		} catch (e) {
 			console.log(e);
 			throw WsException;
@@ -180,7 +179,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		let channel: any;
 
 		try {
-			channel = await this.chatService.findChannelbyName(channelName);
+			channel = await this.chatService.findGroupChannelbyName(channelName);
 		} catch (e) {
 			console.log(e);
 			throw WsException;
