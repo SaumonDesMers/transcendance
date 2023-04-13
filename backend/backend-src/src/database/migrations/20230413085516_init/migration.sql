@@ -6,6 +6,8 @@ CREATE TABLE "User" (
     "id" INTEGER NOT NULL,
     "username" TEXT NOT NULL,
     "darkMode" BOOLEAN NOT NULL,
+    "twoFactorAuthenticationSecret" TEXT,
+    "isTwoFactorAuthenticationEnabled" BOOLEAN,
     "bio" VARCHAR(200) NOT NULL,
     "coa" "Coa" NOT NULL,
 
