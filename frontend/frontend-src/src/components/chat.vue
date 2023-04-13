@@ -56,11 +56,13 @@ export default {
 		},
 
 		async joinChannel() {
-
+			this.socket.emit("join_room", this.channelInputBuffer);
+			this.channelInputBuffer = "";
 		},
 
 		async leaveChannel() {
-
+			this.socket.emit("leave_room", this.channelInputBuffer);
+			this.channelInputBuffer = "";
 		},
 
 		async SendMessage() {
@@ -139,6 +141,8 @@ export default {
 		<div>
 			<input type='test' v-model="channelInputBuffer">
 			<button @click="createChannel">Create Channel</button>
+			<button @click="joinChannel">Join Channel</button>
+			<button @click="leaveChannel">Leave Channel</button>
 		</div>
 		<div v-for="channel in this.channels">
 			<button @click="selectChannel(channel.id)">{{channel.name}}</button>

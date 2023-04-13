@@ -1,0 +1,44 @@
+
+
+
+export interface MessageDTO {
+	id: number,
+	channeldId: number,
+	content: string,
+	author: ChatUserDTO,
+	postedAt: Date,
+}
+
+export interface joinRequestDTO {
+	channelId?: number,
+	channelName?: string,
+}
+
+export interface adminRequestDTO {
+	callerUserId: number,
+	targetUserId: number,
+	groupChannelId: number,
+}
+
+export interface ChannelDTO {
+	id: number,
+	name: string,
+	users: ChatUserDTO[],
+	messages: MessageDTO[]
+}
+
+export interface ChatUserDTO {
+	userId: number,
+	user: {
+		id: number,
+		username: string
+	},
+	joinedChannels?: ChannelDTO[];
+}
+
+export interface MuteDTO {
+	authorUserId: number,
+	targetUserId: number,
+	groupChannelId: number,
+	endDate: Date
+}

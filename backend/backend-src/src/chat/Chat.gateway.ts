@@ -15,13 +15,16 @@ import {
 	ServerToClientEvents,
 	InterServerEvents,
 	SocketData,
+} from './Chat.events'
+
+import {
 	MessageDTO,
 	ChannelDTO,
 	ChatUserDTO,
 	joinRequestDTO,
 	adminRequestDTO,
 	MuteDTO
-} from './Chat.events'
+} from './Chat.entities'
 
 import { Server, Socket } from 'socket.io';
 import { CreateMessageDto } from "./message.create.dto";
@@ -33,6 +36,8 @@ import { AuthService } from "src/auth/auth.service";
 import { UseFilters } from "@nestjs/common";
 
 import { ArgumentsHost, Catch, HttpException } from "@nestjs/common";
+import { validateOrReject } from "class-validator";
+import { chatSocket, chatServer } from "./Chat.module";
 
 @Catch(WsException, HttpException)
 export class WebsocketExceptionsFilter extends BaseWsExceptionFilter {
@@ -61,11 +66,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		private chatService: ChatService,
 		private authService: AuthService) {}
 
-	@WebSocketServer() server: Server = new Server<
+	@WebSocketServer() server: chatServer = new Server<
 		ClientToServerEvents,
 		ServerToClientEvents,
 		InterServerEvents,
-		SocketData>();
+		SocketData
+		>();
 
 	async handleConnection(@ConnectedSocket() socket: Socket) {
 		let payload : any;
@@ -104,7 +110,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 	@SubscribeMessage("create_room")
 	async handleCreateEvent(
-		@ConnectedSocket() socket: Socket,
+		@ConnectedSocket() socket: chatSocket,
 		@MessageBody() createChannel: CreateGroupChannelDto
 	)
 	{
@@ -131,7 +137,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	@SubscribeMessage("join_room")
 	async handleJoinEvent(
 		@MessageBody() channelName: string,
-		@ConnectedSocket() socket: Socket)
+		@ConnectedSocket() socket: chatSocket)
 	{
 		let channel: any;
 
@@ -149,13 +155,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			throw WsException;
 		}
 
-		socket.join(channelName);
+		console.log("user %d joining channel %s", socket.data.userId, channel.name)
+		socket.join(channel.id.toString());
+		socket.emit("join_room", channel);
 	}
 
 	@SubscribeMessage("leave_room")
 	async handleLeaveEvent(
 		@MessageBody() channelName: string,
-		@ConnectedSocket() socket: Socket
+		@ConnectedSocket() socket: chatSocket
 	)
 	{
 		let channel: any;
@@ -168,13 +176,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		try {
-			await this.chatService.leaveChannel(channel.id, socket.data.userId);
+			await this.chatService.leaveChannel(parseInt(channel.id),
+				socket.data.userId);
 		} catch (e) {
 			console.log(e);
 			throw WsException;
 		}
-
-		socket.leave(channelName);
+		console.log("user %d leaving channel %s", socket.data.userId, channel.name)
+		socket.leave(channel.id.toString());
 	}
 
 	@SubscribeMessage('test_event')
@@ -186,14 +195,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	}
 
 	@SubscribeMessage('get_user')
-	async handleGetUser(@ConnectedSocket() socket: Socket)
+	async handleGetUser(@ConnectedSocket() socket: chatSocket)
 	{
 		return this.chatService.getChatUser(socket.data.userId);
 	}
 
 	@SubscribeMessage("send_message")
 	async sendMessage(
-		@ConnectedSocket() socket: Socket,
+		@ConnectedSocket() socket: chatSocket,
 		@MessageBody() messageCreate: CreateMessageDto
 		)
 	{
@@ -211,7 +220,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 	@SubscribeMessage("set_admin_request")
 	async setAdmin(
-		@ConnectedSocket() socket: Socket,
+		@ConnectedSocket() socket: chatSocket,
 		@MessageBody() request: adminRequestDTO)
 	{
 		try {
@@ -226,7 +235,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 	@SubscribeMessage("unset_admin_request")
 	async unsetAdmin(
-		@ConnectedSocket() socket: Socket,
+		@ConnectedSocket() socket: chatSocket,
 		@MessageBody() request: adminRequestDTO)
 	{
 		try {
@@ -241,7 +250,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 	@SubscribeMessage("mute_request")
 	async muteUser(
-		@ConnectedSocket() socket: Socket,
+		@ConnectedSocket() socket: chatSocket,
 		@MessageBody() request: MuteDTO)
 	{
 		try {
