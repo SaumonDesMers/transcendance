@@ -31,7 +31,7 @@ export default {
 			State,
 			state: State.LOGIN,
 			previousPage: 10,
-			loggedIn: false,
+			// loggedIn: false,
 			user: new User(),
 		}
 	},
@@ -40,13 +40,13 @@ export default {
 		switchPage(arg) {
 			this.state = arg;
 		},
-		setUser(user) {
-			this.user.set(user);
-		}
 	},
 
 	mounted() {
-		this.state = this.State.LOGIN;
+		if (this.user.isLog())
+			this.state = State.MAIN;
+		else
+			this.state = State.LOGIN;
 	},
 
 	created() { },
@@ -55,20 +55,20 @@ export default {
 
 <template>
 	<div v-if="state == State.LOGIN">
-		<loginPage @switchPage="page => switchPage(page)" @user="user => setUser(user)"></loginPage>
+		<loginPage @switchPage="switchPage"></loginPage>
 	</div>
 	<div v-if="state == State.VALIDATE_2FA">
-		<validate2fa @switchPage="page => switchPage(page)" @user="user => setUser(user)"></validate2fa>
+		<validate2fa @switchPage="switchPage"></validate2fa>
 	</div>
 	<div v-else-if="state == State.REGISTER">
-		<register @switchPage="page => switchPage(page)" @user="user => setUser(user)"></register>
+		<register @switchPage="switchPage"></register>
 	</div>
 	<div v-else-if="state == State.MAIN">
-		<mainPage @switchPage="page => switchPage(page)"></mainPage>
+		<mainPage @switchPage="switchPage"></mainPage>
 
 	</div>
 	<div v-else-if="state == State.USER">
-		<user @switchPage="page => switchPage(page)"></user>
+		<user @switchPage="switchPage"></user>
 	</div>
 	<div v-else-if="state == State.GAME">
 		<game></game>
@@ -77,7 +77,7 @@ export default {
 		<chat></chat>
 	</div>
 	<div v-else-if="state == State.EDIT">
-		<edit @switchPage="page => switchPage(page)"></edit>
+		<edit @switchPage="switchPage"></edit>
 	</div>
 </template>
 

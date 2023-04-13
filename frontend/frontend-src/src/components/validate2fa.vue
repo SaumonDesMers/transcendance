@@ -1,13 +1,15 @@
 <script>
 import axios from 'axios'
 import { State } from '../scripts/state'
+import { User } from '../scripts/user'
 
 export default {
 	data() {
 		return {
 			State,
 			errorMsg: '',
-			twoFactorAuthenticationCode: ''
+			twoFactorAuthenticationCode: '',
+			user: new User(),
 		}
 	},
 
@@ -17,12 +19,18 @@ export default {
 				twoFactorAuthenticationCode: this.twoFactorAuthenticationCode
 			})
 			.then(res => {
-				console.log('2fa/authenticate: res:', res);
+				// console.log('2fa/authenticate: res:', res);
+				this.user.set(res.data);
 				this.switchPage(State.MAIN);
 			})
 			.catch(err => {
 				this.errorMsg = err.message;
 			})
+		},
+
+		cancel() {
+			this.$cookies.remove('jwt');
+			this.switchPage(State.LOGIN);
 		},
 
 		switchPage(page) {
@@ -42,7 +50,7 @@ export default {
 	<input v-model="twoFactorAuthenticationCode">
 	<p class="error">{{ errorMsg }}</p>
 	<button @click="validate2faCode">Validate</button>
-	<button @click="switchPage(State.LOGIN)">Cancel</button>
+	<button @click="cancel">Cancel</button>
 </template>
 
 <style>

@@ -15,8 +15,8 @@ export class AuthService {
 		private readonly jwtService: JwtService
 	) {}
 
-	async generateJWT(user: any): Promise<string> {
-		const payload = { id: user.id };
+	async generateTmpJwt(user: any): Promise<string> {
+		const payload = { id: user.id, tmp: true };
 		return this.jwtService.sign(payload);
 	}
 
@@ -61,8 +61,8 @@ export class AuthService {
 			isTwoFactorAuthenticationEnabled: true
 		});
 		return  {
-			qrcode: this.generateQrCodeDataURL(res.otpauthUrl),
-			jwt: this.generateJwtWith2fa(user, true),
+			qrcode: await this.generateQrCodeDataURL(res.otpauthUrl),
+			jwt: await this.generateJwtWith2fa(user, true),
 		};
 	}
 
@@ -78,7 +78,7 @@ export class AuthService {
 		// console.log('generateJwtWith2fa: user:', user);
 		const payload = {
 			id: user.id,
-			isTwoFactorAuthenticationEnabled: !!user.isTwoFactorAuthenticationEnabled,
+			// isTwoFactorAuthenticationEnabled: !!user.isTwoFactorAuthenticationEnabled,
 			isTwoFactorAuthenticated: isTwoFactorAuthenticated,
 		};
 	
@@ -86,7 +86,7 @@ export class AuthService {
 	}
 
 	async turnOff2fa(userId: number) {
-		let user = await this.userService.getOneUser(userId);
+		// let user = await this.userService.getOneUser(userId);
 		this.userService.updateUser(userId, {
 			twoFactorAuthenticationSecret: '',
 			isTwoFactorAuthenticationEnabled: false

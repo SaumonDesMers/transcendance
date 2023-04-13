@@ -3,6 +3,7 @@ import axios from 'axios'
 import "../styles/darkTheme.scss"
 import "../styles/lightTheme.scss"
 import { State } from '../scripts/state'
+import { User } from '../scripts/user'
 
 export default {
 	data: function () {
@@ -10,6 +11,7 @@ export default {
 			coalition: '',
 			isDark: false,
 			username: 'USERNAME',
+			user: new User(),
 		};
 	},
 	mounted() {
@@ -87,7 +89,8 @@ export default {
 					"bio": 'Vive la fede !'
 				})
 				.then((res) => {
-					this.$emit('user', res.data);
+					// this.$emit('user', res.data);
+					this.user.set(res.data);
 					this.$emit('switchPage', State.MAIN);
 				})
 				.catch((error) => {

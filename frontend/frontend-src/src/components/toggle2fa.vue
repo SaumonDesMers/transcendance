@@ -10,7 +10,6 @@ export default {
 			errorMsg: '',
 			qrcodeBase64: '',
 			twoFactorAuthenticationCode: '',
-			// twoFactorAuthenticationEnable: false,
 			user: new User(),
 		}
 	},
@@ -20,10 +19,8 @@ export default {
 			axios.post('http://localhost:3001/auth/2fa/turn-on')
 				.then(res => {
 					// console.log('2fa/turn-on: res:', res);
-					this.qrcodeBase64 = res.data.qrcode;
-					localStorage.jwt = res.data.jwt;
-					this.user.isTwoFactorAuthenticationEnabled = true;
-					this.user.localSave();
+					this.qrcodeBase64 = res.data;
+					this.user.set({ isTwoFactorAuthenticationEnabled: true });
 				})
 				.catch(err => {
 					// console.log('2fa/turn-on: err:', err);
@@ -35,8 +32,7 @@ export default {
 				.then(res => {
 					// console.log('2fa/turn-on: res:', res);
 					this.qrcodeBase64 = '';
-					this.user.isTwoFactorAuthenticationEnabled = false;
-					this.user.localSave();
+					this.user.set({ isTwoFactorAuthenticationEnabled: false });
 				})
 				.catch(err => {
 					// console.log('2fa/turn-on: err:', err);

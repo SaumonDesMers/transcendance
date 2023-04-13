@@ -28,7 +28,7 @@ export default {
 			// } else {
 			// 	this.isDark = false;
 			// }
-			this.user.darkMode = !this.user.darkMode;
+			this.user.set({ darkMode: !this.user.darkMode });
 
 			// axios
 			// 	.patch(`http://localhost:3001/users/${this.user.id}`, 

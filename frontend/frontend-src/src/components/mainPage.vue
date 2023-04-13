@@ -37,7 +37,9 @@ export default {
 			// } else {
 			// 	this.isDark = false;
 			// }
-			this.user.darkMode = !this.user.darkMode;
+			// this.user.darkMode = !this.user.darkMode;
+			// this.user.localSave();
+			this.user.set({ darkMode: !this.user.darkMode });
 
 			// axios
 			// 	.patch(`http://localhost:3001/users/${this.id}`, 
@@ -54,6 +56,11 @@ export default {
 		switchPage(page) {
 			this.$emit('switchPage', page);
 		},
+		logout() {
+			this.user.logout();
+			this.$cookies.remove('jwt');
+			this.switchPage(State.LOGIN);
+		}
 		// getUser() {
 		// 	axios.get('http://localhost:3001/auth/user',)
 		// 		.then(res => {
@@ -176,13 +183,7 @@ export default {
 				<li>
 					<a href="#">
 						<span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span>
-						<span class="title">2fa</span>
-					</a>
-				</li>
-				<li>
-					<a href="#">
-						<span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span>
-						<span class="title" @click="switchPage(State.HISTORY)">SignOut</span>
+						<span class="title" @click="logout">SignOut</span>
 					</a>
 				</li>
 			</ul>
