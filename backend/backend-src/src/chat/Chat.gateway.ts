@@ -76,10 +76,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		try {
 			payload = await this.authService.verifyJWT(jwt.split(' ')[1]);
 			console.log(payload);
-			console.log(payload.sub);
-			socket.data.userId = payload.sub;
+			console.log(payload.id);
+			socket.data.userId = parseInt(payload.id);
 			console.log(socket.data.userId);
-			user = await this.chatService.getChatUser(parseInt(socket.data.userId));
+			user = await this.chatService.getChatUser(socket.data.userId);
 		}
 		catch (e) {
 			console.log("ERROR WHILE CONNECTING");
@@ -118,7 +118,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		try {
-			await this.chatService.joinChannel(channel.channel.id, parseInt(socket.data.userId));
+			await this.chatService.joinChannel(channel.channel.id, socket.data.userId);
 		} catch (e) {
 			console.log(e);
 			throw WsException;
@@ -188,7 +188,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	@SubscribeMessage('get_user')
 	async handleGetUser(@ConnectedSocket() socket: Socket)
 	{
-		return this.chatService.getChatUser(parseInt(socket.data.userId));
+		return this.chatService.getChatUser(socket.data.userId);
 	}
 
 	@SubscribeMessage("send_message")
