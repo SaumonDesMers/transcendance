@@ -20,15 +20,14 @@ type AllGroupChannels = GroupChannelWithBase | GroupChannelWithMembers;
 export class ChannelRepository {
 	constructor(private prisma: PrismaService) {}
 
-	async createDMChannel(input: Prisma.DMChannelCreateInput, includeMembers: boolean)
-		: Promise<AllDMChannels> {
+	async createDMChannel(input: Prisma.DMChannelCreateInput, include?: Prisma.DMChannelInclude) {
 			return this.prisma.dMChannel.create({
 				data: input,
-				include: {channel: {include: { users: includeMembers}}},
+				include
 			});
 	}
 
-	async createGroupChannel(input: Prisma.GroupChannelCreateInput, include: Prisma.GroupChannelInclude) {
+	async createGroupChannel(input: Prisma.GroupChannelCreateInput, include?: Prisma.GroupChannelInclude) {
 			return this.prisma.groupChannel.create({
 				data: input,
 				include,
@@ -41,10 +40,11 @@ export class ChannelRepository {
 		cursor?: Prisma.DMChannelWhereUniqueInput;
 		where?: Prisma.DMChannelWhereInput;
 		orderBy?: Prisma.DMChannelOrderByWithAggregationInput; 
-	}, includeMembers: boolean) : Promise<AllDMChannels[]> {
-		const {skip, take, cursor, where, orderBy } = params;
+		include?: Prisma.DMChannelInclude;
+	}) {
+		const {skip, take, cursor, where, orderBy, include } = params;
 		return this.prisma.dMChannel.findMany({skip, take, cursor, where, orderBy,
-			include: {channel: {include: { users: includeMembers}}}});
+			include});
 	}
 
 	async getGroupChannels(params: {
@@ -53,50 +53,54 @@ export class ChannelRepository {
 		cursor?: Prisma.GroupChannelWhereUniqueInput;
 		where?: Prisma.GroupChannelWhereInput;
 		orderBy?: Prisma.GroupChannelOrderByWithAggregationInput; 
-	}, includeMembers: boolean) : Promise<AllGroupChannels[]> {
-		const {skip, take, cursor, where, orderBy } = params;
+		include?: Prisma.GroupChannelInclude;
+	}) {
+		const {skip, take, cursor, where, orderBy, include } = params;
 		return this.prisma.groupChannel.findMany({skip, take, cursor, where, orderBy, 
-			include: {channel: {include: { users: includeMembers}}}});
+			include});
 	}
 
 	async getSingleDMChannel(params: Prisma.DMChannelWhereUniqueInput,
-		includeMembers: boolean) : Promise<AllDMChannels> {
+		include: Prisma.DMChannelInclude) {
 		return this.prisma.dMChannel.findUniqueOrThrow({
 			where:params,
-			include: {channel: {include: { users: includeMembers}}},
-		});
+			include});
 	}
 
 	async getSingleGroupChannel(params: Prisma.GroupChannelWhereUniqueInput,
-		includeMembers: boolean) : Promise<AllGroupChannels> {
+		include: Prisma.GroupChannelInclude) {
 		return this.prisma.groupChannel.findUniqueOrThrow({
 			where:params,
-			include: {channel: {include: { users: includeMembers}}},
+			include
 		});
 	}
 
-	async getSingleChannel(params: Prisma.ChannelWhereUniqueInput) {
+	async getSingleChannel(params: Prisma.ChannelWhereUniqueInput,
+		include?: Prisma.ChannelInclude) {
 		return this.prisma.channel.findUnique({
 			where: params,
+			include
 		});
 	}
 
 	async updateDMChannel(params: {
 		where: Prisma.DMChannelWhereUniqueInput;
 		data: Prisma.DMChannelUpdateInput;
-	}, includeMembers: boolean) : Promise<AllDMChannels> {
-		const { where, data } = params;
+		include?: Prisma.DMChannelInclude
+	}) {
+		const { where, data, include } = params;
 		return this.prisma.dMChannel.update({where, data,
-			include: {channel: {include: { users: includeMembers}}}});
+			include});
 	}
 
 	async updateGroupChannel(params: {
 		where: Prisma.GroupChannelWhereUniqueInput;
 		data: Prisma.GroupChannelUpdateInput;
-	}, includeMembers: boolean) : Promise<AllGroupChannels> {
-		const { where, data } = params;
+		include?: Prisma.GroupChannelInclude
+	}) {
+		const { where, data, include } = params;
 		return this.prisma.groupChannel.update({where, data,
-			include: {channel: {include: { users: includeMembers}}}});
+			include});
 	}
 
 	async deleteDMChannel(params: {

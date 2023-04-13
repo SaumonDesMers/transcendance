@@ -8,7 +8,7 @@ import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { CreateDMChannelDto } from "./DMChannel.create.dto";
 import { PrismaModule } from "src/database/prisma.module";
 import { PrismaService } from "src/database/prisma.service";
-import { MuteDTO, adminRequestDTO } from "./Chat.events";
+import { MuteDTO, adminRequestDTO } from "./Chat.entities";
 import { WsException } from "@nestjs/websockets";
 import { error } from "console";
 
@@ -62,7 +62,7 @@ export class ChatService {
 					}
 				}
 			}
-		}, true);
+		});
 
 		return channel;
 	}
@@ -131,7 +131,14 @@ export class ChatService {
 					}
 				},
 			},
-		}, true);
+			include: {
+				channel: {
+					include: {
+						users: true
+					}
+				}
+			}
+		});
 
 		return update;
 	}
@@ -154,7 +161,7 @@ export class ChatService {
 					}
 				}
 			}
-		}, true);
+		});
 
 		return update;
 	}
@@ -176,7 +183,28 @@ export class ChatService {
 	{
 		const channel = await this.channelRepository.getSingleChannel({
 			name: channelName
+		},{
+			users: {
+				include: {
+					user: true
+				}
+			}
 		});
+		return channel;
+	}
+
+	async findGroupChannelbyID(channelId: number)
+	{
+		const channel = await this.channelRepository.getSingleGroupChannel({
+			channelId:channelId
+		}, {
+			channel: { include:{
+				users: {include: {
+							user: true
+						}}
+				}}
+		});
+
 		return channel;
 	}
 
@@ -254,7 +282,7 @@ export class ChatService {
 					}
 				}
 			}
-		}, false);
+		});
 	}
 
 	async unsetUserAdmin(
@@ -277,7 +305,7 @@ export class ChatService {
 					}
 				}
 			}
-		}, false);
+		});
 	}
 
 	async muteUser(request: MuteDTO)

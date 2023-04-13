@@ -1,13 +1,26 @@
 <script lang="ts">
 import io from 'socket.io-client'
 import { Socket } from 'socket.io-client';
+import {
+	GroupChannelDTO,
+	ChannelDTO,
+	ChatUserDTO,
+	MessageDTO,
+	joinRequestDTO,
+	adminRequestDTO,
+	MuteDTO,
+} from '../../../../backend/backend-src/src/chat/Chat.entities';
+import {
+	ServerToClientEvents,
+	ClientToServerEvents,
+} from '../../../../backend/backend-src/src/chat/Chat.events';
 
 
 export default {
 
 	data() {
 		return {
-			socket: Socket,
+			socket: Socket<ServerToClientEvents, ClientToServerEvents>,
 			user : null,
 			messageInputBuffer: '',
 			channelInputBuffer: '',
@@ -25,7 +38,7 @@ export default {
 			this.socket.connect();
 
 			// this.user = await fetch()
-			this.socket.emit("get_user", (user) => {
+			this.socket.emit("get_user", (user: ChatUserDTO) => {
 				this.user = user;
 				this.channels = user.joinedChannels;
 			});
@@ -52,16 +65,26 @@ export default {
 				usersId: [],
 			}
 
-			this.socket.emit("create_room", channel);
+			this.socket.emit("create_channel", channel);
 		},
 
 		async joinChannel() {
-			this.socket.emit("join_room", this.channelInputBuffer);
+			this.socket.emit("join_channel", this.channelInputBuffer,
+			(channel: ChannelDTO) => {
+				this.channels.push(channel);
+			});
 			this.channelInputBuffer = "";
 		},
-
+		
 		async leaveChannel() {
-			this.socket.emit("leave_room", this.channelInputBuffer);
+			this.socket.emit("leave_channel", this.channelInputBuffer);
+
+			for(var i = 0; i < this.channels.length(); i++) {
+				if (this.channels[i].name == this.channelInputBuffer) {
+					this.channels.splice(i, 1);
+					i--;
+				}
+			}
 			this.channelInputBuffer = "";
 		},
 
@@ -117,6 +140,7 @@ export default {
 				console.log(channel)
 				this.channels.push(channel);
 			})
+
 		}
 	},
 

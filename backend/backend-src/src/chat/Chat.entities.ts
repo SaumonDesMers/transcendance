@@ -14,6 +14,10 @@ export interface joinRequestDTO {
 	channelName?: string,
 }
 
+export interface JoinDTO {
+	username: string,
+	channelId: number
+}
 export interface adminRequestDTO {
 	callerUserId: number,
 	targetUserId: number,
@@ -27,6 +31,10 @@ export interface ChannelDTO {
 	messages: MessageDTO[]
 }
 
+export interface GroupChannelDTO extends ChannelDTO {
+	admins: number[],
+	owner: number
+}
 export interface ChatUserDTO {
 	userId: number,
 	user: {

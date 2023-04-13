@@ -23,7 +23,8 @@ import {
 	ChatUserDTO,
 	joinRequestDTO,
 	adminRequestDTO,
-	MuteDTO
+	MuteDTO,
+	GroupChannelDTO,
 } from './Chat.entities'
 
 import { Server, Socket } from 'socket.io';
@@ -130,37 +131,47 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			throw WsException;
 		}
 
-		socket.emit("join_room", channel.channel);
 		socket.join(channel.channel.id.toString());
+		return (channel.channel);
 	}
 
-	@SubscribeMessage("join_room")
+	@SubscribeMessage("join_channel")
 	async handleJoinEvent(
 		@MessageBody() channelName: string,
 		@ConnectedSocket() socket: chatSocket)
+		: Promise<GroupChannelDTO>
 	{
-		let channel: any;
+		let channel;
 
 		try {
-			channel = await this.chatService.findChannelbyName(channelName);
+			const base_channel = await this.chatService.findChannelbyName(channelName);
+			channel = await this.chatService.findGroupChannelbyID(base_channel.id);
 		} catch (e) {
 			console.log(e);
 			throw WsException;
 		}
 
 		try {
-			await this.chatService.joinChannel(channel.id, socket.data.userId);
+			await this.chatService.joinChannel(channel.channel.id, socket.data.userId);
 		} catch (e) {
 			console.log(e);
 			throw WsException;
 		}
 
 		console.log("user %d joining channel %s", socket.data.userId, channel.name)
-		socket.join(channel.id.toString());
-		socket.emit("join_room", channel);
+		socket.join(channel.channel.id.toString());
+		// socket.emit("join_room", channel);
+		return ({
+			id: channel.channel.id,
+			name:channel.channel.name,
+			users:channel.channel.users,
+			messages:channel.channel.messages,
+			admins:channel.admins,
+			owner:channel.owner,
+		});
 	}
 
-	@SubscribeMessage("leave_room")
+	@SubscribeMessage("leave_channel")
 	async handleLeaveEvent(
 		@MessageBody() channelName: string,
 		@ConnectedSocket() socket: chatSocket
@@ -184,6 +195,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 		console.log("user %d leaving channel %s", socket.data.userId, channel.name)
 		socket.leave(channel.id.toString());
+		return undefined;
 	}
 
 	@SubscribeMessage('test_event')
@@ -230,7 +242,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			throw WsException;
 		}
 
-		this.server.to(request.groupChannelId.toString()).emit("set_admin", request);
+		this.server.to(request.groupChannelId.toString()).emit("user_set_admin", request);
 	}
 
 	@SubscribeMessage("unset_admin_request")
@@ -245,7 +257,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			throw WsException;
 		}
 
-		this.server.to(request.groupChannelId.toString()).emit("unset_admin", request);
+		this.server.to(request.groupChannelId.toString()).emit("user_unset_admin", request);
 	}
 
 	@SubscribeMessage("mute_request")
@@ -260,6 +272,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			throw WsException;
 		}
 
-		this.server.to(request.groupChannelId.toString()).emit("mute", request);
+		this.server.to(request.groupChannelId.toString()).emit("user_muted", request);
 	}
 }
