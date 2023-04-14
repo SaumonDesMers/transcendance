@@ -1,9 +1,10 @@
+import { Channel } from "diagnostics_channel"
 
 
 
 export interface MessageDTO {
 	id: number,
-	channeldId: number,
+	channelId: number,
 	content: string,
 	author: ChatUserDTO,
 	postedAt: Date,
@@ -24,17 +25,24 @@ export interface adminRequestDTO {
 	groupChannelId: number,
 }
 
+export interface DMRequestDTO {
+	callerUserId: number,
+	targetUserId: number
+}
+
 export interface ChannelDTO {
 	id: number,
 	users: ChatUserDTO[],
 	messages: MessageDTO[]
 }
 
-export interface GroupChannelDTO extends ChannelDTO {
+export interface GroupChannelDTO{
+	channel: ChannelDTO,
 	name: string,
-	admins: number[],
-	owner: number
+	admins: ChatUserDTO[],
+	owner: ChatUserDTO
 }
+
 export interface ChatUserDTO {
 	userId: number,
 	user: {

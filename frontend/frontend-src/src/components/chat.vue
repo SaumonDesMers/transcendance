@@ -14,6 +14,8 @@ import {
 	ServerToClientEvents,
 	ClientToServerEvents,
 } from '../../../../backend/backend-src/src/chat/Chat.events';
+import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto';
+import { CreateMessageDto } from '../../../../backend/backend-src/src/chat/message.create.dto';
 
 
 export default {
@@ -40,8 +42,12 @@ export default {
 			// this.user = await fetch()
 			this.socket.emit("get_user", (user: ChatUserDTO) => {
 				this.user = user;
-				this.channels = user.joinedChannels;
+				// this.channels = user.joinedChannels;
 			});
+			this.socket.emit("get_groupchannels", (channels: GroupChannelDTO[]) => {
+				console.log(channels);
+				this.channels = channels;
+			})
 		},
 
 		disconnectFromServer() {
@@ -65,12 +71,14 @@ export default {
 				usersId: [],
 			}
 
-			this.socket.emit("create_channel", channel);
+			this.socket.emit("create_channel", channel, (payload: GroupChannelDTO) => {
+				this.channels.push(payload);
+			});
 		},
 
 		async joinChannel() {
 			this.socket.emit("join_channel", this.channelInputBuffer,
-			(channel: ChannelDTO) => {
+			(channel: GroupChannelDTO) => {
 				this.channels.push(channel);
 			});
 			this.channelInputBuffer = "";
@@ -132,14 +140,15 @@ export default {
 				console.log(event);
 			})
 			
-			this.socket.on("message", (message) => {
+			this.socket.on("message", (message: MessageDTO) => {
+				console.log(message);
 				this.receivedMessages.push(message);
 			})
 
-			this.socket.on("join_room", (channel) => {
-				console.log(channel)
-				this.channels.push(channel);
-			})
+			// this.socket.on("join_channel", (channel) => {
+			// 	console.log(channel)
+			// 	this.channels.push(channel);
+			// })
 
 		}
 	},
@@ -169,7 +178,7 @@ export default {
 			<button @click="leaveChannel">Leave Channel</button>
 		</div>
 		<div v-for="channel in this.channels">
-			<button @click="selectChannel(channel.id)">{{channel.name}}</button>
+			<button @click="selectChannel(channel.channel.id)">{{channel.name}}</button>
 		</div>
 
 		<div>
@@ -179,7 +188,7 @@ export default {
 
 		<div v-for="message in receivedMessages">
 			<p v-if="message.channel.id == this.current_channelId">
-				{{message.channel.name }} {{ message.content }}
+				{{ message.author.user.username }} : {{ message.content }}
 			</p>
 		</div>
 	</div>

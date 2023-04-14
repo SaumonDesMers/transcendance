@@ -34,10 +34,10 @@ import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { Channel, ChatUser, GroupChannel } from "@prisma/client";
 import { Public } from "src/auth/public.decorator";
 import { AuthService } from "src/auth/auth.service";
-import { UseFilters } from "@nestjs/common";
+import { ParseIntPipe, UseFilters } from "@nestjs/common";
 
 import { ArgumentsHost, Catch, HttpException } from "@nestjs/common";
-import { validateOrReject } from "class-validator";
+import { IsNumber, validateOrReject } from "class-validator";
 import { chatSocket, chatServer } from "./Chat.module";
 
 @Catch(WsException, HttpException)
@@ -98,7 +98,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		//joining every channel the user was connected to
 		user.joinedChannels.forEach(channel => {
 			socket.join(channel.id.toString());
-			console.log(socket.data.userId, " : joined channel [", channel.name, "]")
+			// console.log(socket.data.userId, " : joined channel [", channel.name, "]")
 		});
 
 		console.log(socket.data.userId, ': connected to chat');
@@ -109,7 +109,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		console.log(socket.data.userId, " : disconnected from chat");
 	}
 
-	@SubscribeMessage("create_room")
+	@SubscribeMessage("create_channel")
 	async handleCreateEvent(
 		@ConnectedSocket() socket: chatSocket,
 		@MessageBody() createChannel: CreateGroupChannelDto
@@ -125,13 +125,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		try {
-			await this.chatService.joinChannel(channel.channel.id, socket.data.userId);
+			await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId);
 		} catch (e) {
 			console.log(e);
 			throw WsException;
 		}
 
-		socket.join(channel.channel.id.toString());
+		// socket.join(channel.channel.id.toString());
 		return (channel.channel);
 	}
 
@@ -142,6 +142,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		: Promise<GroupChannelDTO>
 	{
 		let channel;
+		let channelWithMessage: GroupChannelDTO;
 
 		try {
 			channel = await this.chatService.findGroupChannelbyName(channelName);
@@ -151,7 +152,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		try {
-			await this.chatService.joinChannel(channel.channel.id, socket.data.userId);
+			channelWithMessage = await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId);
 		} catch (e) {
 			console.log(e);
 			throw WsException;
@@ -160,14 +161,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		console.log("user %d joining channel %s", socket.data.userId, channel.name)
 		socket.join(channel.channel.id.toString());
 		// socket.emit("join_room", channel);
-		return ({
-			id: channel.channel.id,
-			name:channel.channel.name,
-			users:channel.channel.users,
-			messages:channel.channel.messages,
-			admins:channel.admins,
-			owner:channel.owner,
-		});
+		return (channelWithMessage);
 	}
 
 	@SubscribeMessage("leave_channel")
@@ -186,7 +180,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		try {
-			await this.chatService.leaveChannel(parseInt(channel.id),
+			await this.chatService.leaveGroupChannel(parseInt(channel.id),
 				socket.data.userId);
 		} catch (e) {
 			console.log(e);
@@ -209,6 +203,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	async handleGetUser(@ConnectedSocket() socket: chatSocket)
 	{
 		return this.chatService.getChatUser(socket.data.userId);
+	}
+
+	@SubscribeMessage("get_groupchannels")
+	async handleGetChannels(@ConnectedSocket() socket: chatSocket)
+	{
+		console.log("get channel called");
+		return this.chatService.getUserGroupChannels(socket.data.userId);
 	}
 
 	@SubscribeMessage("send_message")
@@ -272,5 +273,32 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		this.server.to(request.groupChannelId.toString()).emit("user_muted", request);
+	}
+
+	@SubscribeMessage("start_dm")
+	async startDM(
+		@ConnectedSocket() socket: chatSocket,
+		@MessageBody('targetUserId', ParseIntPipe)
+		targetUserId: number
+	)
+	{
+		let channel;
+
+		//ask the service to start a DM with the other user, will return a DMChannel
+		try {
+			channel = await this.chatService.startDM({targetUserId, callerUserId:socket.data.userId});
+		} catch (e) {
+			console.log(e);
+			throw new WsException(e.toString());
+		}
+		const sockets = await this.server.fetchSockets();
+		const targetSocket = sockets.find(socket => {
+			return socket.data.userId == targetUserId;
+		});
+
+		if (targetSocket != undefined)
+			this.server.to(targetSocket.id).emit("dm_starting", channel);
+
+		return (channel.channel);
 	}
 }

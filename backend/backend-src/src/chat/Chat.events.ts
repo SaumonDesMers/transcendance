@@ -1,4 +1,4 @@
-import { Channel, Mute } from '@prisma/client';
+import { Channel, DMChannel, Mute } from '@prisma/client';
 import { MessageDTO,
 	joinRequestDTO,
 	adminRequestDTO,
@@ -37,6 +37,7 @@ export interface ServerToClientEvents {
 	/*
 	* DIRECT EVENTS
 	*/
+	dm_starting: (payload: ChannelDTO) => void;
 }
 
 export interface ClientToServerEvents {
@@ -44,7 +45,7 @@ export interface ClientToServerEvents {
 	 * event emitted when a client wants to
 	 * join a new channel
 	 */
-	join_channel: (channelName: string, callback: (ChannelDTO)) => void;
+	join_channel: (channelName: string, callback: (GroupChannelDTO)) => void;
 
 	/**
 	 * event emitted when a client wants to
@@ -56,7 +57,7 @@ export interface ClientToServerEvents {
 	//  * event emitted when a client wants to
 	//  * create a new channel
 	//  */
-	create_room: (channel: CreateGroupChannelDto, callback: (GroupChannelDTO) => void) => void;
+	create_channel: (channel: CreateGroupChannelDto, callback: (GroupChannelDTO) => void) => void;
 
 	/**
 	 * event for the client to request its
@@ -64,8 +65,10 @@ export interface ClientToServerEvents {
 	 */
 	get_user: (callback: (user: ChatUserDTO) => void) => void;
 
+	get_groupchannels: (callback: (channels: GroupChannelDTO[]) => void) => void;
 
-	start_dm: (targetUserId: string) => void;
+
+	start_dm: (targetUserId: number, callback: (payload: ChannelDTO) => void) => void;
 
 	/**
 	 * event to send a message to the chat

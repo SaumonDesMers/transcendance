@@ -11,7 +11,6 @@ import { ChatGateway } from "./Chat.gateway";
 import { ChatService } from "./Chat.service";
 import { ChannelRepository } from "./Channel.repository";
 import { AuthModule } from "src/auth/auth.module";
-import { StrictEventEmitter } from "nest-emitter";
 import { Socket, Server } from 'socket.io'
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from "./Chat.events";
 

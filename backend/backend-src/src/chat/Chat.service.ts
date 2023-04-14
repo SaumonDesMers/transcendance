@@ -8,9 +8,39 @@ import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { CreateDMChannelDto } from "./DMChannel.create.dto";
 import { PrismaModule } from "src/database/prisma.module";
 import { PrismaService } from "src/database/prisma.service";
-import { MuteDTO, adminRequestDTO } from "./Chat.entities";
+import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO } from "./Chat.entities";
 import { WsException } from "@nestjs/websockets";
 import { error } from "console";
+
+
+const includeMembers = {
+		include : {
+			users : {
+				include : {
+				user: true
+				}
+			}
+		}
+};
+
+const includeMembersAndLast10Messages = Prisma.validator<Prisma.ChannelArgs>()({
+	include: {
+		users: {
+			include: {user: true}
+		},
+		messages: {
+			orderBy: {postedAt: 'asc'},
+			take: 10,
+			include: {
+				author: {
+					include: {
+						user: true
+					}
+				}
+			}
+		}
+	},
+});
 
 @Injectable()
 export class ChatService {
@@ -53,16 +83,52 @@ export class ChatService {
 
 		newDMChannel.usersId.forEach(userId => my_arr.push({userId}));
 
-		const channel = await this.channelRepository.createDMChannel({
-			channel: {
-				create: {
-					users: {
-						connect: my_arr
+		const channel = await this.prisma.dMChannel.create({
+			data: {
+				channel: {
+					create: {
+						users: {
+							connect: my_arr
+						}
 					}
 				}
+			},
+			include: {
+				channel: includeMembersAndLast10Messages
 			}
 		});
 
+		return channel;
+	}
+
+	async startDM(request: DMRequestDTO)
+	{
+
+		//add a check to see if caller isnt blocked by targetUser
+
+		//try to find an existing channel
+		let channel = await this.prisma.dMChannel.findFirst({
+			where: {
+				channel: {
+					users: {
+						some: {
+							userId: request.callerUserId
+						},
+					},
+					AND: {users: {some: {
+								userId: request.targetUserId
+							}
+						}
+					}
+				}
+			},
+			include: {channel: includeMembersAndLast10Messages}
+		});
+
+		//if no channel exists create one
+		if (channel == undefined)
+			channel = await this.createDMChannel({usersId: [request.callerUserId, request.targetUserId]});
+		
 		return channel;
 	}
 
@@ -85,7 +151,11 @@ export class ChatService {
 				connect: {userId: newMessage.authorId}},
 			postedAt: new Date
 			},
-			{channel: true, author: true},
+			{channel: true, author: {
+				include: {
+					user: true
+				}
+			}},
 		);
 
 		return message;
@@ -106,7 +176,7 @@ export class ChatService {
 		)
 	}
 
-	async joinChannel(channelId: number, userId: number) {
+	async joinGroupChannel(channelId: number, userId: number) {
 
 
 		//might do checks that the user isnt banned
@@ -119,7 +189,7 @@ export class ChatService {
 		// - in the users fields and connects a new user
 
 		//we include the members in the returned channel
-		const update = await this.channelRepository.updateGroupChannel({
+		const update = await this.prisma.groupChannel.update({
 			where: {channelId:channelId},
 			data: {
 				channel: {
@@ -131,18 +201,16 @@ export class ChatService {
 				},
 			},
 			include: {
-				channel: {
-					include: {
-						users: true
-					}
-				}
+				channel: includeMembersAndLast10Messages,
+				admins: {include: {user: true}},
+				owner: {include: {user:true }}
 			}
 		});
 
 		return update;
 	}
 
-	async leaveChannel(channelId: number, userId: number) {
+	async leaveGroupChannel(channelId: number, userId: number) {
 
 		//this prisma request is pretty similar to join channel
 		
@@ -195,14 +263,33 @@ export class ChatService {
 
 	async findGroupChannelbyID(channelId: number)
 	{
-		const channel = await this.channelRepository.getSingleGroupChannel({
+		const channel = await this.prisma.groupChannel.findUniqueOrThrow({
+			where: {
 			channelId:channelId
-		}, {
+			}, include: {
 			channel: { include:{
 				users: {include: {
 							user: true
 						}}
 				}}
+			}
+		});
+
+		return channel;
+	}
+
+	async findDmChannelbyID(channelId: number)
+	{
+		const channel = await this.prisma.dMChannel.findUniqueOrThrow({
+			where: {
+			channelId:channelId
+			}, include: {
+			channel: { include:{
+				users: {include: {
+							user: true
+						}}
+				}}
+			}
 		});
 
 		return channel;
@@ -259,6 +346,28 @@ export class ChatService {
 		});
 
 		return user;
+	}
+
+	async getUserGroupChannels(userId: number) : Promise<GroupChannelDTO[]>
+	{
+		const channels = this.prisma.groupChannel.findMany({
+			where: {
+				channel: {
+					users: {
+						some: {
+							userId
+						}
+					}
+				}
+			},
+			include:{
+				channel: includeMembersAndLast10Messages,
+				admins: {include: {user: true}},
+				owner: {include: {user:true }}
+			}
+		});
+
+		return channels;
 	}
 
 	async setUserAdmin(
@@ -330,6 +439,10 @@ export class ChatService {
 		});
 	}
 
+	/**
+	 * @returns `true` if user is currently muted in the channel defined in the args
+	 * `false` otherwise
+	 */
 	async isMuted(userId: number, groupChannelId: number) : Promise<boolean>
 	{
 		//mutes in our chat have a special way of working
@@ -360,6 +473,31 @@ export class ChatService {
 		//"bigger" date means more in the future ( since date are stored as ms since EPOCH :p )
 		if (mute !== undefined && mute.endDate.getTime() > Date.now())
 			return true;
+		return false;
+	}
+
+	/**
+	 * @returns `true` if caller is blocked by target
+	 * 	`false` otherwise
+	 */
+	async isBlocked(callerUserId: number, targetUserId: number) : Promise<boolean>
+	{
+		let user = await this.prisma.chatUser.findUnique({
+				where: {
+					userId:callerUserId
+				},
+				include: {
+					blockedBy : true
+				}
+			});
+		
+		if (user == null || user === undefined)
+			return false;
+		
+		for (let index = 0; index < user.blockedBy.length; index++) {
+			if (targetUserId == user.blockedBy[index].userId)
+				return true;
+		}
 		return false;
 	}
 }
