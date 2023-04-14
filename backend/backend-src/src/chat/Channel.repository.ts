@@ -67,10 +67,11 @@ export class ChannelRepository {
 			include});
 	}
 
-	async getSingleGroupChannel(params: Prisma.GroupChannelWhereUniqueInput,
-		include: Prisma.GroupChannelInclude) {
+	async getSingleGroupChannel(params: {where: Prisma.GroupChannelWhereUniqueInput,
+		include: Prisma.GroupChannelInclude}) {
+		const { where, include } = params;
 		return this.prisma.groupChannel.findUniqueOrThrow({
-			where:params,
+			where,
 			include
 		});
 	}

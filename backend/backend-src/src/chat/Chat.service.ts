@@ -11,6 +11,8 @@ import { PrismaService } from "src/database/prisma.service";
 import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO } from "./Chat.entities";
 import { WsException } from "@nestjs/websockets";
 import { error } from "console";
+import { ValidationError } from "./Chat.error";
+";
 
 
 const includeMembers = {
@@ -136,6 +138,11 @@ export class ChatService {
 
 		//should do checks about mute in the future
 
+		// is user muted
+
+		// is author muted
+
+		
 		//this prisma request 
 		// - assigns message content
 		// - connects to an existing channel using the channelId
@@ -308,6 +315,7 @@ export class ChatService {
 		//	- in those joinedChannels it includes the messages
 		//		- in those messages it only selects the content and the author
 		//		- it only takes the last 10 sent messages ordered by posted date
+		
 		const user = await this.prisma.chatUser.findUniqueOrThrow({
 			include:
 			{
@@ -376,10 +384,38 @@ export class ChatService {
 	{
 		// const groupChannel = this.channelRepository.getSingleGroupChannel({channelId:GroupChannelId}, true);
 
+		const channel = await this.prisma.groupChannel.findUniqueOrThrow({
+			where: { 
+				channelId:request.groupChannelId
+			},
+			include : {
+				admins: true,
+				owner:true,
+				channel: {
+					include: {
+						users: true
+				}
+			}
+		}
+		});
+
 		//add logic here checking
-		//that users are in channels and caller has the rights to add a new admin
+		
+		//that users are in channels and caller has the rights (owner ou admin) to add a new admin, cf check du mute
 		// throw error
 
+		//if author isnt admin
+		if (channel.admins.find(user => {
+			user.userId == request.callerUserId;
+		}) === undefined)
+			throw new ValidationError("You don't have the rights to mute a user");
+
+		//and presence of target in channel
+		if (channel.channel.users.find(user => {
+			user.userId == request.targetUserId;
+		}) === undefined)
+			throw new ValidationError("This user isn't on channel");
+		
 		this.channelRepository.updateGroupChannel({
 			where: {
 				channelId:request.groupChannelId
@@ -399,9 +435,35 @@ export class ChatService {
 	)
 	{
 		// const groupChannel = this.channelRepository.getSingleGroupChannel({channelId:GroupChannelId}, true);
+		const channel = await this.prisma.groupChannel.findUniqueOrThrow({
+			where: { 
+				channelId:request.groupChannelId
+			},
+			include : {
+				admins: true,
+				owner:true,
+				channel: {
+					include: {
+						users: true
+				}
+			}
+		}
+		});
 
 		//add logic here checking
 		//that users are in channels and caller has the rights to remove an admin
+		
+		//if author isnt admin
+		if (channel.admins.find(user => {
+			user.userId == request.callerUserId;
+		}) === undefined)
+		throw new ValidationError("You don't have the rights to mute a user");
+
+		//and presence of target in channel
+		if (channel.channel.users.find(user => {
+			user.userId == request.targetUserId;
+		}) === undefined)
+			throw new ValidationError("This user isn't on channel");
 
 		this.channelRepository.updateGroupChannel({
 			where: {
@@ -419,9 +481,38 @@ export class ChatService {
 
 	async muteUser(request: MuteDTO)
 	{
-		//add logic here checking admin rights from author 
+		//add logic here checking admin rights from author
+
+		// does the channel exist?
+		const channel = await this.prisma.groupChannel.findUniqueOrThrow({
+			where: { 
+				channelId:request.groupChannelId
+			},
+			include : {
+				admins: true,
+				channel: {
+					include: {
+						users: true
+				}
+			}
+		}
+		});
+
+		// if target is owner
+		if (channel.ownerId == request.targetUserId)
+			throw new ValidationError("The owner can't be mute");
+
+		//if author isnt admin
+		if (channel.admins.find(user => {
+			user.userId == request.authorUserId;
+		}) === undefined)
+			throw new ValidationError("You don't have the rights to mute a user");
+
 		//and presence of target in channel
-		//and target isnt admin or owner
+		if (channel.channel.users.find(user => {
+			user.userId == request.targetUserId;
+		}) === undefined)
+			throw new ValidationError("This user isn't on channel");
 		
 		await this.prisma.mute.create({
 			data: {
