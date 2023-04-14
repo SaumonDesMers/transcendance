@@ -9,26 +9,42 @@ class UserData {
 	coa: string;
 	bio: string;
 }
+
+class Avatar {
+
+	imageBase64: string;
+
+	upload() {
+
+	}
+
+	download() {
+
+	}
+}
 export class User {
 
-	private data: UserData;
+	private _data: UserData;
+	avatar: Avatar;
 
-	get id() { return this.data.id; }
-	get username() { return this.data.username; }
-	get darkMode() { return this.data.darkMode; }
-	get isTwoFactorAuthenticationEnabled() { return this.data.isTwoFactorAuthenticationEnabled; }
-	get coa() { return this.data.coa; }
-	get bio() { return this.data.bio; }
+	get id() { return this._data.id; }
+	get username() { return this._data.username; }
+	get darkMode() { return this._data.darkMode; }
+	get isTwoFactorAuthenticationEnabled() { return this._data.isTwoFactorAuthenticationEnabled; }
+	get coa() { return this._data.coa; }
+	get bio() { return this._data.bio; }
 
-	set id(arg) { this.data.id = arg; this.localSave(); }
-	set username(arg) { this.data.username = arg; this.localSave(); }
-	set darkMode(arg) { this.data.darkMode = arg; this.localSave(); }
-	set isTwoFactorAuthenticationEnabled(arg) { this.data.isTwoFactorAuthenticationEnabled = arg; this.localSave(); }
-	set coa(arg) { this.data.coa = arg; this.localSave(); }
-	set bio(arg) { this.data.bio = arg; this.localSave(); }
+	set id(arg) { this._data.id = arg; this.localSave(); }
+	set username(arg) { this._data.username = arg; this.localSave(); }
+	set darkMode(arg) { this._data.darkMode = arg; this.localSave(); }
+	set isTwoFactorAuthenticationEnabled(arg) { this._data.isTwoFactorAuthenticationEnabled = arg; this.localSave(); }
+	set coa(arg) { this._data.coa = arg; this.localSave(); }
+	set bio(arg) { this._data.bio = arg; this.localSave(); }
+
 
 	constructor() {
-		this.data = new UserData();
+		this._data = new UserData();
+		this.avatar = new Avatar();
 		this.localGet();
 	}
 
@@ -52,13 +68,13 @@ export class User {
 	}
 
 	localSave() {
-		localStorage.user = JSON.stringify(this.data);
+		localStorage.user = JSON.stringify(this._data);
 	}
 
 	async login(jwt: string) {
 
 		let ret = {
-			data: null,
+			_data: null,
 			error: null
 		};
 
@@ -68,10 +84,10 @@ export class User {
 				}
 			})
 			.then(res => {
-				// console.log('data :', res.data);
+				// console.log('_data :', res.data);
 				axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 				if (res.data == '' || res.data == '2fa') {
-					ret.data = res.data;
+					ret._data = res.data;
 				} else {
 					this.set(res.data);
 				}
@@ -93,7 +109,7 @@ export class User {
 		let success: boolean = false;
 		let error: any = null;
 
-		await axios.patch(`http://localhost:3001/users/${this.id}`, this.data)
+		await axios.patch(`http://localhost:3001/users/${this.id}`, this._data)
 		.then(res => {
 			success = true;
 			// this.set(res.data);
@@ -105,4 +121,5 @@ export class User {
 
 		return { success, error };
 	}
+
 }

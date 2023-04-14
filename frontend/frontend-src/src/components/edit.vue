@@ -19,7 +19,7 @@ export default {
 			// id : 0,
 			State,
 			user: new User(),
-			errorMsg: ','
+			errorMsg: '',
 		};
 	},
 	methods: {
@@ -30,6 +30,57 @@ export default {
 			} else {
 				this.errorMsg = error;
 			}
+		},
+
+		async requestUploadFile() {
+			var image = this.$el.querySelector('#uploadmyfile').files[0];
+
+			if (image.type.indexOf('image/') < 0) {
+				return;
+			}
+
+			// get base64 image
+			const reader = new FileReader();
+			let source = await new Promise(resolve => {
+				reader.onload = ev => {
+					resolve(ev.target.result);
+				};
+				reader.readAsDataURL(image);
+			});
+
+			this.user.avatar.imageBase64 = source;
+
+			this.squareAndResizeAvatar(this.user, 500, 500);
+		},
+
+		squareAndResizeAvatar(user, wantedWidth, wantedHeight) {
+			var img = document.createElement('img');
+
+			img.onload = function() {
+				var canvas = document.createElement('canvas');
+				var ctx = canvas.getContext('2d');
+
+				canvas.width = wantedWidth;
+				canvas.height = wantedHeight;
+
+				let sx = 0, sy = 0, sWidth = this.width, sHeight = this.height;
+
+				if (sWidth > sHeight) {
+					sWidth = sHeight;
+					sx = (this.width - sWidth) / 2;
+				} else if (sWidth < sHeight) {
+					sHeight = sWidth;
+					sy = (this.height - sHeight) / 2;
+				}
+
+				ctx.drawImage(this, sx, sy, sWidth, sHeight, 0, 0, wantedWidth, wantedHeight);
+
+				var dataURI = canvas.toDataURL();
+
+				user.avatar.imageBase64 = dataURI;
+			};
+
+			img.src = user.avatar.imageBase64;
 		},
 
 		switchPage(page) {
@@ -70,6 +121,11 @@ export default {
 							<div class="shooting-stars"></div>
 						</div>
 						<div class="grid">
+							<div class="form-group a">
+		<label>AVATAR</label>
+			<input type="file" id="uploadmyfile" @change="requestUploadFile"/>
+			<img v-bind:src="user.avatar.imageBase64" />
+		</div>
 		<div class="form-group a">
 			<label>LOGIN</label>
 			<input v-model='user.username' type="text" @click="username=''"/>
