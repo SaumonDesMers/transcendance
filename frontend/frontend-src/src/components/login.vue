@@ -1,11 +1,13 @@
 <script>
 import axios from 'axios'
 import { State } from '../scripts/state'
+import { User } from '../scripts/user'
 
 export default {
 	data() {
 		return {
 			errorMsg: '',
+			user: new User(),
 		}
 	},
 
@@ -13,29 +15,25 @@ export default {
 		login() {
 			window.location.href = 'http://localhost:3001/auth/login'
 		},
-		getJwt() {
-			let uri = window.location.search.substring(1);
-			let params = new URLSearchParams(uri);
-			return params.get("code");
-		},
-		requestUserWithJwt(jwt) {
-			axios.get('http://localhost:3001/auth/user', {
-				headers: {
-					Authorization: `Bearer ${jwt}`
-				}
-			})
+		async requestUserWithJwt(jwt) {
+			await axios.get('http://localhost:3001/auth/user', {
+					headers: {
+						Authorization: `Bearer ${jwt}`
+					}
+				})
 				.then(res => {
-					console.log('data :', res);
-					localStorage.jwt = jwt;
+					console.log('data :', res.data);
 					axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 					if (res.data == '') {
 						this.$emit('switchPage', State.REGISTER);
 					}
+					else if (res.data == '2fa') {
+						this.$emit('switchPage', State.VALIDATE_2FA);
+					}
 					else {
-						this.$emit('user', res.data);
+						this.user.set(res.data);
 						this.$emit('switchPage', State.MAIN);
 					}
-					// console.log(res);
 				})
 				.catch(err => {
 					this.errorMsg = err.message;
@@ -50,7 +48,7 @@ export default {
 	emits: ['switchPage', 'user'],
 
 	mounted() {
-		let jwt = this.getJwt();
+		let jwt = this.$cookies.get('jwt');
 		if (jwt)
 			this.requestUserWithJwt(jwt);
 	},

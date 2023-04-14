@@ -7,9 +7,11 @@ import game from './components/game.vue'
 import register from './components/register.vue'
 import mainPage from './components/mainPage.vue'
 import user from './components/profil.vue'
-import Test2fa from './components/test2fa.vue'
 import edit from './components/edit.vue'
 import { State } from './scripts/state'
+import validate2fa from './components/validate2fa.vue'
+import toggle2fa from './components/toggle2fa.vue'
+import { User } from './scripts/user'
 
 export default {
 
@@ -21,6 +23,7 @@ export default {
 		mainPage,
 		user,
 		edit,
+		validate2fa,
 	},
 
 	data() {
@@ -28,8 +31,8 @@ export default {
 			State,
 			state: State.LOGIN,
 			previousPage: 10,
-			loggedIn: false,
-			user: null,
+			// loggedIn: false,
+			user: new User(),
 		}
 	},
 
@@ -37,13 +40,13 @@ export default {
 		switchPage(arg) {
 			this.state = arg;
 		},
-		setUser(user) {
-			this.user = user;
-		}
 	},
 
 	mounted() {
-		this.state = this.State.LOGIN;
+		if (this.user.isLog())
+			this.state = State.MAIN;
+		else
+			this.state = State.LOGIN;
 	},
 
 	created() { },
@@ -52,17 +55,20 @@ export default {
 
 <template>
 	<div v-if="state == State.LOGIN">
-		<loginPage @switchPage="arg => switchPage(arg)" @user="user => setUser(user)"></loginPage>
+		<loginPage @switchPage="switchPage"></loginPage>
+	</div>
+	<div v-if="state == State.VALIDATE_2FA">
+		<validate2fa @switchPage="switchPage"></validate2fa>
 	</div>
 	<div v-else-if="state == State.REGISTER">
-		<register @switchPage="arg => switchPage(arg)" @user="user => setUser(user)"></register>
+		<register @switchPage="switchPage"></register>
 	</div>
 	<div v-else-if="state == State.MAIN">
-		<mainPage @switchPage="page => switchPage(page)"></mainPage>
+		<mainPage @switchPage="switchPage"></mainPage>
 
 	</div>
 	<div v-else-if="state == State.USER">
-		<user @switchPage="page => switchPage(page)"></user>
+		<user @switchPage="switchPage"></user>
 	</div>
 	<div v-else-if="state == State.GAME">
 		<game></game>
@@ -71,7 +77,7 @@ export default {
 		<chat></chat>
 	</div>
 	<div v-else-if="state == State.EDIT">
-		<edit @switchPage="page => switchPage(page)"></edit>
+		<edit @switchPage="switchPage"></edit>
 	</div>
 </template>
 

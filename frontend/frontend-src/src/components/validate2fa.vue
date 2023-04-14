@@ -1,11 +1,15 @@
 <script>
 import axios from 'axios'
+import { State } from '../scripts/state'
+import { User } from '../scripts/user'
 
 export default {
 	data() {
 		return {
+			State,
 			errorMsg: '',
-			twoFactorAuthenticationCode: ''
+			twoFactorAuthenticationCode: '',
+			user: new User(),
 		}
 	},
 
@@ -15,21 +19,26 @@ export default {
 				twoFactorAuthenticationCode: this.twoFactorAuthenticationCode
 			})
 			.then(res => {
-				console.log('2fa/authenticate: res:', res);
-				this.$emit('validated');
+				// console.log('2fa/authenticate: res:', res);
+				this.user.set(res.data);
+				this.switchPage(State.MAIN);
 			})
 			.catch(err => {
-				// console.log('2fa/authenticate: err:', err);
 				this.errorMsg = err.message;
 			})
 		},
 
 		cancel() {
-			this.$emit('cancel');
+			this.$cookies.remove('jwt');
+			this.switchPage(State.LOGIN);
+		},
+
+		switchPage(page) {
+			this.$emit('switchPage', page);
 		},
 	},
 
-	emits: ['validated', 'cancel'],
+	emits: ['switchPage', 'user'],
 
 	mounted() {	},
 
@@ -41,6 +50,7 @@ export default {
 	<input v-model="twoFactorAuthenticationCode">
 	<p class="error">{{ errorMsg }}</p>
 	<button @click="validate2faCode">Validate</button>
+	<button @click="cancel">Cancel</button>
 </template>
 
 <style>

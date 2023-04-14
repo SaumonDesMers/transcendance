@@ -1,59 +1,55 @@
 <script>
-import axios from 'axios'
+// import axios from 'axios'
 import "./profil.vue"
 import { State } from '../scripts/state';
+import { User } from '../scripts/user';
+import toggle2fa from "./toggle2fa.vue";
 
 export default {
+
+	components: {
+		toggle2fa,
+	},
+
 	data: function () {
 		return {
-			coalition: '',
-			isDark: false,
-			username: '',
-			id : 0,
+			// coalition: '',
+			// isDark: false,
+			// username: '',
+			// id : 0,
+			State,
+			user: new User(),
+			errorMsg: ','
 		};
 	},
 	methods: {
-		saveModifications() {
-			console.log(this.username);
-			axios
-				.put(`http://localhost:3001/users/${this.id}`,
-				{
-					"username": this.username,
-					"darkMode": this.isDark,
-				})
-				.then((res) => {
-					this.$emit('switchPage', State.USER);
-				})
-				.catch((error) => {
-					console.log(error);
-				});
-		}
+		async saveModifications() {
+			const { success, error } = await this.user.save();
+			if (success) {
+				this.switchPage(State.USER);
+			} else {
+				this.errorMsg = error;
+			}
+		},
+
+		switchPage(page) {
+			this.$emit('switchPage', page);
+		},
 	},
-	mounted() {
-		axios.get('http://localhost:3001/auth/user',)
-			.then(res => {
-				this.username = res.data.username;
-				this.isDark = res.data.darkMode;
-				this.id = res.data.id;
-			})
-			.catch(err => {
-				this.errorMsg = err.message;
-				console.log(err);
-			})
-	},
+	mounted() {},
 	emits: ['switchPage']
 }
 
 </script>
 
 <template>
-	<div :class="[isDark ? 'main-page dark federation-dark' : 'main-page light federation']">
+	<div :class="[user.darkMode ? 'main-page dark federation-dark' : 'main-page light federation']">
 		<div style="width: 100vw; height: 100vh;">
-			<div :class="[isDark ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
+			<div :class="[user.darkMode ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
 				<div class="edit-profile">
 					EDIT YOUR PROFILE
 				</div>
-				<div v-if ="this.isDark == false">
+				<div v-if ="user.darkMode == false">
 							<div class="cloud large cloud-1"><div></div><div></div><div></div><div></div></div>
 							<div class="cloud normal cloud-2"><div></div><div></div><div></div><div></div></div>
 							<div class="cloud small cloud-3"><div></div><div></div><div></div><div></div></div>
@@ -76,19 +72,23 @@ export default {
 						<div class="grid">
 		<div class="form-group a">
 			<label>LOGIN</label>
-			<input v-model='username' type="text" @click="username=''"/>
+			<input v-model='user.username' type="text" @click="username=''"/>
 		</div>
 		<div class="textarea-group">
 			<label for="bio">BIO</label>
 			<textarea id="bio"></textarea>
 		</div>
 	</div> 
+	<toggle2fa @switchPage="switchPage"></toggle2fa>
 	<div class="button-container">
 		<button class="button" @click="saveModifications()">Enregister les modifications</button>
 	</div>
-			</div>
-		</div>
+	<div class="button-container">
+		<button class="button" @click="switchPage(State.USER)">Cancel</button>
 	</div>
+</div>
+</div>
+</div>
 </template>
 
 <style lang="scss">

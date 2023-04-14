@@ -15,8 +15,8 @@ export class AuthService {
 		private readonly jwtService: JwtService
 	) {}
 
-	async generateJWT(user: any): Promise<string> {
-		const payload = { id: user.id };
+	async generateTmpJwt(user: any): Promise<string> {
+		const payload = { id: user.id, tmp: true };
 		return this.jwtService.sign(payload);
 	}
 
@@ -28,7 +28,6 @@ export class AuthService {
 		let user: any = null;
 		try {
 			user = await this.userService.getOneUser(userId);
-			delete user.isTwoFactorAuthenticationEnabled;
 			delete user.twoFactorAuthenticationSecret;
 		} catch {
 			user = null;
@@ -36,7 +35,7 @@ export class AuthService {
 		return user;
 	}
 
-	async generateTwoFactorAuthenticationSecret(user: UserEntity): Promise<{
+	async generate2faSecret(user: UserEntity): Promise<{
 		secret: string;
 		otpauthUrl: string;
 	}> {
@@ -54,34 +53,44 @@ export class AuthService {
 		return toDataURL(otpAuthUrl);
 	}
 
-	async turnOnTwoFactorAuthentication(userId: number) {
+	async turnOn2fa(userId: number) {
 		let user = await this.userService.getOneUser(userId);
-		let res = await this.generateTwoFactorAuthenticationSecret(user);
+		let res = await this.generate2faSecret(user);
 		this.userService.updateUser(userId, {
 			twoFactorAuthenticationSecret: res.secret,
 			isTwoFactorAuthenticationEnabled: true
 		});
-		return this.generateQrCodeDataURL(res.otpauthUrl);
+		return  {
+			qrcode: await this.generateQrCodeDataURL(res.otpauthUrl),
+			jwt: await this.generateJwtWith2fa(user, true),
+		};
 	}
 
-	async isTwoFactorAuthenticationCodeValid(twoFactorAuthenticationCode: string, userId: number) {
+	async is2faCodeValid(twoFactorAuthenticationCode: string, userId: number) {
 		let user = await this.userService.getOneUser(userId);
-		// console.log('twoFactorAuthenticationCode =', twoFactorAuthenticationCode);
-		// console.log('twoFactorAuthenticationSecret =', user.twoFactorAuthenticationSecret);
 		return authenticator.verify({
 			token: twoFactorAuthenticationCode,
 			secret: user.twoFactorAuthenticationSecret,
 		});
 	}
 
-	async generateJwtWith2fa(user: UserEntity) {
+	async generateJwtWith2fa(user: UserEntity, isTwoFactorAuthenticated: boolean) {
+		// console.log('generateJwtWith2fa: user:', user);
 		const payload = {
 			id: user.id,
-			isTwoFactorAuthenticationEnabled: !!user.isTwoFactorAuthenticationEnabled,
-			isTwoFactorAuthenticated: true,
+			// isTwoFactorAuthenticationEnabled: !!user.isTwoFactorAuthenticationEnabled,
+			isTwoFactorAuthenticated: isTwoFactorAuthenticated,
 		};
 	
 		return this.jwtService.sign(payload);
+	}
+
+	async turnOff2fa(userId: number) {
+		// let user = await this.userService.getOneUser(userId);
+		this.userService.updateUser(userId, {
+			twoFactorAuthenticationSecret: '',
+			isTwoFactorAuthenticationEnabled: false
+		});
 	}
 	
 }
