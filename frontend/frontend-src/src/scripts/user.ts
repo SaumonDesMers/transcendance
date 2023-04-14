@@ -2,12 +2,26 @@ import axios from 'axios'
 
 export class User {
 
-	id: number;
-	username: string;
-	darkMode: boolean;
-	isTwoFactorAuthenticationEnabled: boolean;
-	coa: string;
-	bio: string;
+	private _id: number;
+	private _username: string;
+	private _darkMode: boolean;
+	private _isTwoFactorAuthenticationEnabled: boolean;
+	private _coa: string;
+	private _bio: string;
+
+	get id() { return this._id; }
+	get username() { return this._username; }
+	get darkMode() { return this._darkMode; }
+	get isTwoFactorAuthenticationEnabled() { return this._isTwoFactorAuthenticationEnabled; }
+	get coa() { return this._coa; }
+	get bio() { return this._bio; }
+
+	set id(arg) { this._id = arg; this.localSave(); }
+	set username(arg) { this._username = arg; this.localSave(); }
+	set darkMode(arg) { this._darkMode = arg; this.localSave(); }
+	set isTwoFactorAuthenticationEnabled(arg) { this._isTwoFactorAuthenticationEnabled = arg; this.localSave(); }
+	set coa(arg) { this._coa = arg; this.localSave(); }
+	set bio(arg) { this._bio = arg; this.localSave(); }
 
 	constructor() {
 		this.localGet();
@@ -74,7 +88,7 @@ export class User {
 		let success: boolean = false;
 		let error: any = null;
 
-		await axios.patch(`http://localhost:3001/users/${this.id}`, this)
+		await axios.patch(`http://localhost:3001/users/${this._id}`, this)
 		.then(res => {
 			success = true;
 			// this.set(res.data);
