@@ -5,9 +5,15 @@ export class GameGateway {
 	socket: Socket;
 	state: string;
 	game: any;
+	test: number;
 
 	constructor() {
 		this.initSocket();
+		this.test = 0;
+	}
+
+	inc() {
+		this.test++;
 	}
 
 	connect(jwt: string) {
@@ -35,28 +41,10 @@ export class GameGateway {
 			console.log("Error connecting to the game websocket server: ", error);
 		});
 
-		// this.socket.on('start', this.onGameStart.bind(this));
-		// this.socket.on('update', this.onGameUpdate.bind(this));
-		// this.socket.on('end', this.onGameEnd.bind(this));
+		this.socket.on('start', this.onGameStart.bind(this));
+		this.socket.on('update', this.onGameUpdate.bind(this));
+		this.socket.on('end', this.onGameEnd.bind(this));
 
-		this.socket.on('start', event => {
-			console.log('game start');
-			this.state = 'game';
-			window.addEventListener('keydown', this.handleKeydownEvent);
-			window.addEventListener('keyup', this.handleKeyupEvent);
-		});
-
-		this.socket.on('update', event => {
-			console.log('game update');
-			this.game = event;
-		});
-		
-		this.socket.on('end', event => {
-			console.log('game end');
-			this.state = 'none';
-			window.removeEventListener('keydown', this.handleKeydownEvent);
-			window.removeEventListener('keyup', this.handleKeyupEvent);
-		});
 	}
 
 	joinQueue() {
@@ -78,20 +66,20 @@ export class GameGateway {
 	onGameStart(event: any) {
 		console.log('game start');
 		this.state = 'game';
-		window.addEventListener('keydown', this.handleKeydownEvent);
-		window.addEventListener('keyup', this.handleKeyupEvent);
+		window.addEventListener('keydown', this.handleKeydownEvent.bind(this));
+		window.addEventListener('keyup', this.handleKeyupEvent.bind(this));
 	}
 
 	onGameUpdate(event: any) {
-		console.log('game update');
+		console.log('game update: test:', this.test);
 		this.game = event;
 	}
 	
 	onGameEnd(event: any) {
 		console.log('game end');
 		this.state = 'none';
-		window.removeEventListener('keydown', this.handleKeydownEvent);
-		window.removeEventListener('keyup', this.handleKeyupEvent);
+		window.removeEventListener('keydown', this.handleKeydownEvent.bind(this));
+		window.removeEventListener('keyup', this.handleKeyupEvent.bind(this));
 	}
 
 	surrender() {

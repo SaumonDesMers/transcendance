@@ -35,6 +35,8 @@ export default {
 
 	<h4>Game (state: {{ gameGateway.state }}) :</h4>
 	<!-- <p>{{ typeof gameGateway.game }}</p> -->
+	<button @click="gameGateway.inc" >inc</button>
+	<p>{{ gameGateway.test }}</p>
 
 	<div v-if="gameGateway.socket.disconnected">
 		<p class="error">You are disconnected !</p>
