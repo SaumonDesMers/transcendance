@@ -23,7 +23,6 @@ export class AuthController {
 
 		const url = new URL(`${req.protocol}:${req.hostname}`);
 		url.port = `3000`;
-		// url.searchParams.set('code', jwt);
 
 		response.cookie('jwt', jwt);
 		response.status(302).redirect(url.href);
@@ -31,8 +30,6 @@ export class AuthController {
 
 	@Get('user')
 	async getUser(@Req() req: any) {
-		// console.log('auth/user: req.user (payload):', req.user);
-
 		const user = await this.authService.getUser(parseInt(req.user.id));
 
 		if (user && user.isTwoFactorAuthenticationEnabled && !req.user.isTwoFactorAuthenticated)
@@ -43,7 +40,6 @@ export class AuthController {
 
 	@Post('2fa/turn-on')
 	async turnOn2fa(@Req() req: any, @Res({ passthrough: true }) response: Response) {
-		// console.log('2fa/turn-on');
 		const tfa = await this.authService.turnOn2fa(parseInt(req.user.id));
 		response.cookie('jwt', tfa.jwt);
 		return tfa.qrcode;
@@ -55,7 +51,6 @@ export class AuthController {
 		@Body() body: any,
 		@Res({ passthrough: true }) response: Response
 	) {
-		// console.log('2fa/authenticate');
 
 		const isCodeValid = await this.authService.is2faCodeValid(
 			body.twoFactorAuthenticationCode,
@@ -71,7 +66,6 @@ export class AuthController {
 
 	@Post('2fa/turn-off')
 	async turnOff2fa(@Req() req: any) {
-		// console.log('2fa/turn-off');
 		this.authService.turnOff2fa(parseInt(req.user.id));
 	}
 }

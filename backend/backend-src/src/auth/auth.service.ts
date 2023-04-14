@@ -75,10 +75,8 @@ export class AuthService {
 	}
 
 	async generateJwtWith2fa(user: UserEntity, isTwoFactorAuthenticated: boolean) {
-		// console.log('generateJwtWith2fa: user:', user);
 		const payload = {
 			id: user.id,
-			// isTwoFactorAuthenticationEnabled: !!user.isTwoFactorAuthenticationEnabled,
 			isTwoFactorAuthenticated: isTwoFactorAuthenticated,
 		};
 	
@@ -86,7 +84,6 @@ export class AuthService {
 	}
 
 	async turnOff2fa(userId: number) {
-		// let user = await this.userService.getOneUser(userId);
 		this.userService.updateUser(userId, {
 			twoFactorAuthenticationSecret: '',
 			isTwoFactorAuthenticationEnabled: false
