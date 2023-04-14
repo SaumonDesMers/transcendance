@@ -7,6 +7,7 @@ import { authenticator } from 'otplib';
 import { UserEntity } from '../user/User.entity'
 import { toDataURL } from 'qrcode';
 import { User } from "@prisma/client";
+import { UserWithoutSecret } from "src/user/User.module";
 
 @Injectable()
 export class AuthService {
@@ -28,14 +29,13 @@ export class AuthService {
 		let user: any = null;
 		try {
 			user = await this.userService.getOneUser(userId);
-			delete user.twoFactorAuthenticationSecret;
 		} catch {
 			user = null;
 		}
 		return user;
 	}
 
-	async generate2faSecret(user: UserEntity): Promise<{
+	async generate2faSecret(user: UserWithoutSecret): Promise<{
 		secret: string;
 		otpauthUrl: string;
 	}> {
@@ -67,14 +67,14 @@ export class AuthService {
 	}
 
 	async is2faCodeValid(twoFactorAuthenticationCode: string, userId: number) {
-		let user = await this.userService.getOneUser(userId);
+		let user = await this.userService.getOneUserWithSecret(userId);
 		return authenticator.verify({
 			token: twoFactorAuthenticationCode,
 			secret: user.twoFactorAuthenticationSecret,
 		});
 	}
 
-	async generateJwtWith2fa(user: UserEntity, isTwoFactorAuthenticated: boolean) {
+	async generateJwtWith2fa(user: UserWithoutSecret, isTwoFactorAuthenticated: boolean) {
 		const payload = {
 			id: user.id,
 			isTwoFactorAuthenticated: isTwoFactorAuthenticated,
