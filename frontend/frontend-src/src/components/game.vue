@@ -22,7 +22,7 @@ export default {
 
 		connectToGameGateway() {
 			this.socket.io.opts.extraHeaders = {
-				authorization: `Bearer ${localStorage.jwt}`
+				authorization: `Bearer ${this.$cookies.get('jwt')}`
 			};
 			console.log(this.socket.io.opts.extraHeaders);
 			this.socket.connect();
