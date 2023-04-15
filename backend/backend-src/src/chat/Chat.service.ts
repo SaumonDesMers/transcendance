@@ -12,7 +12,7 @@ import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO } from "./Chat.
 import { WsException } from "@nestjs/websockets";
 import { error } from "console";
 import { ValidationError } from "./Chat.error";
-";
+
 
 
 const includeMembers = {
@@ -44,6 +44,18 @@ const includeMembersAndLast10Messages = Prisma.validator<Prisma.ChannelArgs>()({
 	},
 });
 
+// const includeGroupChannelDTO = Prisma.validator<Prisma.GroupChannelArgs>()({
+// 	include: {
+// 		channel: {
+// 			include: {
+// 				users: {include: { user: true}},
+// 			}
+// 		},
+// 		owner: {
+// 		}
+// 	}
+// })
+
 @Injectable()
 export class ChatService {
 	constructor(private channelRepository: ChannelRepository,
@@ -55,27 +67,29 @@ export class ChatService {
 		let my_arr: Prisma.ChatUserWhereUniqueInput[];
 		newGroupChannel.usersId.forEach(userId => my_arr.push({userId}));
 
-		const channel = await this.channelRepository.createGroupChannel({
-			name: newGroupChannel.name,
-			owner: {
-				connect: {
-					userId: newGroupChannel.ownerId
-				}
-			},
-			admins: {
-				connect: {
-					userId: newGroupChannel.ownerId
-				}
-			},
-			channel: {
-				create: {
-					users: {
-						connect: my_arr
+		const channel = await this.prisma.groupChannel.create({
+			data: {
+				name: newGroupChannel.name,
+				owner: {
+					connect: {
+						userId: newGroupChannel.ownerId
 					}
-				}
+				},
+				admins: {
+					connect: {
+						userId: newGroupChannel.ownerId
+					}
+				},
+				channel: {
+					create: {
+						users: {
+							connect: my_arr
+						}
+					}
+				},
 			},
-			
-		}, include);
+			include
+		});
 
 		return channel;
 	}
@@ -255,16 +269,14 @@ export class ChatService {
 
 	async findGroupChannelbyName(channelName: string)
 	{
-		const channel = await this.channelRepository.getSingleGroupChannel({
-			name: channelName
-		},{
-			channel: { include: {
-			users: {
-				include: {
-					user: true
-				}
-			}}}
-		});
+		const channel = await this.prisma.groupChannel.findUniqueOrThrow({
+			where: {
+				name: channelName
+			},
+			// include: {
+				// channel: includeMembers
+			// }
+		})
 		return channel;
 	}
 

@@ -26,7 +26,7 @@ export default {
 			user : null,
 			messageInputBuffer: '',
 			channelInputBuffer: '',
-			channels: [],
+			channels: new Map<number, GroupChannelDTO>(),
 			receivedMessages: [],
 			current_channelId: 0,
 		}
@@ -46,7 +46,9 @@ export default {
 			});
 			this.socket.emit("get_groupchannels", (channels: GroupChannelDTO[]) => {
 				console.log(channels);
-				this.channels = channels;
+				channels.forEach(channel => {
+					this.channels.set(channel.channelId, channel);
+				})
 			})
 		},
 
@@ -72,14 +74,14 @@ export default {
 			}
 
 			this.socket.emit("create_channel", channel, (payload: GroupChannelDTO) => {
-				this.channels.push(payload);
+				this.channels.set(payload.channelId, payload);
 			});
 		},
 
 		async joinChannel() {
 			this.socket.emit("join_channel", this.channelInputBuffer,
 			(channel: GroupChannelDTO) => {
-				this.channels.push(channel);
+				this.channels.set(channel.channelId, channel);
 			});
 			this.channelInputBuffer = "";
 		},
@@ -87,13 +89,14 @@ export default {
 		async leaveChannel() {
 			this.socket.emit("leave_channel", this.channelInputBuffer);
 
-			for(var i = 0; i < this.channels.length(); i++) {
-				if (this.channels[i].name == this.channelInputBuffer) {
-					this.channels.splice(i, 1);
-					i--;
-				}
-			}
-			this.channelInputBuffer = "";
+			// for(var i = 0; i < this.channels.length(); i++) {
+			// 	if (this.channels[i].name == this.channelInputBuffer) {
+			// 		this.channels.splice(i, 1);
+			// 		i--;
+			// 	}
+			// }
+			// this.channelInputBuffer = "";
+			this.channels.delete(this.current_channelId);
 		},
 
 		async SendMessage() {
@@ -142,7 +145,7 @@ export default {
 			
 			this.socket.on("message", (message: MessageDTO) => {
 				console.log(message);
-				this.receivedMessages.push(message);
+				this.channels.get(message.channelId).channel.messages.push(message);
 			})
 
 			// this.socket.on("join_channel", (channel) => {
@@ -177,8 +180,8 @@ export default {
 			<button @click="joinChannel">Join Channel</button>
 			<button @click="leaveChannel">Leave Channel</button>
 		</div>
-		<div v-for="channel in this.channels">
-			<button @click="selectChannel(channel.channel.id)">{{channel.name}}</button>
+		<div v-for="[channelId, channel] in this.channels">
+			<button @click="selectChannel(channelId)">{{channel.name}}</button>
 		</div>
 
 		<div>
@@ -186,8 +189,8 @@ export default {
 			<button @click="SendMessage">Send</button>
 		</div>
 
-		<div v-for="message in receivedMessages">
-			<p v-if="message.channel.id == this.current_channelId">
+		<div v-if="this.current_channelId != 0" v-for="message in this.channels.get(current_channelId).channel.messages">
+			<p>
 				{{ message.author.user.username }} : {{ message.content }}
 			</p>
 		</div>

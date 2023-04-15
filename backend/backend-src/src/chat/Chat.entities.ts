@@ -37,6 +37,7 @@ export interface ChannelDTO {
 }
 
 export interface GroupChannelDTO{
+	channelId: number,
 	channel: ChannelDTO,
 	name: string,
 	admins: ChatUserDTO[],

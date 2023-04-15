@@ -113,12 +113,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	async handleCreateEvent(
 		@ConnectedSocket() socket: chatSocket,
 		@MessageBody() createChannel: CreateGroupChannelDto
-	)
+	) : Promise<GroupChannelDTO>
 	{
-		let channel: any;
+		let channel;
 
 		try {
-			channel = await this.chatService.createGroupChannel(createChannel, {channel: true});
+			channel = await this.chatService.createGroupChannel(createChannel, {channel: {
+				include: {
+					users: true,
+					messages: true
+				}
+			}});
 		} catch (e) {
 			console.log(e);
 			throw WsException;
@@ -131,8 +136,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			throw WsException;
 		}
 
-		// socket.join(channel.channel.id.toString());
-		return (channel.channel);
+		socket.join(channel.channel.id.toString());
+		return (channel);
 	}
 
 	@SubscribeMessage("join_channel")
@@ -141,7 +146,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@ConnectedSocket() socket: chatSocket)
 		: Promise<GroupChannelDTO>
 	{
-		let channel;
+		let channel: GroupChannel;
 		let channelWithMessage: GroupChannelDTO;
 
 		try {
@@ -152,14 +157,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		try {
-			channelWithMessage = await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId);
+			channelWithMessage = await this.chatService.joinGroupChannel(channel.channelId, socket.data.userId);
 		} catch (e) {
 			console.log(e);
 			throw WsException;
 		}
 
 		console.log("user %d joining channel %s", socket.data.userId, channel.name)
-		socket.join(channel.channel.id.toString());
+		socket.join(channel.channelId.toString());
 		// socket.emit("join_room", channel);
 		return (channelWithMessage);
 	}
