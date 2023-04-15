@@ -16,7 +16,7 @@ export interface joinRequestDTO {
 }
 
 export interface JoinDTO {
-	username: string,
+	user: ChatUserDTO,
 	channelId: number
 }
 export interface adminRequestDTO {

@@ -32,12 +32,16 @@ export interface ServerToClientEvents {
 
 	user_joined_room: (payload: JoinDTO) => void;
 
+	user_left_room: (payload: JoinDTO) => void;
+
 	user_muted: (payload: MuteDTO) => void;
 
 	/*
 	* DIRECT EVENTS
 	*/
 	dm_starting: (payload: ChannelDTO) => void;
+
+	exception: (payload: any) => void;
 }
 
 export interface ClientToServerEvents {
@@ -45,19 +49,19 @@ export interface ClientToServerEvents {
 	 * event emitted when a client wants to
 	 * join a new channel
 	 */
-	join_channel: (channelName: string, callback: (GroupChannelDTO)) => void;
+	join_channel: (channelName: string, callback: (channel: GroupChannelDTO) => void) => void;
 
 	/**
 	 * event emitted when a client wants to
 	 * leave a channel
 	 */
-	leave_channel: (channelName: string, callback : () =>void) => void;
+	leave_channel: (channelId: number) => void;
 
 	// /**
 	//  * event emitted when a client wants to
 	//  * create a new channel
 	//  */
-	create_channel: (channel: CreateGroupChannelDto, callback: (GroupChannelDTO) => void) => void;
+	create_channel: (channel: CreateGroupChannelDto, callback: (channel: GroupChannelDTO) => void) => void;
 
 	/**
 	 * event for the client to request its
