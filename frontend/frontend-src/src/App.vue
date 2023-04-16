@@ -12,7 +12,7 @@ import { State } from './scripts/state'
 import validate2fa from './components/validate2fa.vue'
 import toggle2fa from './components/toggle2fa.vue'
 import { User } from './scripts/user'
-import { GameGateway } from './scripts/game'
+// import { GameGateway } from './scripts/game'
 
 export default {
 
@@ -27,6 +27,12 @@ export default {
 		validate2fa,
 	},
 
+	computed: {
+		game() {
+			return this.globalGame;
+		}
+	},
+
 	data() {
 		return {
 			State,
@@ -34,7 +40,6 @@ export default {
 			previousPage: 10,
 			// loggedIn: false,
 			user: new User(),
-			gameGateway: new GameGateway(),
 		}
 	},
 
@@ -55,8 +60,8 @@ export default {
 
 	watch: {
 		state() {
-			if (this.user.isLog() && this.gameGateway.socket.disconnected) {
-				this.gameGateway.connect(this.$cookies.get('jwt'));
+			if (this.user.isLog() && this.game.socket.disconnected) {
+				this.game.connect(this.$cookies.get('jwt'));
 			}
 		}
 	}
@@ -81,7 +86,7 @@ export default {
 		<user @switchPage="switchPage"></user>
 	</div>
 	<div v-else-if="state == State.GAME">
-		<game :gameGateway="gameGateway"></game>
+		<game></game>
 	</div>
 	<div v-else-if="state == State.CHAT">
 		<chat></chat>
