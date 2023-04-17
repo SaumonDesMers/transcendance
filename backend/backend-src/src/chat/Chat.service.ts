@@ -153,8 +153,9 @@ export class ChatService {
 		//should do checks about mute in the future
 
 		// is user muted
+		if (!this.isMuted(newMessage.authorId, newMessage.ChannelId))
+			throw new ValidationError("The user is muted and can't send a message");
 
-		// is author muted
 
 		
 		//this prisma request 
