@@ -16,7 +16,7 @@ import {
 } from '../../../../backend/backend-src/src/chat/Chat.events';
 import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto';
 import { CreateMessageDto } from '../../../../backend/backend-src/src/chat/message.create.dto';
-
+import store from "../scripts/chat"
 
 export default {
 
