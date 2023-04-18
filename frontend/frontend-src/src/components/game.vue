@@ -2,7 +2,7 @@
 import axios from 'axios'
 import io from "socket.io-client"
 import gameCanvas from './gameCanvas.vue'
-import { Game } from '../scripts/game'
+import game from '../scripts/game'
 
 export default {
 
@@ -10,14 +10,10 @@ export default {
 		gameCanvas
 	},
 
-	computed: {
-		game() {
-			return this.globalGame;
-		}
-	},
-
 	data() {
-		return {}
+		return {
+			game,
+		}
 	},
 
 	methods: {},
@@ -27,9 +23,9 @@ export default {
 	created() {},
 
 	watch: {
-		'globalGame': {
+		'game.state': {
 			handler: function (val, oldVal) {
-				console.log('globalGame changed !');
+				// console.log('game state changed !');
 			},
 			deep: true
 		}
@@ -39,26 +35,26 @@ export default {
 
 <template>
 
-	<h4>Game (state: {{ game.state }}) :</h4>
-	<!-- <p>{{ typeof game.game }}</p> -->
+	<h4>Game (state: {{ game.state.value }}) :</h4>
+	<!-- <p>{{ game.data }}</p> -->
 
-	<button @click="game.inc" >inc</button>
-	<p>{{ game.test }}</p>
+	<!-- <button @click="game.inc" >inc</button>
+	<p>{{ game.test }}</p> -->
 
 	<div v-if="game.socket.disconnected">
 		<p class="error">You are disconnected !</p>
 	</div>
 
 	<div v-else>
-		<div v-if="game.state == 'none'">
+		<div v-if="game.state.value == 'none'">
 			<button @click="game.joinQueue">Play !</button>
 		</div>
-		<div v-else-if="game.state == 'queue'">
+		<div v-else-if="game.state.value == 'queue'">
 			<p>Waiting for another player...</p>
 			<button @click="game.leaveQueue">Leave queue</button>
 		</div>
 		<div v-else>
-			<gameCanvas :game="game.game"></gameCanvas>
+			<gameCanvas :game="game.data"></gameCanvas>
 			<button @click="game.surrender">Surrender</button>
 		</div>
 	</div>
