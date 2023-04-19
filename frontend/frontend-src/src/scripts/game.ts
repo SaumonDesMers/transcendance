@@ -12,19 +12,16 @@ class State {
 export class Game {
 
 	socket: Socket;
-	state: State;
+	_state: State;
 	data: GameData;
-	test: number;
+
+	get state() { return this._state.value; }
+	set state(value: String) { this._state.value = value; }
 
 	constructor() {
 		this.data = reactive(new GameData());
-		this.state = reactive(new State());
+		this._state = reactive(new State());
 		this.initSocket();
-		this.test = 0;
-	}
-
-	inc() {
-		this.test++;
 	}
 
 	connect(jwt: string) {
@@ -41,7 +38,7 @@ export class Game {
 		
 		this.socket.on('connect', () => {
 			console.log("Successfully connected to the game websocket server...");
-			this.state.value = 'none';
+			this.state = 'none';
 		});
 		
 		this.socket.on('disconnect', function(reason) {
@@ -61,7 +58,7 @@ export class Game {
 	joinQueue() {
 		this.socket.emit('queue', 'join', res => {
 			if (res == 'join') {
-				this.state.value = 'queue';
+				this.state = 'queue';
 			}
 		});
 	}
@@ -69,26 +66,26 @@ export class Game {
 	leaveQueue() {
 		this.socket.emit('queue', 'leave', res => {
 			if (res == 'leave') {
-				this.state.value = 'none';
+				this.state = 'none';
 			}
 		});
 	}
 	
 	onGameStart(event: any) {
 		console.log('game start');
-		this.state.value = 'game';
+		this.state = 'game';
 		window.addEventListener('keydown', this.handleKeydownEvent.bind(this));
 		window.addEventListener('keyup', this.handleKeyupEvent.bind(this));
 	}
 
 	onGameUpdate(event: GameData) {
-		console.log('game update: test:', this.test);
+		console.log('game update');
 		this.data.update(event);
 	}
 	
 	onGameEnd(event: any) {
 		console.log('game end');
-		this.state.value = 'none';
+		this.state = 'none';
 		window.removeEventListener('keydown', this.handleKeydownEvent.bind(this));
 		window.removeEventListener('keyup', this.handleKeyupEvent.bind(this));
 	}
