@@ -49,6 +49,8 @@ export class GameService {
 			player.disconnectInGame();
 			this.reconnectionHub.push(player);
 			setTimeout(this.disconnectionAfterDelay.bind(this), 30 * 1000, player);
+		} else if (player.state == 'queue') {
+			this.queue = this.queue.filter(p => p != player);
 		}
 		this.onlinePlayer.delete(socket);
 	}
@@ -57,7 +59,6 @@ export class GameService {
 		if (player.socket != null)
 			return;
 
-		
 		this.reconnectionHub = this.reconnectionHub.filter(p => { return p != player });
 	}
 

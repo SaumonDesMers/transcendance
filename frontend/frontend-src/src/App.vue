@@ -12,6 +12,7 @@ import { State } from './scripts/state'
 import validate2fa from './components/validate2fa.vue'
 import toggle2fa from './components/toggle2fa.vue'
 import { User } from './scripts/user'
+import gameGateway from './scripts/game'
 
 export default {
 
@@ -26,6 +27,12 @@ export default {
 		validate2fa,
 	},
 
+	computed: {
+		game() {
+			return this.globalGame;
+		}
+	},
+
 	data() {
 		return {
 			State,
@@ -33,6 +40,7 @@ export default {
 			previousPage: 10,
 			// loggedIn: false,
 			user: new User(),
+			gameGateway,
 		}
 	},
 
@@ -50,6 +58,14 @@ export default {
 	},
 
 	created() { },
+
+	watch: {
+		state() {
+			if (this.user.isLog() && this.gameGateway.socket.disconnected) {
+				this.gameGateway.connect(this.$cookies.get('jwt'));
+			}
+		}
+	}
 }
 </script>
 

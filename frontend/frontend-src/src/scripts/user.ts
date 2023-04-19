@@ -1,35 +1,41 @@
 import axios from 'axios'
 
+class UserData {
+
+	id: number;
+	username: string;
+	darkMode: boolean;
+	isTwoFactorAuthenticationEnabled: boolean;
+	coa: string;
+	bio: string;
+}
 export class User {
 
-	private _id: number;
-	private _username: string;
-	private _darkMode: boolean;
-	private _isTwoFactorAuthenticationEnabled: boolean;
-	private _coa: string;
-	private _bio: string;
+	private data: UserData;
 
-	get id() { return this._id; }
-	get username() { return this._username; }
-	get darkMode() { return this._darkMode; }
-	get isTwoFactorAuthenticationEnabled() { return this._isTwoFactorAuthenticationEnabled; }
-	get coa() { return this._coa; }
-	get bio() { return this._bio; }
+	get id() { return this.data.id; }
+	get username() { return this.data.username; }
+	get darkMode() { return this.data.darkMode; }
+	get isTwoFactorAuthenticationEnabled() { return this.data.isTwoFactorAuthenticationEnabled; }
+	get coa() { return this.data.coa; }
+	get bio() { return this.data.bio; }
 
-	set id(arg) { this._id = arg; this.localSave(); }
-	set username(arg) { this._username = arg; this.localSave(); }
-	set darkMode(arg) { this._darkMode = arg; this.localSave(); }
-	set isTwoFactorAuthenticationEnabled(arg) { this._isTwoFactorAuthenticationEnabled = arg; this.localSave(); }
-	set coa(arg) { this._coa = arg; this.localSave(); }
-	set bio(arg) { this._bio = arg; this.localSave(); }
+	set id(arg) { this.data.id = arg; this.localSave(); }
+	set username(arg) { this.data.username = arg; this.localSave(); }
+	set darkMode(arg) { this.data.darkMode = arg; this.localSave(); }
+	set isTwoFactorAuthenticationEnabled(arg) { this.data.isTwoFactorAuthenticationEnabled = arg; this.localSave(); }
+	set coa(arg) { this.data.coa = arg; this.localSave(); }
+	set bio(arg) { this.data.bio = arg; this.localSave(); }
 
 	constructor() {
+		this.data = new UserData();
 		this.localGet();
 	}
 
 	set(newData: any) {
-		for (const key in newData)
+		for (const key in newData) {
 			this[key] = newData[key];
+		}
 		this.localSave();
 	}
 
@@ -46,7 +52,7 @@ export class User {
 	}
 
 	localSave() {
-		localStorage.user = JSON.stringify(this);
+		localStorage.user = JSON.stringify(this.data);
 	}
 
 	async login(jwt: string) {
@@ -69,7 +75,6 @@ export class User {
 				} else {
 					this.set(res.data);
 				}
-				// console.log(res);
 			})
 			.catch(err => {
 				ret.error = err;
@@ -88,7 +93,7 @@ export class User {
 		let success: boolean = false;
 		let error: any = null;
 
-		await axios.patch(`http://localhost:3001/users/${this._id}`, this)
+		await axios.patch(`http://localhost:3001/users/${this.id}`, this.data)
 		.then(res => {
 			success = true;
 			// this.set(res.data);

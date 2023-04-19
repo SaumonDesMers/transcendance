@@ -1,4 +1,6 @@
 <script>
+import { GameData } from '../scripts/gameData';
+
 export default {
 
 	data() {
@@ -12,7 +14,7 @@ export default {
 	},
 
 	props: {
-		game: null
+		game: GameData,
 	},
 
 	methods: {
@@ -78,9 +80,12 @@ export default {
 	},
 
 	watch: {
-		game() {
-			this.draw();
-		}
+		game: {
+			handler() {
+				this.draw();
+			},
+			deep: true,
+		},
 	},
 
 	mounted() {

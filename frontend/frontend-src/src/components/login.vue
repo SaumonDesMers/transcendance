@@ -22,7 +22,7 @@ export default {
 					}
 				})
 				.then(res => {
-					console.log('data :', res.data);
+					// console.log('data :', res.data);
 					axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 					if (res.data == '') {
 						this.$emit('switchPage', State.REGISTER);
