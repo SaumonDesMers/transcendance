@@ -25,11 +25,16 @@ export default {
 			messageInputBuffer: '',
 			current_channelId: -1 as number,
 			channelInputBuffer: '',
+			keyInputBuffer: null,
 			store,
 		}
 	},
 
 	methods: {
+		print() {
+			console.log(store);
+		},
+
 		connectToServer() {
 			store.connectToServer();
 		},
@@ -53,14 +58,18 @@ export default {
 			const channel = {
 				ownerId: store.user.userId,
 				name: this.channelInputBuffer,
+				privateChan: false,
 				usersId: [],
+				key: this.keyInputBuffer
 			}
 
 			store.createChannel(channel);
 		},
 
 		async joinChannel() {
-			store.joinChannel(this.channelInputBuffer);
+			store.joinChannel({
+				channelName: this.channelInputBuffer,
+				key: this.keyInputBuffer});
 			this.channelInputBuffer = "";
 		},
 		
@@ -102,6 +111,7 @@ export default {
 	<div v-if="store.connected">
 		<div>
 			<input type='test' v-model="channelInputBuffer">
+			<input type='test' v-model="keyInputBuffer">
 			<button @click="createChannel">Create Channel</button>
 			<button @click="joinChannel">Join Channel</button>
 			<button @click="leaveChannel">Leave Channel</button>
@@ -121,7 +131,12 @@ export default {
 			</p>
 		</div>
 	</div>
+	<div v-if="store.error != ''">
+		{{ store.error }}
+		<button @click="store.error = ''">clear Error</button>
 	</div>
+	</div>
+	<!-- <button @click="print()">click me</button> -->
 </template>
 
 <style scoped>

@@ -1,4 +1,4 @@
-import { IsArray, IsInt, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsInt, IsOptional, IsString } from "class-validator";
 
 export class CreateGroupChannelDto {
 	@IsInt()
@@ -10,4 +10,10 @@ export class CreateGroupChannelDto {
 	@IsArray()
 	@IsInt()
 	usersId: number[];
+
+	@IsBoolean()
+	privateChan: boolean;
+
+	@IsOptional()
+	key? :string;
 }

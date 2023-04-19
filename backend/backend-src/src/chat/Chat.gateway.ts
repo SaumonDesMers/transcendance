@@ -47,7 +47,8 @@ export class WebsocketExceptionsFilter extends BaseWsExceptionFilter {
     const data = host.switchToWs().getData();
     const error = exception instanceof WsException ? exception.getError() : exception.getResponse();
     const details = error instanceof Object ? { ...error } : { message: error };
-    client.emit("error",
+	console.log("EMIITING ERROR");
+    client.emit("exception",
 	{
         id: (client as any).id,
         rid: data.rid,
@@ -130,7 +131,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		try {
-			await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId);
+			await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId, createChannel.key);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
@@ -142,22 +143,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 	@SubscribeMessage("join_channel")
 	async handleJoinEvent(
-		@MessageBody() channelName: string,
+		@MessageBody() request: joinRequestDTO,
 		@ConnectedSocket() socket: chatSocket)
 		: Promise<GroupChannelDTO>
 	{
 		let channel: GroupChannel;
 		let channelWithMessage: GroupChannelDTO;
-
+		console.log(request);
 		try {
-			channel = await this.chatService.findGroupChannelbyName(channelName);
+			channel = await this.chatService.findGroupChannelbyName(request.channelName);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
 		}
 
 		try {
-			channelWithMessage = await this.chatService.joinGroupChannel(channel.channelId, socket.data.userId);
+			channelWithMessage = await this.chatService.joinGroupChannel(channel.channelId, socket.data.userId, request.key);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
@@ -231,7 +232,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 		catch (e: any) {
 			console.log(e);
-			throw new WsException(e);
+			// throw WsException;
+			throw new WsException(e.message);
 		}
 
 		this.server.to(message.channel.id.toString()).emit("message", message);

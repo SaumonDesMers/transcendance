@@ -49,7 +49,7 @@ export interface ClientToServerEvents {
 	 * event emitted when a client wants to
 	 * join a new channel
 	 */
-	join_channel: (channelName: string, callback: (channel: GroupChannelDTO) => void) => void;
+	join_channel: (request: joinRequestDTO, callback: (channel: GroupChannelDTO) => void) => void;
 
 	/**
 	 * event emitted when a client wants to

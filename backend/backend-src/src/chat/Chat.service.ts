@@ -14,7 +14,6 @@ import { error } from "console";
 import { ValidationError } from "./Chat.error";
 
 
-
 const includeMembers = {
 		include : {
 			users : {
@@ -70,6 +69,8 @@ export class ChatService {
 		const channel = await this.prisma.groupChannel.create({
 			data: {
 				name: newGroupChannel.name,
+				key: newGroupChannel.key,
+				privateChan: newGroupChannel.privateChan,
 				owner: {
 					connect: {
 						userId: newGroupChannel.ownerId
@@ -198,10 +199,24 @@ export class ChatService {
 		)
 	}
 
-	async joinGroupChannel(channelId: number, userId: number) {
+	async joinGroupChannel(channelId: number, userId: number, key? :string) {
 
 
 		//might do checks that the user isnt banned
+		const channel = await this.prisma.groupChannel.findUniqueOrThrow({
+			where: {channelId},
+			include: {
+				banned: true
+			}
+		})
+
+		if (channel.banned.find(user => {
+			return user.userId == userId;
+		}) != null)
+			throw new ValidationError("User is banned from this channel");
+
+		if (channel.key != null && key != channel.key)
+			throw new ValidationError("Incorrect or missing channel key");
 
 		//this prisma request updates a group channel
 		// -the group channel is found using its base channel's channelId

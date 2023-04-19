@@ -7,7 +7,8 @@ import {
 	MessageDTO,
 	JoinDTO,
 	adminRequestDTO,
-	MuteDTO
+	MuteDTO,
+	joinRequestDTO
 } from '../../../../backend/backend-src/src/chat/Chat.entities'
 import {CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto'
 import { ServerToClientEvents, ClientToServerEvents } from '../../../../backend/backend-src/src/chat/Chat.events'
@@ -20,6 +21,7 @@ export class Chat {
 	private _other_users: Map<number, ChatUserDTO>;
 	private _user: ChatUserDTO;
 	private socket: Socket<ServerToClientEvents, ClientToServerEvents>;
+	private _error: string;
 	// private currentGroupChannelId: number;
 	// private currentDmChannelId: number;
 	
@@ -34,15 +36,19 @@ export class Chat {
 	get connected() {return this.socket.connected;}
 	get disconnected () { return this.socket.disconnected;}
 	get user () {return this._user;}
+	get error() {return this._error}
 
 	getGroupChannel(id: number) {
 		return this._groupChannels.get(id);
 	}
 
+	set error(err: string){this._error = err;}
+
 	constructor() {
 
 		this._groupChannels = reactive (new Map());
-		this._dmChannels = reactive(new Map())
+		this._dmChannels = reactive(new Map());
+		this._error = '';
 
 		this.initSocket();
 
@@ -96,7 +102,9 @@ export class Chat {
 		
 		this.socket.on('exception', (payload: any) => {
 			console.log(payload);
+			this.error = payload.message;
 		});
+
 	}
 	
 	leaveChannel(channelId: number) {
@@ -112,9 +120,9 @@ export class Chat {
 		});
 	}
 	
-	joinChannel(channelName: string)
+	joinChannel(request: joinRequestDTO)
 	{
-		this.socket.emit("join_channel", channelName, (channel: GroupChannelDTO) => {
+		this.socket.emit("join_channel", request, (channel: GroupChannelDTO) => {
 			this._groupChannels.set(channel.channelId, channel);
 		})
 	}
