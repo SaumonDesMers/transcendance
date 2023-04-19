@@ -61,6 +61,8 @@ CREATE TABLE "DMChannel" (
 CREATE TABLE "GroupChannel" (
     "channelId" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
+    "key" TEXT NOT NULL,
+    "privateChan" BOOLEAN NOT NULL,
     "ownerId" INTEGER NOT NULL,
 
     CONSTRAINT "GroupChannel_pkey" PRIMARY KEY ("channelId")
@@ -85,6 +87,12 @@ CREATE TABLE "_ChatUserblocking" (
 
 -- CreateTable
 CREATE TABLE "_ChannelAdmin" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_ChannelBanned" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
 );
@@ -118,6 +126,12 @@ CREATE UNIQUE INDEX "_ChannelAdmin_AB_unique" ON "_ChannelAdmin"("A", "B");
 
 -- CreateIndex
 CREATE INDEX "_ChannelAdmin_B_index" ON "_ChannelAdmin"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_ChannelBanned_AB_unique" ON "_ChannelBanned"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_ChannelBanned_B_index" ON "_ChannelBanned"("B");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_ChannelToChatUser_AB_unique" ON "_ChannelToChatUser"("A", "B");
@@ -169,6 +183,12 @@ ALTER TABLE "_ChannelAdmin" ADD CONSTRAINT "_ChannelAdmin_A_fkey" FOREIGN KEY ("
 
 -- AddForeignKey
 ALTER TABLE "_ChannelAdmin" ADD CONSTRAINT "_ChannelAdmin_B_fkey" FOREIGN KEY ("B") REFERENCES "GroupChannel"("channelId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ChannelBanned" ADD CONSTRAINT "_ChannelBanned_A_fkey" FOREIGN KEY ("A") REFERENCES "ChatUser"("userId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ChannelBanned" ADD CONSTRAINT "_ChannelBanned_B_fkey" FOREIGN KEY ("B") REFERENCES "GroupChannel"("channelId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_ChannelToChatUser" ADD CONSTRAINT "_ChannelToChatUser_A_fkey" FOREIGN KEY ("A") REFERENCES "Channel"("id") ON DELETE CASCADE ON UPDATE CASCADE;
