@@ -22,38 +22,21 @@ export default {
 
 	data() {
 		return {
-			socket: Socket<ServerToClientEvents, ClientToServerEvents>,
-			user : null,
 			messageInputBuffer: '',
+			current_channelId: -1 as number,
 			channelInputBuffer: '',
-			channels: new Map<number, GroupChannelDTO>(),
-			receivedMessages: [],
-			current_channelId: 0,
+			store,
 		}
 	},
 
 	methods: {
 		connectToServer() {
-			this.socket.io.opts.extraHeaders = {
-				authorization: `Bearer ${localStorage.jwt}`
-			};
-			this.socket.connect();
-
-			// this.user = await fetch()
-			this.socket.emit("get_user", (user: ChatUserDTO) => {
-				this.user = user;
-				// this.channels = user.joinedChannels;
-			});
-			this.socket.emit("get_groupchannels", (channels: GroupChannelDTO[]) => {
-				console.log(channels);
-				channels.forEach(channel => {
-					this.channels.set(channel.channelId, channel);
-				})
-			})
+			store.connectToServer();
 		},
 
 		disconnectFromServer() {
-			this.socket.disconnect();
+			// this.socket.disconnect();
+			store.disconnectFromServer();
 		},
 
 		selectChannel(id: number) {
@@ -68,98 +51,41 @@ export default {
 
 		async createChannel() {
 			const channel = {
-				ownerId: this.user.userId,
+				ownerId: store.user.userId,
 				name: this.channelInputBuffer,
 				usersId: [],
 			}
 
-			this.socket.emit("create_channel", channel, (payload: GroupChannelDTO) => {
-				this.channels.set(payload.channelId, payload);
-			});
+			store.createChannel(channel);
 		},
 
 		async joinChannel() {
-			this.socket.emit("join_channel", this.channelInputBuffer,
-			(channel: GroupChannelDTO) => {
-				this.channels.set(channel.channelId, channel);
-			});
+			store.joinChannel(this.channelInputBuffer);
 			this.channelInputBuffer = "";
 		},
 		
 		async leaveChannel() {
-			this.socket.emit("leave_channel", this.channelInputBuffer);
-
-			// for(var i = 0; i < this.channels.length(); i++) {
-			// 	if (this.channels[i].name == this.channelInputBuffer) {
-			// 		this.channels.splice(i, 1);
-			// 		i--;
-			// 	}
-			// }
-			// this.channelInputBuffer = "";
-			this.channels.delete(this.current_channelId);
+			store.leaveChannel(this.current_channelId);
+			this.current_channelId = null;
 		},
 
 		async SendMessage() {
 			const msg = {
 				content: this.messageInputBuffer,
 				ChannelId: this.current_channelId,
-				authorId: this.user.userId
+				authorId: store.user.userId
 			};
-			console.log("sending mesage in channel:", this.current_channelId);
 			this.messageInputBuffer = "";
-			this.socket.emit("send_message", msg);
+			store.sendMessage(msg);
 		},
 
-		initSocket() {
-			this.socket = io('http://localhost:3001/chat', {
-				autoConnect: false,
-			});
-
-			this.socket.on('connect', () => {
-				console.log("Connected to chat");
-			});
-
-			this.socket.on('disconnect', () => {
-				console.log("Connection to chat websocket closed");
-			});
-
-			this.socket.on('connect_error', () => {
-				console.log("Error connecting to chat websocket");
-			});
-
-			this.socket.on("error", (reason) => {
-				console.log("received an error from server :", reason);
-			});
-
-			this.socket.on("exception", (reason) => {
-				console.log("received an error from server :", reason);
-			});
-
-			this.socket.onAnyOutgoing((event, ...args) => {
-				// console.log(event, args);
-			});
-
-			this.socket.onAny((event, ...args) => {
-				console.log(event);
-			})
-			
-			this.socket.on("message", (message: MessageDTO) => {
-				console.log(message);
-				this.channels.get(message.channelId).channel.messages.push(message);
-			})
-
-			// this.socket.on("join_channel", (channel) => {
-			// 	console.log(channel)
-			// 	this.channels.push(channel);
-			// })
-
-		}
 	},
 
-	mounted() {},
+	mounted() {
+
+	},
 
 	created() {
-		this.initSocket();
 	},
 }
 
@@ -168,19 +94,19 @@ export default {
 <template>
 	<div>
 		<div>
-			<button v-if="socket.disconnected" @click="connectToServer">Connect To Chat</button>
+			<button v-if="store.disconnected" @click="connectToServer">Connect To Chat</button>
 			<button v-else @click="disconnectFromServer">Disconnect from Chat</button>
 			<button @click="sendTest">Get chehd</button>
 		</div>
 
-	<div v-if="socket.connected">
+	<div v-if="store.connected">
 		<div>
 			<input type='test' v-model="channelInputBuffer">
 			<button @click="createChannel">Create Channel</button>
 			<button @click="joinChannel">Join Channel</button>
 			<button @click="leaveChannel">Leave Channel</button>
 		</div>
-		<div v-for="[channelId, channel] in this.channels">
+		<div v-for="[channelId, channel] in store.groupChannels">
 			<button @click="selectChannel(channelId)">{{channel.name}}</button>
 		</div>
 
@@ -189,7 +115,7 @@ export default {
 			<button @click="SendMessage">Send</button>
 		</div>
 
-		<div v-if="this.current_channelId != 0" v-for="message in this.channels.get(current_channelId).channel.messages">
+		<div v-if="this.current_channelId != null" v-for="message in store.getGroupChannel(this.current_channelId)?.channel.messages">
 			<p>
 				{{ message.author.user.username }} : {{ message.content }}
 			</p>

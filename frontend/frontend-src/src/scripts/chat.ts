@@ -20,48 +20,61 @@ export class Chat {
 	private _other_users: Map<number, ChatUserDTO>;
 	private _user: ChatUserDTO;
 	private socket: Socket<ServerToClientEvents, ClientToServerEvents>;
-	private currentGroupChannelId: number;
-	private currentDmChannelId: number;
+	// private currentGroupChannelId: number;
+	// private currentDmChannelId: number;
 	
 	get groupChannels() { return this._groupChannels };
 	get dmChannels() { return this._dmChannels };
-	get currentGroupChannel() {
-		return this._groupChannels.get(this.currentGroupChannelId);
-	}
-	get currentDmChannel() {
-		return this._dmChannels.get(this.currentDmChannelId);
-	}
-	get connected() {
-		return this.socket.connected;
-	}
+	// get currentGroupChannel() {
+	// 	return this._groupChannels.get(this.currentGroupChannelId);
+	// }
+	// get currentDmChannel() {
+	// 	return this._dmChannels.get(this.currentDmChannelId);
+	// }
+	get connected() {return this.socket.connected;}
+	get disconnected () { return this.socket.disconnected;}
+	get user () {return this._user;}
 
+	getGroupChannel(id: number) {
+		return this._groupChannels.get(id);
+	}
 
 	constructor() {
+
+		this._groupChannels = reactive (new Map());
+		this._dmChannels = reactive(new Map())
+
+		this.initSocket();
+
 		
+	}
+
+	connectToServer() {
+		this.socket.io.opts.extraHeaders = {
+			authorization: `Bearer ${localStorage.jwt}`
+		};
+		this.socket.connect();
+
 		this.socket.emit("get_user", (user: ChatUserDTO) => {
 			this._user = user;
 		});
 		
+		this._groupChannels.clear();
 		this.socket.emit("get_groupchannels", (channels: GroupChannelDTO[]) => {
 			channels.forEach(channel => {
 				this._groupChannels.set(channel.channelId, channel);
 			});
 		});
-		
-	}
-
-	connectToServer() {
-		this.socket.connect();
 	}
 
 	disconnectFromServer() {
-		this.socket.disconnected();
+		this.socket.disconnect();
 	}
 
 	private initSocket() {
-		this.socket = io('http://localhost:3001/chat'), {
+		this.socket = io('http://localhost:3001/chat', {
 			autoConnect: false
-		};
+		});
 		
 		this.socket.io.opts.extraHeaders = {
 			authorization: `Bearer ${localStorage.jwt}`
@@ -87,6 +100,7 @@ export class Chat {
 	}
 	
 	leaveChannel(channelId: number) {
+		console.log("leave channel called in front");
 		this.socket.emit("leave_channel", channelId);
 		this._groupChannels.delete(channelId);
 	}

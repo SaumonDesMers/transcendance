@@ -153,7 +153,7 @@ export class ChatService {
 		//should do checks about mute in the future
 
 		// is user muted
-		if (!this.isMuted(newMessage.authorId, newMessage.ChannelId))
+		if (await this.isMuted(newMessage.authorId, newMessage.ChannelId) == true)
 			throw new ValidationError("The user is muted and can't send a message");
 
 
@@ -558,9 +558,9 @@ export class ChatService {
 		//take the first one and compare its end Date with now,
 		//if end Date is more in the future than now, user is still muted
 
-		let mute;
+		let mute: Mute;
 		try {
-			mute = await this.prisma.mute.findFirst({
+			mute = await this.prisma.mute.findFirstOrThrow({
 				where: {
 					targetId: userId,
 					groupChannelId: groupChannelId
@@ -575,7 +575,7 @@ export class ChatService {
 		}
 
 		//"bigger" date means more in the future ( since date are stored as ms since EPOCH :p )
-		if (mute !== undefined && mute.endDate.getTime() > Date.now())
+		if (mute.endDate.getTime() > Date.now())
 			return true;
 		return false;
 	}

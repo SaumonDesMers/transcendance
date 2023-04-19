@@ -57,7 +57,7 @@ export class WebsocketExceptionsFilter extends BaseWsExceptionFilter {
   }}
 
 
-@UseFilters(new WebsocketExceptionsFilter())
+@UseFilters(new BaseWsExceptionFilter())
 @Public()
 @WebSocketGateway(
 	{namespace: "chat"}
@@ -124,16 +124,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 					messages: true
 				}
 			}});
-		} catch (e) {
+		} catch (e: any) {
 			console.log(e);
-			throw WsException;
+			throw new WsException(e);
 		}
 
 		try {
 			await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId);
-		} catch (e) {
+		} catch (e: any) {
 			console.log(e);
-			throw WsException;
+			throw new WsException(e);
 		}
 
 		socket.join(channel.channel.id.toString());
@@ -151,16 +151,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 		try {
 			channel = await this.chatService.findGroupChannelbyName(channelName);
-		} catch (e) {
+		} catch (e: any) {
 			console.log(e);
-			throw WsException;
+			throw new WsException(e);
 		}
 
 		try {
 			channelWithMessage = await this.chatService.joinGroupChannel(channel.channelId, socket.data.userId);
-		} catch (e) {
+		} catch (e: any) {
 			console.log(e);
-			throw WsException;
+			throw new WsException(e);
 		}
 
 		console.log("user %d joining channel %s", socket.data.userId, channel.name)
@@ -171,28 +171,30 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 	@SubscribeMessage("leave_channel")
 	async handleLeaveEvent(
-		@MessageBody() channelName: string,
+		@MessageBody() channelId: number,
 		@ConnectedSocket() socket: chatSocket
 	)
 	{
 		let channel: any;
 
+		console.log("leave channel called");
 		try {
-			channel = await this.chatService.findGroupChannelbyName(channelName);
-		} catch (e) {
+			channel = await this.chatService.findGroupChannelbyID(channelId);
+		} catch (e: any) {
 			console.log(e);
-			throw WsException;
+			throw new WsException(e);
 		}
 
+		console.log("no crash yet");
 		try {
-			await this.chatService.leaveGroupChannel(parseInt(channel.id),
+			await this.chatService.leaveGroupChannel(channelId,
 				socket.data.userId);
-		} catch (e) {
+		} catch (e: any) {
 			console.log(e);
-			throw WsException;
+			throw new WsException(e);
 		}
 		console.log("user %d leaving channel %s", socket.data.userId, channel.name)
-		socket.leave(channel.id.toString());
+		socket.leave(channelId.toString());
 		return undefined;
 	}
 
@@ -227,9 +229,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		try {
 			message = await this.chatService.sendMessage(messageCreate);
 		}
-		catch (e) {
+		catch (e: any) {
 			console.log(e);
-			throw WsException;
+			throw new WsException(e);
 		}
 
 		this.server.to(message.channel.id.toString()).emit("message", message);
@@ -242,9 +244,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	{
 		try {
 			await this.chatService.setUserAdmin(request)
-		} catch (e) {
+		} catch (e: any) {
 			console.log(e);
-			throw WsException;
+			throw new WsException(e);
 		}
 
 		this.server.to(request.groupChannelId.toString()).emit("user_set_admin", request);
@@ -257,9 +259,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	{
 		try {
 			await this.chatService.unsetUserAdmin(request);
-		} catch (e) {
+		} catch (e: any) {
 			console.log(e);
-			throw WsException;
+			throw new WsException(e);
 		}
 
 		this.server.to(request.groupChannelId.toString()).emit("user_unset_admin", request);
@@ -272,9 +274,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	{
 		try {
 			await this.chatService.muteUser(request);
-		} catch (e) {
+		} catch (e: any) {
 			console.log(e);
-			throw WsException;
+			throw new WsException(e);
 		}
 
 		this.server.to(request.groupChannelId.toString()).emit("user_muted", request);
@@ -292,7 +294,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		//ask the service to start a DM with the other user, will return a DMChannel
 		try {
 			channel = await this.chatService.startDM({targetUserId, callerUserId:socket.data.userId});
-		} catch (e) {
+		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e.toString());
 		}
