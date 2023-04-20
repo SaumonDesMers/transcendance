@@ -11,8 +11,6 @@ import {
 	Game,
 } from "@prisma/client";
 
-
-
 @Injectable()
 export class GameService {
 
@@ -58,6 +56,10 @@ export class GameService {
 	async disconnectionAfterDelay(player: PlayerEntity) {
 		if (player.socket != null)
 			return;
+
+		if (player.state == 'game') {
+			player.surrender();
+		}
 
 		this.reconnectionHub = this.reconnectionHub.filter(p => { return p != player });
 	}

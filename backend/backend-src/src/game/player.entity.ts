@@ -20,7 +20,7 @@ export class PlayerEntity {
 			return;
 		}
 
-		this.socket.join(game.UID);
+		this.socket?.join(game.UID);
 		this.game = game;
 		this.state = 'game';
 		console.log(this.id, ": join game");
@@ -33,7 +33,7 @@ export class PlayerEntity {
 			return;
 		}
 
-		this.socket.leave(this.game.UID);
+		this.socket?.leave(this.game.UID);
 		this.game = null;
 		this.state = 'none';
 		console.log(this.id, ": leave game");

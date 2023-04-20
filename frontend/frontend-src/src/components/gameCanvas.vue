@@ -61,22 +61,49 @@ export default {
 			this.canvas.arc(
 				this.game.ball.pos.x,
 				this.game.ball.pos.y,
-				this.game.ball.size,
+				this.game.ball.radius,
 				0, 2 * Math.PI
 			);
 			this.canvas.fillStyle = "lightgrey";
 			this.canvas.fill();
+
+			// point
+			for (let p of this.game.points) {
+				this.point(p.x, p.y, 3, "red");
+			}
+
+			// line
+			this.canvas.setLineDash([]);
+			for (let l of this.game.lines) {
+				this.line(l.pos1.x, l.pos1.y, l.pos2.x, l.pos2.y, "blue")
+			}
 		},
 
 		drawPaddle(paddle) {
 			this.canvas.fillStyle = "lightgrey";
 			this.canvas.fillRect(
-				paddle.x - this.game.paddle.width / 2,
-				paddle.y - this.game.paddle.height / 2,
+				paddle.x,
+				paddle.y,
 				this.game.paddle.width,
 				this.game.paddle.height,
 			);
-		}
+		},
+
+		point(x, y, size, color) {
+			this.canvas.fillStyle = color;
+			this.canvas.beginPath();
+			this.canvas.arc(x, y, size, 0, 2 * Math.PI);
+			this.canvas.fill();
+		},
+
+		line(x1, y1, x2, y2, color) {
+			this.canvas.strokeStyle = color;
+			this.canvas.lineWidth = 2;
+			this.canvas.beginPath();
+			this.canvas.moveTo(x1, y1);
+			this.canvas.lineTo(x2, y2);
+			this.canvas.stroke();
+		},
 	},
 
 	watch: {
