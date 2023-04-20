@@ -19,6 +19,11 @@ function deg(angle: number): number { return angle * 180 / Math.PI; }
 class Vec2 {
 	constructor(public x: number, public y: number) {}
 
+	set(norm: number, angle: number) {
+		this.x = norm * Math.cos(angle);
+		this.y = norm * Math.sin(angle);
+	}
+
 	add(other: Vec2): Vec2 { return new Vec2(this.x + other.x, this.y + other.y); }
 	sub(other: Vec2): Vec2 { return new Vec2(this.x - other.x, this.y - other.y); }
 	mul(scalar: number): Vec2 { return new Vec2(this.x * scalar, this.y * scalar); }
@@ -30,14 +35,18 @@ class Vec2 {
 
 class Collider {
 
+	pos: Vec2;
+
 	// x and y are the center of the collider
-	constructor(public x: number, public y: number, public width: number, public height: number, public type: 'rect' | 'circle') {
+	constructor(x: number, y: number, public width: number, public height: number, public type: 'rect' | 'circle') {
 		// set x and y to the top left corner of the collider
-		this.x = x - width/2;
-		this.y = y - height/2;
+		this.pos = new Vec2(x - width/2, y - height/2);
 	}
 
-	get pos(): Vec2 { return new Vec2(this.x, this.y); }
+	get x(): number { return this.pos.x; }
+	set x(value: number) { this.pos.x = value; }
+	get y(): number { return this.pos.y; }
+	set y(value: number) { this.pos.y = value; }
 	get center(): Vec2 { return new Vec2(this.x + this.width/2, this.y + this.height/2); }
 
 	get top(): number { return this.y; }
@@ -116,42 +125,40 @@ class Collider {
 class Ball extends Collider {
 
 	initialPos: Vec2;
-	initialSpeed: number = 5;
+	initialSpeedNorme: number = 5;
 
-	orientation: number;
-	speed: number = this.initialSpeed;
+	speed = new Vec2(0, 0);
 
 	constructor(x: number, y: number, public size: number) {
 		super(x, y, size, size, 'circle');
 		this.initialPos = new Vec2(x, y);
-		this.newStartingOrientation();
+		this.speed.set(this.initialSpeedNorme, this.newStartingOrientation());
 	}
 
 	get radius(): number { return this.size/2; }
 
+
 	move() {
-		this.x = this.x + Math.cos(this.orientation) * this.speed / 50 * updateInterval;
-		this.y = this.y + Math.sin(this.orientation) * this.speed / 50 * updateInterval;
+		this.x = this.x + this.speed.x / 50 * updateInterval;
+		this.y = this.y + this.speed.y / 50 * updateInterval;
 	}
 
 	bounce(side: string) {
 		if (side == "left" || side == "right") {
-			this.orientation = Math.PI - this.orientation;
+			this.speed.x = -this.speed.x;
 		} else if (side == "top" || side == "bottom") {
-			this.orientation = -this.orientation;
+			this.speed.y = -this.speed.y;
 		}
 	}
 
 	reset() {
-		this.x = this.initialPos.x;
-		this.y = this.initialPos.y;
-		this.speed = this.initialSpeed;
-		this.newStartingOrientation();
+		this.pos = this.initialPos;
+		this.speed.set(this.initialSpeedNorme, this.newStartingOrientation());
 	}
 
 	newStartingOrientation() {
-		// this.orientation = (Math.random()<0.5?Math.PI:0) + ((Math.random()*2-1) * Math.PI/4);
-		this.orientation = 0;
+		return (Math.random()<0.5?Math.PI:0) + ((Math.random()*2-1) * Math.PI/4);
+		return 0;
 	}
 
 }
@@ -176,7 +183,7 @@ class Paddle extends Collider {
 }
 class Obstacle extends Collider {
 	
-	constructor(public x: number, public y: number, public width: number, public height: number) {
+	constructor(x: number, y: number, public width: number, public height: number) {
 		super(x, y, width, height, 'rect');
 	}
 }
@@ -319,7 +326,8 @@ export class GameEntity {
 	private checkBallCollision() {
 		// ball bounce up and down
 		if (this.ball.top < 0 || this.ball.bottom > this.arena.height)
-			this.ball.orientation = -this.ball.orientation;
+			this.ball.bounce('top');
+			// this.ball.orientation = -this.ball.orientation;
 
 		// bounce on paddle
 		const collider = this.ball.collideWithArray([
