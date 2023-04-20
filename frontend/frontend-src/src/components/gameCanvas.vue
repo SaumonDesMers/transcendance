@@ -64,7 +64,7 @@ export default {
 				this.game.ball.radius,
 				0, 2 * Math.PI
 			);
-			this.canvas.fillStyle = "lightgrey";
+			this.canvas.fillStyle = "yellow";
 			this.canvas.fill();
 
 			// point
@@ -75,7 +75,7 @@ export default {
 			// line
 			this.canvas.setLineDash([]);
 			for (let l of this.game.lines) {
-				this.line(l.pos1.x, l.pos1.y, l.pos2.x, l.pos2.y, "blue")
+				this.line(l.start.x, l.start.y, l.end.x, l.end.y, "blue")
 			}
 		},
 

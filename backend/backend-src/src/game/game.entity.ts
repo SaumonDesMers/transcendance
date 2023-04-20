@@ -1,6 +1,7 @@
 import { PlayerEntity } from "./player.entity"
 import { v4 as uuid } from "uuid";
 import { BroadcastService } from './broadcast.service'
+import { ConsoleLogger } from "@nestjs/common";
 
 // side
 const LEFT = 0;
@@ -19,23 +20,48 @@ function deg(angle: number): number { return angle * 180 / Math.PI; }
 class Vec2 {
 	constructor(public x: number, public y: number) {}
 
-	set(norm: number, angle: number) {
-		this.x = norm * Math.cos(angle);
-		this.y = norm * Math.sin(angle);
+	set(length: number, angle: number) {
+		this.x = length * Math.cos(angle);
+		this.y = length * Math.sin(angle);
 	}
+
+	copy(): Vec2 { return new Vec2(this.x, this.y); }
 
 	add(other: Vec2): Vec2 { return new Vec2(this.x + other.x, this.y + other.y); }
 	sub(other: Vec2): Vec2 { return new Vec2(this.x - other.x, this.y - other.y); }
 	mul(scalar: number): Vec2 { return new Vec2(this.x * scalar, this.y * scalar); }
 	div(scalar: number): Vec2 { return new Vec2(this.x / scalar, this.y / scalar); }
+	dot(other: Vec2): number { return this.x * other.x + this.y * other.y; }
+	normed(length: number): Vec2 { return this.normalized.mul(length); }
 	get length(): number { return Math.sqrt(this.x * this.x + this.y * this.y); }
 	get normalized(): Vec2 { return this.div(this.length); }
 	get angle(): number { return Math.atan2(this.y, this.x); }
+
 }
+
+class Line {
+
+	vector: Vec2;
+
+	constructor(public start: Vec2, public end: Vec2) {
+		this.vector = end.sub(start);
+	}
+
+	// orthographic projection of point onto line
+	project(point: Vec2): Vec2 {
+		let v = point.sub(this.start);
+		let u = this.vector.normalized;
+		return this.start.add(u.mul(v.dot(u)));
+	}
+}
+
+let pointsArray: Vec2[] = [];
+let linesArray: Line[] = [];
 
 class Collider {
 
 	pos: Vec2;
+	enabled: boolean = true;
 
 	// x and y are the center of the collider
 	constructor(x: number, y: number, public width: number, public height: number, public type: 'rect' | 'circle') {
@@ -48,16 +74,31 @@ class Collider {
 	get y(): number { return this.pos.y; }
 	set y(value: number) { this.pos.y = value; }
 	get center(): Vec2 { return new Vec2(this.x + this.width/2, this.y + this.height/2); }
+	set center(value: Vec2) { this.pos = value.sub(new Vec2(this.width/2, this.height/2)); }
 
 	get top(): number { return this.y; }
 	get bottom(): number { return this.y + this.height; }
 	get left(): number { return this.x; }
 	get right(): number { return this.x + this.width; }
 
+	get leftLine(): Line { return new Line(this.topleft, this.bottomleft); }
+	get rightLine(): Line { return new Line(this.topright, this.bottomright); }
+	get topLine(): Line { return new Line(this.topleft, this.topright); }
+	get bottomLine(): Line { return new Line(this.bottomleft, this.bottomright); }
+
 	get topleft(): Vec2 { return new Vec2(this.x, this.y); }
 	get topright(): Vec2 { return new Vec2(this.x + this.width, this.y); }
 	get bottomleft(): Vec2 { return new Vec2(this.x, this.y + this.height); }
 	get bottomright(): Vec2 { return new Vec2(this.x + this.width, this.y + this.height); }
+
+	get lines(): Line[] {
+		return [
+			new Line(this.topleft, this.topright),
+			new Line(this.topright, this.bottomright),
+			new Line(this.bottomright, this.bottomleft),
+			new Line(this.bottomleft, this.topleft)
+		];
+	}
 
 	get radius(): number { return this.width/2; }
 
@@ -95,30 +136,33 @@ class Collider {
 
 	collideWithArray(colliders: Collider[]): Collider | null {
 		for (let collider of colliders) {
-			if (this.collide(collider)) {
+			if (this.collide(collider))
 				return collider;
-			}
 		}
 		return null;
 	}
 
 	findCollidingSide(other: Collider): string {
-		// retreive the side of collision by comparing the angle of the center of the other collider to the angle of the corners of the other collider
-		let angle = this.center.sub(other.center).angle;
-		let topleftAngle = other.topleft.sub(other.center).angle;
-		let toprightAngle = other.topright.sub(other.center).angle;
-		let bottomleftAngle = other.bottomleft.sub(other.center).angle;
-		let bottomrightAngle = other.bottomright.sub(other.center).angle;
+		// get the closest corner of this collider to the center of the other collider
+		const corners = [this.topleft, this.topright, this.bottomleft, this.bottomright];
+		corners.sort((a, b) => a.sub(other.center).length - b.sub(other.center).length);
+		let closestCorner = corners[0];
 
-		if (angle > topleftAngle && angle < toprightAngle) {
-			return "bottom";
-		} else if (angle > toprightAngle && angle < bottomrightAngle) {
+		// get the closest point of the other collider to the closest corner of this collider
+		let lines = other.lines;
+		let projectedPoint = lines.map(line => line.project(closestCorner));
+		projectedPoint.sort((a, b) => a.sub(closestCorner).length - b.sub(closestCorner).length);
+		let closestPoint = projectedPoint[0];
+
+		// get the side of the other collider which contains the closest point
+		if (closestPoint.x == other.left)
 			return "left";
-		} else if (angle > bottomrightAngle && angle < bottomleftAngle) {
-			return "top";
-		} else {
+		else if (closestPoint.x == other.right)
 			return "right";
-		}
+		else if (closestPoint.y == other.top)
+			return "top";
+		else
+			return "bottom";
 	}
 }
 
@@ -129,6 +173,8 @@ class Ball extends Collider {
 
 	speed = new Vec2(0, 0);
 
+	lastCollision: Collider | null = null;
+
 	constructor(x: number, y: number, public size: number) {
 		super(x, y, size, size, 'circle');
 		this.initialPos = new Vec2(x, y);
@@ -136,7 +182,6 @@ class Ball extends Collider {
 	}
 
 	get radius(): number { return this.size/2; }
-
 
 	move() {
 		this.x = this.x + this.speed.x / 50 * updateInterval;
@@ -151,14 +196,38 @@ class Ball extends Collider {
 		}
 	}
 
+	bounceOnPaddle(collider: Collider, side: string) {
+		// project the ball's center on the paddle's line
+		const line = collider[side + "Line"];
+		const projectedPoint = line.project(this.center);
+
+		// get the coordinates of the projected point relative to the paddle's center
+		const Y = (projectedPoint.y - collider.center.y) / collider.height;
+
+		// map the Y coordinate to an angle between -PI/4 and PI/4
+		const angle = Y * Math.PI / 4;
+
+		// set the ball's speed with the new angle
+		this.speed.set(this.speed.length, angle);
+
+		// reverse if bouncing on the left side
+		if (side == "left")
+			this.speed.x = -this.speed.x;
+
+	}
+
 	reset() {
-		this.pos = this.initialPos;
+		this.pos = this.initialPos.copy();
 		this.speed.set(this.initialSpeedNorme, this.newStartingOrientation());
 	}
 
-	newStartingOrientation() {
+	newStartingOrientation(): number {
 		return (Math.random()<0.5?Math.PI:0) + ((Math.random()*2-1) * Math.PI/4);
-		return 0;
+		return Math.PI / 4;
+	}
+
+	increaseSpeed() {
+		this.speed = this.speed.normed(this.speed.length + 1);
 	}
 
 }
@@ -251,7 +320,7 @@ export class GameEntity {
 	}
 
 	private currentState() {
-		return {
+		const o = {
 			arena: this.arena,
 			paddle: this.paddle,
 			side: [
@@ -263,20 +332,12 @@ export class GameEntity {
 				radius: this.ball.radius
 			},
 			pause: this.pause,
-			points: [
-				this.ball.topleft, this.ball.topright, this.ball.bottomleft, this.ball.bottomright,
-				this.side[0].paddle.topleft, this.side[0].paddle.topright, this.side[0].paddle.bottomleft, this.side[0].paddle.bottomright,
-				this.side[1].paddle.topleft, this.side[1].paddle.topright, this.side[1].paddle.bottomleft, this.side[1].paddle.bottomright,
-			],
-			lines: [
-				{ pos1: this.ball.topleft, pos2: this.ball.center },
-				{ pos1: this.ball.topright, pos2: this.ball.center },
-				{ pos1: this.ball.bottomleft, pos2: this.ball.center },
-				{ pos1: this.ball.bottomright, pos2: this.ball.center },
-
-				{ pos1: this.side[0].paddle.center, pos2: this.ball.center },
-			]
-		}
+			points: pointsArray,
+			lines: linesArray
+		};
+		pointsArray = [];
+		linesArray = [];
+		return o;
 	}
 
 	private broadcastCurrentState() {
@@ -327,17 +388,23 @@ export class GameEntity {
 		// ball bounce up and down
 		if (this.ball.top < 0 || this.ball.bottom > this.arena.height)
 			this.ball.bounce('top');
-			// this.ball.orientation = -this.ball.orientation;
-
+		
 		// bounce on paddle
 		const collider = this.ball.collideWithArray([
 			this.side[LEFT].paddle,
 			this.side[RIGHT].paddle,
 		]);
+
+		if (collider == this.ball.lastCollision) {
+			return;
+		} else {
+			this.ball.lastCollision = collider;
+		}
+
 		if (collider != null) {
-			console.log('collide');
 			const side = this.ball.findCollidingSide(collider);
-			this.ball.bounce(side);
+			this.ball.bounceOnPaddle(collider, side);
+			this.ball.increaseSpeed();
 		}
 	}
 
