@@ -1,9 +1,10 @@
 <script>
 import axios from 'axios'
-import "../styles/darkTheme.scss"
-import "../styles/lightTheme.scss"
+import "../styles/themes.scss"
+import "../styles/buttons.scss"
 import { State } from '../scripts/state'
 import { User } from '../scripts/user'
+import { registerRuntimeHelpers } from '@vue/compiler-core'
 
 export default {
 	data: function () {
@@ -27,30 +28,12 @@ export default {
 			var theme = themeClass;
 			const b = document.querySelector('body');
 			
-			if (!theme) {
-				if (this.isDark)
-				theme = 'dark-theme';
-				else
-				theme = 'light-theme'
-			}
-			else if (this.isDark)
-			theme += '-dark';
-			b.classList.remove(
-					'alliance',
-					'order',
-					'federation',
-					'assembly',
-					'alliance-dark',
-					'order-dark',
-					'federation-dark',
-					'assembly-dark',
-					'dark-theme',
-					'light-theme',
-					'centered-container',
-					'centered-container-dark'
-				);
-				console.log('setting theme (' + themeClass + ') computed as ' + theme);
+			b.classList.remove('ALLIANCE', 'ORDER', 'FEDERATION', 'ASSEMBLY', 'dark');
+			console.log('setting theme (' + themeClass + ') computed as ' + theme + ' dark == ' + this.isDark);
+			if (theme)
 				b.classList.add(theme);
+			if (this.isDark)
+				b.classList.add('dark');
 		},
 		applyPreviousThemeOnMouseOut() {
 			this.setTheme(this.coalition);
@@ -79,14 +62,22 @@ export default {
 			this.image = '';
 		},
 		saveAndSubmit() {
+			if (!this.username || this.username == 'USERNAME') {
+				alert("Please select a username.")
+				return;
+			}
+			if (!this.coalition) {
+				alert("Please select a coalition.")
+				return;
+			}
 			axios
 				.post('http://localhost:3001/users', 
 				{
 					"id": 0,
 					"username": this.username,
 					"darkMode": this.isDark,
-					"coa": 'FEDERATION',
-					"bio": 'Vive la fede !'
+					"coa": this.coalition,
+					"bio": 'Praise the ' + this.coalition + '!'
 				})
 				.then((res) => {
 					// this.$emit('user', res.data);
@@ -108,7 +99,7 @@ export default {
 
 <template>
 	<div style="display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw;">
-		<div :class="[isDark ? 'centered-container-dark' : 'centered-container']">
+		<div :class="[isDark ? 'centered-container dark' : 'centered-container']">
 			<div style="display: flex; align-content: flex-end; flex-flow: column wrap;">
 				<input type="checkbox" id="toggle">
 				<label class="toggle-main" for="toggle" @click="toggleDarkMode"></label>
@@ -126,9 +117,9 @@ export default {
 					</div>
 				</div>
 				<div style="display: flex; justify-content: space-between; gap: 4px">
-					<button class="svg" :class="[isDark ? 'btn-coa-dark alliance-btn' : 'btn-coa alliance-btn']"
-						@mouseover="setTheme('alliance')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('alliance')">
+					<button class="btn-coa alliance-btn" :class="[isDark ? 'dark' : '']"
+						@mouseover="setTheme('ALLIANCE')" @mouseout="applyPreviousThemeOnMouseOut()"
+						@click="applyTheme('ALLIANCE')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -138,9 +129,9 @@ export default {
 							</path>
 						</svg>
 					</button>
-					<button class="svg" :class="isDark ? 'btn-coa-dark order-btn' : 'btn-coa order-btn'"
-						@mouseover="setTheme('order')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('order')">
+					<button class="btn-coa order-btn" :class="isDark ? 'dark' : ''"
+						@mouseover="setTheme('ORDER')" @mouseout="applyPreviousThemeOnMouseOut()"
+						@click="applyTheme('ORDER')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -150,9 +141,9 @@ export default {
 							</path>
 						</svg>
 					</button>
-					<button class="svg" :class="isDark ? 'btn-coa-dark federation-btn' : 'btn-coa federation-btn'"
-						@mouseover="setTheme('federation')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('federation')">
+					<button class="btn-coa federation-btn" :class="isDark ? 'dark' : ''"
+						@mouseover="setTheme('FEDERATION')" @mouseout="applyPreviousThemeOnMouseOut()"
+						@click="applyTheme('FEDERATION')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -162,9 +153,9 @@ export default {
 							</path>
 						</svg>
 					</button>
-					<button class="bsvg" :class="isDark ? 'btn-coa-dark assembly-btn' : 'btn-coa assembly-btn'"
-						@mouseover="setTheme('assembly')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('assembly')">
+					<button class="btn-coa assembly-btn" :class="isDark ? 'dark' : ''"
+						@mouseover="setTheme('ASSEMBLY')" @mouseout="applyPreviousThemeOnMouseOut()"
+						@click="applyTheme('ASSEMBLY')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -233,10 +224,6 @@ svg {
 }
 
 .actions {
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	align-self: flex-start;
 	margin: .25rem 0 1rem;
 }
 
