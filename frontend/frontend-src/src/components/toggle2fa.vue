@@ -53,8 +53,8 @@ export default {
 </script>
 
 <template>
-	<button v-if="!user.isTwoFactorAuthenticationEnabled" @click="turnOn2fa">Turn on 2fa</button>
-	<button v-else @click="turnOff2fa">Turn off 2fa</button>
+	<button class="button" v-if="!user.isTwoFactorAuthenticationEnabled" @click="turnOn2fa">Turn on 2fa</button>
+	<button class="button" v-else @click="turnOff2fa">Turn off 2fa</button>
 	<img v-bind:src="qrcodeBase64" />
 </template>
 

@@ -8,66 +8,20 @@ export default {
 	data: function () {
 		return {
 			State,
-			// isDark: false,
 			status: false,
 			user: new User(),
-			// username: '',
-			// federation: 1,
-			// alliance: 0,
-			// assembly: 0,
-			// order: 0,
-			// id: 0,
 		}
 	},
 	methods: {
 		toggleDarkMode() {
-			// const b = document.querySelector('body');
-
-			// if (!this.isDark) {
-			// 	this.isDark = true;
-			// } else {
-			// 	this.isDark = false;
-			// }
 			this.user.set({ darkMode: !this.user.darkMode });
-
-			// axios
-			// 	.patch(`http://localhost:3001/users/${this.user.id}`, 
-			// 	{ 
-			// 		"darkMode": this.isDark,
-			// 	})
-			// 	.then((res) => {
-			// 	})
-			// 	.catch((error) => {
-			// 		console.log(error);
-			// 	});
 			this.user.save();
 		},
-		// colorStatus() {
-		// 	if (this.status)
-		// 		return (true);
-		// 	else
-		// 		return (false);
-		// },
-		// updateUser(user) {
-		// 	this.username = user.username;
-		// 	this.isDark = user.darkMode;
-    	// },
 		switchPage(page) {
 			this.$emit('switchPage', page);
 		},
 	},
-	mounted() {
-		// axios.get('http://localhost:3001/auth/user',)
-		// 	.then(res => {
-		// 		this.username = res.data.username;
-		// 		this.isDark = res.data.darkMode;
-		// 		this.id = res.data.id;
-		// 	})
-		// 	.catch(err => {
-		// 		this.errorMsg = err.message;
-		// 		console.log(err);
-		// 	})
-	},
+	mounted() {},
 	emits: [/*'onEdit', 'onChat', */'switchPage']
 }
 </script>
@@ -79,10 +33,10 @@ export default {
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	</head>
-	<div :class="[user.darkMode ? 'main-page dark federation-dark' : 'main-page light federation']">
+	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
 		<div style="width: 100vw; height: 100vh;">
 		<div :class="[user.darkMode == true ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
-				<div class="banner-profile federation">
+				<div class="banner-profile" :class=user.coa>
 					<div class="avatar-profile">
 						<div class="status-profile" :style="[status ? 'background-color: green' : 'background-color: gray']"></div>
 					</div>
@@ -93,7 +47,6 @@ export default {
 				<div class="profile-grid">
 					<div class="information-profile-container">
 						<div :class="[user.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{ user.username }}</div>
-						<!-- <edit-form @updateUser="updateUser" :username="user.username" :isDark="user.isDark" :id="id" /> -->
 						<div :class="[user.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']" @click="switchPage(State.CHAT)">chat</div>
 						<div :class="[user.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> xp </div>
 						<div :class="[user.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> coalition </div>
@@ -152,7 +105,6 @@ export default {
 				<div class="stars"></div>
 				<div class="stars1"></div>
 				<div class="stars2"></div>
-				<div class="shooting-stars"></div>
 			</div>
 		</div>
 	</div>
@@ -237,19 +189,19 @@ $numShootingStars: 10;
 	border-bottom: 2px solid;
 	border-image: linear-gradient(0.25turn, rgb(66, 66, 66, 0), rgb(158, 158, 158, 10), rgb(255, 255, 255), rgb(158, 158, 158, 10), rgb(66, 66, 66, 0));
 	border-image-slice: 1;
-	&.alliance {
+	&.ALLIANCE {
 		background: url("../assets/images/alliance_background.jpg");
 	}
 
-	&.federation {
+	&.FEDERATION {
 		background: url("../assets/images/federation_background.jpg");
 	}
 
-	&.assembly {
+	&.ASSEMBLY {
 		background: url("../assets/images/assembly_background.jpg");
 	}
 
-	&.order {
+	&.ORDER {
 		background: url("../assets/images/order_background.jpg");
 	}
 }

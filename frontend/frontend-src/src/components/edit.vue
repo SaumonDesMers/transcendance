@@ -13,10 +13,6 @@ export default {
 
 	data: function () {
 		return {
-			// coalition: '',
-			// isDark: false,
-			// username: '',
-			// id : 0,
 			State,
 			user: new User(),
 			errorMsg: ','
@@ -43,10 +39,10 @@ export default {
 </script>
 
 <template>
-	<div :class="[user.darkMode ? 'main-page dark federation-dark' : 'main-page light federation']">
+	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
 		<div style="width: 100vw; height: 100vh;">
 			<div :class="[user.darkMode ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
-				<div class="edit-profile">
+				<div class="banner-profile edit-profile" :class=user.coa>
 					EDIT YOUR PROFILE
 				</div>
 				<div v-if ="user.darkMode == false">
@@ -67,7 +63,6 @@ export default {
 							<div class="stars"></div>
 							<div class="stars1"></div>
 							<div class="stars2"></div>
-							<div class="shooting-stars"></div>
 						</div>
 						<div class="grid">
 		<div class="form-group a">
@@ -78,13 +73,17 @@ export default {
 			<label for="bio">BIO</label>
 			<textarea id="bio"></textarea>
 		</div>
-	</div> 
-	<toggle2fa @switchPage="switchPage"></toggle2fa>
-	<div class="button-container">
-		<button class="button" @click="saveModifications()">Enregister les modifications</button>
 	</div>
-	<div class="button-container">
-		<button class="button" @click="switchPage(State.USER)">Cancel</button>
+	<div class="buttons">
+		<div class="button-container">
+			<toggle2fa @switchPage="switchPage"></toggle2fa>
+		</div>
+		<div class="button-container">
+			<button class="button" @click="saveModifications()">Enregister les modifications</button>
+		</div>
+		<div class="button-container">
+			<button class="button" @click="switchPage(State.USER)">Cancel</button>
+		</div>
 	</div>
 </div>
 </div>
@@ -100,8 +99,8 @@ export default {
 	justify-content: center;
 	align-items: center;
 	width: 100%;
-	background: url("../assets/images/federation_background.jpg");
-	opacity: 0.9;
+	margin: 0;
+	// opacity: 0.9;
 	height: 10%;
 	font-size: 3vw;
 	$border: 5px;
@@ -202,6 +201,10 @@ export default {
 	border-color: #5850eb;
 }
 
+.buttons {
+	display: flex;
+}
+
 .button {
 	line-height: 19px;
 	background: rgba(143, 143, 143, 0.5);
@@ -264,6 +267,10 @@ export default {
 
 	.button-container {
 		text-align: center;
+		display: flex;
+		flex-direction: column;
+		width: 20%;
+		margin: 0 auto 0 auto;
 	}
 
 	.button {
