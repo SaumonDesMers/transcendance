@@ -49,12 +49,12 @@ export default {
 						<div :class="[user.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{ user.username }}</div>
 						<div :class="[user.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']" @click="switchPage(State.CHAT)">chat</div>
 						<div :class="[user.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> xp </div>
-						<div :class="[user.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> coalition </div>
+						<div :class="[user.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{ user.coa }} </div>
 						<div :class="[user.darkMode ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']" @click="switchPage(State.EDIT)"></div>
 					</div>
 					<div class="bio-container grid-border">
 						<div :class="[user.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">Bio</div>
-						<div class="child-container">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non porttitor sem. Vestibulum ac massa tempus, auctor ex ut, lobortis tellus. Phasellus id tortor viverra, dictum diam nec, efficitur dui. Nullam placerat viverra tortor in ultricies. Quisque pellentesque hendrerit vulputate. Aenean dapibus dui lectus, nec dapibus arcu aliquam eget. Aenean dignissim arcu quis iaculis auctor.</div>
+						<div class="child-container"> {{ user.bio }}</div>
 					</div>
 					<div class="friend-container grid-border">
 						<div :class="[user.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">friends</div>
@@ -293,7 +293,7 @@ $numShootingStars: 10;
 	background: rgb(0,0,0,0);
 	width: 100%;
 	height: 100%;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: 50% 50%;
 	grid-template-rows: auto 1fr 1fr;
 }
 
@@ -379,6 +379,7 @@ $numShootingStars: 10;
 	margin: 3rem;
 	margin-top: 1rem;
 	background-color: rgba(255, 255, 255, 0.1);
+	overflow-wrap: break-word;
 }
 
 
