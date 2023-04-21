@@ -25,6 +25,39 @@ export interface adminRequestDTO {
 	groupChannelId: number,
 }
 
+export interface basicChanRequestDTO {
+	authorUserId: number,
+	targetUserId: number,
+	channelId: number
+}
+
+export interface ChanRequestDTO {
+	authorUserId: number,
+	targetUserId: number,
+	channelId: number,
+	action: boolean //true means set/do action, false means undo/unset
+}
+
+export interface InviteRequestDTO {
+	authorUserId: number,
+	targetUserName: string,
+	channelId: number,
+	action: boolean 
+}
+
+export interface inviteUpdateDTO {
+	targetUserId: number,
+	channelId: number, //to be able to indentify the channel
+	channelName: string, //purely for display
+	action: boolean //true means invite false means uninvite
+}
+export interface chanPrivateRequestDTO {
+	authorUserId: number,
+	targetUserId: number,
+	channelId: number,
+	chanPrivate: boolean
+}
+
 export interface DMRequestDTO {
 	callerUserId: number,
 	targetUserId: number
@@ -46,8 +79,8 @@ export interface GroupChannelDTO{
 }
 
 export interface GroupChannelSnippetDTO{
-	channeldId: number,
-	channel: ChannelDTO,
+	channelId: number,
+	// channel: ChannelDTO,
 	name: string
 }
 
@@ -59,6 +92,7 @@ export interface ChatUserDTO {
 		username: string
 	},
 	joinedChannels?: ChannelDTO[];
+	invites?: GroupChannelSnippetDTO[];
 }
 
 export interface MuteDTO {

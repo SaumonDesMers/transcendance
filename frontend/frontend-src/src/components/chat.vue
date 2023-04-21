@@ -26,10 +26,12 @@ export default {
 			current_channelId: -1 as number,
 			channelInputBuffer: '',
 			keyInputBuffer: null,
+			userNameInputBuffer: '',
 			store,
 		}
 	},
-
+	computed: {
+	},
 	methods: {
 		print() {
 			console.log(store);
@@ -116,6 +118,11 @@ export default {
 			<button @click="joinChannel">Join Channel</button>
 			<button @click="leaveChannel">Leave Channel</button>
 		</div>
+		<p>Invites:</p>
+		<div v-for="[channelId, name] in store.channelInvites">
+			<button @click="store.joinChannel({channelName:name, key: ''})">{{ name }}</button>
+		</div>
+		<p>Joined Channels:</p>
 		<div v-for="[channelId, channel] in store.groupChannels">
 			<button @click="selectChannel(channelId)">{{channel.name}}</button>
 		</div>
@@ -125,10 +132,24 @@ export default {
 			<button @click="SendMessage">Send</button>
 		</div>
 
-		<div v-if="this.current_channelId != null" v-for="message in store.getGroupChannel(this.current_channelId)?.channel.messages">
-			<p>
-				{{ message.author.user.username }} : {{ message.content }}
-			</p>
+		<div v-if="this.current_channelId != null">
+
+			<div v-for="message in store.getGroupChannel(this.current_channelId)?.channel.messages">
+				<p>
+					{{ message.author.user.username }} : {{ message.content }}
+				</p>
+			</div>
+			<div v-for="user in store.getGroupChannel(this.current_channelId)?.channel.users">
+				<!-- <button @click="">ban</button> -->
+				<p>{{ user.user.username }}</p>
+				<button @click="store.kick_user(user.userId, this.current_channelId)">kick</button>
+				<button @click="store.ban_user(user.userId, this.current_channelId, true)">ban</button>
+			</div>
+			<div v-if="store.getGroupChannel(this.current_channelId)?.privateChan == true">
+				<input type="text" v-model="userNameInputBuffer">
+				<button @click="store.invite_user(userNameInputBuffer, current_channelId, true)">Invite User</button>
+				<button @click="store.invite_user(userNameInputBuffer, current_channelId, false)">Uninvite User</button>
+			</div>
 		</div>
 	</div>
 	<div v-if="store.error != ''">

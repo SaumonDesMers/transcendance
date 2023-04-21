@@ -7,6 +7,10 @@ import { MessageDTO,
 	MuteDTO,
 	GroupChannelDTO,
 	JoinDTO,
+	ChanRequestDTO,
+	basicChanRequestDTO,
+	inviteUpdateDTO,
+	InviteRequestDTO,
  } from './Chat.entities'
 import { CreateMessageDto } from './message.create.dto'
 import { CreateGroupChannelDto } from './GroupChannel.create.dto';
@@ -26,15 +30,23 @@ export interface ServerToClientEvents {
 	 * 	AS INFORMATION
 	 */
 
-	user_unset_admin: (payload: adminRequestDTO) => void;
+	// user_unset_admin: (payload: adminRequestDTO) => void;
 
-	user_set_admin: (payload: adminRequestDTO) => void;
+	// user_set_admin: (payload: adminRequestDTO) => void;
+
+	admin_update: (payload: ChanRequestDTO) => void;
+
+	invite_update: (payload: inviteUpdateDTO) => void;
 
 	user_joined_room: (payload: JoinDTO) => void;
 
 	user_left_room: (payload: JoinDTO) => void;
 
 	user_muted: (payload: MuteDTO) => void;
+
+	user_kicked: (payload: basicChanRequestDTO) => void;
+
+	user_banned: (paylaod: basicChanRequestDTO) => void;
 
 	/*
 	* DIRECT EVENTS
@@ -71,6 +83,7 @@ export interface ClientToServerEvents {
 
 	get_groupchannels: (callback: (channels: GroupChannelDTO[]) => void) => void;
 
+	get_invites: (callback: (invites: inviteUpdateDTO[]) => void) => void;
 
 	start_dm: (targetUserId: number, callback: (payload: ChannelDTO) => void) => void;
 
@@ -79,12 +92,18 @@ export interface ClientToServerEvents {
 	 */
 	send_message: (message: CreateMessageDto) => void;
 
-	set_admin_request: (request: adminRequestDTO) => void;
 
-	unset_admin_request: (request: adminRequestDTO) => void;
+	admin_request: (request: ChanRequestDTO) => void;
+
+	invite_request: (request: InviteRequestDTO) => void;
+	
+	visibility_request: (request: ChanRequestDTO) => void;
+	
+	kick_request: (request: basicChanRequestDTO) => void;
+
+	ban_request: (request: ChanRequestDTO) => void;
 
 	mute_request: (request: MuteDTO) => void;
-
 }
 
 export interface SocketData {

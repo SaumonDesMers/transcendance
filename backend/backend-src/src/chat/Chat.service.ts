@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Prisma, Channel, ChatUser, Message, Mute } from "@prisma/client";
+import { Prisma, Channel, ChatUser, Message, Mute, GroupChannel } from "@prisma/client";
 import { MessageRepository } from "./Message.repository";
 import { ChannelRepository } from "./Channel.repository";
 import { MessageWithAll, MessageWithAuthor, MessageWithChannel } from "./Chat.module";
@@ -8,10 +8,11 @@ import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { CreateDMChannelDto } from "./DMChannel.create.dto";
 import { PrismaModule } from "src/database/prisma.module";
 import { PrismaService } from "src/database/prisma.service";
-import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO } from "./Chat.entities";
+import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO, chanPrivateRequestDTO, ChanRequestDTO, basicChanRequestDTO, InviteRequestDTO, inviteUpdateDTO } from "./Chat.entities";
 import { WsException } from "@nestjs/websockets";
 import { error } from "console";
 import { ValidationError } from "./Chat.error";
+import { userInfo } from "os";
 
 
 const includeMembers = {
@@ -206,7 +207,8 @@ export class ChatService {
 		const channel = await this.prisma.groupChannel.findUniqueOrThrow({
 			where: {channelId},
 			include: {
-				banned: true
+				banned: true,
+				invited: true
 			}
 		})
 
@@ -218,6 +220,10 @@ export class ChatService {
 		if (channel.key != null && key != channel.key)
 			throw new ValidationError("Incorrect or missing channel key");
 
+		if (channel.privateChan == true && channel.invited.find(user =>
+			{return user.userId == userId}) == undefined)
+			throw new ValidationError("You have not been invited in this channel");
+
 		//this prisma request updates a group channel
 		// -the group channel is found using its base channel's channelId
 
@@ -225,16 +231,27 @@ export class ChatService {
 		// - requests an update of the base channel
 		// - in the users fields and connects a new user
 
+		//remove user from invite list
+		if (channel.privateChan == true)
+			await this.prisma.groupChannel.update({
+				where: {channelId},
+				data: {
+					invited: {
+						disconnect: {userId}
+					}
+				}
+			});
+
 		//we include the members in the returned channel
 		const update = await this.prisma.groupChannel.update({
-			where: {channelId:channelId},
+			where: {channelId},
 			data: {
 				channel: {
 					update: {
 						users: {
-							connect: {userId:userId}
-						}
-					}
+							connect: {userId}
+						},
+					},
 				},
 			},
 			include: {
@@ -333,6 +350,21 @@ export class ChatService {
 	async getChatUser(userId: number)
 	{
 
+		
+		const user = await this.prisma.chatUser.findUniqueOrThrow({
+			where: {userId},
+			include: {
+				user: true,
+				invites: true
+			}
+		});
+
+		return user;
+	}
+
+
+	async getChatUserWithChannels(userId: number)
+	{
 		//this prisma request is weird i know
 		//
 		//it finds a chatUser using its corresponding userId
@@ -343,7 +375,7 @@ export class ChatService {
 		//	- in those joinedChannels it includes the messages
 		//		- in those messages it only selects the content and the author
 		//		- it only takes the last 10 sent messages ordered by posted date
-		
+
 		const user = await this.prisma.chatUser.findUniqueOrThrow({
 			include:
 			{
@@ -406,15 +438,20 @@ export class ChatService {
 		return channels;
 	}
 
+
+	/************** CHANNEL OPERATIONS *******************/
+
+
+
 	async setUserAdmin(
-		request: adminRequestDTO
+		request: ChanRequestDTO
 		)
 	{
 		// const groupChannel = this.channelRepository.getSingleGroupChannel({channelId:GroupChannelId}, true);
 
 		const channel = await this.prisma.groupChannel.findUniqueOrThrow({
 			where: { 
-				channelId:request.groupChannelId
+				channelId:request.channelId
 			},
 			include : {
 				admins: true,
@@ -433,20 +470,24 @@ export class ChatService {
 		// throw error
 
 		//if author isnt admin
-		if (channel.admins.find(user => {
-			user.userId == request.callerUserId;
-		}) === undefined)
-			throw new ValidationError("You don't have the rights to mute a user");
+		if (this.isAdmin(request.authorUserId, channel) == false)
+			throw new ValidationError("You don't have the rights to set an admin");
 
 		//and presence of target in channel
 		if (channel.channel.users.find(user => {
 			user.userId == request.targetUserId;
 		}) === undefined)
 			throw new ValidationError("This user isn't on channel");
-		
+
+		//if we want to demote an admin
+		if (request.action == false && channel.admins.find(user => {user.userId == request.targetUserId}) == undefined)
+			throw new ValidationError("This user is not an admin");
+
+		if (request.action)
+		{
 		this.channelRepository.updateGroupChannel({
 			where: {
-				channelId:request.groupChannelId
+				channelId:request.channelId
 			},
 			data: {
 				admins: {
@@ -456,55 +497,22 @@ export class ChatService {
 				}
 			}
 		});
-	}
-
-	async unsetUserAdmin(
-		request: adminRequestDTO
-	)
-	{
-		// const groupChannel = this.channelRepository.getSingleGroupChannel({channelId:GroupChannelId}, true);
-		const channel = await this.prisma.groupChannel.findUniqueOrThrow({
-			where: { 
-				channelId:request.groupChannelId
-			},
-			include : {
-				admins: true,
-				owner:true,
-				channel: {
-					include: {
-						users: true
-				}
-			}
 		}
-		});
-
-		//add logic here checking
-		//that users are in channels and caller has the rights to remove an admin
-		
-		//if author isnt admin
-		if (channel.admins.find(user => {
-			user.userId == request.callerUserId;
-		}) === undefined)
-		throw new ValidationError("You don't have the rights to mute a user");
-
-		//and presence of target in channel
-		if (channel.channel.users.find(user => {
-			user.userId == request.targetUserId;
-		}) === undefined)
-			throw new ValidationError("This user isn't on channel");
-
+		else {
 		this.channelRepository.updateGroupChannel({
 			where: {
-				channelId:request.groupChannelId
+				channelId:request.channelId
 			},
 			data: {
 				admins: {
-					disconnect: {
+					connect: {
 						userId: request.targetUserId
 					}
 				}
 			}
 		});
+
+		}
 	}
 
 	async muteUser(request: MuteDTO)
@@ -555,6 +563,195 @@ export class ChatService {
 				},
 				endDate: request.endDate
 			}
+		});
+	}
+
+	async banUser(request: ChanRequestDTO) {
+
+		const {authorUserId, targetUserId, channelId } = request;
+		const channel = await this.prisma.groupChannel.findUnique({
+			where: {
+				channelId
+			},
+			include: {
+				admins: true,
+				banned: true
+			}
+		});
+
+
+		if (request.action) { //banning the target
+
+			if (!this.isAdmin(authorUserId, channel))
+				throw new ValidationError("Permission denied, you cant ban another user");
+			
+			if (this.isAdmin(targetUserId, channel))
+				throw new ValidationError("Permission denied, you cant ban another admin");
+			
+			//this prisma request updates an existing channel
+			//first adding a new user in the banlist
+			//and removing him from the members of the channel
+			await this.prisma.groupChannel.update({
+				where: {channelId},
+				data: {
+					banned: {
+						connect: {
+							userId:targetUserId
+						}
+					},
+					channel: {
+						update: {
+							users: {
+								disconnect: {
+									userId: targetUserId
+								}
+							}
+						}
+					}
+				}
+			});
+		}
+		else { //unbanning the target
+			if (this.isAdmin(authorUserId, channel) == false)
+				throw new ValidationError("You are not Admin");
+			
+			await this.prisma.groupChannel.update({
+				where: {channelId},
+				data: {
+					banned: {
+						disconnect: {
+							userId:targetUserId
+						}
+					}
+				}
+			});
+				
+		}
+	}
+
+	async set_chan_visibility(request: ChanRequestDTO)
+	{
+		const channel = await this.prisma.groupChannel.findUnique({
+			where: {channelId:request.channelId},
+			include: {
+				admins: true
+			}
+		});
+
+		if (!this.isAdmin(request.authorUserId, channel) != true)
+			throw new ValidationError("You are not admin");
+
+		await this.prisma.groupChannel.update({
+			where: {channelId: request.channelId},
+			data: {
+				privateChan: request.action
+			}
+		});
+	}
+
+	async kickUser(request: basicChanRequestDTO) {
+
+		const {channelId, authorUserId, targetUserId} = request;
+		const channel = await this.prisma.groupChannel.findUnique({
+			where: {
+				channelId
+			},
+			include: {
+				admins: true,
+				channel: {
+					include: {
+						users:true
+					}
+				}
+			}
+		});
+
+
+		if (!this.isAdmin(authorUserId, channel))
+			throw new ValidationError("Permission denied, you cant kick another user");
+
+		if (channel.channel.users.find(user =>
+			{return user.userId == targetUserId}) == undefined)
+			throw new ValidationError("Target is not in channel");
+
+		// if (this.isAdmin(targetUserId, channel))
+		// 	throw new ValidationError("Permission denied, you cant kick another admin");
+		
+		await this.leaveGroupChannel(channelId, targetUserId);
+	}
+
+	//in an invite request there is an username ( for ease of use, its better to remember usernames than userId :p)
+	//so i need to return a InviteUpdate object with an userId since the rest of the codebase uses userIds
+	async inviteUser(request: InviteRequestDTO) : Promise<inviteUpdateDTO>
+	{
+		const user = await this.prisma.user.findUniqueOrThrow({
+			where: {
+				username:request.targetUserName
+			},
+			include: {
+				chatUser: true
+			}
+		});
+
+		const targetUserId = user.id;
+		
+
+		const channel = await this.prisma.groupChannel.findUnique({
+			where: {
+				channelId:request.channelId
+			},
+			include: {
+				admins: true,
+				channel: {
+					include: {
+						users: true
+					}
+				},
+				invited: true
+			}
+		});
+
+		if (request.action == true) //if we want to invite someone
+			{
+			if (channel.channel.users.find(user => 
+				{return user.userId == targetUserId}) != undefined)
+				throw new ValidationError("User is already on channel");
+			
+			if (channel.privateChan == true && !this.isAdmin(request.authorUserId, channel))
+				throw new ValidationError("You need to be admin to invite in private chan")
+			
+			await this.prisma.groupChannel.update({
+				where: {channelId:request.channelId},
+				data: {
+					invited: {
+						connect: {userId:targetUserId}
+					}
+				}
+			});
+		}
+		else { //if we want to uninvite someone
+			if (this.isAdmin(request.authorUserId, channel) == false)
+			throw new ValidationError("You must be Admin to uninvite someone");
+
+		if (channel.invited.find(user =>
+			{user.userId == targetUserId}) != undefined)
+			throw new ValidationError("User is not invited !")
+
+		await this.prisma.groupChannel.update({
+			where:{channelId:request.channelId},
+			data: {
+				invited: {
+					disconnect: {userId: targetUserId}
+				}
+			}
+		});	
+		}
+
+		return  ({
+			targetUserId:user.id,
+			action:request.action,
+			channelId:channel.channelId,
+			channelName:channel.name
 		});
 	}
 
@@ -618,5 +815,12 @@ export class ChatService {
 				return true;
 		}
 		return false;
+	}
+
+	isAdmin(userId: number, channel: GroupChannel & { admins: ChatUser[]})
+	{
+		return (channel.admins.find(user => 
+			{return user.userId == userId;}) != undefined
+			|| channel.ownerId == userId);
 	}
 }

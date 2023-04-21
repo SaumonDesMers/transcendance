@@ -25,6 +25,11 @@ import {
 	adminRequestDTO,
 	MuteDTO,
 	GroupChannelDTO,
+	chanPrivateRequestDTO,
+	ChanRequestDTO,
+	basicChanRequestDTO,
+	InviteRequestDTO,
+	inviteUpdateDTO,
 } from './Chat.entities'
 
 import { Server, Socket } from 'socket.io';
@@ -39,6 +44,7 @@ import { ParseIntPipe, UseFilters } from "@nestjs/common";
 import { ArgumentsHost, Catch, HttpException } from "@nestjs/common";
 import { IsNumber, validateOrReject } from "class-validator";
 import { chatSocket, chatServer } from "./Chat.module";
+import { ValidationError } from "./Chat.error";
 
 @Catch(WsException, HttpException)
 export class WebsocketExceptionsFilter extends BaseWsExceptionFilter {
@@ -87,7 +93,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			console.log(payload.id);
 			socket.data.userId = parseInt(payload.id);
 			console.log(socket.data.userId);
-			user = await this.chatService.getChatUser(socket.data.userId);
+			user = await this.chatService.getChatUserWithChannels(socket.data.userId);
 		}
 		catch (e) {
 			console.log("ERROR WHILE CONNECTING");
@@ -152,19 +158,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		console.log(request);
 		try {
 			channel = await this.chatService.findGroupChannelbyName(request.channelName);
-		} catch (e: any) {
-			console.log(e);
-			throw new WsException(e);
-		}
 
-		try {
 			channelWithMessage = await this.chatService.joinGroupChannel(channel.channelId, socket.data.userId, request.key);
 		} catch (e: any) {
 			console.log(e);
-			throw new WsException(e);
+			throw new WsException(e.message);
 		}
 
+		const user = await this.chatService.getChatUser(socket.data.userId);
 		console.log("user %d joining channel %s", socket.data.userId, channel.name)
+		this.server.to(channel.channelId.toString()).emit("user_joined_room", {
+			user: user,
+			channelId: channel.channelId
+		});
 		socket.join(channel.channelId.toString());
 		// socket.emit("join_room", channel);
 		return (channelWithMessage);
@@ -194,9 +200,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			console.log(e);
 			throw new WsException(e);
 		}
+
+		const user = await this.chatService.getChatUser(socket.data.userId);
 		console.log("user %d leaving channel %s", socket.data.userId, channel.name)
 		socket.leave(channelId.toString());
-		return undefined;
+		this.server.to(channel.channelId.toString()).emit("user_left_room", {
+			user: user,
+			channelId: channel.channelId
+		});
+		// return undefined;
 	}
 
 	@SubscribeMessage('test_event')
@@ -239,10 +251,51 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		this.server.to(message.channel.id.toString()).emit("message", message);
 	}
 
-	@SubscribeMessage("set_admin_request")
+	@SubscribeMessage("invite_request")
+	async inviteUser(
+		@ConnectedSocket() socket: chatSocket,
+		@MessageBody() request: InviteRequestDTO)
+	{
+		let update: inviteUpdateDTO;
+		try {
+			update = await this.chatService.inviteUser(request);
+		} catch (e: any) {
+			console.log(e);
+			throw new WsException(e.message);
+		}
+
+
+		//sending invite/uninvite to target
+		const sockets = await this.server.fetchSockets();
+		const targetSocket = sockets.find(socket => {
+			return socket.data.userId == update.targetUserId;
+		});
+
+		targetSocket?.emit("invite_update", update);
+
+
+		//maybe send update to channel members to keep track of current invites in channel ?
+	}
+
+	@SubscribeMessage("visiblity_request")
+	async setVisiblity(
+		@ConnectedSocket() socket: chatSocket,
+		@MessageBody() request: ChanRequestDTO)
+	{
+		try {
+			await this.chatService.set_chan_visibility(request);
+		} catch (e: any) {
+			console.log(e);
+			throw new WsException(e);
+		}
+
+		//send update
+	}
+
+	@SubscribeMessage("admin")
 	async setAdmin(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() request: adminRequestDTO)
+		@MessageBody() request: ChanRequestDTO)
 	{
 		try {
 			await this.chatService.setUserAdmin(request)
@@ -251,22 +304,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			throw new WsException(e);
 		}
 
-		this.server.to(request.groupChannelId.toString()).emit("user_set_admin", request);
-	}
-
-	@SubscribeMessage("unset_admin_request")
-	async unsetAdmin(
-		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() request: adminRequestDTO)
-	{
-		try {
-			await this.chatService.unsetUserAdmin(request);
-		} catch (e: any) {
-			console.log(e);
-			throw new WsException(e);
-		}
-
-		this.server.to(request.groupChannelId.toString()).emit("user_unset_admin", request);
+		this.server.to(request.channelId.toString()).emit("admin_update", request);
 	}
 
 	@SubscribeMessage("mute_request")
@@ -282,6 +320,58 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		this.server.to(request.groupChannelId.toString()).emit("user_muted", request);
+	}
+
+	@SubscribeMessage("kick_request")
+	async kickUser(
+		@ConnectedSocket() socket: chatSocket,
+		@MessageBody() request: basicChanRequestDTO
+	)
+	{
+		try {
+			await this.chatService.kickUser(request)
+		} catch (e: any) {
+			console.log(e)
+			throw new WsException(e.message);
+		}
+
+		const user = await this.chatService.getChatUser(request.targetUserId);
+		this.server.to(request.channelId.toString()).emit("user_kicked", request);
+
+		const sockets = await this.server.fetchSockets();
+		const targetSocket = sockets.find(socket => {
+			return socket.data.userId == request.targetUserId;
+		});
+
+		targetSocket?.leave(request.channelId.toString());
+	}
+
+	@SubscribeMessage("ban_request")
+	async banUser(
+		@ConnectedSocket() socket: chatSocket,
+		@MessageBody() request: ChanRequestDTO
+	)
+	{
+		try {
+			await this.chatService.banUser(request)
+		} catch (e: any) {
+			console.log(e)
+			throw new WsException(e.message);
+		}
+
+
+		const user = await this.chatService.getChatUser(request.targetUserId);
+		this.server.to(request.channelId.toString()).emit("user_banned", request);
+
+		if (request.action) //if user is getting banned
+		{
+			const sockets = await this.server.fetchSockets();
+			const targetSocket = sockets.find(socket => {
+				return socket.data.userId == request.targetUserId;
+			});
+
+			targetSocket.leave(request.channelId.toString());
+		}
 	}
 
 	@SubscribeMessage("start_dm")

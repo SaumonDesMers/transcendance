@@ -46,6 +46,7 @@ model ChatUser {
 	ownedChannels GroupChannel[] @relation("ChannelOwner")
 	adminChannels GroupChannel[] @relation("ChannelAdmin")
 	bannedChannels GroupChannel[] @relation("ChannelBanned")
+	invites GroupChannel[] @relation("ChannelInvites")
 
 	createdMutes Mute[] @relation("MuteAuthor")
 	receivedMutes Mute[] @relation("MuteTarget")
@@ -106,6 +107,7 @@ model GroupChannel {
 	admins ChatUser[] @relation("ChannelAdmin")
 	mutes Mute[] @relation("ChannelMute")
 	banned ChatUser[] @relation("ChannelBanned")
+	invited ChatUser[] @relation("ChannelInvites")
 }
 
 model Game {
