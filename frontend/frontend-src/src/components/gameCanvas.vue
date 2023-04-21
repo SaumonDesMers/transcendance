@@ -1,5 +1,6 @@
 <script>
 import { GameData } from '../scripts/gameData';
+import { User } from '../scripts/user';
 
 export default {
 
@@ -99,7 +100,7 @@ export default {
 
 <template>
 
-	<canvas id="c" :width="arena.width" :height="arena.height"></canvas>
+	<canvas id="c" :width="arena.width" :height="arena.height" style="width:100%; max-height: 80vh;"></canvas>
 	
 </template>
 
