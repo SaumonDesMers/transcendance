@@ -53,8 +53,8 @@ export default {
 			);
 
 			// paddle
-			this.drawPaddle(this.game.side[0].paddlePos);
-			this.drawPaddle(this.game.side[1].paddlePos);
+			this.drawPaddle(this.game.side[0].paddle);
+			this.drawPaddle(this.game.side[1].paddle);
 
 			// obstacle
 			console.log(this.game.obstacles);
@@ -91,10 +91,10 @@ export default {
 		drawPaddle(paddle) {
 			this.canvas.fillStyle = "lightgrey";
 			this.canvas.fillRect(
-				paddle.x,
-				paddle.y,
-				this.game.paddle.width,
-				this.game.paddle.height,
+				paddle.pos.x,
+				paddle.pos.y,
+				paddle.width,
+				paddle.height,
 			);
 		},
 

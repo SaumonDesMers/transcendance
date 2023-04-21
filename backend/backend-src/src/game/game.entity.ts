@@ -106,35 +106,16 @@ class Collider {
 	get radius(): number { return this.width/2; }
 
 	collide(other: Collider): boolean {
-		if (this.type == 'rect' && other.type == 'rect') {
-			return this.collideRectRect(other);
-		} else if (this.type == 'rect' && other.type == 'circle') {
-			return this.collideRectCircle(other);
-		} else if (this.type == 'circle' && other.type == 'rect') {
-			return other.collideRectCircle(this);
-		} else if (this.type == 'circle' && other.type == 'circle') {
-			return this.collideCircleCircle(other);
+		if (this.type == 'rect' || other.type == 'circle') {
+			console.log('Error: collision from rect or to circle not implemented');
+			return false;
 		}
-	}
-
-	collideRectRect(other: Collider): boolean {
-		return (this.right > other.left
-			&& this.left < other.right
-			&& this.bottom > other.top
-			&& this.top < other.bottom);
-	}
-
-	// other is a circle
-	collideRectCircle(other: Collider): boolean {
+		
 		let closestPoint = new Vec2(
-			Math.max(this.left, Math.min(other.center.x, this.right)),
-			Math.max(this.top, Math.min(other.center.y, this.bottom))
+			Math.max(other.left, Math.min(this.center.x, other.right)),
+			Math.max(other.top, Math.min(this.center.y, other.bottom))
 		);
-		return other.center.sub(closestPoint).length < other.radius;
-	}
-
-	collideCircleCircle(other: Collider): boolean {
-		return this.center.sub(other.center).length < this.radius + other.radius;
+		return this.center.sub(closestPoint).length < this.radius;
 	}
 
 	collideWithArray(colliders: Collider[]): Collider | null {
@@ -145,6 +126,7 @@ class Collider {
 		return null;
 	}
 
+	// returns the side of the other collider which is colliding with this collider
 	findCollidingSide(other: Collider): string {
 		// get the closest corner of this collider to the center of the other collider
 		const corners = [this.topleft, this.topright, this.bottomleft, this.bottomright];
@@ -192,11 +174,15 @@ class Ball extends Collider {
 	}
 
 	bounce(side: string) {
-		if (side == "left" || side == "right") {
+		// if (side == "left" || side == "right") {
+		// 	this.speed.x = -this.speed.x;
+		// } else if (side == "top" || side == "bottom") {
+		// 	this.speed.y = -this.speed.y;
+		// }
+		if ((side == 'right' && this.speed.x < 0) || (side == 'left' && this.speed.x > 0))
 			this.speed.x = -this.speed.x;
-		} else if (side == "top" || side == "bottom") {
+		if ((side == 'top' && this.speed.y > 0) || (side == 'bottom' && this.speed.y < 0))
 			this.speed.y = -this.speed.y;
-		}
 	}
 
 	bounceOnPaddle(collider: Collider, side: string) {
@@ -262,7 +248,7 @@ class Obstacle extends Collider {
 
 	update() {
 		this.y += this.verticalSpeed / 50 * updateInterval;
-		if (this.y > 500 || this.y < -this.height) {
+		if (this.y < -this.height || this.y > 500) {
 			this.randomize();
 		}
 	}
@@ -290,12 +276,6 @@ export class GameEntity {
 	arena = {
 		width: 800,
 		height: 500
-	}
-
-	paddle = {
-		width: 20,
-		height: 100,
-		speed: 12,
 	}
 
 	side : {
@@ -356,10 +336,15 @@ export class GameEntity {
 	private currentState() {
 		const data = {
 			arena: this.arena,
-			paddle: this.paddle,
 			side: [
-				{ paddlePos: this.side[0].paddle.pos, score: this.side[0].score },
-				{ paddlePos: this.side[1].paddle.pos, score: this.side[1].score },
+				...this.side.map(s => { return {
+					paddle: {
+						pos: s.paddle.pos,
+						width: s.paddle.width,
+						height: s.paddle.height
+					},
+					score: s.score
+				}})
 			],
 			ball: {
 				pos: this.ball.center,
@@ -410,14 +395,24 @@ export class GameEntity {
 	}
 
 	private updatePhysics() {
+		// update paddles
 		this.side[LEFT].paddle.move();
 		this.side[RIGHT].paddle.move();
+
+		// update ball
 		this.ball.move();
 		let bounceOnPaddle = this.checkBallCollision();
 		if (bounceOnPaddle) {
 			this.ball.increaseSpeed();
 		}
+
+		// update obstacles
 		this.obstacles.forEach(o => o.update());
+		if (this.obstacles.length < 5) {
+			let obstacle = new Obstacle();
+			obstacle.randomize();
+			this.obstacles.push(obstacle);
+		}
 	}
 
 	private playerScorePoint(n: number) {
@@ -428,7 +423,9 @@ export class GameEntity {
 	// return if the ball has collided with a paddle
 	private checkBallCollision(): boolean {
 		// ball bounce up and down
-		if (this.ball.top < 0 || this.ball.bottom > this.arena.height)
+		if (this.ball.top < 0)
+			this.ball.bounce('bottom');
+		else if (this.ball.bottom > this.arena.height)
 			this.ball.bounce('top');
 		
 		// bounce on paddle
@@ -452,7 +449,9 @@ export class GameEntity {
 				this.ball.lastCollision = obstacle;
 				const side = this.ball.findCollidingSide(obstacle);
 				this.ball.bounce(side);
-				obstacle.randomize();
+				
+				// remove obstacle
+				this.obstacles.splice(this.obstacles.indexOf(obstacle), 1);
 			}
 		}
 
