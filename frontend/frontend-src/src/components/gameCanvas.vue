@@ -25,17 +25,17 @@ export default {
 			this.canvas.fillRect(0, 0, this.game.arena.width, this.game.arena.height);
 
 			// separator
-			this.canvas.strokeStyle = "grey";
-			this.canvas.lineWidth = 10;
-			this.canvas.beginPath();
-			const h = this.game.arena.height;
-			const n = 10;
-			const x = 35;
-			const y = ((-n - 1) * x + h) / n;
-			this.canvas.setLineDash([x, y]);
-			this.canvas.moveTo(this.game.arena.width / 2, 0);
-			this.canvas.lineTo(this.game.arena.width / 2, this.game.arena.height);
-			this.canvas.stroke();
+			// this.canvas.strokeStyle = "grey";
+			// this.canvas.lineWidth = 10;
+			// this.canvas.beginPath();
+			// const h = this.game.arena.height;
+			// const n = 10;
+			// const x = 35;
+			// const y = ((-n - 1) * x + h) / n;
+			// this.canvas.setLineDash([x, y]);
+			// this.canvas.moveTo(this.game.arena.width / 2, 0);
+			// this.canvas.lineTo(this.game.arena.width / 2, this.game.arena.height);
+			// this.canvas.stroke();
 
 			// score
 			this.canvas.fillStyle = "lightgrey";
@@ -55,6 +55,15 @@ export default {
 			// paddle
 			this.drawPaddle(this.game.side[0].paddlePos);
 			this.drawPaddle(this.game.side[1].paddlePos);
+
+			// obstacle
+			console.log(this.game.obstacles);
+			for (let o of this.game.obstacles) {
+				this.canvas.fillStyle = "grey";
+				if (o.enabled)
+					this.canvas.fillStyle = "lightgrey";
+				this.canvas.fillRect(o.pos.x, o.pos.y, o.width, o.height);
+			}
 
 			// ball
 			this.canvas.beginPath();

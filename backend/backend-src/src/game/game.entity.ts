@@ -17,6 +17,10 @@ const player2_paddlePos_x = 0.95;
 function rad(angle: number): number { return angle * Math.PI / 180; }
 function deg(angle: number): number { return angle * 180 / Math.PI; }
 
+function random(min: number, max: number): number {
+	return Math.random() * (max - min) + min;
+}
+
 class Vec2 {
 	constructor(public x: number, public y: number) {}
 
@@ -61,7 +65,6 @@ let linesArray: Line[] = [];
 class Collider {
 
 	pos: Vec2;
-	enabled: boolean = true;
 
 	// x and y are the center of the collider
 	constructor(x: number, y: number, public width: number, public height: number, public type: 'rect' | 'circle') {
@@ -223,7 +226,6 @@ class Ball extends Collider {
 
 	newStartingOrientation(): number {
 		return (Math.random()<0.5?Math.PI:0) + ((Math.random()*2-1) * Math.PI/4);
-		return Math.PI / 4;
 	}
 
 	increaseSpeed() {
@@ -247,14 +249,38 @@ class Paddle extends Collider {
 		} else if (this.moving == "down") {
 			this.y = this.y + this.speed / 50 * updateInterval
 		}
-		// this.speed += 2;
 	}
 }
 class Obstacle extends Collider {
+
+	verticalSpeed: number = 0;
 	
-	constructor(x: number, y: number, public width: number, public height: number) {
-		super(x, y, width, height, 'rect');
+	constructor() {
+		super(0, 0, 0, 0, 'rect');
+		this.randomize();
 	}
+
+	update() {
+		this.y += this.verticalSpeed / 50 * updateInterval;
+		if (this.y > 500 || this.y < -this.height) {
+			this.randomize();
+		}
+	}
+
+	randomize() {
+		this.width = random(30, 100);
+		this.height = random(30, 100);
+		this.x = random(200, 600 - this.width);
+		this.verticalSpeed = random(2, 5);
+
+		if (random(0, 1) < 0.5) { // top
+			this.y = -this.height;
+		} else { // bottom
+			this.y = 500;
+			this.verticalSpeed = -this.verticalSpeed;
+		}
+	}
+
 }
 
 export class GameEntity {
@@ -280,6 +306,8 @@ export class GameEntity {
 	}[]
 
 	ball = new Ball(this.arena.width / 2, this.arena.height / 2, 30);
+
+	obstacles: Obstacle[] = [];
 
 	pause = {
 		value: false,
@@ -316,11 +344,17 @@ export class GameEntity {
 		player2.joinGame(this);
 		this.broadcastService.to(this.UID, 'start');
 
+		for (let i = 0; i < 5; i++) {
+			let obstacle = new Obstacle();
+			obstacle.randomize();
+			this.obstacles.push(obstacle);
+		}
+
 		this.updateIntervalId = setInterval(this.update.bind(this), updateInterval);
 	}
 
 	private currentState() {
-		const o = {
+		const data = {
 			arena: this.arena,
 			paddle: this.paddle,
 			side: [
@@ -331,13 +365,16 @@ export class GameEntity {
 				pos: this.ball.center,
 				radius: this.ball.radius
 			},
+			obstacles: [
+				...this.obstacles.map(o => { return { pos: o.pos, width: o.width, height: o.height }})
+			],
 			pause: this.pause,
 			points: pointsArray,
 			lines: linesArray
 		};
 		pointsArray = [];
 		linesArray = [];
-		return o;
+		return data;
 	}
 
 	private broadcastCurrentState() {
@@ -376,7 +413,11 @@ export class GameEntity {
 		this.side[LEFT].paddle.move();
 		this.side[RIGHT].paddle.move();
 		this.ball.move();
-		this.checkBallCollision();
+		let bounceOnPaddle = this.checkBallCollision();
+		if (bounceOnPaddle) {
+			this.ball.increaseSpeed();
+		}
+		this.obstacles.forEach(o => o.update());
 	}
 
 	private playerScorePoint(n: number) {
@@ -384,28 +425,38 @@ export class GameEntity {
 		this.ball.reset();
 	}
 
-	private checkBallCollision() {
+	// return if the ball has collided with a paddle
+	private checkBallCollision(): boolean {
 		// ball bounce up and down
 		if (this.ball.top < 0 || this.ball.bottom > this.arena.height)
 			this.ball.bounce('top');
 		
 		// bounce on paddle
-		const collider = this.ball.collideWithArray([
+		let bounceOnPaddle = false;
+
+		let collider = this.ball.collideWithArray([
 			this.side[LEFT].paddle,
 			this.side[RIGHT].paddle,
 		]);
 
-		if (collider == this.ball.lastCollision) {
-			return;
-		} else {
+		if (collider && collider != this.ball.lastCollision) {
 			this.ball.lastCollision = collider;
-		}
-
-		if (collider != null) {
 			const side = this.ball.findCollidingSide(collider);
 			this.ball.bounceOnPaddle(collider, side);
-			this.ball.increaseSpeed();
+			bounceOnPaddle = true;
 		}
+
+		// bounce on obstacle
+		for (let obstacle of this.obstacles) {
+			if (this.ball.collide(obstacle) && obstacle != this.ball.lastCollision) {
+				this.ball.lastCollision = obstacle;
+				const side = this.ball.findCollidingSide(obstacle);
+				this.ball.bounce(side);
+				obstacle.randomize();
+			}
+		}
+
+		return bounceOnPaddle;
 	}
 
 	private updatePause() {

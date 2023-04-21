@@ -23,6 +23,15 @@ export class GameData {
 			y: number,
 		},
 	}
+	obstacles: {
+		pos: {
+			x: number,
+			y: number,
+		},
+		width: number,
+		height: number,
+		enabled: boolean,
+	}[]
 	pause: {
 		enabled: boolean,
 		reason: string,
@@ -42,6 +51,7 @@ export class GameData {
 		];
 		this.ball = { radius: 30, pos: { x: this.arena.width / 2, y: this.arena.height / 2 } };
 		this.pause = { enabled: false, reason: '', startTime: 0, totalTime: 0, timeLeft: 0 };
+		this.obstacles = [];
 		this.points = [];
 		this.lines = [];
 	}
@@ -54,5 +64,6 @@ export class GameData {
 		this.pause = newData.pause;
 		this.points = newData.points;
 		this.lines = newData.lines;
+		this.obstacles = newData.obstacles;
 	}
 }
