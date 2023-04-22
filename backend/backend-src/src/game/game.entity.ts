@@ -324,12 +324,6 @@ export class GameEntity {
 		player2.joinGame(this);
 		this.broadcastService.to(this.UID, 'start');
 
-		for (let i = 0; i < 5; i++) {
-			let obstacle = new Obstacle();
-			obstacle.randomize();
-			this.obstacles.push(obstacle);
-		}
-
 		this.updateIntervalId = setInterval(this.update.bind(this), updateInterval);
 	}
 
@@ -408,7 +402,7 @@ export class GameEntity {
 
 		// update obstacles
 		this.obstacles.forEach(o => o.update());
-		if (this.obstacles.length < 5) {
+		if (this.obstacles.length < 4) {
 			let obstacle = new Obstacle();
 			obstacle.randomize();
 			this.obstacles.push(obstacle);

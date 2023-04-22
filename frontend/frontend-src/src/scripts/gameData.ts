@@ -1,8 +1,5 @@
 
-class vec2 {
-	x: number;
-	y: number;
-}
+import { Vec2, Rect } from './utils';
 export class GameData {
 
 	arena: {
@@ -10,22 +7,14 @@ export class GameData {
 		height: number
 	}
 	side: {
-		paddle: {
-			pos: vec2,
-			width: number,
-			height: number,
-		},
+		paddle: Rect,
 		score: number
 	}[]
 	ball: {
 		radius: number,
-		pos: vec2,
+		pos: Vec2,
 	}
-	obstacles: {
-		pos: vec2,
-		width: number,
-		height: number,
-	}[]
+	obstacles: Rect[]
 	pause: {
 		enabled: boolean,
 		reason: string,
@@ -33,15 +22,15 @@ export class GameData {
 		totalTime: number,
 		timeLeft: number,
 	}
-	points: vec2[];
-	lines: { pos1: vec2, pos2: vec2}[];
+	points: Vec2[];
+	lines: { pos1: Vec2, pos2: Vec2}[];
 
 	constructor() {
 		this.arena = { width: 800, height: 500 };
 		this.side = [
 			{
 				paddle: {
-					pos: { x: 0, y: 0 },
+					pos: new Vec2(0, 0),
 					width: 0,
 					height: 0,
 				},
@@ -49,14 +38,14 @@ export class GameData {
 			},
 			{
 				paddle: {
-					pos: { x: 0, y: 0 },
+					pos: new Vec2(0, 0),
 					width: 0,
 					height: 0,
 				},
 				score: 0,
 			},
 		];
-		this.ball = { radius: 30, pos: { x: this.arena.width / 2, y: this.arena.height / 2 } };
+		this.ball = { radius: 0, pos: new Vec2(0, 0) };
 		this.pause = { enabled: false, reason: '', startTime: 0, totalTime: 0, timeLeft: 0 };
 		this.obstacles = [];
 		this.points = [];

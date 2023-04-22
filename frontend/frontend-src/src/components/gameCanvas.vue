@@ -1,5 +1,7 @@
 <script>
 import { GameData } from '../scripts/gameData';
+import { computeShadowPolygone } from '../scripts/magic';
+import { Vec2 } from '../scripts/utils';
 
 export default {
 
@@ -52,29 +54,14 @@ export default {
 				40
 			);
 
-			// paddle
+			this.drawGradient(this.game.ball);
+			this.drawBall(this.game.ball);
+
+			this.drawObstaclesShadow(this.game.obstacles, this.game.ball.pos);
+			this.drawObstacles(this.game.obstacles);
+
 			this.drawPaddle(this.game.side[0].paddle);
 			this.drawPaddle(this.game.side[1].paddle);
-
-			// obstacle
-			console.log(this.game.obstacles);
-			for (let o of this.game.obstacles) {
-				this.canvas.fillStyle = "grey";
-				if (o.enabled)
-					this.canvas.fillStyle = "lightgrey";
-				this.canvas.fillRect(o.pos.x, o.pos.y, o.width, o.height);
-			}
-
-			// ball
-			this.canvas.beginPath();
-			this.canvas.arc(
-				this.game.ball.pos.x,
-				this.game.ball.pos.y,
-				this.game.ball.radius,
-				0, 2 * Math.PI
-			);
-			this.canvas.fillStyle = "yellow";
-			this.canvas.fill();
 
 			// point
 			for (let p of this.game.points) {
@@ -88,14 +75,57 @@ export default {
 			}
 		},
 
-		drawPaddle(paddle) {
-			this.canvas.fillStyle = "lightgrey";
-			this.canvas.fillRect(
-				paddle.pos.x,
-				paddle.pos.y,
-				paddle.width,
-				paddle.height,
+		drawGradient(ball) {
+			const gradient = this.canvas.createRadialGradient(
+				ball.pos.x, ball.pos.y, ball.radius,
+				ball.pos.x, ball.pos.y, 500
 			);
+			gradient.addColorStop(0, "lightgrey");
+			gradient.addColorStop(1, "black");
+			this.canvas.fillStyle = gradient;
+			this.canvas.fillRect(0, 0, this.game.arena.width, this.game.arena.height);
+		},
+
+		drawBall(ball) {
+			this.canvas.beginPath();
+			this.canvas.arc(
+				ball.pos.x,
+				ball.pos.y,
+				ball.radius,
+				0, 2 * Math.PI
+			);
+			this.canvas.fillStyle = "white";
+			this.canvas.fill();
+		},
+
+		drawObstacles(obstacles) {
+			for (let o of obstacles) {
+				this.canvas.fillStyle = "black";
+				this.canvas.fillRect(o.pos.x, o.pos.y, o.width, o.height);
+			}
+		},
+
+		drawObstaclesShadow(obstacles, lightSouce) {
+			const maxDist = 900;
+			this.canvas.fillStyle = "black";
+			for (let o of obstacles) {
+				const shadowPoints = computeShadowPolygone(o, new Vec2(lightSouce.x, lightSouce.y));
+				if (shadowPoints.length == 0) {
+					continue;
+				}
+				this.canvas.beginPath();
+				this.canvas.moveTo(shadowPoints[0].x, shadowPoints[0].y);
+				for (let i = 1; i < shadowPoints.length; i++) {
+					this.canvas.lineTo(shadowPoints[i].x, shadowPoints[i].y);
+				}
+				this.canvas.closePath();
+				this.canvas.fill();
+			}
+		},
+
+		drawPaddle(p) {
+			this.canvas.fillStyle = "white";
+			this.canvas.fillRect(p.pos.x, p.pos.y, p.width, p.height);
 		},
 
 		point(x, y, size, color) {
