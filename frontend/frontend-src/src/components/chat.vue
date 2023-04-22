@@ -119,9 +119,12 @@ export default {
 			<button @click="leaveChannel">Leave Channel</button>
 		</div>
 		<p>Invites:</p>
+		<!-- Ici on affiche tout les channels pour lesquels on est invité -->
+		<!-- en crééant un bouton qui permet de rejoindre le channel concerné -->
 		<div v-for="[channelId, name] in store.channelInvites">
 			<button @click="store.joinChannel({channelName:name, key: ''})">{{ name }}</button>
 		</div>
+		<!-- ici on affiche tout les channels actuellement rejoints -->
 		<p>Joined Channels:</p>
 		<div v-for="[channelId, channel] in store.groupChannels">
 			<button @click="selectChannel(channelId)">{{channel.name}}</button>
@@ -136,17 +139,19 @@ export default {
 
 			<div v-for="message in store.getGroupChannel(this.current_channelId)?.channel.messages">
 				<p>
-					{{ message.author.user.username }} : {{ message.content }}
+					{{ store.getUserName(message.author.userId) }} : {{ message.content }}
 				</p>
 			</div>
 			<div v-for="user in store.getGroupChannel(this.current_channelId)?.channel.users">
 				<!-- <button @click="">ban</button> -->
-				<p>{{ user.user.username }}</p>
+				<p>{{ store.getUserName(user.userId) }}</p>
 				<button @click="store.kick_user(user.userId, this.current_channelId)">kick</button>
 				<button @click="store.ban_user(user.userId, this.current_channelId, true)">ban</button>
 			</div>
 			<div v-if="store.getGroupChannel(this.current_channelId)?.privateChan == true">
 				<input type="text" v-model="userNameInputBuffer">
+
+				<!-- Exemple d'un appel a la fonction Pour Invite un user -->
 				<button @click="store.invite_user(userNameInputBuffer, current_channelId, true)">Invite User</button>
 				<button @click="store.invite_user(userNameInputBuffer, current_channelId, false)">Uninvite User</button>
 			</div>

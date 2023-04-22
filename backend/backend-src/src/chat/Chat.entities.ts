@@ -6,8 +6,13 @@ export interface MessageDTO {
 	id: number,
 	channelId: number,
 	content: string,
-	author: ChatUserDTO,
+	author: SimpleChatUserDTO,
 	postedAt: Date,
+}
+
+export interface userNameChangeDTO {
+	userId: number,
+	newUserName: string,
 }
 
 export interface joinRequestDTO {
@@ -16,7 +21,7 @@ export interface joinRequestDTO {
 }
 
 export interface JoinDTO {
-	user: ChatUserDTO,
+	user: SimpleChatUserDTO,
 	channelId: number
 }
 export interface adminRequestDTO {
@@ -65,7 +70,7 @@ export interface DMRequestDTO {
 
 export interface ChannelDTO {
 	id: number,
-	users: ChatUserDTO[],
+	users: SimpleChatUserDTO[],
 	messages: MessageDTO[]
 }
 
@@ -73,8 +78,9 @@ export interface GroupChannelDTO{
 	channelId: number,
 	channel: ChannelDTO,
 	name: string,
-	admins: ChatUserDTO[],
-	owner: ChatUserDTO,
+	admins: SimpleChatUserDTO[],
+	invited: SimpleChatUserDTO[],
+	owner: SimpleChatUserDTO,
 	privateChan: boolean
 }
 
@@ -84,6 +90,14 @@ export interface GroupChannelSnippetDTO{
 	name: string
 }
 
+//there are two different ChatUserDTOs
+//because i only want to send array of ids to represent
+//members, invites, bans etc
+//and only send once and on every update
+//the full Chat UserDTO since it is going to be a pretty heavy object
+export interface SimpleChatUserDTO {
+	userId: number
+}
 
 export interface ChatUserDTO {
 	userId: number,

@@ -48,22 +48,33 @@ import { ValidationError } from "./Chat.error";
 
 @Catch(WsException, HttpException)
 export class WebsocketExceptionsFilter extends BaseWsExceptionFilter {
-  catch(exception: WsException | HttpException, host: ArgumentsHost) {
-    const client = host.switchToWs().getClient() as Socket;
-    const data = host.switchToWs().getData();
-    const error = exception instanceof WsException ? exception.getError() : exception.getResponse();
-    const details = error instanceof Object ? { ...error } : { message: error };
-	console.log("EMIITING ERROR");
-    client.emit("exception",
-	{
-        id: (client as any).id,
-        rid: data.rid,
-        ...details
-    }
+	catch(exception: WsException | HttpException, host: ArgumentsHost) {
+		const client = host.switchToWs().getClient() as Socket;
+		const data = host.switchToWs().getData();
+		const error = exception instanceof WsException ? exception.getError() : exception.getResponse();
+		const details = error instanceof Object ? { ...error } : { message: error };
+		console.log("EMIITING ERROR");
+		client.emit("exception",
+		{
+			id: (client as any).id,
+			rid: data.rid,
+			...details
+		}
     );
   }}
-
-
+  
+  
+  /**
+   * The Chat Gateway is here to syncronise every connected client to the chat
+   * 
+   * and send requests to the chat service, there is not logic here
+   * only try catch blocks
+   * 
+   * and sending updates to keep everyone syncronised
+   * 
+   * The different events that it can receive and send are documented in chat.events
+   * and the different interfaces/DTOs used are documented in chat.entities
+   */
 @UseFilters(new BaseWsExceptionFilter())
 @Public()
 @WebSocketGateway(
@@ -238,7 +249,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@MessageBody() messageCreate: CreateMessageDto
 		)
 	{
-		let message: any; 
+		let message: MessageDTO; 
 		try {
 			message = await this.chatService.sendMessage(messageCreate);
 		}
@@ -248,7 +259,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			throw new WsException(e.message);
 		}
 
-		this.server.to(message.channel.id.toString()).emit("message", message);
+		this.server.to(message.channelId.toString()).emit("message", message);
 	}
 
 	@SubscribeMessage("invite_request")

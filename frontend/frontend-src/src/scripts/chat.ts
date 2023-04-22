@@ -17,25 +17,35 @@ import {CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/G
 import { ServerToClientEvents, ClientToServerEvents } from '../../../../backend/backend-src/src/chat/Chat.events'
 import { CreateMessageDto } from '../../../../backend/backend-src/src/chat/message.create.dto';
 
-
+/**
+ * 
+ * Different important facts about the Chat client object
+ * 
+ * - in channel are only stored arrays of userIds, if you want info about a user
+ * 		like maybe their username or their profile pic, you have to get them from the store
+ *		using the getUser* functions
+ */
 export class Chat {
-	private _groupChannels: Map<number, GroupChannelDTO>;
-	private _dmChannels: Map<number, ChannelDTO>;
+	private _group_channels: Map<number, GroupChannelDTO>;
+	private _dm_channels: Map<number, ChannelDTO>;
 	private _other_users: Map<number, ChatUserDTO>;
-	private _channelInvites: Map<number, string>; //channel id and channel names
+	private _channel_invites: Map<number, string>; //channel id and channel names
 	private _user: ChatUserDTO;
 	private socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 	private _error: string;
 	// private currentGroupChannelId: number;
 	// private currentDmChannelId: number;
 	
-	get channelInvites() {return this._channelInvites}
-	set channelInvites(arg: Map<number, string>) {this._channelInvites = arg}
+	get channelInvites() {return this._channel_invites}
+	set channelInvites(arg: Map<number, string>) {this._channel_invites = arg}
 
-	get groupChannels() { return this._groupChannels };
-	set groupChannels(arg: Map<number, GroupChannelDTO>) { this._groupChannels = arg}
+	get groupChannels() { return this._group_channels };
+	set groupChannels(arg: Map<number, GroupChannelDTO>) { this._group_channels = arg}
 
-	get dmChannels() { return this._dmChannels };
+	// get otherUsers() {return this._other_users}
+	// set otherUsers(arg: Map<number, ChatUserDTO>) {this._other_users = arg}
+
+	get dmChannels() { return this._dm_channels };
 	// get currentGroupChannel() {
 	// 	return this._groupChannels.get(this.currentGroupChannelId);
 	// }
@@ -46,17 +56,38 @@ export class Chat {
 	get disconnected () { return this.socket.disconnected;}
 	get user () {return this._user;}
 	get error() {return this._error}
+	set error(err: string){this._error = err;}
 
-	getGroupChannel(id: number) {
-		return this._groupChannels.get(id);
+	/**
+	 * 
+	 * @param id the id of the user you want to get the username of
+	 * @returns the username of the user
+	 */
+	getUserName(id: number): string | undefined {
+		return this.getUser(id).user.username;
 	}
 
-	set error(err: string){this._error = err;}
+	// getUser(id: number): Promise<ChatUserDTO> {
+	// 	let user = this._other_users.get(id);
+
+	// 	if (user == undefined)
+	// 	{
+	// 		const prom = this.socket.emitWithAck("get_other_user", id);
+	// 		this._other_users.set(user.userId, user);
+	// 	}
+	// 	return user;
+	// }
+
+	getGroupChannel(id: number) {
+		return this._group_channels.get(id);
+	}
+
 
 	constructor() {
 
 		this.groupChannels = reactive(new Map());
 		this.channelInvites = reactive (new Map());
+		this._other_users = reactive(new Map());
 		// this.dmChannels = new Map();
 		this._error = '';
 
@@ -71,7 +102,7 @@ export class Chat {
 		};
 		this.socket.connect();
 
-		this.socket.emit("get_user", (user: ChatUserDTO) => {
+		const user = this.socket.emit("get_my_user", (user: ChatUserDTO) => {
 			this._user = user;
 			console.log(user);
 			user.invites?.forEach(invite => {
@@ -86,10 +117,10 @@ export class Chat {
 		// 	})
 		// });
 
-		this._groupChannels.clear();
+		this._group_channels.clear();
 		this.socket.emit("get_groupchannels", (channels: GroupChannelDTO[]) => {
 			channels.forEach(channel => {
-				this._groupChannels.set(channel.channelId, channel);
+				this._group_channels.set(channel.channelId, channel);
 			});
 		});
 	}
@@ -113,13 +144,13 @@ export class Chat {
 		});
 		
 		this.socket.on('user_joined_room', (payload: JoinDTO) => {
-			this._groupChannels.get(payload.channelId)?.channel.users.push(payload.user);
+			this._group_channels.get(payload.channelId)?.channel.users.push(payload.user);
 		});
 		
 		this.socket.on('user_left_room', (payload: JoinDTO) => {
-			const index = this._groupChannels.get(payload.channelId)?.channel.users.indexOf(payload.user);
+			const index = this._group_channels.get(payload.channelId)?.channel.users.indexOf(payload.user);
 			if (index !== undefined)
-			this._groupChannels.get(payload.channelId)?.channel.users.splice(index, 1);
+			this._group_channels.get(payload.channelId)?.channel.users.splice(index, 1);
 		});
 
 		this.socket.on("user_kicked", (payload: basicChanRequestDTO) => {
@@ -142,10 +173,19 @@ export class Chat {
 		});
 
 		this.socket.on("invite_update", (payload: inviteUpdateDTO) => {
-			if (payload.action == true){
-				this.channelInvites.set(payload.channelId, payload.channelName);
-			} else {
-				this.channelInvites.delete(payload.channelId);
+			if (payload.targetUserId == this.user.userId)
+			{
+				if (payload.action == true){
+					this.channelInvites.set(payload.channelId, payload.channelName);
+				} else {
+					this.channelInvites.delete(payload.channelId);
+				}
+			}
+			else
+			{
+				if (payload.action == true ) {
+					this._group_channels.get(payload.channelId)?.invited.push()
+				}
 			}
 		});
 
@@ -163,13 +203,13 @@ export class Chat {
 	leaveChannel(channelId: number) {
 		console.log("leave channel called in front");
 		this.socket.emit("leave_channel", channelId);
-		this._groupChannels.delete(channelId);
+		this._group_channels.delete(channelId);
 	}
 	
 	createChannel(channel: CreateGroupChannelDto)
 	{
 		this.socket.emit("create_channel", channel, (channel: GroupChannelDTO) => {
-			this._groupChannels.set(channel.channelId, channel);
+			this._group_channels.set(channel.channelId, channel);
 		});
 	}
 	
@@ -177,7 +217,7 @@ export class Chat {
 	{
 		this.socket.emit("join_channel", request, (channel: GroupChannelDTO) => {
 			this.channelInvites.delete(channel.channelId);
-			this._groupChannels.set(channel.channelId, channel);
+			this._group_channels.set(channel.channelId, channel);
 		})
 	}
 	
@@ -186,41 +226,40 @@ export class Chat {
 		this.socket.emit("send_message", message);
 	}
 	
-	set_user_admin(request: basicChanRequestDTO)
-	{
-		const {authorUserId, targetUserId, channelId} = request;
-		this.socket.emit('admin_request', 
-		{
-			authorUserId,
-			targetUserId,
-			channelId,
-			action: true
-		});
-	}
-
-	unset_user_admin(request: basicChanRequestDTO)
-	{
-		const {authorUserId, targetUserId, channelId} = request;
-		this.socket.emit('admin_request', 
-		{
-			authorUserId,
-			targetUserId,
-			channelId,
-			action: false
-		});
-	}
 	
 	mute_user(request: MuteDTO)
 	{
 		this.socket.emit('mute_request', request);
 	}
-
+	
+	/**
+	 * 
+	 * @param targetUserId id of the user you want to kick
+	 * @param channelId id of the channel you want to kick him from
+	 */
 	kick_user(targetUserId: number, channelId: number)
 	{
 		this.socket.emit("kick_request", {
 			targetUserId,
 			channelId,
 			authorUserId: this.user.userId
+		});
+	}
+
+	/**
+	 * 
+	 * @param targetUserId Is of the user you want to set/unset as admin
+	 * @param channelId id of the concerned channel
+	 * @param action true to set as admin, false to unset
+	 */
+	user_admin(targetUserId: number, channelId: number, action: boolean)
+	{
+		this.socket.emit('admin_request', 
+		{
+			authorUserId:this.user.userId,
+			targetUserId,
+			channelId,
+			action,
 		});
 	}
 
@@ -258,7 +297,7 @@ export class Chat {
 
 	private delete_user_from_chan(userId: number, channelId: number)
 	{
-		let channel = this._groupChannels.get(channelId);
+		let channel = this._group_channels.get(channelId);
 		if (channel != undefined)
 		{
 		for (let i = 0; i < channel.channel.users.length; i++)

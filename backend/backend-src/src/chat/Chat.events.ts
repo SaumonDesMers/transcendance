@@ -79,7 +79,9 @@ export interface ClientToServerEvents {
 	 * event for the client to request its
 	 * corresponding user object
 	 */
-	get_user: (callback: (user: ChatUserDTO) => void) => void;
+	get_my_user: (callback: (user: ChatUserDTO) => void) => void;
+
+	get_other_user: (userId: number, callback: (user: ChatUserDTO) => void) => void;
 
 	get_groupchannels: (callback: (channels: GroupChannelDTO[]) => void) => void;
 

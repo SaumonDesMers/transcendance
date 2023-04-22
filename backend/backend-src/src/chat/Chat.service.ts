@@ -56,6 +56,17 @@ const includeMembersAndLast10Messages = Prisma.validator<Prisma.ChannelArgs>()({
 // 	}
 // })
 
+/**
+ * The Chat Service is here to interface with the DB,
+ * Fetch some data and modify it
+ * 
+ * It handles all the permissions logic and can throw a validationError exception
+ * 
+ * Every communications are handled in the gateway
+ * 
+ * PS:Calls to anything.repository are the same as prisma calls it's juste one more layer
+ */
+
 @Injectable()
 export class ChatService {
 	constructor(private channelRepository: ChannelRepository,
@@ -167,7 +178,9 @@ export class ChatService {
 		// - assign creation date to current date
 		//
 		// includes the channel and author object in the returned object
-		const message = await this.messageRepository.createMessage({
+		const message = await this.prisma.message.create({
+			data:
+			{
 			content: newMessage.content,
 			channel: {
 				connect: {id: newMessage.ChannelId}},
@@ -175,12 +188,11 @@ export class ChatService {
 				connect: {userId: newMessage.authorId}},
 			postedAt: new Date
 			},
-			{channel: true, author: {
-				include: {
-					user: true
-				}
-			}},
-		);
+			include: {
+				channel: true,
+				author: true
+			},
+		});
 
 		return message;
 	}
@@ -200,8 +212,7 @@ export class ChatService {
 		)
 	}
 
-	async joinGroupChannel(channelId: number, userId: number, key? :string) {
-
+	async joinGroupChannel(channelId: number, userId: number, key? :string): Promise<GroupChannelDTO> {
 
 		//might do checks that the user isnt banned
 		const channel = await this.prisma.groupChannel.findUniqueOrThrow({
@@ -257,7 +268,8 @@ export class ChatService {
 			include: {
 				channel: includeMembersAndLast10Messages,
 				admins: {include: {user: true}},
-				owner: {include: {user:true }}
+				owner: {include: {user:true }},
+				invited: {include: {user:true}}
 			}
 		});
 
@@ -431,7 +443,8 @@ export class ChatService {
 			include:{
 				channel: includeMembersAndLast10Messages,
 				admins: {include: {user: true}},
-				owner: {include: {user:true }}
+				owner: {include: {user:true }},
+				invited: {include: {user:true}}
 			}
 		});
 
@@ -713,9 +726,9 @@ export class ChatService {
 
 		if (request.action == true) //if we want to invite someone
 			{
-			if (channel.channel.users.find(user => 
-				{return user.userId == targetUserId}) != undefined)
-				throw new ValidationError("User is already on channel");
+			// if (channel.channel.users.find(user => 
+			// 	{return user.userId == targetUserId}) != undefined)
+			// 	throw new ValidationError("User is already on channel");
 			
 			if (channel.privateChan == true && !this.isAdmin(request.authorUserId, channel))
 				throw new ValidationError("You need to be admin to invite in private chan")
