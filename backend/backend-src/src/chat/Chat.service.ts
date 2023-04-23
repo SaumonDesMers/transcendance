@@ -359,15 +359,25 @@ export class ChatService {
 		return channel;
 	}
 
-	async getChatUser(userId: number)
-	{
+	async getChatUserWithInvite(userId: number) {
+		const user = await this.prisma.chatUser.findUniqueOrThrow({
+			where: {userId},
+			include: {
+				user: true
+			}
+		});
+
+		return user;
+	}
+
+	async getChatUser(userId: number) {
 
 		
 		const user = await this.prisma.chatUser.findUniqueOrThrow({
 			where: {userId},
 			include: {
 				user: true,
-				invites: true
+				// invites: true
 			}
 		});
 

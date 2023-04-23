@@ -109,6 +109,14 @@ export interface ChatUserDTO {
 	invites?: GroupChannelSnippetDTO[];
 }
 
+export interface ChatUserUpdateDTO {
+	userId: number,
+	user: {
+		id: number,
+		username :string
+	}
+}
+
 export interface MuteDTO {
 	authorUserId: number,
 	targetUserId: number,

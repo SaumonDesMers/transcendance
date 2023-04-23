@@ -36,7 +36,7 @@ import { Server, Socket } from 'socket.io';
 import { CreateMessageDto } from "./message.create.dto";
 import { ChatService } from "./Chat.service";
 import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
-import { Channel, ChatUser, GroupChannel } from "@prisma/client";
+import { Channel, ChatUser, GroupChannel, User } from "@prisma/client";
 import { Public } from "src/auth/public.decorator";
 import { AuthService } from "src/auth/auth.service";
 import { ParseIntPipe, UseFilters } from "@nestjs/common";
@@ -45,6 +45,7 @@ import { ArgumentsHost, Catch, HttpException } from "@nestjs/common";
 import { IsNumber, validateOrReject } from "class-validator";
 import { chatSocket, chatServer } from "./Chat.module";
 import { ValidationError } from "./Chat.error";
+import { UpdateUserDto } from "src/user/User.update-dto";
 
 @Catch(WsException, HttpException)
 export class WebsocketExceptionsFilter extends BaseWsExceptionFilter {
@@ -230,10 +231,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		return "coucou";
 	}
 
-	@SubscribeMessage('get_user')
+	@SubscribeMessage("get_my_user")
 	async handleGetUser(@ConnectedSocket() socket: chatSocket)
 	{
-		return this.chatService.getChatUser(socket.data.userId);
+		return this.chatService.getChatUserWithInvite(socket.data.userId);
+	}
+
+	@SubscribeMessage("get_other_user")
+	async handleGetOtherUser(@ConnectedSocket() socket: chatSocket,
+		@MessageBody() id: number)
+	{
+		console.log(id);
+		return this.chatService.getChatUser(id);
 	}
 
 	@SubscribeMessage("get_groupchannels")
@@ -410,5 +419,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			this.server.to(targetSocket.id).emit("dm_starting", channel);
 
 		return (channel.channel);
+	}
+
+	updateUser(userId: number, update: User)
+	{
+		this.server.emit("user_update", {userId:userId, user:update});
 	}
 }

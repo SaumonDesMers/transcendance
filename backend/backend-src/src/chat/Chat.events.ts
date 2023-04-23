@@ -11,6 +11,7 @@ import { MessageDTO,
 	basicChanRequestDTO,
 	inviteUpdateDTO,
 	InviteRequestDTO,
+	ChatUserUpdateDTO,
  } from './Chat.entities'
 import { CreateMessageDto } from './message.create.dto'
 import { CreateGroupChannelDto } from './GroupChannel.create.dto';
@@ -50,10 +51,14 @@ export interface ServerToClientEvents {
 
 	/*
 	* DIRECT EVENTS
+	*
+	* those are sent directly to a client from the server
 	*/
 	dm_starting: (payload: ChannelDTO) => void;
 
 	exception: (payload: any) => void;
+
+	user_update(payload: ChatUserUpdateDTO) => void;
 }
 
 export interface ClientToServerEvents {

@@ -11,11 +11,14 @@ import {
 	joinRequestDTO,
 	basicChanRequestDTO,
 	ChanRequestDTO,
-	inviteUpdateDTO
+	inviteUpdateDTO,
+	ChatUserUpdateDTO
 } from '../../../../backend/backend-src/src/chat/Chat.entities'
 import {CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto'
 import { ServerToClientEvents, ClientToServerEvents } from '../../../../backend/backend-src/src/chat/Chat.events'
 import { CreateMessageDto } from '../../../../backend/backend-src/src/chat/message.create.dto';
+import { profileEnd } from 'console'
+import { networkInterfaces } from 'os'
 
 /**
  * 
@@ -28,7 +31,7 @@ import { CreateMessageDto } from '../../../../backend/backend-src/src/chat/messa
 export class Chat {
 	private _group_channels: Map<number, GroupChannelDTO>;
 	private _dm_channels: Map<number, ChannelDTO>;
-	private _other_users: Map<number, ChatUserDTO>;
+	private _other_users: Map<number, {status: boolean, data: ChatUserDTO | undefined}>;
 	private _channel_invites: Map<number, string>; //channel id and channel names
 	private _user: ChatUserDTO;
 	private socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -63,20 +66,29 @@ export class Chat {
 	 * @param id the id of the user you want to get the username of
 	 * @returns the username of the user
 	 */
-	getUserName(id: number): string | undefined {
-		return this.getUser(id).user.username;
+	getUserName(id: number): string {
+		const ret = this.getUser(id)?.user.username;
+
+		if (ret == undefined)
+			return "loading...";
+		return ret;
 	}
 
-	// getUser(id: number): Promise<ChatUserDTO> {
-	// 	let user = this._other_users.get(id);
+	getUser(id: number): ChatUserDTO | undefined{
+		let obj = this._other_users.get(id);
 
-	// 	if (user == undefined)
-	// 	{
-	// 		const prom = this.socket.emitWithAck("get_other_user", id);
-	// 		this._other_users.set(user.userId, user);
-	// 	}
-	// 	return user;
-	// }
+		if (obj == undefined)
+		{
+			console.log(id);
+			obj = {status: false, data: undefined};
+			this._other_users.set(id, obj);
+			this.socket.emitWithAck("get_other_user", id).then(user => {
+				this._other_users.set(user.userId, {status: true, data: user});
+			})
+		}
+
+		return obj.data;
+	}
 
 	getGroupChannel(id: number) {
 		return this._group_channels.get(id);
@@ -87,13 +99,12 @@ export class Chat {
 
 		this.groupChannels = reactive(new Map());
 		this.channelInvites = reactive (new Map());
-		this._other_users = reactive(new Map());
+		this._other_users = new Map();
 		// this.dmChannels = new Map();
 		this._error = '';
 
 		this.initSocket();
 
-		
 	}
 
 	connectToServer() {
@@ -102,7 +113,7 @@ export class Chat {
 		};
 		this.socket.connect();
 
-		const user = this.socket.emit("get_my_user", (user: ChatUserDTO) => {
+		this.socket.emit("get_my_user", (user: ChatUserDTO) => {
 			this._user = user;
 			console.log(user);
 			user.invites?.forEach(invite => {
@@ -189,6 +200,8 @@ export class Chat {
 			}
 		});
 
+
+
 		this.socket.on('exception', (payload: {
 			status: string,
 			message: string
@@ -197,6 +210,13 @@ export class Chat {
 			this._error = '';
 			this._error = payload.message;
 		});
+
+		this.socket.on("user_update", (payload: ChatUserDTO) => {
+			if (this._other_users.has(payload.userId))
+			{
+				this._other_users.set(payload.userId, {status: true, data: payload});
+			}
+		})
 
 	}
 	

@@ -3,6 +3,7 @@ import { Prisma, PrismaClient, User } from "@prisma/client";
 import { UserRepository } from "./User.repository";
 import { CreateUserDto } from "./User.create-dto";
 import { UpdateUserDto } from "./User.update-dto";
+import { ChatService } from "src/chat/Chat.service";
 import { UserWithoutSecret } from "./User.module";
 
 function exclude<User, Key extends keyof User>(
@@ -18,7 +19,9 @@ function exclude<User, Key extends keyof User>(
 
 @Injectable()
 export class UserService {
-	constructor(private repository: UserRepository) {}
+	constructor(
+		private repository: UserRepository,
+		private chatService: ChatService) {}
 
 	async createUser(createDto: CreateUserDto, id: number): Promise<UserWithoutSecret> {
 		let params;

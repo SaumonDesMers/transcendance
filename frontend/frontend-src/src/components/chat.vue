@@ -32,6 +32,10 @@ export default {
 	},
 	computed: {
 	},
+	renderTriggered(event) {
+		console.log(event);
+   		// debugger
+  	},
 	methods: {
 		print() {
 			console.log(store);
