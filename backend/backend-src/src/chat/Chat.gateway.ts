@@ -39,13 +39,14 @@ import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { Channel, ChatUser, GroupChannel, User } from "@prisma/client";
 import { Public } from "src/auth/public.decorator";
 import { AuthService } from "src/auth/auth.service";
-import { ParseIntPipe, UseFilters } from "@nestjs/common";
+import { Inject, Injectable, ParseIntPipe, UseFilters, forwardRef } from "@nestjs/common";
 
 import { ArgumentsHost, Catch, HttpException } from "@nestjs/common";
 import { IsNumber, validateOrReject } from "class-validator";
 import { chatSocket, chatServer } from "./Chat.module";
 import { ValidationError } from "./Chat.error";
 import { UpdateUserDto } from "src/user/User.update-dto";
+import { UserWithoutSecret } from "src/user/User.module";
 
 @Catch(WsException, HttpException)
 export class WebsocketExceptionsFilter extends BaseWsExceptionFilter {
@@ -420,7 +421,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		return (channel.channel);
 	}
 
-	updateUser(userId: number, update: User)
+	updateUser(userId: number, update: UserWithoutSecret)
 	{
 		this.server.emit("user_update", {userId:userId, user:update});
 	}

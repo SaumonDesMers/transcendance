@@ -18,8 +18,7 @@ function exclude<User, Key extends keyof User>(
 
 @Injectable()
 export class UserService {
-	constructor(
-		private repository: UserRepository) {}
+	constructor(private repository: UserRepository) {}
 
 	async createUser(createDto: CreateUserDto, id: number): Promise<UserWithoutSecret> {
 		let params;
@@ -65,7 +64,9 @@ export class UserService {
 			data: data,
 		});
 
-		return exclude(user, ['twoFactorAuthenticationSecret']);
+		const userBis = exclude(user, ['twoFactorAuthenticationSecret']);
+
+		return userBis;
 	}
 
 	async removeUser(id : User['id']): Promise<UserWithoutSecret> 
