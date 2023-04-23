@@ -58,7 +58,7 @@ export interface ServerToClientEvents {
 
 	exception: (payload: any) => void;
 
-	user_update(payload: ChatUserUpdateDTO) => void;
+	user_update: (payload: ChatUserUpdateDTO) => void;
 }
 
 export interface ClientToServerEvents {

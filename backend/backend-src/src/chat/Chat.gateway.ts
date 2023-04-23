@@ -77,7 +77,6 @@ export class WebsocketExceptionsFilter extends BaseWsExceptionFilter {
    * and the different interfaces/DTOs used are documented in chat.entities
    */
 @UseFilters(new BaseWsExceptionFilter())
-@Public()
 @WebSocketGateway(
 	{namespace: "chat"}
 )
