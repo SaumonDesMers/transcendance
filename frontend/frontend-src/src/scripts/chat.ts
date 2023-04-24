@@ -113,12 +113,24 @@ export class Chat {
 	// get error() {return this._error}
 	// set error(err: string){this._error = err;}
 
+	/**
+	 * Getter for a specific joined channel
+	 * @date 4/24/2023 - 5:36:26 PM
+	 *
+	 * @param {number} channelId
+	 * @returns {(GroupChannelDTO | undefined)} The corresponding group channel
+	 * or `undefined` if not such channel exists
+	 */
+	getGroupChannel(channelId: number): GroupChannelDTO | undefined
+	{
+		return this._group_channels.get(channelId);
+	}
 	
 	constructor() {
 		this._group_channels = reactive(new Map());
 		this._channel_invites = reactive (new Map());
-		this._other_users = new Map();
-		this._public_channels = new Map();
+		this._other_users = reactive(new Map());
+		this._public_channels = reactive(new Map());
 		// this.dmChannels = new Map();
 		this.error = ref<string>("");
 		

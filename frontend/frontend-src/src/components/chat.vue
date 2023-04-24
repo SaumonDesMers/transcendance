@@ -32,6 +32,9 @@ export default {
 		}
 	},
 	computed: {
+		currentChannel() {
+			return this.store.getGroupChannel(this.current_channelId);
+		}
 	},
 	renderTriggered(event) {
 		console.log(event);
@@ -148,12 +151,12 @@ export default {
 
 		<div v-if="this.current_channelId != null">
 
-			<div v-for="message in store.getGroupChannel(this.current_channelId)?.channel.messages">
+			<div v-for="message in this.currentChannel?.channel.messages">
 				<p>
 					{{ store.getUserName(message.author.userId) }} : {{ message.content }}
 				</p>
 			</div>
-			<div v-for="user in store.getGroupChannel(this.current_channelId)?.channel.users">
+			<div v-for="user in this.currentChannel?.channel.users">
 				<!-- <button @click="">ban</button> -->
 				<p>{{ store.getUserName(user.userId) }}</p>
 				<button @click="store.kick_user(user.userId, this.current_channelId)">kick</button>
@@ -161,7 +164,7 @@ export default {
 			</div>
 
 			<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PRIVÉ -->
-			<div v-if="store.getGroupChannel(this.current_channelId)?.type == 'PRIV'">
+			<div v-if="this.currentChannel?.type == 'PRIV'">
 				<input type="text" v-model="userNameInputBuffer">
 
 				<!-- Exemple d'un appel a la fonction Pour invite et uninvite un user -->
@@ -170,11 +173,21 @@ export default {
 			</div>
 
 			<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PROTEGE PAR CLÉ -->
-			<div v-if="store.getGroupChannel(this.current_channelId)?.type == 'KEY'">
+			<div v-if="this.currentChannel?.type == 'KEY'">
 				<input type="text" v-model="setKeyInputBuffer">
 
 				<button @click="store.setChanKey(current_channelId, setKeyInputBuffer)">Set Chan Key</button>
 			</div>
+
+			<!-- un exemple d'un ensemble de boutons pour changer le type du channel actuellement selectionné -->
+
+			<button @click="store.setChanType(current_channelId, 'PUBLIC')">Set Channel Public</button>
+			<button @click="store.setChanType(current_channelId, 'PRIV')">Set Channel Private</button>
+
+			<!-- ça c'est à l'arrache faut pas faire ça ( j'ai la même var d'input que le champ du dessus) -->
+			<input type="text" v-model="setKeyInputBuffer">
+
+			<button @click="store.setChanType(current_channelId, 'KEY', setKeyInputBuffer)">Set Channel KeyProtected</button>
 		</div>
 	</div>
 
