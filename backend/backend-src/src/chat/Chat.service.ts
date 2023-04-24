@@ -8,7 +8,7 @@ import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { CreateDMChannelDto } from "./DMChannel.create.dto";
 import { PrismaModule } from "src/database/prisma.module";
 import { PrismaService } from "src/database/prisma.service";
-import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO, ChanRequestDTO, basicChanRequestDTO, InviteRequestDTO, inviteUpdateDTO, ChanTypeRequestDTO, GroupChannelSnippetDTO } from "./Chat.entities";
+import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO, ChanRequestDTO, basicChanRequestDTO, InviteRequestDTO, inviteUpdateDTO, ChanTypeRequestDTO, GroupChannelSnippetDTO, ChanKeyRequestDTO } from "./Chat.entities";
 import { WsException } from "@nestjs/websockets";
 import { error } from "console";
 import { ValidationError } from "./Chat.error";
@@ -363,7 +363,8 @@ export class ChatService {
 		const user = await this.prisma.chatUser.findUniqueOrThrow({
 			where: {userId},
 			include: {
-				user: true
+				user: true,
+				invites: true
 			}
 		});
 
@@ -681,7 +682,7 @@ export class ChatService {
 			}
 		});
 
-		if (!this.isAdmin(request.authorUserId, channel) != true)
+		if (this.isAdmin(request.authorUserId, channel) != true)
 			throw new ValidationError("You are not admin");
 
 		await this.prisma.groupChannel.update({
@@ -693,6 +694,28 @@ export class ChatService {
 		});
 
 		return channel;
+	}
+
+	async changeChanKey(request: ChanKeyRequestDTO)
+	{
+		const channel = await this.prisma.groupChannel.findUnique({
+			where: {channelId:request.channelId},
+			include: {
+				admins: true
+			}
+		});
+
+		if (this.isAdmin(request.authorUserId, channel) != true)
+			throw new ValidationError("You are not admin");
+		if (channel.type != 'KEY')
+			throw new ValidationError("Cannot put key on this channel, change channel type");
+		
+		await this.prisma.groupChannel.update({
+			where: {channelId:request.channelId},
+			data: {
+				key:request.key
+			}
+		});
 	}
 
 	async kickUser(request: basicChanRequestDTO) {

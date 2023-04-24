@@ -25,7 +25,8 @@ export default {
 			messageInputBuffer: '',
 			current_channelId: -1 as number,
 			channelInputBuffer: '',
-			keyInputBuffer: null,
+			keyInputBuffer: '',
+			setKeyInputBuffer: '',
 			userNameInputBuffer: '',
 			store,
 		}
@@ -61,10 +62,10 @@ export default {
 		},
 
 		async createChannel() {
-			const channel = {
+			const channel: CreateGroupChannelDto = {
 				ownerId: store.user.userId,
 				name: this.channelInputBuffer,
-				type: "PUBLIC",
+				type: 'PUBLIC',
 				usersId: [],
 				key: this.keyInputBuffer
 			}
@@ -128,6 +129,12 @@ export default {
 		<div v-for="[channelId, name] in store.channelInvites">
 			<button @click="store.joinChannel({channelName:name, key: ''})">{{ name }}</button>
 		</div>
+		<!-- Ici on affiche tout les channels publics que l'ont peu rejoindre en cliquant -->
+		<p>Public Channels:</p>
+		<div v-for="[channelId, channel] in store.publicChannels">
+			<button @click="store.joinChannel({channelName:channel.name, key: ''})">{{ channel.name }}</button>
+		</div>
+
 		<!-- ici on affiche tout les channels actuellement rejoints -->
 		<p>Joined Channels:</p>
 		<div v-for="[channelId, channel] in store.groupChannels">
@@ -152,12 +159,21 @@ export default {
 				<button @click="store.kick_user(user.userId, this.current_channelId)">kick</button>
 				<button @click="store.ban_user(user.userId, this.current_channelId, true)">ban</button>
 			</div>
+
+			<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PRIVÉ -->
 			<div v-if="store.getGroupChannel(this.current_channelId)?.type == 'PRIV'">
 				<input type="text" v-model="userNameInputBuffer">
 
 				<!-- Exemple d'un appel a la fonction Pour invite et uninvite un user -->
 				<button @click="store.invite_user(userNameInputBuffer, current_channelId, true)">Invite User</button>
 				<button @click="store.invite_user(userNameInputBuffer, current_channelId, false)">Uninvite User</button>
+			</div>
+
+			<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PROTEGE PAR CLÉ -->
+			<div v-if="store.getGroupChannel(this.current_channelId)?.type == 'KEY'">
+				<input type="text" v-model="setKeyInputBuffer">
+
+				<button @click="store.setChanKey(current_channelId, setKeyInputBuffer)">Set Chan Key</button>
 			</div>
 		</div>
 	</div>

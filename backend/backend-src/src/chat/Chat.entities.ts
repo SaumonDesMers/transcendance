@@ -1,6 +1,4 @@
 import { ChanType } from "@prisma/client"
-import { Channel } from "diagnostics_channel"
-
 
 
 export interface MessageDTO {
@@ -18,7 +16,7 @@ export interface userNameChangeDTO {
 
 export interface joinRequestDTO {
 	channelName: string,
-	key: string
+	key?: string
 }
 
 export interface JoinDTO {
@@ -62,6 +60,12 @@ export interface ChanTypeRequestDTO {
 	channelId: number,
 	type: ChanType,
 	key?: string
+}
+
+export interface ChanKeyRequestDTO {
+	authorUserId: number,
+	channelId: number,
+	key: string
 }
 
 export interface NewChannelOwnerDTO {

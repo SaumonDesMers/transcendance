@@ -30,6 +30,7 @@ import {
 	basicChanRequestDTO,
 	InviteRequestDTO,
 	inviteUpdateDTO,
+	ChanKeyRequestDTO,
 } from './Chat.entities'
 
 import { Server, Socket } from 'socket.io';
@@ -237,6 +238,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		return this.chatService.getChatUserWithInvite(socket.data.userId);
 	}
 
+	@SubscribeMessage("chan_key_request")
+	async handleChanKey(@ConnectedSocket() socket: chatSocket,
+		@MessageBody() request: ChanKeyRequestDTO)
+	{
+		try {
+			this.chatService.changeChanKey(request);
+		} catch (e: any) {
+			throw new WsException(e.message);
+		}
+	}
+
 	@SubscribeMessage("get_other_user")
 	async handleGetOtherUser(@ConnectedSocket() socket: chatSocket,
 		@MessageBody() id: number)
@@ -256,6 +268,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	async handleGetPublicChannels(
 		@ConnectedSocket() socket: chatSocket)
 	{
+		console.log("Received public chan request from: %d", socket.id);
 		return this.chatService.getPublicChannels();
 	}
 

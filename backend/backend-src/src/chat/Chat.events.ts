@@ -16,6 +16,7 @@ import { MessageDTO,
 	GroupChannelSnippetDTO,
 	SimpleChatUserDTO,
 	NewChannelOwnerDTO,
+	ChanKeyRequestDTO,
  } from './Chat.entities'
 import { CreateMessageDto } from './message.create.dto'
 import { CreateGroupChannelDto } from './GroupChannel.create.dto';
@@ -175,6 +176,9 @@ export interface ClientToServerEvents {
 	 * Request to change Type of a channel ( private, public, key)
 	 */
 	chan_type_request: (request: ChanTypeRequestDTO) => void;
+
+
+	chan_key_request: (request: ChanKeyRequestDTO) => void;
 	
 	/**
 	 * Request to kick user from channel
