@@ -35,7 +35,7 @@ export class Chat {
 	private _channel_invites: Map<number, string>; //channel id and channel names
 	private _user: ChatUserDTO;
 	private socket: Socket<ServerToClientEvents, ClientToServerEvents>;
-	private _error: string;
+	public _error: Ref<string>;
 	// private currentGroupChannelId: number;
 	// private currentDmChannelId: number;
 	
@@ -59,7 +59,7 @@ export class Chat {
 	get disconnected () { return this.socket.disconnected;}
 	get user () {return this._user;}
 	get error() {return this._error}
-	set error(err: string){this._error = err;}
+	// set error(err: string){this._error = err;}
 
 	/**
 	 * 
@@ -101,7 +101,7 @@ export class Chat {
 		this.channelInvites = reactive (new Map());
 		this._other_users = new Map();
 		// this.dmChannels = new Map();
-		this._error = '';
+		this._error = ref<string>("");
 
 		this.initSocket();
 
@@ -207,8 +207,8 @@ export class Chat {
 			message: string
 		}) => {
 			console.log(payload);
-			this._error = '';
-			this._error = payload.message;
+			// this.error = '';
+			this.error.value = payload.message;
 		});
 
 		this.socket.on("user_update", (payload: ChatUserDTO) => {
@@ -313,6 +313,11 @@ export class Chat {
 			channelId,
 			action,
 		});
+	}
+
+	clear_error()
+	{
+		this.error = '';
 	}
 
 	private delete_user_from_chan(userId: number, channelId: number)

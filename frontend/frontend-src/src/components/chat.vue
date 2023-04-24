@@ -163,7 +163,7 @@ export default {
 	</div>
 	<div v-if="store.error != ''">
 		{{ store.error }}
-		<button @click="store.error = ''">clear Error</button>
+		<button @click="store.clear_error()">clear Error</button>
 	</div>
 	</div>
 	<!-- <button @click="print()">click me</button> -->
