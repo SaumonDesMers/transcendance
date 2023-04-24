@@ -62,8 +62,5 @@ export default {
 	</div>
 </template>
 
-<style scoped>
-.error {
-	color: red;
-}
+<style lang="scss" scoped src="../styles/profil.scss">
 </style>

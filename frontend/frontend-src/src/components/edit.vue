@@ -75,7 +75,7 @@ export default {
 				<div class="grid">
 					<div class="form-group">
 						<label>LOGIN</label>
-						<input v-model='editName' type="text" @click="username = ''" />
+						<input class="input" v-model='editName' type="text" @click="username = ''" />
 					</div>
 					<div class="form-group">
 						<label>BIO</label>
@@ -125,15 +125,15 @@ export default {
 					</div>
 				</div>
 
-				<div class="buttons">
+				<div class="edit-buttons">
 					<div class="button-container">
 						<toggle2fa @switchPage="switchPage"></toggle2fa>
 					</div>
 					<div class="button-container">
-						<button class="button" @click="saveModifications()">Enregister les modifications</button>
+						<button class="edit-button" @click="saveModifications()">Enregister les modifications</button>
 					</div>
 					<div class="button-container">
-						<button class="button" @click="switchPage(State.USER)">Cancel</button>
+						<button class="edit-button" @click="switchPage(State.USER)">Cancel</button>
 					</div>
 				</div>
 			</div>
@@ -141,170 +141,5 @@ export default {
 	</div>
 </template>
 
-<style lang="scss">
-@import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
-
-.edit-container {
-	align-content: center;
-	width: 75%;
-	margin-left: 12.5%;
-}
-
-.nocolor-btn {
-	background-color: rgba(165, 165, 165, 0.1);
-	border: 1px solid #d2d6db;
-	border-radius: 6px;
-
-	&:before {
-		display: none;
-	}
-
-	&:hover,
-	&:active {
-		fill: #a8afb9;
-	}
-}
-
-.edit-profile {
-	display: flex;
-	top: 0;
-	justify-content: center;
-	align-items: center;
-	width: 100%;
-	margin: 0;
-	height: 10%;
-	font-size: 3vw;
-	$border: 5px;
-	color: #FFF;
-	background-clip: padding-box;
-	border-bottom: 2px solid;
-	border-image: linear-gradient(0.25turn, rgb(66, 66, 66, 0), rgb(158, 158, 158, 10), rgb(255, 255, 255), rgb(158, 158, 158, 10), rgb(66, 66, 66, 0));
-	border-image-slice: 1;
-}
-
-.form-group {
-	margin: 0 0 0 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-}
-
-.textarea-group label,
-.form-group label {
-	color: #ffffff;
-	font-size: 2vw;
-	line-height: 19px;
-	margin-bottom: 3vh;
-	text-align: center;
-
-	&:hover,
-	&:active {
-		text-shadow:
-			0 0 5px #fff,
-			0 0 10px #777777,
-			0 0 15px #000000,
-	}
-}
-
-.form-group [type]
-{
-	border: 1px solid #d2d6db;
-	border-radius: 6px;
-	padding: 15px;
-	color: white;
-	background-color: rgba(165, 165, 165, 0.1);
-}
-
-.form-group [type]:hover,
-.nocolor-btn:hover {
-	border-color: #a8afb9;
-}
-
-.buttons {
-	display: flex;
-}
-
-.button {
-	line-height: 19px;
-	background: rgba(143, 143, 143, 0.5);
-	border: none;
-	padding: 15px 25px;
-	border-radius: 6px;
-	color: white;
-	margin-top: 24px;
-}
-
-.button:hover {
-	background: rgba(255, 255, 255, 0.5);
-}
-
-.button:focus {
-	background: rgba(255, 255, 255, 0.5);
-}
-
-.bio {
-	height: 200px;
-}
-
-@media screen and (min-width: 768px) {
-	body {
-		align-items: center;
-		justify-content: center;
-	}
-
-	.container {
-		margin: 2rem;
-		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
-		border-radius: 4px;
-		max-width: 32rem;
-		padding: 2rem;
-	}
-}
-
-@media screen and (min-width: 1024px) {
-	.container {
-		max-width: 80%;
-		width: 100%;
-	}
-
-	.checkboxes {
-		display: flex;
-	}
-
-	.checkboxes> :not(:first-child) {
-		margin-left: 1rem;
-	}
-
-	.grid {
-		margin: 2rem auto 0 auto;
-		width: 50%;
-		display: flex;
-		flex-direction: column;
-		grid-gap: 24px;
-		grid-template-columns: 1fr;
-		grid-auto-rows: 1fr;
-	}
-
-	.textarea-group {
-		grid-column: 1;
-		grid-row: span 2;
-		margin-right: 2rem;
-		width: 100%;
-		text-align: center;
-
-	}
-
-	.button-container {
-		text-align: center;
-		display: flex;
-		flex-direction: column;
-		width: 20%;
-		margin: 0 auto 0 auto;
-	}
-
-	.button {
-		width: auto;
-	}
-}
-</style>
+<style lang="scss" scoped src="../styles/profil.scss"></style>
+<style lang="scss" scoped src="../styles/edit.scss"></style>

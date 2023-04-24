@@ -97,6 +97,9 @@ $federation: #205295;
 }
 
 .btn {
+	padding: 1rem 8rem;
+	line-height: 2.125rem;
+	border: 2px solid $brown-orange;
 	position: relative;
 	display: flex;
 	flex: 0 0 auto;
@@ -190,4 +193,19 @@ $federation: #205295;
 
 .btn-coa.dark::before {
 	background-color: black;
+}
+
+.nocolor-btn {
+    background-color: rgba(165, 165, 165, 0.1);
+    border: 1px solid #d2d6db;
+    border-radius: 6px;
+
+    &:before {
+        display: none;
+    }
+
+    &:hover,
+    &:active {
+        fill: #a8afb9;
+    }
 }
