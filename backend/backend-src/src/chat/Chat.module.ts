@@ -7,6 +7,12 @@ import { Prisma,
 		ChatUser,
 		GroupChannel,
 		DMChannel } from "@prisma/client";
+import { ChatGateway } from "./Chat.gateway";
+import { ChatService } from "./Chat.service";
+import { ChannelRepository } from "./Channel.repository";
+import { AuthModule } from "src/auth/auth.module";
+import { Socket, Server } from 'socket.io'
+import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from "./Chat.events";
 
 const messageWithAuthor = Prisma.validator<Prisma.MessageArgs>()({include: {author: true}});
 const messageWithChannel = Prisma.validator<Prisma.MessageArgs>()({include: {channel: true}});
@@ -26,9 +32,12 @@ const includeGroupChannel = Prisma.validator<Prisma.GroupChannelArgs>()({include
 export type DMChannelWithMembers = Prisma.DMChannelGetPayload<typeof includeDMChannel>
 export type GroupChannelWithMembers = Prisma.GroupChannelGetPayload<typeof includeGroupChannel>
 
+
+export type chatSocket = Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
+export type chatServer = Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
 @Module({
-	imports: [PrismaModule],
-	providers: [MessageRepository],
-	exports: [],
+	imports: [PrismaModule, AuthModule],
+	providers: [MessageRepository, ChatService, ChannelRepository, ChatGateway],
+	exports: [ChatService],
 })
-export class MessageModule {}
+export class ChatModule {}
