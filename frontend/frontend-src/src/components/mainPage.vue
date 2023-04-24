@@ -112,7 +112,7 @@ export default {
 				<li>
 					<a href="#">
 						<span class="icon"><i class="fa-solid fa-users"></i></span>
-						<span class="title" @click="switchPage(State.HISTORY)">Friends</span>
+						<span class="title" @click="switchPage(State.FRIENDS)">Friends</span>
 					</a>
 				</li>
 				<li>
