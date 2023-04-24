@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsInt, IsOptional, IsString, IsEnum, ValidateIf } from "class-validator";
+import { IsArray, IsBoolean, IsInt, IsOptional, IsString, IsEnum, ValidateIf, IsNotEmpty } from "class-validator";
 import { ChanType } from "@prisma/client";
 
 export class CreateGroupChannelDto {
@@ -17,5 +17,6 @@ export class CreateGroupChannelDto {
 
 	@ValidateIf(o => o.type === ChanType['KEY'])
 	@IsString()
+	@IsNotEmpty()
 	key? :string;
 }
