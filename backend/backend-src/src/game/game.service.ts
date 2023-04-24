@@ -90,7 +90,7 @@ export class GameService {
 	}
 
 	async createGame(player_1: PlayerEntity, player_2: PlayerEntity) {
-		this.games.push(new GameEntity(this.broadcastService, player_1, player_2));
+		this.games.push(new GameEntity(this, this.broadcastService, player_1, player_2));
 	}
 
 	async playerInput(socket: Socket, input: string) {

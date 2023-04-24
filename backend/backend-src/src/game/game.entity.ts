@@ -1,7 +1,7 @@
 import { PlayerEntity } from "./player.entity"
 import { v4 as uuid } from "uuid";
 import { BroadcastService } from './broadcast.service'
-import { ConsoleLogger } from "@nestjs/common";
+import { GameService } from "./game.service";
 
 // side
 const LEFT = 0;
@@ -303,6 +303,7 @@ export class GameEntity {
 	updateIntervalId: NodeJS.Timer
 
 	constructor(
+		private readonly gameService: GameService,
 		private readonly broadcastService: BroadcastService,
 		player1: PlayerEntity, player2: PlayerEntity
 	) {
@@ -369,20 +370,13 @@ export class GameEntity {
 			// update game physics
 			this.updatePhysics();
 
-			// reach left
-			if (this.ball.left < 0)
-				this.playerScorePoint(RIGHT);
-			// reach right
-			if (this.ball.right > this.arena.width)
-				this.playerScorePoint(LEFT);
-
 			this.broadcastCurrentState();
 	
 			// check for winner
-			if (this.side[0].score >= maxScore)
-				this.endGame(this.side[0].player);
-			else if (this.side[1].score >= maxScore)
-				this.endGame(this.side[1].player);
+			if (this.side[LEFT].score >= maxScore)
+				this.endGame(this.side[LEFT], this.side[RIGHT]);
+			else if (this.side[RIGHT].score >= maxScore)
+				this.endGame(this.side[RIGHT], this.side[LEFT]);
 
 		} else {
 			this.updatePause();
@@ -411,8 +405,8 @@ export class GameEntity {
 		}
 	}
 
-	private playerScorePoint(n: number) {
-		this.side[n].score++;
+	private playerScorePoint(sideIndex: number) {
+		this.side[sideIndex].score++;
 		this.ball.reset();
 	}
 
@@ -438,6 +432,12 @@ export class GameEntity {
 			this.ball.bounceOnPaddle(collider, side);
 			bounceOnPaddle = true;
 		}
+
+		// reach left and right side
+		if (this.ball.left < 0)
+			this.playerScorePoint(RIGHT);
+		if (this.ball.right > this.arena.width)
+			this.playerScorePoint(LEFT);
 
 		// bounce on obstacle
 		for (let obstacle of this.obstacles) {
@@ -483,11 +483,13 @@ export class GameEntity {
 		this.pause.timeLeft = 0;
 	}
 
-	private endGame(winner: PlayerEntity) {
+	private endGame(winnerSide: any, loserSide: any) {
 		clearInterval(this.updateIntervalId);
-		this.broadcastService.to(this.UID, 'end', { winner: winner.id });
+		this.broadcastService.to(this.UID, 'end', { winner: winnerSide.player.id });
 		this.side[0].player.leaveGame();
 		this.side[1].player.leaveGame();
+		this.gameService.games = this.gameService.games.filter(g => g.UID != this.UID);
+		this.gameService.saveGame(winnerSide.player.id, loserSide.player.id, winnerSide.score, loserSide.score);
 	}
 	
 	async playerInput(player: PlayerEntity, input: string) {
@@ -496,8 +498,9 @@ export class GameEntity {
 	}
 
 	async playerSurrender(player: PlayerEntity) {
-		let side = this.side.find(side => side.player.socket?.id != player.socket?.id);
-		this.endGame(side.player);
+		let winnerSide = this.side.find(side => side.player.socket?.id != player.socket?.id);
+		let loserSide = this.side.find(side => side.player.socket?.id == player.socket?.id);
+		this.endGame(winnerSide, loserSide);
 		console.log('game: surrender');
 	}
 
