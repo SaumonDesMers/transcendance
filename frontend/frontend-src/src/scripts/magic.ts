@@ -1,52 +1,35 @@
 import { Vec2, Rect } from './utils';
 
 export function computeShadowPolygone(rect: Rect, light: Vec2): Array<Vec2> {
-	let corners: Array<Vec2> = [
-		new Vec2(rect.pos.x, rect.pos.y),
-		new Vec2(rect.pos.x + rect.width, rect.pos.y),
-		new Vec2(rect.pos.x + rect.width, rect.pos.y + rect.height),
-		new Vec2(rect.pos.x, rect.pos.y + rect.height),
+	// cast rays from light to each obstacle corner
+	let lightToCornerRays: Array<Vec2> = [
+		new Vec2(rect.pos.x, rect.pos.y).sub(light),
+		new Vec2(rect.pos.x + rect.width, rect.pos.y).sub(light),
+		new Vec2(rect.pos.x + rect.width, rect.pos.y + rect.height).sub(light),
+		new Vec2(rect.pos.x, rect.pos.y + rect.height).sub(light),
 	];
 
-	// cast rays from light to each corner
-	let lightToCornerRays: Array<Vec2> = [];
-	for (let corner of corners)
-		lightToCornerRays.push(corner.sub(light));
+	// find the duo of rays with the largest angle between them
+	let maxAngle = 0;
+	let maxAngleRays: Array<Vec2> = [];
+	for (let i = 0; i < lightToCornerRays.length; i++) {
+		let ray1 = lightToCornerRays[i];
+		for (let j = i + 1; j < lightToCornerRays.length; j++) {
+			let ray2 = lightToCornerRays[j];
+			let angle = ray1.angleTo(ray2);
+			if (angle > maxAngle) {
+				maxAngle = angle;
+				maxAngleRays = [ray1, ray2];
+			}
+		}
+	}
 
-	// sort rays by angle
-	lightToCornerRays.sort((a, b) => a.angle - b.angle);
-	// get ray with smallest and largest angle
-	let minAngleRay = lightToCornerRays[0];
-	let maxAngleRay = lightToCornerRays[lightToCornerRays.length - 1];
+	// get the corners corresponding to the rays with largest angle
+	let maxAngleCorners = maxAngleRays.map(ray => light.add(ray));
 
-	// sort rays by length
-	lightToCornerRays.sort((a, b) => a.length - b.length);
-	// get smallest ray
-	let smallestRay = lightToCornerRays[0];
-
-
-	// get the min and max angle corners
-	let minAngleCorner = light.add(minAngleRay);
-	let maxAngleCorner = light.add(maxAngleRay);
-
-	// get the closest corner from the light
-	let closestCorner = light.add(smallestRay);
-
-
-	// get points off screen that are on the same line as the rays with smallest and largest angle
-	let minAngleOffScreenPoint = minAngleRay.normed(900).add(light);
-	let maxAngleOffScreenPoint = maxAngleRay.normed(900).add(light);
-
-	// get point off screen that are on the same line as the smallest ray
-	let smallestRayOffScreenPoint = smallestRay.normed(900).add(light);
+	// get points off screen that are on the same line as the rays with the largest angle
+	let maxAngleOffScreenPoints = maxAngleRays.map(ray => ray.normed(900).add(light));
 
 	// compile points and corners into one array which will define the polygon of the shadow
-	return [
-		minAngleCorner,
-		minAngleOffScreenPoint,
-		smallestRayOffScreenPoint,
-		maxAngleOffScreenPoint,
-		maxAngleCorner,
-		closestCorner,
-	];
+	return [...maxAngleCorners.reverse(), ...maxAngleOffScreenPoints];
 }

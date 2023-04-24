@@ -287,6 +287,7 @@ export class GameEntity {
 
 	ball = new Ball(this.arena.width / 2, this.arena.height / 2, 30);
 
+	obstaclesMaxNumber = 4;
 	obstacles: Obstacle[] = [];
 
 	pause = {
@@ -403,7 +404,7 @@ export class GameEntity {
 
 		// update obstacles
 		this.obstacles.forEach(o => o.update());
-		if (this.obstacles.length < 4) {
+		if (this.obstacles.length < this.obstaclesMaxNumber) {
 			let obstacle = new Obstacle();
 			obstacle.randomize();
 			this.obstacles.push(obstacle);

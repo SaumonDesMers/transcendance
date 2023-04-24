@@ -19,6 +19,10 @@ export class Vec2 {
 	get normalized(): Vec2 { return this.div(this.length); }
 	get angle(): number { return Math.atan2(this.y, this.x); }
 
+	angleTo(other: Vec2): number {
+		return Math.acos(this.dot(other) / (this.length * other.length));
+	}
+
 }
 
 export class Rect {

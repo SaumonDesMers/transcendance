@@ -26,20 +26,46 @@ export default {
 			this.canvas.fillStyle = "black";
 			this.canvas.fillRect(0, 0, this.game.arena.width, this.game.arena.height);
 
-			// separator
-			// this.canvas.strokeStyle = "grey";
-			// this.canvas.lineWidth = 10;
-			// this.canvas.beginPath();
-			// const h = this.game.arena.height;
-			// const n = 10;
-			// const x = 35;
-			// const y = ((-n - 1) * x + h) / n;
-			// this.canvas.setLineDash([x, y]);
-			// this.canvas.moveTo(this.game.arena.width / 2, 0);
-			// this.canvas.lineTo(this.game.arena.width / 2, this.game.arena.height);
-			// this.canvas.stroke();
+			// this.drawSeparator();
 
-			// score
+			this.drawGradient(this.game.ball);
+			this.drawBall(this.game.ball);
+
+			this.drawObstacles(this.game.obstacles);
+			this.drawObstaclesShadow(this.game.obstacles, this.game.ball.pos);
+
+			this.drawPaddle(this.game.side[0].paddle);
+			this.drawPaddle(this.game.side[1].paddle);
+
+			this.drawScore();
+
+			// point
+			for (let p of this.game.points) {
+				this.point(p.x, p.y, 3, "red");
+			}
+
+			// line
+			this.canvas.setLineDash([]);
+			for (let l of this.game.lines) {
+				this.line(l.start.x, l.start.y, l.end.x, l.end.y, "blue")
+			}
+		},
+
+		drawSeparator() {
+			this.canvas.strokeStyle = "grey";
+			this.canvas.lineWidth = 10;
+			this.canvas.beginPath();
+			const h = this.game.arena.height;
+			const n = 10;
+			const x = 35;
+			const y = ((-n - 1) * x + h) / n;
+			this.canvas.setLineDash([x, y]);
+			this.canvas.moveTo(this.game.arena.width / 2, 0);
+			this.canvas.lineTo(this.game.arena.width / 2, this.game.arena.height);
+			this.canvas.stroke();
+		},
+
+		drawScore() {
 			this.canvas.fillStyle = "lightgrey";
 			this.canvas.font = "30px Arial";
 			this.canvas.textAlign = "center";
@@ -53,26 +79,6 @@ export default {
 				this.game.arena.width / 2 + 50,
 				40
 			);
-
-			this.drawGradient(this.game.ball);
-			this.drawBall(this.game.ball);
-
-			this.drawObstaclesShadow(this.game.obstacles, this.game.ball.pos);
-			this.drawObstacles(this.game.obstacles);
-
-			this.drawPaddle(this.game.side[0].paddle);
-			this.drawPaddle(this.game.side[1].paddle);
-
-			// point
-			for (let p of this.game.points) {
-				this.point(p.x, p.y, 3, "red");
-			}
-
-			// line
-			this.canvas.setLineDash([]);
-			for (let l of this.game.lines) {
-				this.line(l.start.x, l.start.y, l.end.x, l.end.y, "blue")
-			}
 		},
 
 		drawGradient(ball) {
@@ -99,14 +105,13 @@ export default {
 		},
 
 		drawObstacles(obstacles) {
+			this.canvas.fillStyle = "black";
 			for (let o of obstacles) {
-				this.canvas.fillStyle = "black";
 				this.canvas.fillRect(o.pos.x, o.pos.y, o.width, o.height);
 			}
 		},
 
 		drawObstaclesShadow(obstacles, lightSouce) {
-			const maxDist = 900;
 			this.canvas.fillStyle = "black";
 			for (let o of obstacles) {
 				const shadowPoints = computeShadowPolygone(o, new Vec2(lightSouce.x, lightSouce.y));
