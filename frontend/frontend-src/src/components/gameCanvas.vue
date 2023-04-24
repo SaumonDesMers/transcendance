@@ -17,6 +17,7 @@ export default {
 
 	props: {
 		game: GameData,
+		shadow: Boolean,
 	},
 
 	methods: {
@@ -28,11 +29,16 @@ export default {
 
 			// this.drawSeparator();
 
-			this.drawGradient(this.game.ball);
+			if (this.shadow)
+				this.drawGradient(this.game.ball);
 			this.drawBall(this.game.ball);
 
-			this.drawObstacles(this.game.obstacles);
-			this.drawObstaclesShadow(this.game.obstacles, this.game.ball.pos);
+			if (this.shadow) {
+				this.drawObstaclesShadow(this.game.obstacles, this.game.ball.pos);
+				this.drawObstacles(this.game.obstacles, "black");
+			} else {
+				this.drawObstacles(this.game.obstacles, "lightgrey");
+			}
 
 			this.drawPaddle(this.game.side[0].paddle);
 			this.drawPaddle(this.game.side[1].paddle);
@@ -104,8 +110,8 @@ export default {
 			this.canvas.fill();
 		},
 
-		drawObstacles(obstacles) {
-			this.canvas.fillStyle = "black";
+		drawObstacles(obstacles, color) {
+			this.canvas.fillStyle = color;
 			for (let o of obstacles) {
 				this.canvas.fillRect(o.pos.x, o.pos.y, o.width, o.height);
 			}

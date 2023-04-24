@@ -13,6 +13,7 @@ export default {
 	data() {
 		return {
 			game,
+			shadow: false,
 		}
 	},
 
@@ -51,7 +52,8 @@ export default {
 			<button @click="game.leaveQueue">Leave queue</button>
 		</div>
 		<div v-else>
-			<gameCanvas :game="game.data"></gameCanvas>
+			<button @click="shadow = !shadow">shadows {{ shadow ? "off":"on" }}</button>
+			<gameCanvas :game="game.data" :shadow="shadow"></gameCanvas>
 			<button @click="game.surrender">Surrender</button>
 		</div>
 	</div>
