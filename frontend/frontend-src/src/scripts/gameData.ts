@@ -7,6 +7,7 @@ export class GameData {
 		height: number
 	}
 	side: {
+		playerId: number,
 		paddle: Rect,
 		score: number
 	}[]
@@ -29,6 +30,7 @@ export class GameData {
 		this.arena = { width: 800, height: 500 };
 		this.side = [
 			{
+				playerId: 0,
 				paddle: {
 					pos: new Vec2(0, 0),
 					width: 0,
@@ -37,6 +39,7 @@ export class GameData {
 				score: 0,
 			},
 			{
+				playerId: 0,
 				paddle: {
 					pos: new Vec2(0, 0),
 					width: 0,

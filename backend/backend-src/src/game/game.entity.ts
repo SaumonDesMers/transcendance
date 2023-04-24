@@ -332,6 +332,7 @@ export class GameEntity {
 			arena: this.arena,
 			side: [
 				...this.side.map(s => { return {
+					playerId: s.player.id,
 					paddle: {
 						pos: s.paddle.pos,
 						width: s.paddle.width,
