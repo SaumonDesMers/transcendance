@@ -10,15 +10,25 @@ import {
 	MuteDTO,
 	joinRequestDTO,
 	basicChanRequestDTO,
+	ChanTypeRequestDTO,
 	ChanRequestDTO,
 	inviteUpdateDTO,
-	ChatUserUpdateDTO
+	ChatUserUpdateDTO,
+	SimpleChatUserDTO,
+	NewChannelOwnerDTO,
+	GroupChannelSnippetDTO
 } from '../../../../backend/backend-src/src/chat/Chat.entities'
 import {CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto'
 import { ServerToClientEvents, ClientToServerEvents } from '../../../../backend/backend-src/src/chat/Chat.events'
 import { CreateMessageDto } from '../../../../backend/backend-src/src/chat/message.create.dto';
 import { profileEnd } from 'console'
 import { networkInterfaces } from 'os'
+
+enum ChanType{
+	PUBLIC,
+	PRIV,
+	KEY,
+}
 
 /**
  * 
@@ -30,20 +40,23 @@ import { networkInterfaces } from 'os'
  */
 export class Chat {
 	private _group_channels: Map<number, GroupChannelDTO>;
+	private _public_channels: Map<number, GroupChannelSnippetDTO>;
 	private _dm_channels: Map<number, ChannelDTO>;
 	private _other_users: Map<number, {status: boolean, data: ChatUserDTO | undefined}>;
 	private _channel_invites: Map<number, string>; //channel id and channel names
 	private _user: ChatUserDTO;
 	private socket: Socket<ServerToClientEvents, ClientToServerEvents>;
-	public _error: Ref<string>;
+	error: Ref<string>;
 	// private currentGroupChannelId: number;
 	// private currentDmChannelId: number;
 	
+	/*
+	*/
 	get channelInvites() {return this._channel_invites}
-	set channelInvites(arg: Map<number, string>) {this._channel_invites = arg}
+	// set channelInvites(arg: Map<number, string>) {this._channel_invites = arg}
 
 	get groupChannels() { return this._group_channels };
-	set groupChannels(arg: Map<number, GroupChannelDTO>) { this._group_channels = arg}
+	// set groupChannels(arg: Map<number, GroupChannelDTO>) { this._group_channels = arg}
 
 	// get otherUsers() {return this._other_users}
 	// set otherUsers(arg: Map<number, ChatUserDTO>) {this._other_users = arg}
@@ -58,7 +71,7 @@ export class Chat {
 	get connected() {return this.socket.connected;}
 	get disconnected () { return this.socket.disconnected;}
 	get user () {return this._user;}
-	get error() {return this._error}
+	// get error() {return this._error}
 	// set error(err: string){this._error = err;}
 
 	/**
@@ -97,11 +110,12 @@ export class Chat {
 
 	constructor() {
 
-		this.groupChannels = reactive(new Map());
-		this.channelInvites = reactive (new Map());
+		this._group_channels = reactive(new Map());
+		this._channel_invites = reactive (new Map());
 		this._other_users = new Map();
+		this._public_channels = new Map();
 		// this.dmChannels = new Map();
-		this._error = ref<string>("");
+		this.error = ref<string>("");
 
 		this.initSocket();
 
@@ -113,6 +127,7 @@ export class Chat {
 		};
 		this.socket.connect();
 
+		this._channel_invites.clear();
 		this.socket.emit("get_my_user", (user: ChatUserDTO) => {
 			this._user = user;
 			console.log(user);
@@ -122,18 +137,19 @@ export class Chat {
 			})
 		});
 		
-		// this.socket.emit("get_invites", (invites: inviteUpdateDTO[]) => {
-		// 	invites.forEach(invite => {
-		// 		this._channelInvites.set(invite.channelId, invite.channelName);
-		// 	})
-		// });
-
 		this._group_channels.clear();
 		this.socket.emit("get_groupchannels", (channels: GroupChannelDTO[]) => {
 			channels.forEach(channel => {
 				this._group_channels.set(channel.channelId, channel);
 			});
 		});
+
+		this._public_channels.clear();
+		this.socket.emit("get_public_channels", (channels: GroupChannelSnippetDTO[]) => {
+			channels.forEach(channel => {
+				this._public_channels.set(channel.channelId, channel);
+			})
+		})
 	}
 
 	disconnectFromServer() {
@@ -149,6 +165,11 @@ export class Chat {
 			authorization: `Bearer ${localStorage.jwt}`
 		};
 
+
+		/******************
+		 * CHANNEL EVENTS *
+		 ******************/
+
 		this.socket.on('message', (message: MessageDTO) => {
 			console.log("received message:", message);
 			this.groupChannels.get(message.channelId)?.channel.messages.push(message);
@@ -159,9 +180,7 @@ export class Chat {
 		});
 		
 		this.socket.on('user_left_room', (payload: JoinDTO) => {
-			const index = this._group_channels.get(payload.channelId)?.channel.users.indexOf(payload.user);
-			if (index !== undefined)
-			this._group_channels.get(payload.channelId)?.channel.users.splice(index, 1);
+			this.delete_user_from_chan(payload.user.userId, payload.channelId);
 		});
 
 		this.socket.on("user_kicked", (payload: basicChanRequestDTO) => {
@@ -192,15 +211,52 @@ export class Chat {
 					this.channelInvites.delete(payload.channelId);
 				}
 			}
-			else
+			else //remove or add user from invited list
 			{
+				let channel = this._group_channels.get(payload.channelId);
+				if (channel != undefined)
+				{
 				if (payload.action == true ) {
-					this._group_channels.get(payload.channelId)?.invited.push()
+					channel.invited.push({userId:payload.targetUserId});
+				} else {
+					this.delete_user_from_array(payload.targetUserId, channel.invited);
 				}
+			}
 			}
 		});
 
+		this.socket.on("chan_type_update", (payload: ChanTypeRequestDTO) => {
+			let chan = this._group_channels.get(payload.channelId);
 
+			if (chan != undefined)
+				chan.type = payload.type;
+		});
+
+		this.socket.on("admin_update", (payload: ChanRequestDTO) => {
+			let chan = this._group_channels.get(payload.channelId);
+
+			if (chan != undefined)
+			{
+				if (payload.action == true)
+					chan.admins.push({userId:payload.targetUserId});
+				else
+					this.delete_user_from_array(payload.targetUserId, chan.admins);
+			}
+		});
+
+		this.socket.on("owner_update", (payload: NewChannelOwnerDTO) => {
+			let chan = this._group_channels.get(payload.channelId);
+
+			if (chan !== undefined)
+				chan.owner = payload.newOwner;
+		});
+
+
+
+
+		/*****************
+		 * DIRECT EVENTS *
+		 ****************/
 
 		this.socket.on('exception', (payload: {
 			status: string,
@@ -209,12 +265,28 @@ export class Chat {
 			console.log(payload);
 			// this.error = '';
 			this.error.value = payload.message;
-		});
+		})
 
 		this.socket.on("user_update", (payload: ChatUserDTO) => {
 			if (this._other_users.has(payload.userId))
 			{
 				this._other_users.set(payload.userId, {status: true, data: payload});
+			}
+		})
+
+		this.socket.on("public_chans", (payload: {channels: GroupChannelSnippetDTO[], add: boolean}) => {
+
+			if (payload.add == true)//if we want to add or update channels to the list of public chans
+			{
+				payload.channels.forEach(channel => {
+					this._public_channels.set(channel.channelId, channel);
+				})
+			}
+			else
+			{
+				payload.channels.forEach(channel => {
+					this._public_channels.delete(channel.channelId);
+				})
 			}
 		})
 
@@ -239,6 +311,17 @@ export class Chat {
 			this.channelInvites.delete(channel.channelId);
 			this._group_channels.set(channel.channelId, channel);
 		})
+	}
+
+	setChanType(channelId: number, type: ChanTypeRequestDTO['type'], key?: string)
+	{
+
+		this.socket.emit("chan_type_request", {
+			authorUserId:this.user.userId,
+			channelId,
+			type,
+			key
+		});
 	}
 	
 	sendMessage(message: CreateMessageDto)
@@ -317,7 +400,8 @@ export class Chat {
 
 	clear_error()
 	{
-		this.error = '';
+		console.log(this.error);
+		// this.error.value = '';
 	}
 
 	private delete_user_from_chan(userId: number, channelId: number)
@@ -325,14 +409,20 @@ export class Chat {
 		let channel = this._group_channels.get(channelId);
 		if (channel != undefined)
 		{
-		for (let i = 0; i < channel.channel.users.length; i++)
+			this.delete_user_from_array(userId, channel.channel.users);
+		}
+	}
+
+
+	private delete_user_from_array(userId: number, array: SimpleChatUserDTO[])
+	{
+		for (let i = 0; i < array.length; i++)
 		{
-			if (channel.channel.users[i].userId == userId)
+			if (array[i].userId == userId)
 			{
-				this.groupChannels.get(channelId)?.channel.users.splice(i, 1);
+				array.splice(i, 1);
 				break;
 			}
-		}
 		}
 	}
 }

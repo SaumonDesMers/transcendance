@@ -17,6 +17,12 @@ enum Coa {
 	ALLIANCE
 }
 
+enum ChanType {
+	PUBLIC
+	PRIV
+	KEY
+}
+
 model User {
 	id Int	@id
 	username String @unique
@@ -99,8 +105,8 @@ model GroupChannel {
 	channelId Int @unique @id
 
 	name String @unique
+	type ChanType
 	key String?
-	privateChan Boolean
 
 	ownerId Int
 	owner ChatUser @relation("ChannelOwner", fields: [ownerId], references: [userId])

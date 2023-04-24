@@ -1,4 +1,5 @@
-import { IsArray, IsBoolean, IsInt, IsOptional, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsInt, IsOptional, IsString, IsEnum, ValidateIf } from "class-validator";
+import { ChanType } from "@prisma/client";
 
 export class CreateGroupChannelDto {
 	@IsInt()
@@ -11,9 +12,10 @@ export class CreateGroupChannelDto {
 	@IsInt()
 	usersId: number[];
 
-	@IsBoolean()
-	privateChan: boolean;
+	@IsEnum(ChanType)
+	type: ChanType;
 
-	@IsOptional()
+	@ValidateIf(o => o.type === ChanType['KEY'])
+	@IsString()
 	key? :string;
 }

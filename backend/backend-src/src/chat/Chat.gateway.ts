@@ -25,8 +25,8 @@ import {
 	adminRequestDTO,
 	MuteDTO,
 	GroupChannelDTO,
-	chanPrivateRequestDTO,
 	ChanRequestDTO,
+	ChanTypeRequestDTO,
 	basicChanRequestDTO,
 	InviteRequestDTO,
 	inviteUpdateDTO,
@@ -252,6 +252,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		return this.chatService.getUserGroupChannels(socket.data.userId);
 	}
 
+	@SubscribeMessage("get_public_channels")
+	async handleGetPublicChannels(
+		@ConnectedSocket() socket: chatSocket)
+	{
+		return this.chatService.getPublicChannels();
+	}
+
 	@SubscribeMessage("send_message")
 	async sendMessage(
 		@ConnectedSocket() socket: chatSocket,
@@ -297,19 +304,32 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		//maybe send update to channel members to keep track of current invites in channel ?
 	}
 
-	@SubscribeMessage("visiblity_request")
+	@SubscribeMessage("chan_type_request")
 	async setVisiblity(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() request: ChanRequestDTO)
+		@MessageBody() request: ChanTypeRequestDTO)
 	{
+		let oldChan: GroupChannel;
 		try {
-			await this.chatService.set_chan_visibility(request);
+			oldChan = await this.chatService.set_chan_type(request);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
 		}
 
-		//send update
+		//GLOBAL NOTIFICATIONS
+
+		//if channel was public, send notice that it isnt anymore
+		if (oldChan.type == 'PUBLIC')
+			this.server.emit("public_chans", {channels:[oldChan], add: false});
+		//if channel is going public send notice
+		else if (request.type == 'PUBLIC')
+			this.server.emit("public_chans", {channels:[oldChan], add: true});
+		//note: the type channelSnippet that is sent will only extract the name and id of the channel
+		//so it's not the whole channel that is being sent
+
+		//CHANNEL NOTIFICATIONS
+		this.server.to(request.channelId.toString()).emit("chan_type_update", request);		
 	}
 
 	@SubscribeMessage("admin")

@@ -64,7 +64,7 @@ export default {
 			const channel = {
 				ownerId: store.user.userId,
 				name: this.channelInputBuffer,
-				privateChan: false,
+				type: "PUBLIC",
 				usersId: [],
 				key: this.keyInputBuffer
 			}
@@ -152,18 +152,21 @@ export default {
 				<button @click="store.kick_user(user.userId, this.current_channelId)">kick</button>
 				<button @click="store.ban_user(user.userId, this.current_channelId, true)">ban</button>
 			</div>
-			<div v-if="store.getGroupChannel(this.current_channelId)?.privateChan == true">
+			<div v-if="store.getGroupChannel(this.current_channelId)?.type == 'PRIV'">
 				<input type="text" v-model="userNameInputBuffer">
 
-				<!-- Exemple d'un appel a la fonction Pour Invite un user -->
+				<!-- Exemple d'un appel a la fonction Pour invite et uninvite un user -->
 				<button @click="store.invite_user(userNameInputBuffer, current_channelId, true)">Invite User</button>
 				<button @click="store.invite_user(userNameInputBuffer, current_channelId, false)">Uninvite User</button>
 			</div>
 		</div>
 	</div>
+
+	<!-- exemple d'un affichage de la dernière erreur reçue -->
+	<!-- avec un bouton pour reset -->
 	<div v-if="store.error != ''">
 		{{ store.error }}
-		<button @click="store.clear_error()">clear Error</button>
+		<button @click="store.error = ''">clear Error</button>
 	</div>
 	</div>
 	<!-- <button @click="print()">click me</button> -->

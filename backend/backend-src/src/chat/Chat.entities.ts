@@ -1,3 +1,4 @@
+import { ChanType } from "@prisma/client"
 import { Channel } from "diagnostics_channel"
 
 
@@ -56,11 +57,16 @@ export interface inviteUpdateDTO {
 	channelName: string, //purely for display
 	action: boolean //true means invite false means uninvite
 }
-export interface chanPrivateRequestDTO {
+export interface ChanTypeRequestDTO {
 	authorUserId: number,
-	targetUserId: number,
 	channelId: number,
-	chanPrivate: boolean
+	type: ChanType,
+	key?: string
+}
+
+export interface NewChannelOwnerDTO {
+	newOwner: SimpleChatUserDTO,
+	channelId: number,
 }
 
 export interface DMRequestDTO {
@@ -81,7 +87,15 @@ export interface GroupChannelDTO{
 	admins: SimpleChatUserDTO[],
 	invited: SimpleChatUserDTO[],
 	owner: SimpleChatUserDTO,
-	privateChan: boolean
+	type: ChanType,
+}
+
+export interface GroupChannelUpdateDTO {
+	name?: string,
+	admins?: SimpleChatUserDTO[],
+	invited?: SimpleChatUserDTO[],
+	owner?: SimpleChatUserDTO,
+	type?: ChanType
 }
 
 export interface GroupChannelSnippetDTO{

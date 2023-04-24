@@ -1,6 +1,9 @@
 -- CreateEnum
 CREATE TYPE "Coa" AS ENUM ('ORDER', 'ASSEMBLY', 'FEDERATION', 'ALLIANCE');
 
+-- CreateEnum
+CREATE TYPE "ChanType" AS ENUM ('PUBLIC', 'PRIV', 'KEY');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" INTEGER NOT NULL,
@@ -61,8 +64,8 @@ CREATE TABLE "DMChannel" (
 CREATE TABLE "GroupChannel" (
     "channelId" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
+    "type" "ChanType" NOT NULL,
     "key" TEXT,
-    "privateChan" BOOLEAN NOT NULL,
     "ownerId" INTEGER NOT NULL,
 
     CONSTRAINT "GroupChannel_pkey" PRIMARY KEY ("channelId")

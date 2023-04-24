@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Prisma, Channel, ChatUser, Message, Mute, GroupChannel } from "@prisma/client";
+import { Prisma, Channel, ChatUser, Message, Mute, GroupChannel, ChanType } from "@prisma/client";
 import { MessageRepository } from "./Message.repository";
 import { ChannelRepository } from "./Channel.repository";
 import { MessageWithAll, MessageWithAuthor, MessageWithChannel } from "./Chat.module";
@@ -8,7 +8,7 @@ import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { CreateDMChannelDto } from "./DMChannel.create.dto";
 import { PrismaModule } from "src/database/prisma.module";
 import { PrismaService } from "src/database/prisma.service";
-import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO, chanPrivateRequestDTO, ChanRequestDTO, basicChanRequestDTO, InviteRequestDTO, inviteUpdateDTO } from "./Chat.entities";
+import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO, ChanRequestDTO, basicChanRequestDTO, InviteRequestDTO, inviteUpdateDTO, ChanTypeRequestDTO, GroupChannelSnippetDTO } from "./Chat.entities";
 import { WsException } from "@nestjs/websockets";
 import { error } from "console";
 import { ValidationError } from "./Chat.error";
@@ -82,7 +82,7 @@ export class ChatService {
 			data: {
 				name: newGroupChannel.name,
 				key: newGroupChannel.key,
-				privateChan: newGroupChannel.privateChan,
+				type: newGroupChannel.type,
 				owner: {
 					connect: {
 						userId: newGroupChannel.ownerId
@@ -228,31 +228,31 @@ export class ChatService {
 		}) != null)
 			throw new ValidationError("User is banned from this channel");
 
-		if (channel.key != null && key != channel.key)
+		if (channel.type === 'KEY' && key != channel.key)
 			throw new ValidationError("Incorrect or missing channel key");
 
-		if (channel.privateChan == true && channel.invited.find(user =>
+		if (channel.type === 'PRIV' && channel.invited.find(user =>
 			{return user.userId == userId}) == undefined)
 			throw new ValidationError("You have not been invited in this channel");
 
+			
+		//remove user from invite list if he was invited
+		if (channel.type === 'PRIV')
+		await this.prisma.groupChannel.update({
+			where: {channelId},
+			data: {
+				invited: {
+					disconnect: {userId}
+				}
+			}
+		});
+			
 		//this prisma request updates a group channel
 		// -the group channel is found using its base channel's channelId
 
 		// - it goes in its base channel
 		// - requests an update of the base channel
 		// - in the users fields and connects a new user
-
-		//remove user from invite list
-		if (channel.privateChan == true)
-			await this.prisma.groupChannel.update({
-				where: {channelId},
-				data: {
-					invited: {
-						disconnect: {userId}
-					}
-				}
-			});
-
 		//we include the members in the returned channel
 		const update = await this.prisma.groupChannel.update({
 			where: {channelId},
@@ -461,6 +461,22 @@ export class ChatService {
 		return channels;
 	}
 
+	async getPublicChannels() : Promise<GroupChannelSnippetDTO[]>
+	{
+		const channels = this.prisma.groupChannel.findMany({
+			where: {
+				type: {
+					equals: 'PUBLIC'
+				}
+			},
+			select: {
+				channelId: true,
+				name: true
+			}
+		});
+
+		return channels;
+	}
 
 	/************** CHANNEL OPERATIONS *******************/
 
@@ -652,7 +668,11 @@ export class ChatService {
 		}
 	}
 
-	async set_chan_visibility(request: ChanRequestDTO)
+	/**
+	 * WARNING WILL RETURN OLD CHANNEL,
+	 * TO DETECT PASSAGE TO AND FROM PUBLIC TYPE
+	 */
+	async set_chan_type(request: ChanTypeRequestDTO): Promise<GroupChannel>
 	{
 		const channel = await this.prisma.groupChannel.findUnique({
 			where: {channelId:request.channelId},
@@ -667,9 +687,12 @@ export class ChatService {
 		await this.prisma.groupChannel.update({
 			where: {channelId: request.channelId},
 			data: {
-				privateChan: request.action
+				type: request.type,
+				key: request.key
 			}
 		});
+
+		return channel;
 	}
 
 	async kickUser(request: basicChanRequestDTO) {
@@ -734,13 +757,16 @@ export class ChatService {
 			}
 		});
 
+		if (channel.type !== 'PRIV')
+			throw new ValidationError("You can only invite to a private channel");
+
 		if (request.action == true) //if we want to invite someone
 			{
 			// if (channel.channel.users.find(user => 
 			// 	{return user.userId == targetUserId}) != undefined)
 			// 	throw new ValidationError("User is already on channel");
 			
-			if (channel.privateChan == true && !this.isAdmin(request.authorUserId, channel))
+			if (!this.isAdmin(request.authorUserId, channel))
 				throw new ValidationError("You need to be admin to invite in private chan")
 			
 			await this.prisma.groupChannel.update({
