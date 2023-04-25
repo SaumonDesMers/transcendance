@@ -17,6 +17,7 @@ import { MessageDTO,
 	SimpleChatUserDTO,
 	NewChannelOwnerDTO,
 	ChanKeyRequestDTO,
+	DMChannelDTO,
  } from './Chat.entities'
 import { CreateMessageDto } from './message.create.dto'
 import { CreateGroupChannelDto } from './GroupChannel.create.dto';
@@ -97,7 +98,7 @@ export interface ServerToClientEvents {
 	*
 	* those are sent directly to a client from the server
 	*/
-	dm_starting: (payload: ChannelDTO) => void;
+	dm_starting: (payload: DMChannelDTO) => void;
 
 	exception: (payload: any) => void;
 
@@ -150,12 +151,19 @@ export interface ClientToServerEvents {
 	 */
 	get_groupchannels: (callback: (channels: GroupChannelDTO[]) => void) => void;
 
+	/**
+	 * request to 
+	 */
+	get_dmchannels: (callback: (channels: DMChannelDTO[]) => void) => void;
 
+	/**
+	 *Request to get a list of current public channels 
+	 */
 	get_public_channels: (callback: (channels: GroupChannelSnippetDTO[]) => void) => void;
 
 	// get_invites: (callback: (invites: inviteUpdateDTO[]) => void) => void;
 
-	start_dm: (targetUserId: number, callback: (payload: ChannelDTO) => void) => void;
+	start_dm: (targetUserName: string, callback: (payload: DMChannelDTO) => void) => void;
 
 	/**
 	 * event to send a message to the chat

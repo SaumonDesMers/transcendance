@@ -28,12 +28,16 @@ export default {
 			keyInputBuffer: '',
 			setKeyInputBuffer: '',
 			userNameInputBuffer: '',
+			currentDMchannel: false,
 			store,
 		}
 	},
 	computed: {
 		currentChannel() {
-			return this.store.getGroupChannel(this.current_channelId);
+			if (this.currentDMchannel == false)
+				return this.store.getGroupChannel(this.current_channelId);
+			else
+				return this.store.getDMChannel(this.current_channelId);
 		}
 	},
 	renderTriggered(event) {
@@ -55,13 +59,13 @@ export default {
 		},
 
 		selectChannel(id: number) {
+			this.currentDMchannel = false;
 			this.current_channelId = id;
 		},
 
-		async sendTest() {
-			this.socket.emit('test_event', (answer) => {
-				console.log(answer);
-			});
+		selectDMChannel(id: number) {
+			this.currentDMchannel = true;
+			this.current_channelId = id;
 		},
 
 		async createChannel() {
@@ -115,7 +119,6 @@ export default {
 		<div>
 			<button v-if="store.disconnected" @click="connectToServer">Connect To Chat</button>
 			<button v-else @click="disconnectFromServer">Disconnect from Chat</button>
-			<button @click="sendTest">Get chehd</button>
 		</div>
 
 	<div v-if="store.connected">
@@ -125,6 +128,7 @@ export default {
 			<button @click="createChannel">Create Channel</button>
 			<button @click="joinChannel">Join Channel</button>
 			<button @click="leaveChannel">Leave Channel</button>
+			<button @click="store.startDM(channelInputBuffer)">Start DM</button>
 		</div>
 		<p>Invites:</p>
 		<!-- Ici on affiche tout les channels pour lesquels on est invité -->
@@ -149,7 +153,13 @@ export default {
 			<button @click="SendMessage">Send</button>
 		</div>
 
-		<div v-if="this.current_channelId != null">
+		<!-- ici on affiche tout les DM ouverts -->
+		<div v-for="[channelId, channel] in store.dmChannels">
+			<button @click="selectDMChannel(channelId)">{{ channel.channel.users.map(a => store.getUserName(a.userId)) }}</button>
+		</div>
+
+		<!-- Ici on affiche un channel de groupe avec les messages et les options... -->
+		<div v-if="this.current_channelId != null && this.currentDMchannel == false">
 
 			<div v-for="message in this.currentChannel?.channel.messages">
 				<p>
@@ -193,6 +203,25 @@ export default {
 
 			<button @click="store.setChanType(current_channelId, 'KEY', setKeyInputBuffer)">Set Channel KeyProtected</button>
 		</div>
+
+		<div v-if="this.current_channelId != null && this.currentDMchannel == true">
+			<p>Chat With
+				<p v-for="user in this.currentChannel?.channel.users">{{ store.getUserName(user.userId) }}</p>
+			</p>
+			
+			<div v-for="message in this.currentChannel?.channel.messages">
+				<p>
+					{{ store.getUserName(message.author.userId) }} : {{ message.content }}
+				</p>
+			</div>
+
+			<div>
+				<input type="text" v-model="messageInputBuffer">
+				<button @click="SendMessage">Send</button>
+			</div>
+
+		</div>
+
 	</div>
 
 	<!-- exemple d'un affichage de la dernière erreur reçue -->

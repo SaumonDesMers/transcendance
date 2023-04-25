@@ -31,6 +31,7 @@ import {
 	InviteRequestDTO,
 	inviteUpdateDTO,
 	ChanKeyRequestDTO,
+	DMChannelDTO,
 } from './Chat.entities'
 
 import { Server, Socket } from 'socket.io';
@@ -158,6 +159,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		socket.join(channel.channel.id.toString());
+		if (returnedChannel.type == 'PUBLIC')
+			this.server.emit('public_chans', {channels: [returnedChannel], add: true});
 		return (returnedChannel);
 	}
 
@@ -265,6 +268,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@ConnectedSocket() socket: chatSocket)
 	{
 		return this.chatService.getPublicChannels();
+	}
+
+	@SubscribeMessage("get_dmchannels")
+	async handleGetDMs(@ConnectedSocket() socket: chatSocket)
+	{
+		return this.chatService.getUserDMChannels(socket.data.userId);
 	}
 
 	@SubscribeMessage("send_message")
@@ -426,22 +435,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	@SubscribeMessage("start_dm")
 	async startDM(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody('targetUserId', ParseIntPipe)
-		targetUserId: number
+		@MessageBody() targetUserName: string
 	)
 	{
-		let channel;
+		let channel : DMChannelDTO;
+		let target_user : ChatUser;
 
 		//ask the service to start a DM with the other user, will return a DMChannel
 		try {
-			channel = await this.chatService.startDM({targetUserId, callerUserId:socket.data.userId});
+			channel = await this.chatService.startDM(socket.data.userId, targetUserName);
+			target_user = await this.chatService.getChatUserByName(targetUserName);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e.toString());
 		}
 		const sockets = await this.server.fetchSockets();
 		const targetSocket = sockets.find(socket => {
-			return socket.data.userId == targetUserId;
+			return socket.data.userId == target_user.userId;
 		});
 
 		if (targetSocket != undefined)

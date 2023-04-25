@@ -33,6 +33,11 @@ export interface GroupChannelDTO{
 	type: ChanType,
 }
 
+export interface DMChannelDTO {
+	channelId:number,
+	channel: ChannelDTO
+}
+
 export interface GroupChannelSnippetDTO{
 	channelId: number,
 	// channel: ChannelDTO,

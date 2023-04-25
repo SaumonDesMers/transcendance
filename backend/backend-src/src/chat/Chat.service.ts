@@ -107,10 +107,14 @@ export class ChatService {
 		return channel;
 	}
 
-	async createDMChannel(newDMChannel: CreateDMChannelDto) {
-		let my_arr: Prisma.ChatUserWhereUniqueInput[];
+	async createDMChannel(usersIds: number[]) {
 
-		newDMChannel.usersId.forEach(userId => my_arr.push({userId}));
+		let my_arr: Prisma.ChatUserWhereUniqueInput[] = new Array<Prisma.ChatUserWhereUniqueInput>;
+
+		console.log("creating dm channel");
+		console.log(usersIds);
+
+		usersIds.forEach(userId => my_arr.push({userId}));
 
 		const channel = await this.prisma.dMChannel.create({
 			data: {
@@ -130,7 +134,7 @@ export class ChatService {
 		return channel;
 	}
 
-	async startDM(request: DMRequestDTO)
+	async startDM(callerUserId: number, targetUserName: string)
 	{
 
 		//add a check to see if caller isnt blocked by targetUser
@@ -141,11 +145,13 @@ export class ChatService {
 				channel: {
 					users: {
 						some: {
-							userId: request.callerUserId
+							userId: callerUserId
 						},
 					},
 					AND: {users: {some: {
-								userId: request.targetUserId
+								user: {
+									username: targetUserName
+								}
 							}
 						}
 					}
@@ -156,7 +162,30 @@ export class ChatService {
 
 		//if no channel exists create one
 		if (channel == undefined)
-			channel = await this.createDMChannel({usersId: [request.callerUserId, request.targetUserId]});
+		{
+			const other_user = await this.prisma.user.findUnique({
+				where: {
+					username:targetUserName
+				},
+				include: {
+					chatUser: {
+						include: {
+							blocked : true
+						}
+					}
+				}
+			});
+			if (other_user == undefined)
+				throw new ValidationError("User not found");
+
+			if (other_user.chatUser.blocked.find(chatuser => {
+				chatuser.userId == callerUserId
+			}) != undefined)
+				throw new ValidationError("Cannot start DM, this user has blocked you");
+
+			console.log("awaiting dm channel creation");
+			channel = await this.createDMChannel([callerUserId, other_user.id]);
+		}
 		
 		return channel;
 	}
@@ -461,6 +490,26 @@ export class ChatService {
 		return channels;
 	}
 
+	async getUserDMChannels(userId: number)
+	{
+		const channels = this.prisma.dMChannel.findMany({
+			where: {
+				channel: {
+					users: {
+						some: {
+							userId
+						}
+					}
+				}
+			},
+			include: {
+				channel: includeMembersAndLast10Messages
+			}
+		});
+
+		return channels;
+	}
+
 	async getPublicChannels() : Promise<GroupChannelSnippetDTO[]>
 	{
 		const channels = this.prisma.groupChannel.findMany({
@@ -478,6 +527,18 @@ export class ChatService {
 		return channels;
 	}
 
+	async getChatUserByName(username: string) : Promise<ChatUser>
+	{
+		const user = this.prisma.chatUser.findFirstOrThrow({
+			where: {
+				user: {
+					username
+				}
+			}
+		});
+
+		return user;
+	}
 	/************** CHANNEL OPERATIONS *******************/
 
 
