@@ -64,7 +64,9 @@ export class UserService {
 			data: data,
 		});
 
-		return exclude(user, ['twoFactorAuthenticationSecret']);
+		const userBis = exclude(user, ['twoFactorAuthenticationSecret']);
+
+		return userBis;
 	}
 
 	async removeUser(id : User['id']): Promise<UserWithoutSecret> 

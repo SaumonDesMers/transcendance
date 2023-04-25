@@ -17,6 +17,7 @@ import { UserEntity } from "./User.entity";
 import { ApiTags, ApiCreatedResponse, ApiOkResponse } from "@nestjs/swagger";
 import { CreateUserDto } from "./User.create-dto";
 import { UpdateUserDto } from "./User.update-dto";
+import { Public } from "src/auth/public.decorator";
 import { UserWithoutSecret } from "./User.module";
 
 @Controller('users')
