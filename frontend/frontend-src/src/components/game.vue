@@ -23,20 +23,12 @@ export default {
 	
 	created() {},
 
-	watch: {
-		'game.state': {
-			handler: function (val, oldVal) {
-				// console.log('game state changed !');
-			},
-			deep: true
-		}
-	}
 }
 </script>
 
 <template>
 
-	<h4>Game (state: {{ game.state }}) :</h4>
+	<h4>Game (state: {{ game.state.value }}) :</h4>
 	<!-- <p>{{ game.data }}</p> -->
 
 	<div v-if="game.socket.disconnected">
@@ -44,10 +36,11 @@ export default {
 	</div>
 
 	<div v-else>
-		<div v-if="game.state == 'none'">
-			<button @click="game.joinQueue">Play !</button>
+		<div v-if="game.state.value == 'none'">
+			<button @click="game.joinQueue('classic')">Play classic game !</button>
+			<button @click="game.joinQueue('custom')">Play custom game !</button>
 		</div>
-		<div v-else-if="game.state == 'queue'">
+		<div v-else-if="game.state.value == 'queue'">
 			<p>Waiting for another player...</p>
 			<button @click="game.leaveQueue">Leave queue</button>
 		</div>

@@ -287,7 +287,7 @@ export class GameEntity {
 
 	ball = new Ball(this.arena.width / 2, this.arena.height / 2, 30);
 
-	obstaclesMaxNumber = 4;
+	obstaclesMaxNumber = 0;
 	obstacles: Obstacle[] = [];
 
 	pause = {
@@ -305,7 +305,8 @@ export class GameEntity {
 	constructor(
 		private readonly gameService: GameService,
 		private readonly broadcastService: BroadcastService,
-		player1: PlayerEntity, player2: PlayerEntity
+		player1: PlayerEntity, player2: PlayerEntity,
+		public type: string
 	) {
 		this.side = [
 			{
@@ -325,6 +326,10 @@ export class GameEntity {
 		player1.joinGame(this);
 		player2.joinGame(this);
 		this.broadcastService.to(this.UID, 'start');
+
+		if (type == 'custom') {
+			this.obstaclesMaxNumber = 4;
+		}
 
 		this.updateIntervalId = setInterval(this.update.bind(this), updateInterval);
 	}

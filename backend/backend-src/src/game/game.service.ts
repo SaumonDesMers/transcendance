@@ -16,7 +16,11 @@ export class GameService {
 
 	onlinePlayer = new WeakMap<any, PlayerEntity>();
 	reconnectionHub = new Array<PlayerEntity>();
-	queue = new Array<PlayerEntity>();
+	// queue = new Array<PlayerEntity>();
+	queue = {
+		classic: new Array<PlayerEntity>(),
+		custom: new Array<PlayerEntity>(),
+	}
 	games = new Array<GameEntity>();
 
 	constructor(
@@ -31,7 +35,7 @@ export class GameService {
 		if (player) {
 			this.reconnectionHub = this.reconnectionHub.filter(p => { return p != player });
 			player.socket = socket;
-			if (player.state == 'game')
+			if (player.state.value == 'game')
 				player.reconnectToGame();
 		}
 		else
@@ -42,13 +46,13 @@ export class GameService {
 
 	async disconnection(socket: Socket) {
 		let player: PlayerEntity = this.onlinePlayer.get(socket);
-		if (player.state == 'game') {
+		if (player.state.value == 'game') {
 			// wait some time before delete to let him reconnect
 			player.disconnectInGame();
 			this.reconnectionHub.push(player);
 			setTimeout(this.disconnectionAfterDelay.bind(this), 30 * 1000, player);
-		} else if (player.state == 'queue') {
-			this.queue = this.queue.filter(p => p != player);
+		} else if (player.state.value == 'queue') {
+			this.queue[player.state.type] = this.queue[player.state.type].filter((p: PlayerEntity) => p != player);
 		}
 		this.onlinePlayer.delete(socket);
 	}
@@ -57,46 +61,49 @@ export class GameService {
 		if (player.socket != null)
 			return;
 
-		if (player.state == 'game') {
+		if (player.state.value == 'game') {
 			player.surrender();
 		}
 
 		this.reconnectionHub = this.reconnectionHub.filter(p => { return p != player });
 	}
 
-	async updateQueue(socket: Socket, msg: string): Promise<string> {
+	async updateQueue(socket: Socket, body: { value: string, type: string }): Promise<string> {
 		let player: PlayerEntity = this.onlinePlayer.get(socket);
+		let queue = this.queue[body.type];
 
-		if (msg == 'join' && player.state == 'none') {
-			if (this.queue.length > 0) {
-				this.createGame(player, this.queue.pop());
+		if (body.value == 'join' && player.state.value == 'none') {
+			if (this.queue[body.type].length > 0) {
+				this.createGame(player, this.queue[body.type].pop(), body.type);
 				return 'game';
 			} else {
-				player.state = 'queue';
-				this.queue.push(player);
+				player.state.set('queue', body.type);
+				this.queue[body.type].push(player);
 			}
-		} else if (msg == 'leave' && player.state == 'queue') {
-			this.queue = this.queue.filter(u => u != player);
-			player.state = 'none';
+		} else if (body.value == 'leave' && player.state.value == 'queue') {
+			this.queue[body.type] = this.queue[body.type].filter((p: PlayerEntity) => p != player);
+			player.state.set('none', '');
 		} else {
 			return 'error';
 		}
-		return msg;
+		return body.value;
 	}
 
 	logQueue() {
-		console.log(`Game queue (${this.queue.length} elements):`)
-		this.queue.forEach(u => u.log());
+		for (let [key, value] of Object.entries(this.queue)) {
+			console.log(`Game ${key} queue (${value.length} elements):`);
+			value.forEach(u => u.log());
+		}
 	}
 
-	async createGame(player_1: PlayerEntity, player_2: PlayerEntity) {
-		this.games.push(new GameEntity(this, this.broadcastService, player_1, player_2));
+	async createGame(player_1: PlayerEntity, player_2: PlayerEntity, type: string) {
+		this.games.push(new GameEntity(this, this.broadcastService, player_1, player_2, type));
 	}
 
 	async playerInput(socket: Socket, input: string) {
 		let player: PlayerEntity = this.onlinePlayer.get(socket);
 
-		if (player.state == 'game') {
+		if (player.state.value == 'game') {
 			player.play(input);
 		} else {
 			console.log('Received player input wihtout a game.')
@@ -106,7 +113,7 @@ export class GameService {
 	async playerSurrender(socket: Socket) {
 		let player: PlayerEntity = this.onlinePlayer.get(socket);
 
-		if (player.state == 'game') {
+		if (player.state.value == 'game') {
 			player.surrender();
 		} else {
 			console.log('Received player input wihtout a game.')

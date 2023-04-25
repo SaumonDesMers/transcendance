@@ -4,7 +4,14 @@ import { Socket } from 'socket.io'
 export class PlayerEntity {
 
 	id: number
-	state: string = 'none'
+	state = {
+		value: 'none',
+		type: '',
+		set(value: string, type: string) {
+			this.value = value;
+			this.type = type;
+		}
+	}
 	socket: Socket | null
 	game: GameEntity | null = null
 
@@ -14,7 +21,7 @@ export class PlayerEntity {
 	}
 
 	joinGame(game: GameEntity) {
-		if (this.state == 'game') {
+		if (this.state.value == 'game') {
 			// throw new Error('Player cannot join more than one game');
 			console.log('Player cannot join more than one game');
 			return;
@@ -22,12 +29,12 @@ export class PlayerEntity {
 
 		this.socket?.join(game.UID);
 		this.game = game;
-		this.state = 'game';
+		this.state.set('game', game.type);
 		console.log(this.id, ": join game");
 	}
 
 	leaveGame() {
-		if (this.state != 'game') {
+		if (this.state.value != 'game') {
 			// throw new Error('Player cannot leave game (he is not part of one)');
 			console.log('Player cannot leave game (he is not part of one)');
 			return;
@@ -35,7 +42,7 @@ export class PlayerEntity {
 
 		this.socket?.leave(this.game.UID);
 		this.game = null;
-		this.state = 'none';
+		this.state.set('none', '');
 		console.log(this.id, ": leave game");
 	}
 
@@ -48,7 +55,7 @@ export class PlayerEntity {
 	}
 
 	disconnectInGame() {
-		if (this.state != 'game') {
+		if (this.state.value != 'game') {
 			console.log('player', this.id, 'call \"disconnectInGame\" but is not part of one');
 			return;
 		}
@@ -57,7 +64,7 @@ export class PlayerEntity {
 	}
 
 	reconnectToGame() {
-		if (this.state != 'game') {
+		if (this.state.value != 'game') {
 			console.log('player', this.id, 'call \"reconnectToGame\" but is not part of one');
 			return;
 		}
@@ -68,7 +75,7 @@ export class PlayerEntity {
 	log() {
 		console.log(
 			'{ id: ' + this.id
-			+ ', state: ' + this.state + ' }'
+			+ ', state: ' + this.state.value + ' }'
 		)
 	}
 
