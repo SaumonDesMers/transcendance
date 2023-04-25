@@ -34,123 +34,113 @@ export default {
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	</head>
 	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
+		<div v-if="user.darkMode == false">
+			<div class="cloud large cloud-1">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+			<div class="cloud normal cloud-2">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+			<div class="cloud small cloud-3">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+			<div class="cloud tiny cloud-4">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+			<div class="cloud large cloud-5">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+			<div class="cloud normal cloud-6">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+			<div class="cloud small cloud-7">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+			<div class="cloud tiny cloud-8">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+			<div class="cloud small cloud-9">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+			<div class="cloud normal cloud-10">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+			<div class="cloud tiny cloud-11">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+			<div class="cloud small cloud-12">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+		</div>
+		<div v-else>
+			<div class="stars"></div>
+			<div class="stars1"></div>
+			<div class="stars2"></div>
+		</div>
 		<div class="friends-grid">
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
+			<div v-for="n in 9">
+				<div class="friend">
+					<div class="avatar">
+						<div class="avatar-style"></div>
+						<div class="status"></div>
+					</div>
+					<div class="avatar">
+						<div class="avatar-style"></div>
+						<div class="status"></div>
+					</div>
+					<div class="result-grid" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
+						<p class="login" @click="switchPage(State.USER)">Login<br></p>
+						<p class="fa-solid fa-skull"><br></p>
+						<p class="score">Score<br></p>
+					</div>
+					<div class="result-grid goldBG goldText" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
+						<p class="login" @click="switchPage(State.USER)">Login<br></p>
+						<p class="fa-solid fa-trophy"><br></p>
+						<p class="score">Score<br></p>
+					</div>
 				</div>
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<p class="login">Login <br>Score <i class="fa-solid fa-skull"></i></p>
-				<p class="login goldBG goldText">Login <br>Score <i class="fa-solid fa-trophy"></i></p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<p class="login">Login <br>Score</p>
-				<p class="login">Login <br>Score</p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<p class="login">Login <br>Score</p>
-				<p class="login">Login <br>Score</p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<p class="login">Login <br>Score</p>
-				<p class="login">Login <br>Score</p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<p class="login">Login <br>Score</p>
-				<p class="login">Login <br>Score</p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<p class="login">Login <br>Score</p>
-				<p class="login">Login <br>Score</p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<p class="login">Login <br>Score</p>
-				<p class="login">Login <br>Score</p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<p class="login">Login <br>Score</p>
-				<p class="login">Login <br>Score</p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<div class="avatar">
-					<img src="https://unsplash.it/60/60" />
-					<div class="status"></div>
-				</div>
-				<p class="login">Login <br>Score</p>
-				<p class="login">Login <br>Score</p>
 			</div>
 		</div>
 	</div>
 </template>
 
-<style lang="scss" scoped src="../styles/all.scss"></style>
-
-<style scoped>
-
+<style lang="scss" scoped>
 .friends-grid {
 	display: flex;
 	flex-wrap: wrap;
@@ -160,7 +150,7 @@ export default {
 }
 
 .friend {
-	background-color: brown;
+	background-color: rgba(0, 0, 0, 0.5);
 	display: grid;
 	padding: 0.5rem;
 	grid-template-columns: 1fr 1fr;
@@ -169,17 +159,76 @@ export default {
 	height: 15rem;
 }
 
+.text-color-dark {
+	color: white;
+	font-size: 20px;
+	text-transform: uppercase;
+	text-align: center;
+
+	&:hover,
+	&:active {
+		text-shadow:
+			0 0 10px #fff,
+			0 0 15px #777777,
+			0 0 25px #000000,
+	}
+}
+
+.text-color-light {
+	color: rgb(0, 0, 0, 0.6);
+
+	&:hover,
+	&:active {
+		color: rgb(0, 0, 0, 1);
+	}
+}
+
+@media screen and (min-width: 768px) {
+	body {
+		align-items: center;
+		justify-content: center;
+	}
+
+	.friend {
+		padding: 0.5rem;
+		width: 35rem;
+		height: 15rem;
+	}
+
+	.friends-grid {
+		margin-top: 2rem;
+		gap: 5rem;
+	}
+}
+
 .avatar {
 	grid-row: span 1;
 	display: flex;
 	justify-content: center;
 }
 
-.login {
-	background-color: cadetblue;
-	text-align: center;
+.avatar-style {
+	border-radius: 50%;
+	background: url("https://unsplash.it/100/100");
+	width: 100px;
+	height: 100px;
+}
+
+.result-grid {
+	background-color: rgba(255, 255, 255, 0.1);
+	color: white;
+	font-size: 20px;
 	padding: 0.5rem;
 	margin: 0.5rem;
+	text-align: center;
+}
+
+.login {
+	text-align: start;
+}
+
+.score {
+	text-align: end;
 }
 
 :root {
@@ -200,9 +249,8 @@ export default {
 		background-position: 100% 0%
 	}
 }
+
 .goldText {
 	animation: AnimationName 10s linear infinite;
 }
-
-
 </style>
