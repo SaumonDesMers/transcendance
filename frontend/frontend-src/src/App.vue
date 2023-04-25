@@ -55,7 +55,7 @@ export default {
 	},
 
 	mounted() {
-		if (this.user.isLog())
+		if (this.user.isLog() && this.$cookies.get('jwt'))
 			this.state = State.MAIN;
 		else
 			this.state = State.LOGIN;
@@ -65,7 +65,7 @@ export default {
 
 	watch: {
 		state() {
-			if (this.user.isLog() && this.gameGateway.socket.disconnected) {
+			if (this.user.isLog() && this.$cookies.get('jwt') && this.gameGateway.socket.disconnected) {
 				this.gameGateway.connect(this.$cookies.get('jwt'));
 			}
 		}
