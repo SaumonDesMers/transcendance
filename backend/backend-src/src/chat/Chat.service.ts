@@ -282,7 +282,6 @@ export class ChatService {
 		
 		//but instead of connecting a new user to the users field
 		//we delete one
-		console.log("userid %d leaveing channelid %d", userId, channelId);
 		const update = await this.channelRepository.updateGroupChannel({
 			where:{channelId},
 			data: {
@@ -854,7 +853,6 @@ export class ChatService {
 				},
 			});
 		} catch (e) {
-			console.log(e)
 			return false;
 		}
 
