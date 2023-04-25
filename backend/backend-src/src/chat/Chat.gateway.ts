@@ -98,14 +98,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		let payload : any;
 		let jwt : string = socket.handshake.headers.authorization;
 		let user : any;
-		console.log("New socket connected to chat");
-		console.log("jwt token:", jwt);
 		try {
 			payload = await this.authService.verifyJWT(jwt.split(' ')[1]);
-			console.log(payload);
-			console.log(payload.id);
 			socket.data.userId = parseInt(payload.id);
-			console.log(socket.data.userId);
 			user = await this.chatService.getChatUserWithChannels(socket.data.userId);
 		}
 		catch (e) {
@@ -114,7 +109,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			socket.disconnect(true);
 		}
 
-		console.log(user);
 		//joining every channel the user was connected to
 		user.joinedChannels.forEach(channel => {
 			socket.join(channel.id.toString());
@@ -136,28 +130,35 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	) : Promise<GroupChannelDTO>
 	{
 		let channel;
+		let returnedChannel: GroupChannelDTO;
 
 		try {
-			channel = await this.chatService.createGroupChannel(createChannel, {channel: {
-				include: {
-					users: true,
-					messages: true
-				}
-			}});
+			channel = await this.chatService.createGroupChannel(createChannel,
+				{
+					channel: {
+						include: {
+							users: true,
+							messages: true,
+						}
+					},
+					admins: true,
+					owner: true,
+					invited: true,
+				});
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
 		}
 
 		try {
-			await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId, createChannel.key);
+			returnedChannel = await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId, createChannel.key);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
 		}
 
 		socket.join(channel.channel.id.toString());
-		return (channel);
+		return (returnedChannel);
 	}
 
 	@SubscribeMessage("join_channel")
@@ -168,7 +169,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	{
 		let channel: GroupChannel;
 		let channelWithMessage: GroupChannelDTO;
-		console.log(request);
 		try {
 			channel = await this.chatService.findGroupChannelbyName(request.channelName);
 
@@ -197,7 +197,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	{
 		let channel: any;
 
-		console.log("leave channel called");
 		try {
 			channel = await this.chatService.findGroupChannelbyID(channelId);
 		} catch (e: any) {
@@ -205,7 +204,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			throw new WsException(e);
 		}
 
-		console.log("no crash yet");
 		try {
 			await this.chatService.leaveGroupChannel(channelId,
 				socket.data.userId);
@@ -253,14 +251,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	async handleGetOtherUser(@ConnectedSocket() socket: chatSocket,
 		@MessageBody() id: number)
 	{
-		console.log(id);
 		return this.chatService.getChatUser(id);
 	}
 
 	@SubscribeMessage("get_groupchannels")
 	async handleGetChannels(@ConnectedSocket() socket: chatSocket)
 	{
-		console.log("get channel called");
 		return this.chatService.getUserGroupChannels(socket.data.userId);
 	}
 
@@ -268,7 +264,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	async handleGetPublicChannels(
 		@ConnectedSocket() socket: chatSocket)
 	{
-		console.log("Received public chan request from: %d", socket.id);
 		return this.chatService.getPublicChannels();
 	}
 
@@ -315,6 +310,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 
 		//maybe send update to channel members to keep track of current invites in channel ?
+		this.server.to(update.channelId.toString()).except(targetSocket.id.toString()).emit("invite_update", update);
 	}
 
 	@SubscribeMessage("chan_type_request")

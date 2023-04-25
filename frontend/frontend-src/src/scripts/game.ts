@@ -3,24 +3,28 @@ import { reactive } from "vue";
 import { GameData } from "./gameData";
 
 class State {
-	value: String;
+	value: string;
+	type: string;
 	constructor() {
 		this.value = 'none';
+		this.type = '';
+	}
+
+	set(value: string, type: string) {
+		this.value = value;
+		this.type = type;
 	}
 }
 
 export class Game {
 
 	socket: Socket;
-	_state: State;
+	state: State;
 	data: GameData;
-
-	get state() { return this._state.value; }
-	set state(value: String) { this._state.value = value; }
 
 	constructor() {
 		this.data = reactive(new GameData());
-		this._state = reactive(new State());
+		this.state = reactive(new State());
 		this.initSocket();
 	}
 
@@ -38,7 +42,7 @@ export class Game {
 		
 		this.socket.on('connect', () => {
 			console.log("Successfully connected to the game websocket server...");
-			this.state = 'none';
+			this.state.set('none', '');
 		});
 		
 		this.socket.on('disconnect', function(reason) {
@@ -55,25 +59,31 @@ export class Game {
 
 	}
 
-	joinQueue() {
-		this.socket.emit('queue', 'join', res => {
+	joinQueue(type: string) {
+		this.socket.emit('queue', {
+			value: 'join',
+			type: type
+		}, (res: any) => {
 			if (res == 'join') {
-				this.state = 'queue';
+				this.state.set('queue', type);
 			}
 		});
 	}
 
 	leaveQueue() {
-		this.socket.emit('queue', 'leave', res => {
+		this.socket.emit('queue', {
+			value: 'leave',
+			type: this.state.type
+		}, (res: any) => {
 			if (res == 'leave') {
-				this.state = 'none';
+				this.state.set('none', '');
 			}
 		});
 	}
 	
 	onGameStart(event: any) {
 		console.log('game start');
-		this.state = 'game';
+		this.state.value = 'game';
 		window.addEventListener('keydown', this.handleKeydownEvent.bind(this));
 		window.addEventListener('keyup', this.handleKeyupEvent.bind(this));
 	}
@@ -85,7 +95,7 @@ export class Game {
 	
 	onGameEnd(event: any) {
 		console.log('game end');
-		this.state = 'none';
+		this.state.value = 'none';
 		window.removeEventListener('keydown', this.handleKeydownEvent.bind(this));
 		window.removeEventListener('keyup', this.handleKeyupEvent.bind(this));
 	}

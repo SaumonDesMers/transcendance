@@ -165,6 +165,10 @@ export default {
 
 			<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PRIVÉ -->
 			<div v-if="this.currentChannel?.type == 'PRIV'">
+				<p>Invited Users:</p>
+				<div v-for="user in this.currentChannel?.invited">
+					<p> {{ store.getUserName(user.userId) }}</p>
+				</div>
 				<input type="text" v-model="userNameInputBuffer">
 
 				<!-- Exemple d'un appel a la fonction Pour invite et uninvite un user -->
