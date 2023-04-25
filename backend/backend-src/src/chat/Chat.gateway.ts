@@ -136,28 +136,35 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	) : Promise<GroupChannelDTO>
 	{
 		let channel;
+		let returnedChannel: GroupChannelDTO;
 
 		try {
-			channel = await this.chatService.createGroupChannel(createChannel, {channel: {
-				include: {
-					users: true,
-					messages: true
-				}
-			}});
+			channel = await this.chatService.createGroupChannel(createChannel,
+				{
+					channel: {
+						include: {
+							users: true,
+							messages: true,
+						}
+					},
+					admins: true,
+					owner: true,
+					invited: true,
+				});
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
 		}
 
 		try {
-			await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId, createChannel.key);
+			returnedChannel = await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId, createChannel.key);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
 		}
 
 		socket.join(channel.channel.id.toString());
-		return (channel);
+		return (returnedChannel);
 	}
 
 	@SubscribeMessage("join_channel")
@@ -315,6 +322,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 
 		//maybe send update to channel members to keep track of current invites in channel ?
+		this.server.to(update.channelId.toString()).except(targetSocket.id.toString()).emit("invite_update", update);
 	}
 
 	@SubscribeMessage("chan_type_request")

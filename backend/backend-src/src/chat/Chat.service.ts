@@ -120,7 +120,7 @@ export class ChatService {
 							connect: my_arr
 						}
 					}
-				}
+				},
 			},
 			include: {
 				channel: includeMembersAndLast10Messages
@@ -267,9 +267,9 @@ export class ChatService {
 			},
 			include: {
 				channel: includeMembersAndLast10Messages,
-				admins: {include: {user: true}},
-				owner: {include: {user:true }},
-				invited: {include: {user:true}}
+				admins: true,
+				owner: true ,
+				invited: true,
 			}
 		});
 

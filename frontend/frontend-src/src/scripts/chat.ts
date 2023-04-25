@@ -467,16 +467,13 @@ export class Chat {
 					this.channelInvites.delete(payload.channelId);
 				}
 			}
-			else //remove or add user from invited list
+			let channel = this._group_channels.get(payload.channelId);
+			if (channel != undefined)
 			{
-				let channel = this._group_channels.get(payload.channelId);
-				if (channel != undefined)
-				{
 				if (payload.action == true ) {
 					channel.invited.push({userId:payload.targetUserId});
 				} else {
 					this.delete_user_from_array(payload.targetUserId, channel.invited);
-				}
 			}
 			}
 		});
