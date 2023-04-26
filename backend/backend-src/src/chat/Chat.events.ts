@@ -18,8 +18,8 @@ import { MessageDTO,
 	NewChannelOwnerDTO,
 	ChanKeyRequestDTO,
 	DMChannelDTO,
+	CreateMessageDto,
  } from './Chat.entities'
-import { CreateMessageDto } from './message.create.dto'
 import { CreateGroupChannelDto } from './GroupChannel.create.dto';
 
 export interface InterServerEvents {
@@ -107,6 +107,13 @@ export interface ServerToClientEvents {
 	 * this will be sent to everyone so they can keep track of usernames
 	 */
 	user_update: (payload: ChatUserUpdateDTO) => void;
+
+	/**
+	 * when an invite expires,
+	 * this will be sent to every client on the channel
+	 * so they can remove the invite
+	 */
+	game_invite_expire: (payload: MessageDTO) => void;
 
 	/**
 	 * this is to create a live array of public channels,
@@ -203,6 +210,10 @@ export interface ClientToServerEvents {
 	 */
 	mute_request: (request: MuteDTO) => void;
 
+	/**
+	 * Request to accept an invite made by another player in the chat 
+	 */
+	accept_game_invite: (msg: MessageDTO) => void;
 	//TODO BLOCK REQUEST
 }
 

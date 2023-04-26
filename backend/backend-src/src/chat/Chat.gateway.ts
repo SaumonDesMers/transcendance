@@ -32,10 +32,10 @@ import {
 	inviteUpdateDTO,
 	ChanKeyRequestDTO,
 	DMChannelDTO,
+	CreateMessageDto
 } from './Chat.entities'
 
 import { Server, Socket } from 'socket.io';
-import { CreateMessageDto } from "./message.create.dto";
 import { ChatService } from "./Chat.service";
 import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { Channel, ChatUser, GroupChannel, User } from "@prisma/client";
@@ -291,7 +291,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			// throw WsException;
 			throw new WsException(e.message);
 		}
-
+		
+		console.log("sending message:", message);
 		this.server.to(message.channelId.toString()).emit("message", message);
 	}
 
@@ -436,7 +437,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	async startDM(
 		@ConnectedSocket() socket: chatSocket,
 		@MessageBody() targetUserName: string
-	)
+	): Promise<DMChannelDTO>
 	{
 		let channel : DMChannelDTO;
 		let target_user : ChatUser;
@@ -455,9 +456,32 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		});
 
 		if (targetSocket != undefined)
+		{
+			targetSocket.join(channel.channelId.toString());
 			this.server.to(targetSocket.id).emit("dm_starting", channel);
+		}
 
-		return (channel.channel);
+		socket.join(channel.channelId.toString());
+
+		return (channel);
+	}
+
+	@SubscribeMessage("accept_game_invite")
+	async acceptGameInvite(
+		@ConnectedSocket() socket: chatSocket,
+		@MessageBody() msg: MessageDTO
+	)
+	{
+		try {
+			this.chatService.acceptGameInvite(socket.data.userId, msg.gameInvite.uid);
+		} catch (e: any) {
+			throw new WsException(e.message);
+		}
+		
+		//send update that invite has expired
+		
+		console.log("An User accepted the game invite", msg);
+		this.server.to(msg.channelId.toString()).emit("game_invite_expire", msg);
 	}
 
 	updateUser(userId: number, update: UserWithoutSecret)

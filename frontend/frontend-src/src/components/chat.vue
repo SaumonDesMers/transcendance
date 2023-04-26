@@ -9,13 +9,13 @@ import {
 	joinRequestDTO,
 	adminRequestDTO,
 	MuteDTO,
+	CreateMessageDto
 } from '../../../../backend/backend-src/src/chat/Chat.entities';
 import {
 	ServerToClientEvents,
 	ClientToServerEvents,
 } from '../../../../backend/backend-src/src/chat/Chat.events';
 import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto';
-import { CreateMessageDto } from '../../../../backend/backend-src/src/chat/message.create.dto';
 import store from "../scripts/chat"
 
 export default {
@@ -29,6 +29,7 @@ export default {
 			setKeyInputBuffer: '',
 			userNameInputBuffer: '',
 			currentDMchannel: false,
+			customGameInvite: false,
 			store,
 		}
 	},
@@ -102,6 +103,19 @@ export default {
 			store.sendMessage(msg);
 		},
 
+		async sendInvite() {
+			const msg: CreateMessageDto = {
+				content: this.messageInputBuffer,
+				ChannelId: this.current_channelId,
+				authorId: store.user.userId,
+				gameInvite: {
+					gameType: this.customGameInvite ? 'CUSTOM' : 'NORMAL'
+				}
+			}
+			this.messageInputBuffer = "";
+			store.sendMessage(msg);
+		}
+
 	},
 
 	mounted() {
@@ -151,6 +165,9 @@ export default {
 		<div>
 			<input type="text" v-model="messageInputBuffer">
 			<button @click="SendMessage">Send</button>
+			<button @click="sendInvite">Send Game Invite</button>
+			<input type="checkbox" id ="checkbox" v-model="customGameInvite">
+			<label for="checkbox">Custom Game</label>
 		</div>
 
 		<!-- ici on affiche tout les DM ouverts -->
@@ -164,6 +181,10 @@ export default {
 			<div v-for="message in this.currentChannel?.channel.messages">
 				<p>
 					{{ store.getUserName(message.author.userId) }} : {{ message.content }}
+					<p v-if="message.gameInvite != undefined">
+						Game Invite status: {{ message.gameInvite.status }}
+						<button v-if="message.gameInvite.status == 'PENDING'" @click="store.acceptGameInvite(message)">Join</button>
+					</p>
 				</p>
 			</div>
 			<div v-for="user in this.currentChannel?.channel.users">
@@ -212,14 +233,12 @@ export default {
 			<div v-for="message in this.currentChannel?.channel.messages">
 				<p>
 					{{ store.getUserName(message.author.userId) }} : {{ message.content }}
+					<p v-if="message.gameInvite != undefined">
+						Game Invite status: {{ message.gameInvite.status }}
+						<button v-if="message.gameInvite.status == 'PENDING'" @click="store.acceptGameInvite(message)">Join</button>
+					</p>
 				</p>
 			</div>
-
-			<div>
-				<input type="text" v-model="messageInputBuffer">
-				<button @click="SendMessage">Send</button>
-			</div>
-
 		</div>
 
 	</div>

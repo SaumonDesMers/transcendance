@@ -3,16 +3,15 @@ import { Prisma, Channel, ChatUser, Message, Mute, GroupChannel, ChanType } from
 import { MessageRepository } from "./Message.repository";
 import { ChannelRepository } from "./Channel.repository";
 import { MessageWithAll, MessageWithAuthor, MessageWithChannel } from "./Chat.module";
-import { CreateMessageDto } from "./message.create.dto";
 import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { CreateDMChannelDto } from "./DMChannel.create.dto";
 import { PrismaModule } from "src/database/prisma.module";
 import { PrismaService } from "src/database/prisma.service";
-import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO, ChanRequestDTO, basicChanRequestDTO, InviteRequestDTO, inviteUpdateDTO, ChanTypeRequestDTO, GroupChannelSnippetDTO, ChanKeyRequestDTO } from "./Chat.entities";
+import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO, ChanRequestDTO, basicChanRequestDTO, InviteRequestDTO, inviteUpdateDTO, ChanTypeRequestDTO, GroupChannelSnippetDTO, ChanKeyRequestDTO, CreateMessageDto, MessageDTO } from "./Chat.entities";
 import { WsException } from "@nestjs/websockets";
 import { error } from "console";
 import { ValidationError } from "./Chat.error";
-import { userInfo } from "os";
+import { type, userInfo } from "os";
 
 
 const includeMembers = {
@@ -27,18 +26,12 @@ const includeMembers = {
 
 const includeMembersAndLast10Messages = Prisma.validator<Prisma.ChannelArgs>()({
 	include: {
-		users: {
-			include: {user: true}
-		},
+		users: true,
 		messages: {
 			orderBy: {postedAt: 'asc'},
 			take: 10,
 			include: {
-				author: {
-					include: {
-						user: true
-					}
-				}
+				author: true
 			}
 		}
 	},
@@ -191,41 +184,61 @@ export class ChatService {
 	}
 
 	async sendMessage(newMessage: CreateMessageDto) {
-
-		//should do checks about mute in the future
-
 		// is user muted
 		if (await this.isMuted(newMessage.authorId, newMessage.ChannelId) == true)
 			throw new ValidationError("The user is muted and can't send a message");
-
-
-		
-		//this prisma request 
-		// - assigns message content
+			
+			//this prisma request 
+			// - assigns message content
 		// - connects to an existing channel using the channelId
 		// - connects to its author using an userId
 		// - assign creation date to current date
 		//
 		// includes the channel and author object in the returned object
-		const message = await this.prisma.message.create({
+		let message: MessageDTO = await this.prisma.message.create({
 			data:
 			{
-			content: newMessage.content,
-			channel: {
+				content: newMessage.content,
+				channel: {
 				connect: {id: newMessage.ChannelId}},
 			author: {
 				connect: {userId: newMessage.authorId}},
-			postedAt: new Date
+				postedAt: new Date,
 			},
 			include: {
 				channel: true,
 				author: true
 			},
 		});
+		
 
+		//if the user wants to embed a game invite in the message
+		if (newMessage.gameInvite !== undefined)
+		{
+			// INSERT GAME BACK CALL TO GENERATE UID HERE
+
+			// ID OF USER INVITING IS newMessage.authorId
+
+			//if you need more than id and a game type you can add everything you want
+			//in gameInvitArgs interface in chat.entities
+			//then you will also need to send these infos in the front where the call is made
+
+
+			//you have to set
+			// message.gameInvite.gameInviteUid
+
+			//this is for testing
+			message.gameInvite = {
+				status: 'PENDING',
+				type: newMessage.gameInvite.gameType,
+				uid: 4242
+			};
+		}
+		
+		
 		return message;
 	}
-
+	
 	async eraseMessage(params: {
 		id: Message['id'];
 	}) {
@@ -239,6 +252,15 @@ export class ChatService {
 			}
 		}}
 		)
+	}
+	
+	async acceptGameInvite(userId: number, InviteUid: number)
+	{
+		// HERE ADD THE CALLS YOU WANT TO DO TO GAME BACK
+		//THROW AN EXCEPTION IF THERE IS A PROBLEM
+		/*
+			throw new ValidationError("Game invite expired or Invalid")
+		*/
 	}
 
 	async joinGroupChannel(channelId: number, userId: number, key? :string): Promise<GroupChannelDTO> {
@@ -886,6 +908,7 @@ export class ChatService {
 			channelName:channel.name
 		});
 	}
+
 
 	/**
 	 * @returns `true` if user is currently muted in the channel defined in the args

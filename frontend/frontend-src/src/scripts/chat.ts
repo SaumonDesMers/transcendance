@@ -17,13 +17,12 @@ import {
 	SimpleChatUserDTO,
 	NewChannelOwnerDTO,
 	GroupChannelSnippetDTO,
-	DMChannelDTO
+	DMChannelDTO,
+	CreateMessageDto,
+	gameInviteArgs
 } from '../../../../backend/backend-src/src/chat/Chat.entities'
 import {CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto'
 import { ServerToClientEvents, ClientToServerEvents } from '../../../../backend/backend-src/src/chat/Chat.events'
-import { CreateMessageDto } from '../../../../backend/backend-src/src/chat/message.create.dto';
-import { profileEnd } from 'console'
-import { networkInterfaces } from 'os'
 
 enum ChanType{
 	PUBLIC,
@@ -335,6 +334,34 @@ export class Chat {
 	}
 	
 	/**
+	 * Function to send a GameInvite to a channel
+	 * @date 4/26/2023 - 12:34:29 AM
+	 *
+	 * @param {number} channelId Id of the channel you want to send an invite to ( can be DM or Group )
+	 * @param {gameInviteArgs} inviteArgs Args of the invite
+	 */
+	sendGameInvite(channelId: number, inviteArgs: gameInviteArgs)
+	{
+		this.socket.emit("send_message", {
+			authorId:this.user.userId,
+			ChannelId:channelId,
+			content: '',
+			gameInvite: inviteArgs
+		});
+	}
+
+	/**
+	 * Function to accept a game invite and start a game
+	 * @date 4/26/2023 - 12:41:29 AM
+	 *
+	 * @param {MessageDTO} msg the msg that the user clicked on
+	 */
+	acceptGameInvite(msg: MessageDTO)
+	{
+		this.socket.emit("accept_game_invite", msg);
+	}
+
+	/**
 	 * Function to mute a user
 	 * Info about the DTO in chat.entities
 	 * @date 4/24/2023 - 5:20:41 PM
@@ -539,8 +566,28 @@ export class Chat {
 				chan.owner = payload.newOwner;
 		});
 
+		this.socket.on("game_invite_expire", (payload: MessageDTO) => {
+			let msg: MessageDTO | undefined;
+			console.log("received game_invite expire");
+			if (this._dm_channels.has(payload.channelId))
+			{
+				msg = this._dm_channels.get(payload.channelId)?.channel.messages.find(msg => {
+					return msg.id == payload.id;
+				});
+			}
+			else
+			{
+				msg = this._group_channels.get(payload.channelId)?.channel.messages.find(msg => {
+					return msg.id == payload.id;
+				});
+			}
 
-
+			if (msg != undefined && msg.gameInvite != undefined)
+			{
+				console.log("fond invite, modifying it")
+				msg.gameInvite.status = 'EXPIRED';
+			}
+		});
 
 		/*****************
 		 * DIRECT EVENTS *
@@ -576,6 +623,10 @@ export class Chat {
 					this._public_channels.delete(channel.channelId);
 				})
 			}
+		})
+
+		this.socket.on("dm_starting", (payload: DMChannelDTO) => {
+			this._dm_channels.set(payload.channelId, payload);
 		})
 
 	}

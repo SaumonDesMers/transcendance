@@ -9,12 +9,19 @@ import { ChanType } from "@prisma/client"
  * and stored in the client
  */
 
+export interface GameInvite {
+	status: 'PENDING' | 'EXPIRED';
+	type: 'CUSTOM' | 'NORMAL';
+	uid: number;
+}
+
 export interface MessageDTO {
 	id: number,
 	channelId: number,
 	content: string,
 	author: SimpleChatUserDTO,
 	postedAt: Date,
+	gameInvite?: GameInvite,
 }
 
 export interface ChannelDTO {
@@ -42,6 +49,20 @@ export interface GroupChannelSnippetDTO{
 	channelId: number,
 	// channel: ChannelDTO,
 	name: string
+}
+
+export interface gameInviteArgs {
+	gameType: 'CUSTOM' | 'NORMAL';
+}
+
+export interface CreateMessageDto {
+	authorId: number;
+
+	ChannelId: number;
+
+	content: string;
+
+	gameInvite?: gameInviteArgs;
 }
 
 //there are two different ChatUserDTOs
