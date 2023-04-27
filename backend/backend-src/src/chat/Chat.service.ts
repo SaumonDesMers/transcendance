@@ -12,6 +12,7 @@ import { WsException } from "@nestjs/websockets";
 import { error } from "console";
 import { ValidationError } from "./Chat.error";
 import { type, userInfo } from "os";
+import { GameService } from "src/game/game.service";
 
 
 const includeMembers = {
@@ -64,6 +65,7 @@ const includeMembersAndLast10Messages = Prisma.validator<Prisma.ChannelArgs>()({
 export class ChatService {
 	constructor(private channelRepository: ChannelRepository,
 				private messageRepository: MessageRepository,
+				private gameService: GameService,
 				private prisma: PrismaService) {}
 
 	async createGroupChannel(newGroupChannel: CreateGroupChannelDto, include: Prisma.GroupChannelInclude) {
@@ -217,6 +219,8 @@ export class ChatService {
 		{
 			// INSERT GAME BACK CALL TO GENERATE UID HERE
 
+			const { success, uid } = await this.gameService.createUniqueQueue(newMessage.gameInvite.gameType, newMessage.authorId);
+
 			// ID OF USER INVITING IS newMessage.authorId
 
 			//if you need more than id and a game type you can add everything you want
@@ -261,6 +265,12 @@ export class ChatService {
 		/*
 			throw new ValidationError("Game invite expired or Invalid")
 		*/
+
+		const { success, error } = await this.gameService.joinUniqueQueue('InviteUid', userId);
+
+		if (!success) {
+			throw new ValidationError("Game invite expired or Invalid");
+		}
 	}
 
 	async joinGroupChannel(channelId: number, userId: number, key? :string): Promise<GroupChannelDTO> {

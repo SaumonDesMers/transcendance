@@ -327,7 +327,7 @@ export class GameEntity {
 		player2.joinGame(this);
 		this.broadcastService.to(this.UID, 'start');
 
-		if (type == 'custom') {
+		if (type == 'CUSTOM') {
 			this.obstaclesMaxNumber = 4;
 		}
 

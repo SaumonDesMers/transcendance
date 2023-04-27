@@ -6,14 +6,14 @@ export class QueueService {
 
 	playerInQueue = new WeakMap<PlayerEntity, { type: string, uid: string }>();
 	queues = {
-		'classic': new Array<PlayerEntity>(),
-		'custom': new Array<PlayerEntity>(),
+		'NORMAL': new Array<PlayerEntity>(),
+		'CUSTOM': new Array<PlayerEntity>(),
 	};
 	queueUnique = new Map<string, { type: string, playerWaiting: PlayerEntity }>();
 
 	log() {
-		console.log('queue.service: log: classic:', this.queues.classic.map(p => { return { id: p.id, state: p.state.value } }));
-		console.log('queue.service: log: custom:', this.queues.custom.map(p => { return { id: p.id, state: p.state.value } }));
+		console.log('queue.service: log: NORMAL:', this.queues.NORMAL.map(p => { return { id: p.id, state: p.state.value } }));
+		console.log('queue.service: log: CUSTOM:', this.queues.CUSTOM.map(p => { return { id: p.id, state: p.state.value } }));
 		// console.log('queue.service: log: queueUnique:', this.queueUnique);
 		// console.log('queue.service: log: playerInQueue:', this.playerInQueue);
 	}
@@ -77,7 +77,7 @@ export class QueueService {
 			this.leaveCurrentQueue(player);
 		}
 
-		player.state.set('queue', type);
+		player.state.set('queue', 'UNIQUE');
 		this.playerInQueue.set(player, { type, uid });
 
 		this.queueUnique.set(uid, { type, playerWaiting: player });
@@ -133,7 +133,7 @@ export class QueueService {
 
 		const state = this.playerInQueue.get(player);
 
-		if (state.type != 'unique') {
+		if (state.type != 'UNIQUE') {
 
 			this.queues[state.type] = this.queues[state.type].filter((p: PlayerEntity) => p != player);
 

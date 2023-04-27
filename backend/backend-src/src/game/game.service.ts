@@ -112,18 +112,18 @@ export class GameService {
 		let player: PlayerEntity = this.onlinePlayer.get(playerId);
 		if (!player) {
 			console.log('game.service: joinUniqueQueue: player not found');
-			return { success: false, error: 'player not found' };
+			return { success: false, error: 'Player not found' };
 		}
 
 		if (player.state.value == 'game') {
 			console.log(`game.service: joinUniqueQueue: player already in game`);
-			return { success: false, error: `player already in game` };
+			return { success: false, error: `Player already in game` };
 		}
 
 		const gameData = await this.queueService.joinUniqueQueue(player, uid);
 
 		if (!gameData) {
-			return { success: false, error: 'queue not found' };
+			return { success: false, error: 'Queue not found' };
 		}
 
 		this.createGame(gameData.p1, gameData.p2, gameData.type);

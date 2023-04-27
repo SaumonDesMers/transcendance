@@ -10,6 +10,7 @@ import { QueueService } from './queue.service';
 @Module({
 	imports: [AuthModule, PrismaModule],
 	controllers: [],
-	providers: [GameGateway, GameService, BroadcastService, QueueService]
+	providers: [GameGateway, GameService, BroadcastService, QueueService],
+	exports: [GameService],
 })
 export class GameModule {}

@@ -39,8 +39,8 @@ export default {
 			</div>
 			<div v-else>
 				<div v-if="game.state.value == 'none'">
-					<button @click="game.joinQueue('classic')">Play classic game !</button>
-					<button @click="game.joinQueue('custom')">Play custom game !</button>
+					<button @click="game.joinQueue('NORMAL')">Play classic game !</button>
+					<button @click="game.joinQueue('CUSTOM')">Play custom game !</button>
 				</div>
 				<div v-else-if="game.state.value == 'queue'">
 					<p>Waiting for another player...</p>

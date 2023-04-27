@@ -13,6 +13,7 @@ import { ChannelRepository } from "./Channel.repository";
 import { AuthModule } from "src/auth/auth.module";
 import { Socket, Server } from 'socket.io'
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from "./Chat.events";
+import { GameModule } from "src/game/game.module";
 
 const messageWithAuthor = Prisma.validator<Prisma.MessageArgs>()({include: {author: true}});
 const messageWithChannel = Prisma.validator<Prisma.MessageArgs>()({include: {channel: true}});
@@ -36,7 +37,7 @@ export type GroupChannelWithMembers = Prisma.GroupChannelGetPayload<typeof inclu
 export type chatSocket = Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
 export type chatServer = Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
 @Module({
-	imports: [PrismaModule, AuthModule],
+	imports: [PrismaModule, AuthModule, GameModule],
 	providers: [MessageRepository, ChatService, ChannelRepository, ChatGateway],
 	exports: [ChatService],
 })
