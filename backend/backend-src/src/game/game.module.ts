@@ -5,10 +5,11 @@ import { GameGateway } from './game.gateway';
 import { GameService } from './game.service';
 import { BroadcastService } from './broadcast.service'
 import { PrismaModule } from 'src/database/prisma.module';
+import { QueueService } from './queue.service';
 
 @Module({
 	imports: [AuthModule, PrismaModule],
 	controllers: [],
-	providers: [GameGateway, GameService, BroadcastService]
+	providers: [GameGateway, GameService, BroadcastService, QueueService]
 })
 export class GameModule {}
