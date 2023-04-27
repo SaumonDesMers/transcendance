@@ -9,13 +9,13 @@ import {
 	joinRequestDTO,
 	adminRequestDTO,
 	MuteDTO,
+	CreateMessageDto
 } from '../../../../backend/backend-src/src/chat/Chat.entities';
 import {
 	ServerToClientEvents,
 	ClientToServerEvents,
 } from '../../../../backend/backend-src/src/chat/Chat.events';
 import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto';
-import { CreateMessageDto } from '../../../../backend/backend-src/src/chat/message.create.dto';
 import store from "../scripts/chat"
 
 export default {
@@ -28,12 +28,17 @@ export default {
 			keyInputBuffer: '',
 			setKeyInputBuffer: '',
 			userNameInputBuffer: '',
+			currentDMchannel: false,
+			customGameInvite: false,
 			store,
 		}
 	},
 	computed: {
 		currentChannel() {
-			return this.store.getGroupChannel(this.current_channelId);
+			if (this.currentDMchannel == false)
+				return this.store.getGroupChannel(this.current_channelId);
+			else
+				return this.store.getDMChannel(this.current_channelId);
 		}
 	},
 	renderTriggered(event) {
@@ -55,13 +60,13 @@ export default {
 		},
 
 		selectChannel(id: number) {
+			this.currentDMchannel = false;
 			this.current_channelId = id;
 		},
 
-		async sendTest() {
-			this.socket.emit('test_event', (answer) => {
-				console.log(answer);
-			});
+		selectDMChannel(id: number) {
+			this.currentDMchannel = true;
+			this.current_channelId = id;
 		},
 
 		async createChannel() {
@@ -98,6 +103,19 @@ export default {
 			store.sendMessage(msg);
 		},
 
+		async sendInvite() {
+			const msg: CreateMessageDto = {
+				content: this.messageInputBuffer,
+				ChannelId: this.current_channelId,
+				authorId: store.user.userId,
+				gameInvite: {
+					gameType: this.customGameInvite ? 'CUSTOM' : 'NORMAL'
+				}
+			}
+			this.messageInputBuffer = "";
+			store.sendMessage(msg);
+		}
+
 	},
 
 	mounted() {
@@ -115,7 +133,6 @@ export default {
 		<div>
 			<button v-if="store.disconnected" @click="connectToServer">Connect To Chat</button>
 			<button v-else @click="disconnectFromServer">Disconnect from Chat</button>
-			<button @click="sendTest">Get chehd</button>
 		</div>
 
 	<div v-if="store.connected">
@@ -125,6 +142,7 @@ export default {
 			<button @click="createChannel">Create Channel</button>
 			<button @click="joinChannel">Join Channel</button>
 			<button @click="leaveChannel">Leave Channel</button>
+			<button @click="store.startDM(channelInputBuffer)">Start DM</button>
 		</div>
 		<p>Invites:</p>
 		<!-- Ici on affiche tout les channels pour lesquels on est invité -->
@@ -147,13 +165,26 @@ export default {
 		<div>
 			<input type="text" v-model="messageInputBuffer">
 			<button @click="SendMessage">Send</button>
+			<button @click="sendInvite">Send Game Invite</button>
+			<input type="checkbox" id ="checkbox" v-model="customGameInvite">
+			<label for="checkbox">Custom Game</label>
 		</div>
 
-		<div v-if="this.current_channelId != null">
+		<!-- ici on affiche tout les DM ouverts -->
+		<div v-for="[channelId, channel] in store.dmChannels">
+			<button @click="selectDMChannel(channelId)">{{ channel.channel.users.map(a => store.getUserName(a.userId)) }}</button>
+		</div>
+
+		<!-- Ici on affiche un channel de groupe avec les messages et les options... -->
+		<div v-if="this.current_channelId != null && this.currentDMchannel == false">
 
 			<div v-for="message in this.currentChannel?.channel.messages">
 				<p>
 					{{ store.getUserName(message.author.userId) }} : {{ message.content }}
+					<p v-if="message.gameInvite != undefined">
+						Game Invite status: {{ message.gameInvite.status }}
+						<button v-if="message.gameInvite.status == 'PENDING'" @click="store.acceptGameInvite(message)">Join</button>
+					</p>
 				</p>
 			</div>
 			<div v-for="user in this.currentChannel?.channel.users">
@@ -165,6 +196,10 @@ export default {
 
 			<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PRIVÉ -->
 			<div v-if="this.currentChannel?.type == 'PRIV'">
+				<p>Invited Users:</p>
+				<div v-for="user in this.currentChannel?.invited">
+					<p> {{ store.getUserName(user.userId) }}</p>
+				</div>
 				<input type="text" v-model="userNameInputBuffer">
 
 				<!-- Exemple d'un appel a la fonction Pour invite et uninvite un user -->
@@ -189,6 +224,23 @@ export default {
 
 			<button @click="store.setChanType(current_channelId, 'KEY', setKeyInputBuffer)">Set Channel KeyProtected</button>
 		</div>
+
+		<div v-if="this.current_channelId != null && this.currentDMchannel == true">
+			<p>Chat With
+				<p v-for="user in this.currentChannel?.channel.users">{{ store.getUserName(user.userId) }}</p>
+			</p>
+			
+			<div v-for="message in this.currentChannel?.channel.messages">
+				<p>
+					{{ store.getUserName(message.author.userId) }} : {{ message.content }}
+					<p v-if="message.gameInvite != undefined">
+						Game Invite status: {{ message.gameInvite.status }}
+						<button v-if="message.gameInvite.status == 'PENDING'" @click="store.acceptGameInvite(message)">Join</button>
+					</p>
+				</p>
+			</div>
+		</div>
+
 	</div>
 
 	<!-- exemple d'un affichage de la dernière erreur reçue -->

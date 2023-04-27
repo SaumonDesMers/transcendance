@@ -1,9 +1,8 @@
 <script>
 import axios from 'axios'
-import "../styles/darkTheme.scss"
-import "../styles/lightTheme.scss"
 import { State } from '../scripts/state'
 import { User } from '../scripts/user'
+import { registerRuntimeHelpers } from '@vue/compiler-core'
 
 export default {
 	data: function () {
@@ -27,34 +26,16 @@ export default {
 			var theme = themeClass;
 			const b = document.querySelector('body');
 			
-			if (!theme) {
-				if (this.isDark)
-				theme = 'dark-theme';
-				else
-				theme = 'light-theme'
-			}
-			else if (this.isDark)
-			theme += '-dark';
-			b.classList.remove(
-				'alliance-theme',
-				'order-theme',
-				'federation-theme',
-				'assembly-theme',
-				'alliance-theme-dark',
-				'order-theme-dark',
-				'federation-theme-dark',
-				'assembly-theme-dark',
-				'dark-theme',
-				'light-theme',
-				'centered-container',
-				'centered-container-dark'
-				);
-				console.log('setting theme (' + themeClass + ') computed as ' + theme);
+			b.classList.remove('ALLIANCE', 'ORDER', 'FEDERATION', 'ASSEMBLY', 'dark');
+			console.log('setting theme (' + themeClass + ') computed as ' + theme + ' dark == ' + this.isDark);
+			if (theme)
 				b.classList.add(theme);
-			},
-			applyPreviousThemeOnMouseOut() {
-				this.setTheme(this.coalition);
-			},
+			if (this.isDark)
+				b.classList.add('dark');
+		},
+		applyPreviousThemeOnMouseOut() {
+			this.setTheme(this.coalition);
+		},
 		toggleDarkMode() {
 			this.isDark = !this.isDark;
 			this.setTheme(this.coalition);
@@ -79,14 +60,22 @@ export default {
 			this.image = '';
 		},
 		saveAndSubmit() {
+			if (!this.username || this.username == 'USERNAME') {
+				alert("Please select a username.")
+				return;
+			}
+			if (!this.coalition) {
+				alert("Please select a coalition.")
+				return;
+			}
 			axios
 				.post('http://localhost:3001/users', 
 				{
 					"id": 0,
 					"username": this.username,
 					"darkMode": this.isDark,
-					"coa": 'FEDERATION',
-					"bio": 'Vive la fede !'
+					"coa": this.coalition,
+					"bio": 'Praise the ' + this.coalition + '!'
 				})
 				.then((res) => {
 					// this.$emit('user', res.data);
@@ -108,27 +97,27 @@ export default {
 
 <template>
 	<div style="display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw;">
-		<div :class="[isDark ? 'centered-container-dark' : 'centered-container']">
+		<div :class="[isDark ? 'centered-container dark' : 'centered-container']">
 			<div style="display: flex; align-content: flex-end; flex-flow: column wrap;">
-				<input type="checkbox" id="toggle">
-				<label class="toggle-main" for="toggle" @click="toggleDarkMode"></label>
+				<input class="input" type="checkbox" id="toggle">
+				<label class="register-dark-toggle" for="toggle" @click="toggleDarkMode"></label>
 			</div>
 			<div class="actions">
 				<div class="actions-content">
 					<form :class="[isDark ? 'btn dark' : 'btn brown']">
 						<span>
-							<input v-model='username' @click="username=''"/>
+							<input class="input" v-model='username' @click="username=''"/>
 						</span>
 					</form>
 					<div :class="[isDark ? 'btn dark' : 'btn blue']">
 						<label for="files" ref="onFileChange"><span>AVATAR</span></label>
-						<input id="files" width="100%" type="file" style="visibility:hidden; height: 0;" />
+						<input class="input" id="files" width="100%" type="file" style="visibility:hidden; height: 0;" />
 					</div>
 				</div>
 				<div style="display: flex; justify-content: space-between; gap: 4px">
-					<button class="svg" :class="[isDark ? 'btn-coa-dark alliance' : 'btn-coa alliance']"
-						@mouseover="setTheme('alliance-theme')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('alliance-theme')">
+					<button class="btn-coa alliance-btn" :class="[isDark ? 'dark' : '']"
+						@mouseover="setTheme('ALLIANCE')" @mouseout="applyPreviousThemeOnMouseOut()"
+						@click="applyTheme('ALLIANCE')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -138,9 +127,9 @@ export default {
 							</path>
 						</svg>
 					</button>
-					<button class="svg" :class="isDark ? 'btn-coa-dark order' : 'btn-coa order'"
-						@mouseover="setTheme('order-theme')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('order-theme')">
+					<button class="btn-coa order-btn" :class="isDark ? 'dark' : ''"
+						@mouseover="setTheme('ORDER')" @mouseout="applyPreviousThemeOnMouseOut()"
+						@click="applyTheme('ORDER')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -150,9 +139,9 @@ export default {
 							</path>
 						</svg>
 					</button>
-					<button class="svg" :class="isDark ? 'btn-coa-dark federation' : 'btn-coa federation'"
-						@mouseover="setTheme('federation-theme')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('federation-theme')">
+					<button class="btn-coa federation-btn" :class="isDark ? 'dark' : ''"
+						@mouseover="setTheme('FEDERATION')" @mouseout="applyPreviousThemeOnMouseOut()"
+						@click="applyTheme('FEDERATION')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -162,9 +151,9 @@ export default {
 							</path>
 						</svg>
 					</button>
-					<button class="bsvg" :class="isDark ? 'btn-coa-dark assembly' : 'btn-coa assembly'"
-						@mouseover="setTheme('assembly-theme')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('assembly-theme')">
+					<button class="btn-coa assembly-btn" :class="isDark ? 'dark' : ''"
+						@mouseover="setTheme('ASSEMBLY')" @mouseout="applyPreviousThemeOnMouseOut()"
+						@click="applyTheme('ASSEMBLY')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -184,103 +173,4 @@ export default {
 	</div>
 </template>
 
-<style lang="scss">
-@import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
-
-$brown-orange: #C06014;
-$grey-dark: #536162;
-$sem-black: #3A3535;
-$black: #000000;
-$white: #FFFFFF;
-$whitesmoke: #F3F4ED;
-$blue-grey: #3F4C5C;
-
-input {
-	font-family: 'Righteous', cursive;
-	background-color: transparent;
-	align-items: center;
-	justify-content: center;
-	text-align: center;
-	font-size: 1.5rem;
-	width: 100%;
-	border-radius: .125rem;
-	border: 2px solid $sem-black;
-	color: inherit;
-	text-decoration: none;
-	transition: color .125s ease;
-	overflow: hidden;
-	cursor: pointer;
-	outline: none;
-	border-bottom: none;
-	border-top-style: none;
-	border-right-style: none;
-	border-left-style: none;
-	display: flex;
-	flex: 0 0 auto;
-	flex-direction: column;
-
-	&:hover,
-	&:active {
-		width: 100%;
-		// color: transparent;
-		align-items: center;
-		justify-content: center;
-	}
-}
-
-svg {
-	height: 100%;
-	z-index: 1;
-}
-
-.actions {
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	align-self: flex-start;
-	margin: .25rem 0 1rem;
-}
-
-.actions-content {
-	display: flex;
-	flex-direction: column;
-}
-
-.toggle-main {
-	cursor: pointer;
-	display: inline-block;
-	background: $sem-black;
-	width: 60px;
-	height: 25px;
-	border-radius: 50px;
-	position: relative;
-	transition: 0.2s all ease-in-out;
-}
-
-.toggle-main::before {
-	content: '';
-	display: inline-block;
-	background: #fff;
-	width: 21px;
-	height: 21px;
-	border-radius: 50px;
-	transition: 0.2s all cubic-bezier(0.85, 0.05, 0.18, 1.35);
-	margin: 2px 0 0 2px;
-}
-
-input[type="checkbox"] {
-	display: none;
-}
-
-input[type="checkbox"]:checked~label {
-	background: $sem-black;
-}
-
-input[type="checkbox"]:checked~label::before {
-	transform: translateX(35px);
-}
-
-.error {
-	color: red;
-}
-</style>
+<style lang="scss" scoped src="../styles/login.scss"></style>

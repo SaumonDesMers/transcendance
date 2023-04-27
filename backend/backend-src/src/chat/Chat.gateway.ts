@@ -31,10 +31,11 @@ import {
 	InviteRequestDTO,
 	inviteUpdateDTO,
 	ChanKeyRequestDTO,
+	DMChannelDTO,
+	CreateMessageDto
 } from './Chat.entities'
 
 import { Server, Socket } from 'socket.io';
-import { CreateMessageDto } from "./message.create.dto";
 import { ChatService } from "./Chat.service";
 import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { Channel, ChatUser, GroupChannel, User } from "@prisma/client";
@@ -98,14 +99,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		let payload : any;
 		let jwt : string = socket.handshake.headers.authorization;
 		let user : any;
-		console.log("New socket connected to chat");
-		console.log("jwt token:", jwt);
 		try {
 			payload = await this.authService.verifyJWT(jwt.split(' ')[1]);
-			console.log(payload);
-			console.log(payload.id);
 			socket.data.userId = parseInt(payload.id);
-			console.log(socket.data.userId);
 			user = await this.chatService.getChatUserWithChannels(socket.data.userId);
 		}
 		catch (e) {
@@ -114,7 +110,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			socket.disconnect(true);
 		}
 
-		console.log(user);
 		//joining every channel the user was connected to
 		user.joinedChannels.forEach(channel => {
 			socket.join(channel.id.toString());
@@ -136,28 +131,37 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	) : Promise<GroupChannelDTO>
 	{
 		let channel;
+		let returnedChannel: GroupChannelDTO;
 
 		try {
-			channel = await this.chatService.createGroupChannel(createChannel, {channel: {
-				include: {
-					users: true,
-					messages: true
-				}
-			}});
+			channel = await this.chatService.createGroupChannel(createChannel,
+				{
+					channel: {
+						include: {
+							users: true,
+							messages: true,
+						}
+					},
+					admins: true,
+					owner: true,
+					invited: true,
+				});
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
 		}
 
 		try {
-			await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId, createChannel.key);
+			returnedChannel = await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId, createChannel.key);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
 		}
 
 		socket.join(channel.channel.id.toString());
-		return (channel);
+		if (returnedChannel.type == 'PUBLIC')
+			this.server.emit('public_chans', {channels: [returnedChannel], add: true});
+		return (returnedChannel);
 	}
 
 	@SubscribeMessage("join_channel")
@@ -168,7 +172,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	{
 		let channel: GroupChannel;
 		let channelWithMessage: GroupChannelDTO;
-		console.log(request);
 		try {
 			channel = await this.chatService.findGroupChannelbyName(request.channelName);
 
@@ -197,7 +200,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	{
 		let channel: any;
 
-		console.log("leave channel called");
 		try {
 			channel = await this.chatService.findGroupChannelbyID(channelId);
 		} catch (e: any) {
@@ -205,7 +207,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			throw new WsException(e);
 		}
 
-		console.log("no crash yet");
 		try {
 			await this.chatService.leaveGroupChannel(channelId,
 				socket.data.userId);
@@ -253,14 +254,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	async handleGetOtherUser(@ConnectedSocket() socket: chatSocket,
 		@MessageBody() id: number)
 	{
-		console.log(id);
 		return this.chatService.getChatUser(id);
 	}
 
 	@SubscribeMessage("get_groupchannels")
 	async handleGetChannels(@ConnectedSocket() socket: chatSocket)
 	{
-		console.log("get channel called");
 		return this.chatService.getUserGroupChannels(socket.data.userId);
 	}
 
@@ -268,8 +267,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	async handleGetPublicChannels(
 		@ConnectedSocket() socket: chatSocket)
 	{
-		console.log("Received public chan request from: %d", socket.id);
 		return this.chatService.getPublicChannels();
+	}
+
+	@SubscribeMessage("get_dmchannels")
+	async handleGetDMs(@ConnectedSocket() socket: chatSocket)
+	{
+		return this.chatService.getUserDMChannels(socket.data.userId);
 	}
 
 	@SubscribeMessage("send_message")
@@ -287,7 +291,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			// throw WsException;
 			throw new WsException(e.message);
 		}
-
+		
+		console.log("sending message:", message);
 		this.server.to(message.channelId.toString()).emit("message", message);
 	}
 
@@ -315,6 +320,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 
 		//maybe send update to channel members to keep track of current invites in channel ?
+		this.server.to(update.channelId.toString()).except(targetSocket.id.toString()).emit("invite_update", update);
 	}
 
 	@SubscribeMessage("chan_type_request")
@@ -430,28 +436,52 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	@SubscribeMessage("start_dm")
 	async startDM(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody('targetUserId', ParseIntPipe)
-		targetUserId: number
-	)
+		@MessageBody() targetUserName: string
+	): Promise<DMChannelDTO>
 	{
-		let channel;
+		let channel : DMChannelDTO;
+		let target_user : ChatUser;
 
 		//ask the service to start a DM with the other user, will return a DMChannel
 		try {
-			channel = await this.chatService.startDM({targetUserId, callerUserId:socket.data.userId});
+			channel = await this.chatService.startDM(socket.data.userId, targetUserName);
+			target_user = await this.chatService.getChatUserByName(targetUserName);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e.toString());
 		}
 		const sockets = await this.server.fetchSockets();
 		const targetSocket = sockets.find(socket => {
-			return socket.data.userId == targetUserId;
+			return socket.data.userId == target_user.userId;
 		});
 
 		if (targetSocket != undefined)
+		{
+			targetSocket.join(channel.channelId.toString());
 			this.server.to(targetSocket.id).emit("dm_starting", channel);
+		}
 
-		return (channel.channel);
+		socket.join(channel.channelId.toString());
+
+		return (channel);
+	}
+
+	@SubscribeMessage("accept_game_invite")
+	async acceptGameInvite(
+		@ConnectedSocket() socket: chatSocket,
+		@MessageBody() msg: MessageDTO
+	)
+	{
+		try {
+			this.chatService.acceptGameInvite(socket.data.userId, msg.gameInvite.uid);
+		} catch (e: any) {
+			throw new WsException(e.message);
+		}
+		
+		//send update that invite has expired
+		
+		console.log("An User accepted the game invite", msg);
+		this.server.to(msg.channelId.toString()).emit("game_invite_expire", msg);
 	}
 
 	updateUser(userId: number, update: UserWithoutSecret)

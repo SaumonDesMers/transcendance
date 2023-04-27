@@ -1,0 +1,140 @@
+@import 'all.scss';
+
+.main-container {
+    width: 100%;
+    flex-direction: column;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    position: absolute;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    z-index: 7;
+}
+
+.main-button {
+    background-color: rgba(0, 0, 0, 0.25);
+    border: none;
+    color: $white;
+    width: 35%;
+    font-size: 4vw;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2%;
+    margin-top: 2%;
+    z-index: 10;
+
+    &:hover,
+    &:active {
+        text-shadow:
+            0 0 5px #fff,
+            0 0 10px #fff,
+            0 0 20px #fff,
+            0 0 30px rgb(199, 199, 199),
+            0 0 40px rgb(134, 134, 134);
+    }
+}
+
+.navigation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 70px;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.25);
+    color: $white;
+    overflow: hidden;
+    transition: 0.5s;
+}
+
+.navigation:hover,
+.navigation.active {
+    width: 200px;
+}
+
+.navigation ul {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.navigation ul li {
+    position: relative;
+    width: 100%;
+    list-style: none;
+    transition: 1s;
+}
+
+.navigation ul li:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.navigation ul li a {
+    position: relative;
+    display: block;
+    width: 100%;
+    display: flex;
+    height: 10vh;
+    text-decoration: none;
+    color: $white;
+}
+
+.navigation ul li a .icon {
+    position: relative;
+    display: flex;
+    width: 70px;
+    min-width: 63px;
+    height: 100px;
+    line-height: 60px;
+    text-align: center;
+    flex-direction: column-reverse;
+    justify-content: space-around;
+}
+
+.navigation ul li a .avatar {
+    border-radius: 10px 100px / 120px;
+    background: url("../assets/images/sekiro-avatar.png") no-repeat;
+    background-size: contain;
+    position: relative;
+    display: flex;
+    min-width: 55px;
+    height: 60px;
+    line-height: 55px;
+    margin: 20px 7px;
+    text-align: center;
+    flex-direction: column-reverse;
+    justify-content: space-around;
+}
+
+.navigation ul li a .icon .fa {
+    font-size: 24px;
+}
+
+.navigation ul li a .title {
+    position: relative;
+    display: flex;
+    padding: 0 10px;
+    height: 10px;
+    line-height: 100px;
+    text-align: center;
+    white-space: nowrap;
+    font-size: 17px;
+
+    &:hover,
+    &:active {
+        text-shadow:
+            0 0 5px #fff,
+            0 0 10px #777777,
+            0 0 15px #000000,
+    }
+}

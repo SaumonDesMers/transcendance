@@ -13,6 +13,8 @@ import validate2fa from './components/validate2fa.vue'
 import toggle2fa from './components/toggle2fa.vue'
 import { User } from './scripts/user'
 import gameGateway from './scripts/game'
+import friends from './components/friends.vue'
+import history from './components/history.vue'
 
 export default {
 
@@ -25,6 +27,8 @@ export default {
 		user,
 		edit,
 		validate2fa,
+		friends,
+		history,
 	},
 
 	computed: {
@@ -51,7 +55,7 @@ export default {
 	},
 
 	mounted() {
-		if (this.user.isLog())
+		if (this.user.isLog() && this.$cookies.get('jwt'))
 			this.state = State.MAIN;
 		else
 			this.state = State.LOGIN;
@@ -61,7 +65,7 @@ export default {
 
 	watch: {
 		state() {
-			if (this.user.isLog() && this.gameGateway.socket.disconnected) {
+			if (this.user.isLog() && this.$cookies.get('jwt') && this.gameGateway.socket.disconnected) {
 				this.gameGateway.connect(this.$cookies.get('jwt'));
 			}
 		}
@@ -86,6 +90,9 @@ export default {
 	<div v-else-if="state == State.USER">
 		<user @switchPage="switchPage"></user>
 	</div>
+	<div v-else-if="state == State.FRIENDS">
+		<friends @switchPage="switchPage"></friends>
+	</div>
 	<div v-else-if="state == State.GAME">
 		<game></game>
 	</div>
@@ -94,6 +101,9 @@ export default {
 	</div>
 	<div v-else-if="state == State.EDIT">
 		<edit @switchPage="switchPage"></edit>
+	</div>
+	<div v-else-if="state == State.HISTORY">
+		<history @switchPage="switchPage"></history>
 	</div>
 </template>
 

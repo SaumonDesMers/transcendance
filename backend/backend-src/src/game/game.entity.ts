@@ -494,7 +494,7 @@ export class GameEntity {
 		this.side[0].player.leaveGame();
 		this.side[1].player.leaveGame();
 		this.gameService.games = this.gameService.games.filter(g => g.UID != this.UID);
-		this.gameService.saveGame(winnerSide.player.id, loserSide.player.id, winnerSide.score, loserSide.score);
+		this.gameService.saveGame(parseInt(winnerSide.player.id), parseInt(loserSide.player.id), winnerSide.score, loserSide.score);
 	}
 	
 	async playerInput(player: PlayerEntity, input: string) {
