@@ -130,7 +130,8 @@ export interface ChatUserUpdateDTO {
  * and sometimes used by the serer as updates when possible
 *****************/
 export interface joinRequestDTO {
-	channelName: string,
+	channelName?: string,
+	channelId?: number,
 	key?: string
 }
 

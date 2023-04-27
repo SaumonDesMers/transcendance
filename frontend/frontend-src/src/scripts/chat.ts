@@ -268,7 +268,20 @@ export class Chat {
 	joinChannel(request: joinRequestDTO)
 	{
 		this.socket.emit("join_channel", request, (channel: GroupChannelDTO) => {
-			this.channelInvites.delete(channel.channelId);
+			this._group_channels.set(channel.channelId, channel);
+		})
+	}
+	
+	/**
+	 * Function to call when you want to accept a channel invite
+	 * @date 4/27/2023 - 10:47:18 PM
+	 *
+	 * @param {number} channelId the id of the channel specified in the invite
+	 */
+	acceptInvite(channelId: number)
+	{
+		this._channel_invites.delete(channelId);
+		this.socket.emit("join_channel", {channelId}, (channel : GroupChannelDTO) => {
 			this._group_channels.set(channel.channelId, channel);
 		})
 	}

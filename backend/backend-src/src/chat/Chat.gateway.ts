@@ -170,24 +170,28 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@ConnectedSocket() socket: chatSocket)
 		: Promise<GroupChannelDTO>
 	{
-		let channel: GroupChannel;
+		let channelId: number;
 		let channelWithMessage: GroupChannelDTO;
 		try {
-			channel = await this.chatService.findGroupChannelbyName(request.channelName);
 
-			channelWithMessage = await this.chatService.joinGroupChannel(channel.channelId, socket.data.userId, request.key);
+			if (request.channelId == undefined)
+				channelId = (await this.chatService.findGroupChannelbyName(request.channelName)).channelId;
+			else
+				channelId = request.channelId;
+
+			channelWithMessage = await this.chatService.joinGroupChannel(channelId, socket.data.userId, request.key);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e.message);
 		}
 
 		const user = await this.chatService.getChatUser(socket.data.userId);
-		console.log("user %d joining channel %s", socket.data.userId, channel.name)
-		this.server.to(channel.channelId.toString()).emit("user_joined_room", {
-			user: user,
-			channelId: channel.channelId
+		console.log("user %d joining channel %s", socket.data.userId, channelWithMessage.name)
+		this.server.to(channelId.toString()).emit("user_joined_room", {
+			user,
+			channelId
 		});
-		socket.join(channel.channelId.toString());
+		socket.join(channelId.toString());
 		// socket.emit("join_room", channel);
 		return (channelWithMessage);
 	}

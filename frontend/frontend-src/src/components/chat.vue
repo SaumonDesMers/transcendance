@@ -148,7 +148,7 @@ export default {
 		<!-- Ici on affiche tout les channels pour lesquels on est invité -->
 		<!-- en crééant un bouton qui permet de rejoindre le channel concerné -->
 		<div v-for="[channelId, name] in store.channelInvites">
-			<button @click="store.joinChannel({channelName:name, key: ''})">{{ name }}</button>
+			<button @click="store.acceptInvite(channelId)">{{ name }}</button>
 		</div>
 		<!-- Ici on affiche tout les channels publics que l'ont peu rejoindre en cliquant -->
 		<p>Public Channels:</p>
