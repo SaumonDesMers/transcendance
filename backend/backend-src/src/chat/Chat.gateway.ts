@@ -329,12 +329,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@ConnectedSocket() socket: chatSocket,
 		@MessageBody() request: ChanTypeRequestDTO)
 	{
-		let oldChan: GroupChannel;
+		let oldChan: GroupChannel & {
+			invited: ChatUser[];
+			admins: ChatUser[];
+		};
 		try {
 			oldChan = await this.chatService.set_chan_type(request);
 		} catch (e: any) {
 			console.log(e);
-			throw new WsException(e);
+			throw new WsException(e.message);
 		}
 
 		//GLOBAL NOTIFICATIONS
@@ -347,6 +350,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			this.server.emit("public_chans", {channels:[oldChan], add: true});
 		//note: the type channelSnippet that is sent will only extract the name and id of the channel
 		//so it's not the whole channel that is being sent
+
+		//INVITE NOTIFICATIONS
+		if (request.type == 'KEY' || request.type == 'PRIV')
+		{
+			oldChan.invited.forEach(async user => {
+				const otherSocket = await this.findSocket(user.userId);
+
+				//uninvite notif
+				otherSocket?.emit("invite_update", {
+					channelId:oldChan.channelId,
+					channelName:oldChan.name,
+					targetUserId:user.userId,
+					action:false
+				});
+			});
+		}
 
 		//CHANNEL NOTIFICATIONS
 		this.server.to(request.channelId.toString()).emit("chan_type_update", request);		

@@ -766,12 +766,13 @@ export class ChatService {
 	 * WARNING WILL RETURN OLD CHANNEL,
 	 * TO DETECT PASSAGE TO AND FROM PUBLIC TYPE
 	 */
-	async set_chan_type(request: ChanTypeRequestDTO): Promise<GroupChannel>
+	async set_chan_type(request: ChanTypeRequestDTO)
 	{
 		const channel = await this.prisma.groupChannel.findUnique({
 			where: {channelId:request.channelId},
 			include: {
-				admins: true
+				admins: true,
+				invited: true
 			}
 		});
 

@@ -195,7 +195,7 @@ export default {
 			</div>
 
 			<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PRIVÉ -->
-			<div v-if="this.currentChannel?.type == 'PRIV'">
+			<div v-if="this.currentChannel?.type == 'PRIV' || this.currentChannel?.type == 'PUBLIC'">
 				<p>Invited Users:</p>
 				<div v-for="user in this.currentChannel?.invited">
 					<p> {{ store.getUserName(user.userId) }}</p>
