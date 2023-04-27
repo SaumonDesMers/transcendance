@@ -16,7 +16,7 @@ import { QueueService } from "./queue.service";
 @Injectable()
 export class GameService {
 
-	onlinePlayer = new WeakMap<any, PlayerEntity>();
+	onlinePlayer = new Array<PlayerEntity>();
 	reconnectionHub = new Array<PlayerEntity>();
 	games = new Array<GameEntity>();
 
@@ -25,6 +25,20 @@ export class GameService {
 		private readonly queueService: QueueService,
 		private prismaService: PrismaService,
 	) {}
+
+	private getPlayerBySocket(socket: Socket): PlayerEntity {
+		let player: PlayerEntity = this.onlinePlayer.find(p => { return p.socket == socket; });
+		if (player == undefined)
+			throw new WsException('player not found');
+		return player;
+	}
+
+	private getPlayerById(id: number): PlayerEntity {
+		let player: PlayerEntity = this.onlinePlayer.find(p => { return p.id == id; });
+		if (player == undefined)
+			throw new WsException('player not found');
+		return player;
+	}
 
 	async connection(socket: Socket) {
 		// check for existing player waiting for reconnection
@@ -39,11 +53,11 @@ export class GameService {
 		else
 			player = new PlayerEntity(socket);
 		
-		this.onlinePlayer.set(socket, player);
+		this.onlinePlayer.push(player);
 	}
 
 	async disconnection(socket: Socket) {
-		let player: PlayerEntity = this.onlinePlayer.get(socket);
+		let player: PlayerEntity = this.getPlayerBySocket(socket);
 		if (player.state.value == 'game') {
 			// wait some time before delete to let him reconnect
 			player.disconnectInGame();
@@ -52,7 +66,7 @@ export class GameService {
 		} else if (player.state.value == 'queue') {
 			this.queueService.leave(player);
 		}
-		this.onlinePlayer.delete(socket);
+		this.onlinePlayer.splice(this.onlinePlayer.indexOf(player), 1);
 	}
 
 	async disconnectionAfterDelay(player: PlayerEntity) {
@@ -67,7 +81,7 @@ export class GameService {
 	}
 
 	async updateQueue(socket: Socket, body: { value: string, type: string }): Promise<string> {
-		let player: PlayerEntity = this.onlinePlayer.get(socket);
+		let player: PlayerEntity = this.getPlayerBySocket(socket);
 
 		if (body.value == 'join' && player.state.value != 'game') {
 
@@ -90,7 +104,7 @@ export class GameService {
 	}
 
 	async createUniqueQueue(type: string, playerId: number): Promise<{ success: boolean, error: string, uid?: string }> {
-		let player: PlayerEntity = this.onlinePlayer.get(playerId);
+		let player: PlayerEntity = this.getPlayerById(playerId);
 
 		if (!player) {
 			console.log('game.service: createUniqueQueue: player not found');
@@ -109,7 +123,7 @@ export class GameService {
 	}
 
 	async joinUniqueQueue(uid: string, playerId: number): Promise<{ success: boolean, error: string }> {
-		let player: PlayerEntity = this.onlinePlayer.get(playerId);
+		let player: PlayerEntity = this.getPlayerById(playerId);
 		if (!player) {
 			console.log('game.service: joinUniqueQueue: player not found');
 			return { success: false, error: 'Player not found' };
@@ -136,7 +150,7 @@ export class GameService {
 	}
 
 	async playerInput(socket: Socket, input: string) {
-		let player: PlayerEntity = this.onlinePlayer.get(socket);
+		let player: PlayerEntity = this.getPlayerBySocket(socket);
 
 		if (player.state.value == 'game') {
 			player.play(input);
@@ -146,7 +160,7 @@ export class GameService {
 	}
 
 	async playerSurrender(socket: Socket) {
-		let player: PlayerEntity = this.onlinePlayer.get(socket);
+		let player: PlayerEntity = this.getPlayerBySocket(socket);
 
 		if (player.state.value == 'game') {
 			player.surrender();
