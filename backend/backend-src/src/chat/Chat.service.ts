@@ -732,6 +732,16 @@ export class ChatService {
 							userId:targetUserId
 						}
 					},
+					invited: {
+						disconnect: {
+							userId:targetUserId
+						}
+					},
+					admins: {
+						disconnect: {
+							userId:targetUserId
+						}
+					},
 					channel: {
 						update: {
 							users: {
@@ -746,7 +756,7 @@ export class ChatService {
 		}
 		else { //unbanning the target
 			if (this.isAdmin(authorUserId, channel) == false)
-				throw new ValidationError("You are not Admin");
+				throw new ValidationError("Permission denied, you cant unban another user");
 			
 			await this.prisma.groupChannel.update({
 				where: {channelId},
