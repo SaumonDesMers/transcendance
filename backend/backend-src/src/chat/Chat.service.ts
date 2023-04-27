@@ -869,12 +869,13 @@ export class ChatService {
 						users: true
 					}
 				},
-				invited: true
+				invited: true,
+				banned: true
 			}
 		});
 
-		if (channel.type !== 'PRIV')
-			throw new ValidationError("You can only invite to a private channel");
+		if (channel.type == 'KEY')
+			throw new ValidationError("You can't invite to a pass protected channel");
 
 		if (request.action == true) //if we want to invite someone
 			{
@@ -884,6 +885,11 @@ export class ChatService {
 			
 			if (!this.isAdmin(request.authorUserId, channel))
 				throw new ValidationError("You need to be admin to invite in private chan")
+
+			if (channel.banned.find(user => {
+				return user.userId == targetUserId;
+			}) != undefined)
+				throw new ValidationError("This user is banned from this channel");
 			
 			await this.prisma.groupChannel.update({
 				where: {channelId:request.channelId},
