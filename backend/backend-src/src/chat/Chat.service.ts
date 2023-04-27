@@ -219,7 +219,7 @@ export class ChatService {
 		{
 			// INSERT GAME BACK CALL TO GENERATE UID HERE
 
-			const { success, uid } = await this.gameService.createUniqueQueue(newMessage.gameInvite.gameType, newMessage.authorId);
+			const { success, error, uid } = await this.gameService.createUniqueQueue(newMessage.gameInvite.gameType, newMessage.authorId);
 
 			// ID OF USER INVITING IS newMessage.authorId
 
@@ -227,7 +227,8 @@ export class ChatService {
 			//in gameInvitArgs interface in chat.entities
 			//then you will also need to send these infos in the front where the call is made
 
-
+			if (!success)
+				throw new ValidationError(error);
 			//you have to set
 			// message.gameInvite.gameInviteUid
 
@@ -235,7 +236,7 @@ export class ChatService {
 			message.gameInvite = {
 				status: 'PENDING',
 				type: newMessage.gameInvite.gameType,
-				uid: 4242
+				uid: uid
 			};
 		}
 		
@@ -258,7 +259,7 @@ export class ChatService {
 		)
 	}
 	
-	async acceptGameInvite(userId: number, InviteUid: number)
+	async acceptGameInvite(userId: number, InviteUid: string)
 	{
 		// HERE ADD THE CALLS YOU WANT TO DO TO GAME BACK
 		//THROW AN EXCEPTION IF THERE IS A PROBLEM
@@ -266,7 +267,7 @@ export class ChatService {
 			throw new ValidationError("Game invite expired or Invalid")
 		*/
 
-		const { success, error } = await this.gameService.joinUniqueQueue('InviteUid', userId);
+		const { success, error } = await this.gameService.joinUniqueQueue(InviteUid, userId);
 
 		if (!success) {
 			throw new ValidationError("Game invite expired or Invalid");

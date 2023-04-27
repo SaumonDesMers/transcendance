@@ -12,7 +12,7 @@ import { ChanType } from "@prisma/client"
 export interface GameInvite {
 	status: 'PENDING' | 'EXPIRED';
 	type: 'CUSTOM' | 'NORMAL';
-	uid: number;
+	uid: string;
 }
 
 export interface MessageDTO {
