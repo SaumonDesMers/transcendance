@@ -315,10 +315,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 
 		//sending invite/uninvite to target
-		const sockets = await this.server.fetchSockets();
-		const targetSocket = sockets.find(socket => {
-			return socket.data.userId == update.targetUserId;
-		});
+		const targetSocket = await this.findSocket(update.targetUserId);
 
 		targetSocket?.emit("invite_update", update);
 
@@ -401,10 +398,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		const user = await this.chatService.getChatUser(request.targetUserId);
 		this.server.to(request.channelId.toString()).emit("user_kicked", request);
 
-		const sockets = await this.server.fetchSockets();
-		const targetSocket = sockets.find(socket => {
-			return socket.data.userId == request.targetUserId;
-		});
+		const targetSocket = await this.findSocket(request.targetUserId);
 
 		targetSocket?.leave(request.channelId.toString());
 	}
@@ -428,10 +422,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 		if (request.action) //if user is getting banned
 		{
-			const sockets = await this.server.fetchSockets();
-			const targetSocket = sockets.find(socket => {
-				return socket.data.userId == request.targetUserId;
-			});
+			const targetSocket = await this.findSocket(request.targetUserId);
 
 			targetSocket.leave(request.channelId.toString());
 		}
@@ -454,10 +445,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			console.log(e);
 			throw new WsException(e.toString());
 		}
-		const sockets = await this.server.fetchSockets();
-		const targetSocket = sockets.find(socket => {
-			return socket.data.userId == target_user.userId;
-		});
+		const targetSocket = await this.findSocket(target_user.userId);
 
 		if (targetSocket != undefined)
 		{
@@ -491,5 +479,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	updateUser(userId: number, update: UserWithoutSecret)
 	{
 		this.server.emit("user_update", {userId:userId, user:update});
+	}
+
+	private async findSocket(userId: number)
+	{
+		const sockets = await this.server.fetchSockets();
+		const targetSocket = sockets.find(socket => {
+			return socket.data.userId == userId;
+		});
+
+		return targetSocket;
 	}
 }
