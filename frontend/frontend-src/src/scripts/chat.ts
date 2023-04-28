@@ -273,6 +273,7 @@ export class Chat {
 
 		this.socket.emit("leave_channel", this.currentChannelId);
 		this._group_channels.delete(this.currentChannelId);
+		this.currentChannelId = -1;
 	}
 	
 	/**
@@ -556,6 +557,11 @@ export class Chat {
 			if (payload.targetUserId == this.user.userId)
 			{
 				this.groupChannels.delete(payload.channelId);
+				if (payload.channelId == this.currentChannelId)
+				{
+					this.currentChannelId = -1;
+					console.log(this.currentChannelId);
+				}
 			}
 			else
 				this.delete_user_from_chan(payload.targetUserId, payload.channelId);
@@ -566,6 +572,8 @@ export class Chat {
 			if (payload.targetUserId == this.user.userId)
 			{
 				this.groupChannels.delete(payload.channelId);
+				if (payload.channelId == this.currentChannelId)
+					this.currentChannelId = -1;
 			}
 			else
 				this.delete_user_from_chan(payload.targetUserId, payload.channelId);

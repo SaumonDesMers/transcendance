@@ -37,10 +37,10 @@ export default {
 			return store.getCurrentChannel();
 		}
 	},
-	renderTriggered(event) {
-		console.log(event);
-   		// debugger
-  	},
+	// renderTriggered(event) {
+	// 	// console.log(event);
+   	// 	// debugger
+  	// },
 	methods: {
 		print() {
 			console.log(store);
@@ -145,7 +145,8 @@ export default {
 			<button @click="selectChannel(channelId)">{{channel.name}}</button>
 		</div>
 
-		<div>
+		<div v-if="this.currentChannel != undefined">
+		<!-- <div> -->
 			<input type="text" v-model="messageInputBuffer">
 			<button @click="SendMessage">Send</button>
 			<button @click="sendInvite">Send Game Invite</button>
@@ -160,7 +161,7 @@ export default {
 
 		<!-- Ici on affiche un channel de groupe avec les messages et les options... -->
 		<div v-if="this.currentChannel != undefined && store.isCurrentDM == false">
-
+			<p>Current Channel : {{ this.currentChannel.name }}</p>
 			<div v-for="message in this.currentChannel?.channel.messages">
 				<p>
 					{{ store.getUserName(message.author.userId) }} : {{ message.content }}
