@@ -12,8 +12,9 @@ class UserData {
 
 class Avatar {
 
-	imageBase64: any;
+	fileName: string;
 	imageFile: any;
+	imageBase64: any;
 
 	async setFile(imageFile: any) {
 		this.imageFile = imageFile;
@@ -165,21 +166,56 @@ export class User {
 		return { success, error };
 	}
 
-	uploadAvatar() {
+	async uploadAvatar() {
+		if (!this.avatar.imageFile) {
+			console.log('uploadAvatar: no avatar to upload')
+			return;
+		}
+
 		var formData = new FormData();
 		formData.append("image", this.avatar.imageFile);
-		axios.post(`http://localhost:3001/users/image/${this.id}`, formData, {
+		axios.put(`http://localhost:3001/users/${this.id}/image`, formData, {
 			headers: {
 				'Content-Type': 'multipart/form-data'
 			}
+		})
+		.then(res => {
+			// console.log('res :', res);
+			this.avatar.fileName = res.data.picture;
+		})
+		.catch(err => {
+			console.log('err :', err.code, err.message);
 		});
 	}
 
-	downloadAvatar() {
-		axios.get(`http://localhost:3001/users/image/${this.id}`)
+	async downloadAvatar() {
+		if (!this.avatar.fileName) {
+			console.log('downloadAvatar: no avatar to download')
+			return;
+		}
+
+		axios.get(`http://localhost:3001/${this.avatar.fileName}`, {
+			responseType: 'blob'
+		})
 		.then(res => {
 			console.log('res :', res);
 			this.avatar.setFile(res.data);
+		})
+		.catch(err => {
+			console.log('err :', err);
+		});
+	}
+
+	async deleteAvatar() {
+		if (!this.avatar.fileName) {
+			console.log('deleteAvatar: no avatar to delete')
+			return;
+		}
+
+		axios.delete(`http://localhost:3001/users/${this.id}/image`)
+		.then(res => {
+			console.log('res :', res);
+			this.avatar.fileName = '';
 		})
 		.catch(err => {
 			console.log('err :', err);

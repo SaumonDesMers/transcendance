@@ -91,8 +91,13 @@ export default {
 					</div>
 					<div class="form-group">
 						<label>AVATAR</label>
-						<input type="file" id="uploadmyfile" @change="requestUploadFile"/>
 						<img v-bind:src="user.avatar.imageBase64" />
+						<input type="file" id="uploadmyfile" @change="requestUploadFile"/>
+						<div>
+							<button @click="user.uploadAvatar()">Upload</button>
+							<button @click="user.downloadAvatar()">Download</button>
+							<button @click="user.deleteAvatar()">Delete</button>
+						</div>
 					</div>
 					<div class="form-group">
 						<label>BIO</label>
