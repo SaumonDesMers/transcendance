@@ -9,7 +9,8 @@ import {
 	joinRequestDTO,
 	adminRequestDTO,
 	MuteDTO,
-	CreateMessageDto
+	CreateMessageDto,
+gameInviteArgs
 } from '../../../../backend/backend-src/src/chat/Chat.entities';
 import {
 	ServerToClientEvents,
@@ -104,17 +105,12 @@ export default {
 		},
 
 		async sendInvite() {
-			const msg: CreateMessageDto = {
-				content: this.messageInputBuffer,
-				ChannelId: this.current_channelId,
-				authorId: store.user.userId,
-				gameInvite: {
-					gameType: this.customGameInvite ? 'CUSTOM' : 'NORMAL'
-				}
-			}
+			const invite: gameInviteArgs = {
+				gameType: this.customGameInvite ? 'CUSTOM' : 'NORMAL'
+			};
+			store.sendGameInvite(this.current_channelId, invite, this.messageInputBuffer);
 			this.messageInputBuffer = "";
-			store.sendMessage(msg);
-		}
+		},
 
 	},
 

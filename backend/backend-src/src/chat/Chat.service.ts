@@ -215,39 +215,12 @@ export class ChatService {
 		
 
 		//if the user wants to embed a game invite in the message
-		if (newMessage.gameInvite !== undefined)
-		{
-			// INSERT GAME BACK CALL TO GENERATE UID HERE
-
-			const { success, error, uid } = await this.gameService.createUniqueQueue(newMessage.gameInvite.gameType, newMessage.authorId);
-
-			// ID OF USER INVITING IS newMessage.authorId
-
-			//if you need more than id and a game type you can add everything you want
-			//in gameInvitArgs interface in chat.entities
-			//then you will also need to send these infos in the front where the call is made
-
-			if (!success)
-				throw new ValidationError(error);
-			//you have to set
-			// message.gameInvite.gameInviteUid
-
-			//this is for testing
-			message.gameInvite = {
-				status: 'PENDING',
-				type: newMessage.gameInvite.gameType,
-				uid: uid
-			};
-		}
 		
 		
 		return message;
 	}
 	
-	async eraseMessage(params: {
-		id: Message['id'];
-	}) {
-		const {id} = params;
+	async eraseMessage(id: number) {
 		const message = await this.messageRepository.deleteMessage({
 			where: {id}
 		},
@@ -259,18 +232,56 @@ export class ChatService {
 		)
 	}
 	
-	async acceptGameInvite(userId: number, InviteUid: string)
+	async createGameInvite(newInvite: CreateMessageDto) {
+		
+		if (await this.isMuted(newInvite.authorId, newInvite.ChannelId) == true)
+			throw new ValidationError("The user is muted and can't send a message");
+		
+		if (newInvite.gameInvite == undefined)
+			throw new ValidationError("Invalid Invite message");
+		
+		
+		// INSERT GAME BACK CALL TO GENERATE UID HERE
+		
+		const { success, error, uid } = await this.gameService.createUniqueQueue(newInvite.gameInvite.gameType, newInvite.authorId);
+		
+		// ID OF USER INVITING IS newMessage.authorId
+		
+		//if you need more than id and a game type you can add everything you want
+		//in gameInvitArgs interface in chat.entities
+		//then you will also need to send these infos in the front where the call is made
+
+		if (!success)
+		throw new ValidationError(error);
+
+		
+		let message: MessageDTO = {
+			id: 0,
+			gameInvite: {
+				status: 'PENDING',
+				type: newInvite.gameInvite.gameType,
+				uid: uid
+			},
+			author: {userId:newInvite.authorId},
+			channelId: newInvite.ChannelId,
+			content: newInvite.content,
+			postedAt: new Date(),
+		}
+
+		return message;
+	}
+	
+	async acceptGameInvite(userId: number, invite_message: MessageDTO)
 	{
 		// HERE ADD THE CALLS YOU WANT TO DO TO GAME BACK
 		//THROW AN EXCEPTION IF THERE IS A PROBLEM
 		/*
 			throw new ValidationError("Game invite expired or Invalid")
 		*/
-
-		const { success, error } = await this.gameService.joinUniqueQueue(InviteUid, userId);
+		const { success, error } = await this.gameService.joinUniqueQueue(invite_message.gameInvite.uid, userId);
 
 		if (!success) {
-			throw new ValidationError("Game invite expired or Invalid");
+			throw new ValidationError(error);
 		}
 	}
 

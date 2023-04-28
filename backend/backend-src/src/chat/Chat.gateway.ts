@@ -301,6 +301,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		this.server.to(message.channelId.toString()).emit("message", message);
 	}
 
+	@SubscribeMessage("send_game_invite")
+	async sendGameInvite(
+		@ConnectedSocket() socket: chatSocket,
+		@MessageBody() inviteCreate: CreateMessageDto
+		)
+	{
+		let message: MessageDTO;
+
+		// try {
+			message = await this.chatService.createGameInvite(inviteCreate);
+		// } catch (e: any) {
+			// throw new WsException(e.message);
+		// }
+
+		this.server.to(message.channelId.toString()).emit("message", message);
+	}
+
 	@SubscribeMessage("invite_request")
 	async inviteUser(
 		@ConnectedSocket() socket: chatSocket,
@@ -484,8 +501,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@MessageBody() msg: MessageDTO
 	)
 	{
+
+		this.server.to(msg.channelId.toString()).emit("game_invite_expire", msg);
 		try {
-			this.chatService.acceptGameInvite(socket.data.userId, msg.gameInvite.uid);
+			await this.chatService.acceptGameInvite(socket.data.userId, msg);
 		} catch (e: any) {
 			throw new WsException(e.message);
 		}
@@ -493,7 +512,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		//send update that invite has expired
 		
 		console.log("An User accepted the game invite", msg);
-		this.server.to(msg.channelId.toString()).emit("game_invite_expire", msg);
 	}
 
 	updateUser(userId: number, update: UserWithoutSecret)

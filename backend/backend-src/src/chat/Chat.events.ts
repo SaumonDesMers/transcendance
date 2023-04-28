@@ -177,6 +177,8 @@ export interface ClientToServerEvents {
 	 */
 	send_message: (message: CreateMessageDto) => void;
 
+	send_game_invite: (message: CreateMessageDto) => void;
+	
 	/**
 	 * Request to set/unset someone admin in a channel
 	 */

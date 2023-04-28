@@ -353,12 +353,12 @@ export class Chat {
 	 * @param {number} channelId Id of the channel you want to send an invite to ( can be DM or Group )
 	 * @param {gameInviteArgs} inviteArgs Args of the invite
 	 */
-	sendGameInvite(channelId: number, inviteArgs: gameInviteArgs)
+	sendGameInvite(channelId: number, inviteArgs: gameInviteArgs, content: string)
 	{
-		this.socket.emit("send_message", {
+		this.socket.emit("send_game_invite", {
 			authorId:this.user.userId,
 			ChannelId:channelId,
-			content: '',
+			content: content,
 			gameInvite: inviteArgs
 		});
 	}
@@ -585,13 +585,13 @@ export class Chat {
 			if (this._dm_channels.has(payload.channelId))
 			{
 				msg = this._dm_channels.get(payload.channelId)?.channel.messages.find(msg => {
-					return msg.id == payload.id;
+					return msg.gameInvite?.uid == payload.gameInvite?.uid;
 				});
 			}
 			else
 			{
 				msg = this._group_channels.get(payload.channelId)?.channel.messages.find(msg => {
-					return msg.id == payload.id;
+					return msg.gameInvite?.uid == payload.gameInvite?.uid;
 				});
 			}
 
