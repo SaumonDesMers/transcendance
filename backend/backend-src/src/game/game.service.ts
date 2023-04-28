@@ -5,26 +5,40 @@ import { WsException } from "@nestjs/websockets";
 import { Socket } from 'socket.io'
 import { BroadcastService } from './broadcast.service'
 import { PrismaService } from "src/database/prisma.service";
+import { v4 as uuid } from "uuid";
 import {
 	Prisma,
 	User,
 	Game,
 } from "@prisma/client";
-
-
+import { QueueService } from "./queue.service";
 
 @Injectable()
 export class GameService {
 
-	onlinePlayer = new WeakMap<any, PlayerEntity>();
+	onlinePlayer = new Array<PlayerEntity>();
 	reconnectionHub = new Array<PlayerEntity>();
-	queue = new Array<PlayerEntity>();
 	games = new Array<GameEntity>();
 
 	constructor(
 		private readonly broadcastService: BroadcastService,
+		private readonly queueService: QueueService,
 		private prismaService: PrismaService,
 	) {}
+
+	private getPlayerBySocket(socket: Socket): PlayerEntity {
+		let player: PlayerEntity = this.onlinePlayer.find(p => { return p.socket == socket; });
+		if (player == undefined)
+			throw new WsException('player not found');
+		return player;
+	}
+
+	private getPlayerById(id: number): PlayerEntity {
+		let player: PlayerEntity = this.onlinePlayer.find(p => { return p.id == id; });
+		if (player == undefined)
+			throw new WsException('player not found');
+		return player;
+	}
 
 	async connection(socket: Socket) {
 		// check for existing player waiting for reconnection
@@ -33,67 +47,112 @@ export class GameService {
 		if (player) {
 			this.reconnectionHub = this.reconnectionHub.filter(p => { return p != player });
 			player.socket = socket;
-			if (player.state == 'game')
+			if (player.state.value == 'game')
 				player.reconnectToGame();
 		}
 		else
 			player = new PlayerEntity(socket);
 		
-		this.onlinePlayer.set(socket, player);
+		this.onlinePlayer.push(player);
 	}
 
 	async disconnection(socket: Socket) {
-		let player: PlayerEntity = this.onlinePlayer.get(socket);
-		if (player.state == 'game') {
+		let player: PlayerEntity = this.getPlayerBySocket(socket);
+		if (player.state.value == 'game') {
 			// wait some time before delete to let him reconnect
 			player.disconnectInGame();
 			this.reconnectionHub.push(player);
 			setTimeout(this.disconnectionAfterDelay.bind(this), 30 * 1000, player);
+		} else if (player.state.value == 'queue') {
+			this.queueService.leave(player);
 		}
-		this.onlinePlayer.delete(socket);
+		this.onlinePlayer.splice(this.onlinePlayer.indexOf(player), 1);
 	}
 
 	async disconnectionAfterDelay(player: PlayerEntity) {
 		if (player.socket != null)
 			return;
 
-		
+		if (player.state.value == 'game') {
+			player.surrender();
+		}
+
 		this.reconnectionHub = this.reconnectionHub.filter(p => { return p != player });
 	}
 
-	async updateQueue(socket: Socket, msg: string): Promise<string> {
-		let player: PlayerEntity = this.onlinePlayer.get(socket);
+	async updateQueue(socket: Socket, body: { value: string, type: string }): Promise<string> {
+		let player: PlayerEntity = this.getPlayerBySocket(socket);
 
-		if (msg == 'join' && player.state == 'none') {
-			if (this.queue.length > 0) {
-				this.createGame(player, this.queue.pop());
+		if (body.value == 'join' && player.state.value != 'game') {
+
+			let players = await this.queueService.join(player, body.type);
+
+			if (players) {
+				this.createGame(players.p1, players.p2, body.type);
 				return 'game';
-			} else {
-				player.state = 'queue';
-				this.queue.push(player);
 			}
-		} else if (msg == 'leave' && player.state == 'queue') {
-			this.queue = this.queue.filter(u => u != player);
-			player.state = 'none';
+
+		} else if (body.value == 'leave') {
+
+			this.queueService.leave(player);
+
 		} else {
 			return 'error';
 		}
-		return msg;
+		this.queueService.log();
+		return body.value;
 	}
 
-	logQueue() {
-		console.log(`Game queue (${this.queue.length} elements):`)
-		this.queue.forEach(u => u.log());
+	async createUniqueQueue(type: string, playerId: number): Promise<{ success: boolean, error: string, uid?: string }> {
+		let player: PlayerEntity = this.getPlayerById(playerId);
+
+		if (!player) {
+			console.log('game.service: createUniqueQueue: player not found');
+			return { success: false, error: 'player not found' };
+		}
+
+		if (player.state.value == 'game') {
+			console.log('game.service: createUniqueQueue: player already in game');
+			return { success: false, error: 'player already in game' };
+		}
+
+		const uid = uuid();
+		this.queueService.createUniqueQueue(player, type, uid);
+
+		return { success: true, error: '', uid: uid };
 	}
 
-	async createGame(player_1: PlayerEntity, player_2: PlayerEntity) {
-		this.games.push(new GameEntity(this.broadcastService, player_1, player_2));
+	async joinUniqueQueue(uid: string, playerId: number): Promise<{ success: boolean, error: string }> {
+		let player: PlayerEntity = this.getPlayerById(playerId);
+		if (!player) {
+			console.log('game.service: joinUniqueQueue: player not found');
+			return { success: false, error: 'Player not found' };
+		}
+
+		if (player.state.value == 'game') {
+			console.log(`game.service: joinUniqueQueue: player already in game`);
+			return { success: false, error: `Player already in game` };
+		}
+
+		const gameData = await this.queueService.joinUniqueQueue(player, uid);
+
+		if (!gameData) {
+			return { success: false, error: 'Queue not found' };
+		}
+
+		this.createGame(gameData.p1, gameData.p2, gameData.type);
+
+		return { success: true, error: '' };
+	}
+
+	async createGame(player_1: PlayerEntity, player_2: PlayerEntity, type: string) {
+		this.games.push(new GameEntity(this, this.broadcastService, player_1, player_2, type));
 	}
 
 	async playerInput(socket: Socket, input: string) {
-		let player: PlayerEntity = this.onlinePlayer.get(socket);
+		let player: PlayerEntity = this.getPlayerBySocket(socket);
 
-		if (player.state == 'game') {
+		if (player.state.value == 'game') {
 			player.play(input);
 		} else {
 			console.log('Received player input wihtout a game.')
@@ -101,9 +160,9 @@ export class GameService {
 	}
 
 	async playerSurrender(socket: Socket) {
-		let player: PlayerEntity = this.onlinePlayer.get(socket);
+		let player: PlayerEntity = this.getPlayerBySocket(socket);
 
-		if (player.state == 'game') {
+		if (player.state.value == 'game') {
 			player.surrender();
 		} else {
 			console.log('Received player input wihtout a game.')

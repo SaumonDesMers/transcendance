@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import { createApp, reactive, ref } from 'vue'
 import App from './App.vue'
 import VueCookies from 'vue3-cookies';
 

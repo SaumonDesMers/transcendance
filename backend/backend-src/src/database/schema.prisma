@@ -17,6 +17,12 @@ enum Coa {
 	ALLIANCE
 }
 
+enum ChanType {
+	PUBLIC
+	PRIV
+	KEY
+}
+
 model User {
 	id Int	@id
 	username String @unique
@@ -40,18 +46,26 @@ model ChatUser {
 	messages Message[]
 	joinedChannels Channel[]
 
+	blocked ChatUser[] @relation("ChatUserblocking")
+	blockedBy ChatUser[] @relation("ChatUserblocking")
 
-	// adminChannels Channel[] @ignore //this is here to implement the one to many relation regarding admins of channel
-									// <<one user can be the admin of many channels>>
+	ownedChannels GroupChannel[] @relation("ChannelOwner")
+	adminChannels GroupChannel[] @relation("ChannelAdmin")
+	bannedChannels GroupChannel[] @relation("ChannelBanned")
+	invites GroupChannel[] @relation("ChannelInvites")
+
+	createdMutes Mute[] @relation("MuteAuthor")
+	receivedMutes Mute[] @relation("MuteTarget")
 }
 
 model Message {
 	id Int @id @default(autoincrement())
 	content String
 	author ChatUser? @relation(fields: [chatUserId], references: [userId])
-	channel Channel @relation(fields: [channelId], references: [id])
+	channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 	chatUserId Int
 	channelId Int
+	postedAt DateTime
 }
 
 // The objective for channels is to have some kind of hierarchy
@@ -60,23 +74,46 @@ model Message {
 
 model Channel {
 	id Int @id @default(autoincrement())
+
 	users ChatUser[]
 	messages Message[]
 
 	dmChannel DMChannel?
 	textChannel GroupChannel?
+}
 
+model Mute {
+	id Int @id @default(autoincrement())
+
+	author ChatUser @relation("MuteAuthor", fields: [authorId], references: [userId])
+	target ChatUser @relation("MuteTarget", fields: [targetId], references: [userId])
+	authorId Int
+	targetId Int
+
+	groupChannel GroupChannel @relation("ChannelMute", fields: [groupChannelId], references: [channelId])
+	groupChannelId Int
+	endDate DateTime
 }
 
 model DMChannel {
-	channel Channel @relation(fields: [channelId], references: [id])
-	channelId Int @unique
+	channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+	channelId Int @unique @id
 }
 
 model GroupChannel {
 	channel Channel @relation(fields: [channelId], references: [id])
-	channelId Int @unique
+	channelId Int @unique @id
 
+	name String @unique
+	type ChanType
+	key String?
+
+	ownerId Int
+	owner ChatUser @relation("ChannelOwner", fields: [ownerId], references: [userId])
+	admins ChatUser[] @relation("ChannelAdmin")
+	mutes Mute[] @relation("ChannelMute")
+	banned ChatUser[] @relation("ChannelBanned")
+	invited ChatUser[] @relation("ChannelInvites")
 }
 
 model Game {
