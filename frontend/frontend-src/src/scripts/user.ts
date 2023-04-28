@@ -12,14 +12,57 @@ class UserData {
 
 class Avatar {
 
-	imageBase64: string;
+	imageBase64: any;
+	imageFile: any;
 
-	upload() {
+	async setFile(imageFile: any) {
+		this.imageFile = imageFile;
 
+		await this.getBase64(imageFile);
+
+		this.squareAndResize(this, 200, 200);
 	}
 
-	download() {
+	async getBase64(imageFile: any) {
+		const reader = new FileReader();
+		let source = await new Promise(resolve => {
+			reader.onload = ev => {
+				resolve(ev.target?.result);
+			};
+			reader.readAsDataURL(imageFile);
+		});
 
+		this.imageBase64 = source;
+	}
+
+	squareAndResize(avatar: Avatar, wantedWidth: number, wantedHeight: number) {
+		var img = document.createElement('img');
+
+		img.onload = function() {
+			var canvas = document.createElement('canvas');
+			var ctx = canvas.getContext('2d');
+
+			canvas.width = wantedWidth;
+			canvas.height = wantedHeight;
+
+			let sx = 0, sy = 0, sWidth = img.width, sHeight = img.height;
+
+			if (sWidth > sHeight) {
+				sWidth = sHeight;
+				sx = (img.width - sWidth) / 2;
+			} else if (sWidth < sHeight) {
+				sHeight = sWidth;
+				sy = (img.height - sHeight) / 2;
+			}
+
+			ctx?.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, wantedWidth, wantedHeight);
+
+			var dataURI = canvas.toDataURL();
+
+			avatar.imageBase64 = dataURI;
+		};
+
+		img.src = avatar.imageBase64;
 	}
 }
 export class User {
@@ -120,6 +163,27 @@ export class User {
 		});
 
 		return { success, error };
+	}
+
+	uploadAvatar() {
+		var formData = new FormData();
+		formData.append("image", this.avatar.imageFile);
+		axios.post(`http://localhost:3001/users/image/${this.id}`, formData, {
+			headers: {
+				'Content-Type': 'multipart/form-data'
+			}
+		});
+	}
+
+	downloadAvatar() {
+		axios.get(`http://localhost:3001/users/image/${this.id}`)
+		.then(res => {
+			console.log('res :', res);
+			this.avatar.setFile(res.data);
+		})
+		.catch(err => {
+			console.log('err :', err);
+		});
 	}
 
 }
