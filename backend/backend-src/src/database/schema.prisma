@@ -35,6 +35,8 @@ model User {
 	bio String @db.VarChar(200)
 	coa Coa
 
+	picture String?
+
 	winningGames Game[] @relation("winner")
 	losingGames Game[] @relation("loser")
 }
