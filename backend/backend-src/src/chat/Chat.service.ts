@@ -189,7 +189,24 @@ export class ChatService {
 		// is user muted
 		if (await this.isMuted(newMessage.authorId, newMessage.ChannelId) == true)
 			throw new ValidationError("The user is muted and can't send a message");
-			
+		
+		const channel = await this.prisma.channel.findUnique({
+			where: {
+				id:newMessage.ChannelId
+			},
+			include: {
+				users:true
+			}
+		});
+
+		if (channel == null)
+			throw new ValidationError("This channel doesnt exist");
+		//if user isnt on channel
+		if (channel.users.find(user => {
+			return user.userId == newMessage.authorId;
+		}) == undefined)
+			throw new ValidationError("You are not on this channel")		
+
 			//this prisma request 
 			// - assigns message content
 		// - connects to an existing channel using the channelId
