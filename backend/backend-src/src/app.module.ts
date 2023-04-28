@@ -27,8 +27,8 @@ import { join } from 'path';
 			dest: './images',
 		}),
 		ServeStaticModule.forRoot({
-			rootPath: join(__dirname, '..', 'pictures')
-		})
+			rootPath: join(__dirname, '..', 'pictures'),
+		  }),
 
 	],
 	controllers: [AppController],

@@ -22,5 +22,8 @@ export class UserEntity implements User {
 	coa: Coa;
 
 	@ApiProperty()
+	picture: string | null;
+
+	@ApiProperty()
 	bio: string
 }
