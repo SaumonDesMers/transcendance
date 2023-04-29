@@ -80,7 +80,7 @@ export class User {
 	get coa() { return this._data.coa; }
 	get bio() { return this._data.bio; }
 
-	set id(arg) { this._data.id = arg; localStorage.userId = arg; }
+	set id(arg) { this._data.id = arg; }
 	set username(arg) { this._data.username = arg; }
 	set darkMode(arg) { this._data.darkMode = arg; }
 	set isTwoFactorAuthenticationEnabled(arg) { this._data.isTwoFactorAuthenticationEnabled = arg; }
@@ -103,11 +103,8 @@ export class User {
 	}
 
 	async login(jwt: string) {
-
-		let o = {
-			data: null,
-			error: null
-		};
+		let data: any = null;
+		let error: any = null;
 
 		await axios.get('http://localhost:3001/auth/user', {
 				headers: {
@@ -117,32 +114,18 @@ export class User {
 			.then(res => {
 				axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 				if (res.data == '' || res.data == '2fa') {
-					o.data = res.data;
+					data = res.data;
 				} else {
-					this.set(res.data);
 					this.isLoggedIn = true;
+					this.set(res.data);
+					this.downloadAvatar();
 				}
 			})
 			.catch(err => {
-				o.error = err;
+				error = err;
 			})
 		
-		return o;
-	}
-
-	async get(userId: number) {
-		axios.get(`http://localhost:3001/users/${userId}`)
-			.then(res => {
-				this.set(res.data);
-				this.isLoggedIn = true;
-			})
-			.catch(err => {
-				console.log('err :', err);
-			})
-	}
-
-	logout() {
-		delete localStorage.userId;
+		return { data, error };
 	}
 
 	async save(): Promise<{ success: boolean, error: any }> {
@@ -192,7 +175,6 @@ export class User {
 			responseType: 'blob'
 		})
 		.then(res => {
-			console.log('res :', res);
 			this.avatar.setFile(res.data);
 		})
 		.catch(err => {

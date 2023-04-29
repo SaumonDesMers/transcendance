@@ -47,20 +47,9 @@ export default {
 		},
 	},
 
-	mounted() {
-		const userId = localStorage.userId;
-		const jwt = this.$cookies.get('jwt');
+	mounted() {},
 
-		if (userId && jwt) {
-			axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
-			this.user.get(userId);
-			this.state = State.MAIN;
-		}
-		else
-			this.state = State.LOGIN;
-	},
-
-	created() { },
+	created() {},
 
 	watch: {
 		state() {

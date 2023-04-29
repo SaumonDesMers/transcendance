@@ -41,16 +41,16 @@ export class Game {
 		});
 		
 		this.socket.on('connect', () => {
-			console.log("Successfully connected to the game websocket server...");
+			// console.log("Successfully connected to the game websocket server...");
 			this.state.set('none', '');
 		});
 		
 		this.socket.on('disconnect', function(reason) {
-			console.log("Connection to the game websocket server closed: ", reason);
+			// console.log("Connection to the game websocket server closed: ", reason);
 		});
 		
 		this.socket.on('connect_error', function(error) {
-			console.log("Error connecting to the game websocket server: ", error);
+			// console.log("Error connecting to the game websocket server: ", error);
 		});
 
 		this.socket.on('start', this.onGameStart.bind(this));
