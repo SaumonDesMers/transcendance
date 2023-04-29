@@ -2,7 +2,7 @@
 // import axios from 'axios'
 import "./profil.vue"
 import { State } from '../scripts/state';
-import { User } from '../scripts/user';
+import user from '../scripts/user';
 import toggle2fa from "./toggle2fa.vue";
 
 export default {
@@ -14,7 +14,7 @@ export default {
 	data: function () {
 		return {
 			State,
-			user: new User(),
+			user,
 			errorMsg: ',',
 			editName: '',
 			editBio: '',

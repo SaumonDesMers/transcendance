@@ -3,7 +3,7 @@ import axios from 'axios'
 import io from "socket.io-client"
 import gameCanvas from './gameCanvas.vue'
 import game from '../scripts/game'
-import { User } from '../scripts/user';
+import user from '../scripts/user';
 
 export default {
 
@@ -15,7 +15,7 @@ export default {
 		return {
 			game,
 			shadow: false,
-			user : new User(),
+			user,
 		}
 	},
 

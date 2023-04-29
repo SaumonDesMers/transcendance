@@ -1,7 +1,7 @@
 <script>
 import axios from 'axios'
 import { State } from '../scripts/state'
-import { User } from '../scripts/user'
+import user from '../scripts/user'
 import '../styles/all.scss'
 import "../styles/themes.scss"
 import "../styles/buttons.scss"
@@ -10,7 +10,7 @@ export default {
 	data() {
 		return {
 			errorMsg: '',
-			user: new User(),
+			user,
 		}
 	},
 
@@ -19,29 +19,15 @@ export default {
 			window.location.href = 'http://localhost:3001/auth/login'
 		},
 		async requestUserWithJwt(jwt) {
-			await axios.get('http://localhost:3001/auth/user', {
-				headers: {
-					Authorization: `Bearer ${jwt}`
-				}
-			})
-				.then(res => {
-					// console.log('data :', res.data);
-					axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
-					if (res.data == '') {
-						this.$emit('switchPage', State.REGISTER);
-					}
-					else if (res.data == '2fa') {
-						this.$emit('switchPage', State.VALIDATE_2FA);
-					}
-					else {
-						this.user.set(res.data);
-						this.$emit('switchPage', State.MAIN);
-					}
-				})
-				.catch(err => {
-					this.errorMsg = err.message;
-					console.log(err);
-				})
+
+			const res = await this.user.login(jwt);
+			
+			if (res.data == '')
+				this.$emit('switchPage', State.REGISTER);
+			else if (res.data == '2fa')
+				this.$emit('switchPage', State.VALIDATE_2FA);
+			else
+				this.$emit('switchPage', State.MAIN);
 		},
 		switchPage(page) {
 			this.$emit('switchPage', page);

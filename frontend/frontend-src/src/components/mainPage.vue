@@ -1,7 +1,7 @@
 <script>
 
 import { State } from '../scripts/state';
-import { User } from '../scripts/user';
+import user from '../scripts/user';
 import '../styles/backgrounds.scss'
 
 export default {
@@ -9,7 +9,7 @@ export default {
 		return {
 			State,
 			windowSize: { width: window.innerWidth, height: window.innerHeight },
-			user: new User(),
+			user,
 		}
 	},
 	created() {
