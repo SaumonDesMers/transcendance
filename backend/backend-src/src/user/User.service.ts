@@ -5,7 +5,7 @@ import { CreateUserDto } from "./User.create-dto";
 import { UpdateUserDto } from "./User.update-dto";
 import { UserWithoutSecret } from "./User.module";
 
-function exclude<User, Key extends keyof User>(
+export function exclude<User, Key extends keyof User>(
 	user: User,
 	keys: Key[]
   ): Omit<User, Key>
@@ -34,9 +34,9 @@ export class UserService {
 
 	async getUsers() : Promise<UserWithoutSecret[]> {
 		const users = await this.repository.getUsers({});
-		let usersWithoutSecret: any = users;
-		usersWithoutSecret.forEach(user => {
-			user = exclude(user, ['twoFactorAuthenticationSecret'])
+		let usersWithoutSecret = new Array;
+		users.forEach(user => {
+			usersWithoutSecret.push(exclude(user, ['twoFactorAuthenticationSecret']));
 		});
 		return usersWithoutSecret;
 	}

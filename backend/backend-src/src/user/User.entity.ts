@@ -1,8 +1,9 @@
 import { User,
 		Coa } from "@prisma/client";
 import { ApiProperty } from "@nestjs/swagger";
+import { UserWithoutSecret } from "./User.module";
 
-export class UserEntity implements User {
+export class UserEntity implements UserWithoutSecret {
 	@ApiProperty({uniqueItems: true})
 	id: number;
 
@@ -11,9 +12,6 @@ export class UserEntity implements User {
 
 	@ApiProperty()
 	darkMode: boolean;
-
-	@ApiProperty()
-	twoFactorAuthenticationSecret: string;
 
 	@ApiProperty()
 	isTwoFactorAuthenticationEnabled: boolean;
@@ -26,4 +24,21 @@ export class UserEntity implements User {
 
 	@ApiProperty()
 	bio: string
+}
+
+export class UserWithGameCountEntity extends UserEntity {
+	
+	@ApiProperty()
+	_count : {
+		winningGames: number,
+		losingGames: number,
+	}
+}
+
+export class UserStatsEntity {
+	@ApiProperty()
+	_count : {
+		winningGames: number,
+		losingGames: number,
+	}
 }
