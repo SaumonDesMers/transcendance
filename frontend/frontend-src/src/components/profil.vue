@@ -47,7 +47,7 @@ export default {
 						</div>
 					</span>
 				</div>
-				<div class="profile-grid">
+				<div class="profile-grid" style="overflow: scroll;">
 					<div class="information-profile-container">
 						<div :class="[user.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
 							@click="switchPage(State.GAME)">play</div>
@@ -67,7 +67,7 @@ export default {
 					<div class="friend-container grid-border">
 						<div :class="[user.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']"
 							@click="switchPage(State.FRIENDS)">friends</div>
-						<div class="grid-friend">
+						<div class="grid-friend" style="overflow: scroll;">
 							<div class="friend">
 								<div>PixelPaddle</div>
 							</div>
@@ -127,78 +127,6 @@ export default {
 			</div>
 		</div>
 		<div v-if="user.darkMode == false">
-			<div class="cloud large cloud-1">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud normal cloud-2">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud small cloud-3">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud tiny cloud-4">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud large cloud-5">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud normal cloud-6">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud small cloud-7">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud tiny cloud-8">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud small cloud-9">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud normal cloud-10">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud tiny cloud-11">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud small cloud-12">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
 		</div>
 		<div v-else>
 			<div class="stars"></div>

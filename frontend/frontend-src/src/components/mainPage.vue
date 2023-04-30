@@ -131,12 +131,13 @@ export default {
 		</div>
 		<div class="main-container">
 			<button class="main-button" @click="switchPage(State.GAME)">GAME</button>
-			<button class="main-button">CUSTOM GAME</button>
 		</div>
 	</div>
+	<div style="overflow: hidden;">
 	<div :class="[user.darkMode ? 'ocean dark' : 'ocean', user.coa]">
 		<div class="wave" :class="[user.darkMode ? 'dark' : '', user.coa]"></div>
 		<div class="wave" :class="[user.darkMode ? 'dark' : '', user.coa]"></div>
+	</div>
 	</div>
 </template>
 

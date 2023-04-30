@@ -30,7 +30,7 @@ export default {
 
 <template>
 	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]" style="justify-content: center;">
-		<div style="width: 80vw; height: 100vh; display:flex; flex-direction: column; justify-content: center; align-items: center;">
+		<div style="width: 100vw; height: 100vh; display:flex; flex-direction: column; justify-content: center; align-items: center;">
 			<h4>Game (state: {{ game.state.value }}) :</h4>
 			<!-- <p>{{ game.data }}</p> -->
 			

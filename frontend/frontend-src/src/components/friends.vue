@@ -35,98 +35,30 @@ export default {
 	</head>
 	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
 		<div v-if="user.darkMode == false">
-			<div class="cloud large cloud-1">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud normal cloud-2">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud small cloud-3">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud tiny cloud-4">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud large cloud-5">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud normal cloud-6">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud small cloud-7">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud tiny cloud-8">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud small cloud-9">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud normal cloud-10">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud tiny cloud-11">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
-			<div class="cloud small cloud-12">
-				<div></div>
-				<div></div>
-				<div></div>
-				<div></div>
-			</div>
 		</div>
 		<div v-else>
 			<div class="stars"></div>
 			<div class="stars1"></div>
 			<div class="stars2"></div>
 		</div>
-		<div class="friends-grid">
-			<div v-for="n in 10">
-				<div class="friend">
-					<div class="avatar">
-						<div class="avatar-style"></div>
-						<div class="status"></div>
+		<div style="height: 100vh; overflow: scroll;">
+			<div class="friends-grid">
+				<div v-for="n in 10">
+					<div class="friend">
+						<div class="avatar">
+							<div class="avatar-style"></div>
+							<div class="status"></div>
+						</div>
+						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
+							@click="switchPage(State.USER)">
+							login</div>
+						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
+							block</div>
+						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
+							@click="switchPage(State.CHAT)">
+							message</div>
+						<p class="bio" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">{{ user.bio }}</p>
 					</div>
-					<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']" @click="switchPage(State.USER)">
-						login</div>
-					<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
-						block</div>
-					<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']" @click="switchPage(State.CHAT)">
-						message</div>
-					<p class="bio" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">{{ user.bio }}</p>
 				</div>
 			</div>
 		</div>
@@ -138,6 +70,7 @@ export default {
 	display: flex;
 	flex-wrap: wrap;
 	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
 	gap: 2rem;
 	align-items: center;
 	justify-content: center;
