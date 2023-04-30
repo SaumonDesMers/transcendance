@@ -1,7 +1,7 @@
 <script>
 import axios from 'axios'
 import { State } from '../scripts/state'
-import { User } from '../scripts/user'
+import user from '../scripts/user'
 
 export default {
 	data() {
@@ -9,7 +9,7 @@ export default {
 			State,
 			errorMsg: '',
 			twoFactorAuthenticationCode: '',
-			user: new User(),
+			user,
 		}
 	},
 

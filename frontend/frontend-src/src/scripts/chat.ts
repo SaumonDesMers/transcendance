@@ -16,13 +16,13 @@ import {
 	ChatUserUpdateDTO,
 	SimpleChatUserDTO,
 	NewChannelOwnerDTO,
-	GroupChannelSnippetDTO
+	GroupChannelSnippetDTO,
+	DMChannelDTO,
+	CreateMessageDto,
+	gameInviteArgs
 } from '../../../../backend/backend-src/src/chat/Chat.entities'
 import {CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto'
 import { ServerToClientEvents, ClientToServerEvents } from '../../../../backend/backend-src/src/chat/Chat.events'
-import { CreateMessageDto } from '../../../../backend/backend-src/src/chat/message.create.dto';
-import { profileEnd } from 'console'
-import { networkInterfaces } from 'os'
 
 enum ChanType{
 	PUBLIC,
@@ -41,7 +41,7 @@ enum ChanType{
 export class Chat {
 	private _group_channels: Map<number, GroupChannelDTO>;
 	private _public_channels: Map<number, GroupChannelSnippetDTO>;
-	private _dm_channels: Map<number, ChannelDTO>;
+	private _dm_channels: Map<number, DMChannelDTO>;
 	private _other_users: Map<number, {status: boolean, data: ChatUserDTO | undefined}>;
 	private _channel_invites: Map<number, string>; //channel id and channel names
 	private _user: ChatUserDTO;
@@ -125,13 +125,18 @@ export class Chat {
 	{
 		return this._group_channels.get(channelId);
 	}
+
+	getDMChannel(channelId: number): DMChannelDTO | undefined
+	{
+		return this._dm_channels.get(channelId);
+	}
 	
 	constructor() {
 		this._group_channels = reactive(new Map());
 		this._channel_invites = reactive (new Map());
 		this._other_users = reactive(new Map());
 		this._public_channels = reactive(new Map());
-		// this.dmChannels = new Map();
+		this._dm_channels = reactive(new Map())
 		this.error = ref<string>("");
 		
 		this.initSocket();
@@ -176,7 +181,14 @@ export class Chat {
 			channels.forEach(channel => {
 				this._public_channels.set(channel.channelId, channel);
 			})
-		})
+		});
+
+		this._dm_channels.clear();
+		this.socket.emit("get_dmchannels", (channels: DMChannelDTO[]) => {
+			channels.forEach(channel => {
+				this._dm_channels.set(channel.channelId, channel);
+			})
+		});
 	}
 	
 	/**
@@ -242,6 +254,7 @@ export class Chat {
 	*/
 	leaveChannel(channelId: number) {
 		console.log("leave channel called in front");
+
 		this.socket.emit("leave_channel", channelId);
 		this._group_channels.delete(channelId);
 	}
@@ -255,12 +268,37 @@ export class Chat {
 	joinChannel(request: joinRequestDTO)
 	{
 		this.socket.emit("join_channel", request, (channel: GroupChannelDTO) => {
-			this.channelInvites.delete(channel.channelId);
 			this._group_channels.set(channel.channelId, channel);
 		})
 	}
 	
+	/**
+	 * Function to call when you want to accept a channel invite
+	 * @date 4/27/2023 - 10:47:18 PM
+	 *
+	 * @param {number} channelId the id of the channel specified in the invite
+	 */
+	acceptInvite(channelId: number)
+	{
+		this._channel_invites.delete(channelId);
+		this.socket.emit("join_channel", {channelId}, (channel : GroupChannelDTO) => {
+			this._group_channels.set(channel.channelId, channel);
+		})
+	}
 	
+	/**
+	 * Function to start a DM channel with another User
+	 * @date 4/25/2023 - 8:11:02 PM
+	 *
+	 * @param {string} username username of the user you want to start a convo with
+	 */
+	startDM(username: string)
+	{
+		this.socket.emit("start_dm", username, (channel: DMChannelDTO) => {
+			this._dm_channels.set(channel.channelId, channel);
+		})
+	}
+
 	/**
 	 * Function to set a channel Type ['PUBLIC', 'PRIV', 'KEY']
 	 * @date 4/24/2023 - 5:03:06 PM
@@ -308,6 +346,34 @@ export class Chat {
 		this.socket.emit("send_message", message);
 	}
 	
+	/**
+	 * Function to send a GameInvite to a channel
+	 * @date 4/26/2023 - 12:34:29 AM
+	 *
+	 * @param {number} channelId Id of the channel you want to send an invite to ( can be DM or Group )
+	 * @param {gameInviteArgs} inviteArgs Args of the invite
+	 */
+	sendGameInvite(channelId: number, inviteArgs: gameInviteArgs)
+	{
+		this.socket.emit("send_message", {
+			authorId:this.user.userId,
+			ChannelId:channelId,
+			content: '',
+			gameInvite: inviteArgs
+		});
+	}
+
+	/**
+	 * Function to accept a game invite and start a game
+	 * @date 4/26/2023 - 12:41:29 AM
+	 *
+	 * @param {MessageDTO} msg the msg that the user clicked on
+	 */
+	acceptGameInvite(msg: MessageDTO)
+	{
+		this.socket.emit("accept_game_invite", msg);
+	}
+
 	/**
 	 * Function to mute a user
 	 * Info about the DTO in chat.entities
@@ -383,7 +449,6 @@ export class Chat {
 		});
 	}
 
-
 	/******************************
 	 * INTERNAL PRIVATE FUNCTIONS *
 	*******************************/
@@ -428,7 +493,17 @@ export class Chat {
 
 		this.socket.on('message', (message: MessageDTO) => {
 			console.log("received message:", message);
-			this.groupChannels.get(message.channelId)?.channel.messages.push(message);
+
+			if(this._group_channels.has(message.channelId))
+			{
+				console.log("message going in group channel");
+				this.groupChannels.get(message.channelId)?.channel.messages.push(message);
+			}
+			else if (this._dm_channels.has(message.channelId))
+			{
+				console.log("message goin in dm channel");
+				this._dm_channels.get(message.channelId)?.channel.messages.push(message);
+			}
 		});
 		
 		this.socket.on('user_joined_room', (payload: JoinDTO) => {
@@ -504,8 +579,28 @@ export class Chat {
 				chan.owner = payload.newOwner;
 		});
 
+		this.socket.on("game_invite_expire", (payload: MessageDTO) => {
+			let msg: MessageDTO | undefined;
+			console.log("received game_invite expire");
+			if (this._dm_channels.has(payload.channelId))
+			{
+				msg = this._dm_channels.get(payload.channelId)?.channel.messages.find(msg => {
+					return msg.id == payload.id;
+				});
+			}
+			else
+			{
+				msg = this._group_channels.get(payload.channelId)?.channel.messages.find(msg => {
+					return msg.id == payload.id;
+				});
+			}
 
-
+			if (msg != undefined && msg.gameInvite != undefined)
+			{
+				console.log("fond invite, modifying it")
+				msg.gameInvite.status = 'EXPIRED';
+			}
+		});
 
 		/*****************
 		 * DIRECT EVENTS *
@@ -541,6 +636,10 @@ export class Chat {
 					this._public_channels.delete(channel.channelId);
 				})
 			}
+		})
+
+		this.socket.on("dm_starting", (payload: DMChannelDTO) => {
+			this._dm_channels.set(payload.channelId, payload);
 		})
 
 	}

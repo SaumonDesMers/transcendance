@@ -6,12 +6,12 @@ import chat from './components/chat.vue'
 import game from './components/game.vue'
 import register from './components/register.vue'
 import mainPage from './components/mainPage.vue'
-import user from './components/profil.vue'
+import profil from './components/profil.vue'
 import edit from './components/edit.vue'
 import { State } from './scripts/state'
 import validate2fa from './components/validate2fa.vue'
 import toggle2fa from './components/toggle2fa.vue'
-import { User } from './scripts/user'
+import user from './scripts/user'
 import gameGateway from './scripts/game'
 import friends from './components/friends.vue'
 import history from './components/history.vue'
@@ -24,17 +24,11 @@ export default {
 		game,
 		register,
 		mainPage,
-		user,
+		profil,
 		edit,
 		validate2fa,
 		friends,
 		history,
-	},
-
-	computed: {
-		game() {
-			return this.globalGame;
-		}
 	},
 
 	data() {
@@ -42,8 +36,7 @@ export default {
 			State,
 			state: State.LOGIN,
 			previousPage: 10,
-			// loggedIn: false,
-			user: new User(),
+			user,
 			gameGateway,
 		}
 	},
@@ -54,18 +47,13 @@ export default {
 		},
 	},
 
-	mounted() {
-		if (this.user.isLog())
-			this.state = State.MAIN;
-		else
-			this.state = State.LOGIN;
-	},
+	mounted() {},
 
-	created() { },
+	created() {},
 
 	watch: {
 		state() {
-			if (this.user.isLog() && this.gameGateway.socket.disconnected) {
+			if (this.user.isLoggedIn && this.$cookies.get('jwt') && this.gameGateway.socket.disconnected) {
 				this.gameGateway.connect(this.$cookies.get('jwt'));
 			}
 		}
@@ -88,7 +76,7 @@ export default {
 
 	</div>
 	<div v-else-if="state == State.USER">
-		<user @switchPage="switchPage"></user>
+		<profil @switchPage="switchPage"></profil>
 	</div>
 	<div v-else-if="state == State.FRIENDS">
 		<friends @switchPage="switchPage"></friends>

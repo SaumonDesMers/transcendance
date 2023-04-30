@@ -9,12 +9,19 @@ import { ChanType } from "@prisma/client"
  * and stored in the client
  */
 
+export interface GameInvite {
+	status: 'PENDING' | 'EXPIRED';
+	type: 'CUSTOM' | 'NORMAL';
+	uid: string;
+}
+
 export interface MessageDTO {
 	id: number,
 	channelId: number,
 	content: string,
 	author: SimpleChatUserDTO,
 	postedAt: Date,
+	gameInvite?: GameInvite,
 }
 
 export interface ChannelDTO {
@@ -33,10 +40,29 @@ export interface GroupChannelDTO{
 	type: ChanType,
 }
 
+export interface DMChannelDTO {
+	channelId:number,
+	channel: ChannelDTO
+}
+
 export interface GroupChannelSnippetDTO{
 	channelId: number,
 	// channel: ChannelDTO,
 	name: string
+}
+
+export interface gameInviteArgs {
+	gameType: 'CUSTOM' | 'NORMAL';
+}
+
+export interface CreateMessageDto {
+	authorId: number;
+
+	ChannelId: number;
+
+	content: string;
+
+	gameInvite?: gameInviteArgs;
 }
 
 //there are two different ChatUserDTOs
@@ -104,7 +130,8 @@ export interface ChatUserUpdateDTO {
  * and sometimes used by the serer as updates when possible
 *****************/
 export interface joinRequestDTO {
-	channelName: string,
+	channelName?: string,
+	channelId?: number,
 	key?: string
 }
 

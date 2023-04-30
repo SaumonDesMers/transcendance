@@ -35,6 +35,8 @@ model User {
 	bio String @db.VarChar(200)
 	coa Coa
 
+	picture String?
+
 	winningGames Game[] @relation("winner")
 	losingGames Game[] @relation("loser")
 }
@@ -62,7 +64,7 @@ model Message {
 	id Int @id @default(autoincrement())
 	content String
 	author ChatUser? @relation(fields: [chatUserId], references: [userId])
-	channel Channel @relation(fields: [channelId], references: [id])
+	channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 	chatUserId Int
 	channelId Int
 	postedAt DateTime
@@ -96,7 +98,7 @@ model Mute {
 }
 
 model DMChannel {
-	channel Channel @relation(fields: [channelId], references: [id])
+	channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 	channelId Int @unique @id
 }
 

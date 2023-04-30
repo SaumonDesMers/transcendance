@@ -1,6 +1,6 @@
 <script>
 import axios from 'axios'
-import { User } from '../scripts/user'
+import user from '../scripts/user'
 import { State } from '../scripts/state'
 
 export default {
@@ -10,7 +10,7 @@ export default {
 			errorMsg: '',
 			qrcodeBase64: '',
 			twoFactorAuthenticationCode: '',
-			user: new User(),
+			user,
 		}
 	},
 

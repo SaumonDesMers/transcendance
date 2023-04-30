@@ -2,7 +2,7 @@
 // import axios from 'axios'
 import "./profil.vue"
 import { State } from '../scripts/state';
-import { User } from '../scripts/user';
+import user from '../scripts/user';
 import toggle2fa from "./toggle2fa.vue";
 
 export default {
@@ -14,7 +14,7 @@ export default {
 	data: function () {
 		return {
 			State,
-			user: new User(),
+			user,
 			errorMsg: ',',
 			editName: '',
 			editBio: '',
@@ -33,6 +33,18 @@ export default {
 				this.errorMsg = error;
 			}
 		},
+
+		async requestUploadFile() {
+			var imageFile = this.$el.querySelector('#uploadmyfile').files[0];
+
+			if (imageFile.type.indexOf('image/') < 0) {
+				return;
+			}
+
+			this.user.avatar.setFile(imageFile);
+		},
+
+
 		switchPage(page) {
 			this.$emit('switchPage', page);
 		},
@@ -78,9 +90,20 @@ export default {
 						<input class="input" v-model='editName' type="text" @click="username = ''" />
 					</div>
 					<div class="form-group">
+						<label>AVATAR</label>
+						<img v-bind:src="user.avatar.imageBase64" />
+						<input type="file" id="uploadmyfile" @change="requestUploadFile"/>
+						<div>
+							<button @click="user.uploadAvatar()">Upload</button>
+							<button @click="user.downloadAvatar()">Download</button>
+							<button @click="user.deleteAvatar()">Delete</button>
+						</div>
+					</div>
+					<div class="form-group">
 						<label>BIO</label>
 						<textarea v-model='editBio' style="height: 150px; width: 100%; text-align: justify;" type="text" @click="bio = ''" />
 					</div>
+
 					<div style="display: flex; justify-content: space-between; gap: 4px">
 						<button class="btn-coa alliance-btn nocolor-btn" @click="applyTheme('ALLIANCE')">
 							<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"

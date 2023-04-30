@@ -9,7 +9,11 @@ import { Body,
 		ParseIntPipe,
 		Delete,
 		NotFoundException,
-		Req} from "@nestjs/common";
+		Req,
+		UseInterceptors,
+		UploadedFile,
+		HttpException,
+		HttpStatus} from "@nestjs/common";
 import { Prisma, User } from "@prisma/client";
 import { isNumberObject, isStringObject } from "util/types";
 import { UserService } from "./User.service";
@@ -17,8 +21,15 @@ import { UserEntity } from "./User.entity";
 import { ApiTags, ApiCreatedResponse, ApiOkResponse } from "@nestjs/swagger";
 import { CreateUserDto } from "./User.create-dto";
 import { UpdateUserDto } from "./User.update-dto";
-import { Public } from "src/auth/public.decorator";
 import { UserWithoutSecret } from "./User.module";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { use } from "passport";
+import { extname, join } from "path";
+import { Request } from "express";
+import { diskStorage } from "multer";
+import { imageFileFilter, randomFileName, userPicturename } from './image_utils'
+import { Public } from "src/auth/public.decorator";
+import { unlink } from "fs";
 
 @Controller('users')
 @ApiTags('users')
@@ -70,4 +81,56 @@ export class UserController {
 	async removeUser(@Param('id', ParseIntPipe) id: number) {
 		return this.userService.removeUser(id);
 	}
+
+
+	@Put(':id/image')
+	@ApiCreatedResponse({type: UserEntity})
+	@UseInterceptors(
+		FileInterceptor('image', {
+			storage:diskStorage({
+				destination: './pictures',
+				filename: userPicturename
+			}),
+			fileFilter: imageFileFilter
+		})
+	)
+	async putImage(
+		@Param('id', ParseIntPipe) id: number,
+		@Req() req,
+		@UploadedFile() file: Express.Multer.File
+	)
+	{
+
+		if (id != req.user.id)
+			throw new HttpException("Forbidden", HttpStatus.FORBIDDEN);
+		
+		const user = await this.userService.getOneUser(id);
+
+		user.picture = file.filename;
+		await this.userService.updateUser(id, user);
+		return user;
+	}
+
+	@Delete(':id/image')
+	@ApiCreatedResponse({type: UserEntity})
+	async deleteImage(
+		@Param('id', ParseIntPipe) id: number,
+		@Req() req,
+	)
+	{
+
+		if (id != req.user.id)
+			throw new HttpException("Forbidden", HttpStatus.FORBIDDEN);
+
+		const user = await this.userService.getOneUser(id);
+
+		unlink(join("./pictures", user.picture), (err) => {
+			if (err)
+				throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR)
+		})
+		user.picture = null;
+		await this.userService.updateUser(id, user);
+		return user;
+	}
+
 }

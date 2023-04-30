@@ -2,15 +2,14 @@
 
 import axios from 'axios'
 import { State } from '../scripts/state';
-import { User } from '../scripts/user';
-import '../styles/buttons.scss'
+import user from '../scripts/user';
 
 export default {
 	data: function () {
 		return {
 			State,
 			status: false,
-			user: new User(),
+			user,
 		}
 	},
 	methods: {

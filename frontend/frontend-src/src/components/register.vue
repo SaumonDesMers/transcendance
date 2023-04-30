@@ -1,7 +1,7 @@
 <script>
 import axios from 'axios'
 import { State } from '../scripts/state'
-import { User } from '../scripts/user'
+import user from '../scripts/user'
 import { registerRuntimeHelpers } from '@vue/compiler-core'
 
 export default {
@@ -10,7 +10,7 @@ export default {
 			coalition: '',
 			isDark: false,
 			username: 'USERNAME',
-			user: new User(),
+			user,
 		};
 	},
 	mounted() {

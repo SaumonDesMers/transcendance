@@ -3,7 +3,7 @@ import axios from 'axios'
 import io from "socket.io-client"
 import gameCanvas from './gameCanvas.vue'
 import game from '../scripts/game'
-import { User } from '../scripts/user';
+import user from '../scripts/user';
 
 export default {
 
@@ -15,7 +15,7 @@ export default {
 		return {
 			game,
 			shadow: false,
-			user : new User(),
+			user,
 		}
 	},
 
@@ -39,8 +39,8 @@ export default {
 			</div>
 			<div v-else>
 				<div v-if="game.state.value == 'none'">
-					<button @click="game.joinQueue('classic')">Play classic game !</button>
-					<button @click="game.joinQueue('custom')">Play custom game !</button>
+					<button @click="game.joinQueue('NORMAL')">Play classic game !</button>
+					<button @click="game.joinQueue('CUSTOM')">Play custom game !</button>
 				</div>
 				<div v-else-if="game.state.value == 'queue'">
 					<p>Waiting for another player...</p>
