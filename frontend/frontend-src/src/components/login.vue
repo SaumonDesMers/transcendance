@@ -20,11 +20,17 @@ export default {
 		},
 		async requestUserWithJwt(jwt) {
 
-			const res = await this.user.login(jwt);
+			const { data, error } = await this.user.login(jwt);
+
+			if (error) {
+				this.$cookies.remove('jwt');
+				this.login();
+				return;
+			}
 			
-			if (res.data == '')
+			if (data == '')
 				this.$emit('switchPage', State.REGISTER);
-			else if (res.data == '2fa')
+			else if (data == '2fa')
 				this.$emit('switchPage', State.VALIDATE_2FA);
 			else
 				this.$emit('switchPage', State.MAIN);
