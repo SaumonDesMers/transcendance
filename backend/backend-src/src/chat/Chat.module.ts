@@ -36,6 +36,8 @@ export type GroupChannelWithMembers = Prisma.GroupChannelGetPayload<typeof inclu
 
 export type chatSocket = Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
 export type chatServer = Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
+
+export const saltRounds = 10;
 @Module({
 	imports: [PrismaModule, AuthModule, GameModule],
 	providers: [MessageRepository, ChatService, ChannelRepository, ChatGateway],

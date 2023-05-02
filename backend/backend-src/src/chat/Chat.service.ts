@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Prisma, Channel, ChatUser, Message, Mute, GroupChannel, ChanType } from "@prisma/client";
 import { MessageRepository } from "./Message.repository";
 import { ChannelRepository } from "./Channel.repository";
-import { MessageWithAll, MessageWithAuthor, MessageWithChannel } from "./Chat.module";
+import { MessageWithAll, MessageWithAuthor, MessageWithChannel, saltRounds } from "./Chat.module";
 import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { CreateDMChannelDto } from "./DMChannel.create.dto";
 import { PrismaModule } from "src/database/prisma.module";
@@ -13,6 +13,7 @@ import { error } from "console";
 import { ValidationError } from "./Chat.error";
 import { type, userInfo } from "os";
 import { GameService } from "src/game/game.service";
+import * as bcrypt from 'bcrypt'
 
 
 const includeMembers = {
@@ -318,8 +319,12 @@ export class ChatService {
 		}) != null)
 			throw new ValidationError("User is banned from this channel");
 
-		if (channel.type === 'KEY' && key != channel.key)
-			throw new ValidationError("Incorrect or missing channel key");
+		if (channel.type === 'KEY')
+		{
+			const match = await bcrypt.compare(key, channel.key);
+			if (!match)
+				throw new ValidationError("Incorrect or missing channel key");
+		}
 
 		if (channel.type === 'PRIV' && channel.invited.find(user =>
 			{return user.userId == userId}) == undefined)
@@ -817,6 +822,14 @@ export class ChatService {
 		if (this.isAdmin(request.authorUserId, channel) != true)
 			throw new ValidationError("You are not admin");
 
+		if (request.type == 'KEY')
+		{
+			if (request.key == undefined)
+				throw new ValidationError("new channel key missing");
+			//hashing password like a pro around here
+			request.key = await bcrypt.hash(request.key, saltRounds);
+		}
+
 		await this.prisma.groupChannel.update({
 			where: {channelId: request.channelId},
 			data: {
@@ -842,10 +855,11 @@ export class ChatService {
 		if (channel.type != 'KEY')
 			throw new ValidationError("Cannot put key on this channel, change channel type");
 		
+		const new_hash = await bcrypt.hash(request.key, saltRounds);
 		await this.prisma.groupChannel.update({
 			where: {channelId:request.channelId},
 			data: {
-				key:request.key
+				key:new_hash
 			}
 		});
 	}
