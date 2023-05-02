@@ -50,14 +50,24 @@ export class UserController {
 			return this.userService.createUser(UserCreate, parseInt(req.user.id));
 	}
 
+	@ApiQuery({
+		name: 'includeFriends',
+		type: 'boolean',
+		description: "if true, response will contain a list of friends",
+		required: false
+	})
 	@Get(':id')
 	@ApiOkResponse({type: UserEntity})
-	async getOneUser(@Param('id', ParseIntPipe) id: number){
+	async getOneUser(
+		@Param('id', ParseIntPipe) id: number,
+		@Query('includeFriends') includeFriends?: boolean,
+		){
 		let user: any;
 		try {
-			user = await this.userService.getOneUser(id);
+			user = await this.userService.getOneUser(id, includeFriends);
 		}
-		catch {
+		catch (e: any) {
+			console.log(e);
 			throw new NotFoundException();
 		}
 
@@ -148,8 +158,8 @@ export class UserController {
 	)
 	{
 
-		if (id != req.user.id)
-			throw new HttpException("Forbidden", HttpStatus.FORBIDDEN);
+		// if (id != req.user.id)
+			// throw new HttpException("Forbidden", HttpStatus.FORBIDDEN);
 
 		const ret = await this.userService.addFriend(id, friendUserName);
 
