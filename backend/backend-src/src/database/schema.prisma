@@ -39,6 +39,9 @@ model User {
 
 	winningGames Game[] @relation("winner")
 	losingGames Game[] @relation("loser")
+
+	following User[] @relation("friend")
+	followedBy User[] @relation("friend")
 }
 
 model ChatUser {
