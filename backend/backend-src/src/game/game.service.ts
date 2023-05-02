@@ -29,14 +29,14 @@ export class GameService {
 	private getPlayerBySocket(socket: Socket): PlayerEntity {
 		let player: PlayerEntity = this.onlinePlayer.find(p => { return p.socket == socket; });
 		if (player == undefined)
-			throw new WsException('player not found');
+			console.log('Error: game.service: player not found');
 		return player;
 	}
 
 	private getPlayerById(id: number): PlayerEntity {
 		let player: PlayerEntity = this.onlinePlayer.find(p => { return p.id == id; });
 		if (player == undefined)
-			throw new WsException('player not found');
+			console.log('Error: game.service: player not found');
 		return player;
 	}
 
@@ -58,6 +58,9 @@ export class GameService {
 
 	async disconnection(socket: Socket) {
 		let player: PlayerEntity = this.getPlayerBySocket(socket);
+		if (!player)
+			return;
+
 		if (player.state.value == 'game') {
 			// wait some time before delete to let him reconnect
 			player.disconnectInGame();

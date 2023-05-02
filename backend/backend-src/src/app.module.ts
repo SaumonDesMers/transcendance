@@ -5,7 +5,6 @@ import { AppService } from './app.service';
 import { UserModule } from './user/User.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './auth/jwt/jwt.guard';
 import { Jwt2faAuthGuard } from './auth/jwt-2fa/jwt-2fa.guard';
 import { GameModule } from './game/game.module';
 import { MulterModule } from '@nestjs/platform-express';
@@ -17,7 +16,6 @@ import { join } from 'path';
 	imports: [
 		AuthModule,
 		ConfigModule.forRoot({
-			envFilePath: ['.env', '.env.ft_app'],
 			isGlobal: true
 		}),
 		UserModule,

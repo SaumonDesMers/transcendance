@@ -42,8 +42,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 			payload = await this.authService.verifyJWT(jwt.split(' ')[1]);
 		} catch {
 			console.log('Error: game.gateway: jwt =', jwt);
-			// throw new WsException('Invalid credentials.')
 			socket.disconnect();
+			return;
 		}
 
 		// attach userId to socket
