@@ -51,7 +51,7 @@ export default {
 		},
 
 		connectToServer() {
-			store.connectToServer();
+			store.connectToServer(this.$cookies.get('jwt'));
 		},
 
 		disconnectFromServer() {

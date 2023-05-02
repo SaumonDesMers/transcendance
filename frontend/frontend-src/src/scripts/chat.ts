@@ -152,9 +152,9 @@ export class Chat {
 	 * Be carefull, auth must have been completed
 	 * @date 4/24/2023 - 5:26:02 PM
 	 */
-	connectToServer() {
+	connectToServer(jwt: string) {
 		this.socket.io.opts.extraHeaders = {
-			authorization: `Bearer ${localStorage.jwt}`
+			authorization: `Bearer ${jwt}`
 		};
 		this.socket.connect();
 		
@@ -482,9 +482,9 @@ export class Chat {
 			autoConnect: false
 		});
 		
-		this.socket.io.opts.extraHeaders = {
-			authorization: `Bearer ${localStorage.jwt}`
-		};
+		// this.socket.io.opts.extraHeaders = {
+		// 	authorization: `Bearer ${localStorage.jwt}`
+		// };
 
 
 		/******************

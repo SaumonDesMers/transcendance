@@ -108,6 +108,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			console.log("ERROR WHILE CONNECTING");
 			console.log(e);
 			socket.disconnect(true);
+			return;
 		}
 
 		//joining every channel the user was connected to
