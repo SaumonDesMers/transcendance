@@ -17,7 +17,6 @@ import { join } from 'path';
 	imports: [
 		AuthModule,
 		ConfigModule.forRoot({
-			envFilePath: ['.env', '.env.ft_app'],
 			isGlobal: true
 		}),
 		UserModule,
