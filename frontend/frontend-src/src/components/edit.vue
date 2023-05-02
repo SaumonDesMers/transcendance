@@ -33,18 +33,13 @@ export default {
 				this.errorMsg = error;
 			}
 		},
-
 		async requestUploadFile() {
 			var imageFile = this.$el.querySelector('#uploadmyfile').files[0];
-
 			if (imageFile.type.indexOf('image/') < 0) {
 				return;
 			}
-
 			this.user.avatar.setFile(imageFile);
 		},
-
-
 		switchPage(page) {
 			this.$emit('switchPage', page);
 		},

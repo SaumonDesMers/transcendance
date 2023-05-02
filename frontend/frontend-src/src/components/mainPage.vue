@@ -86,7 +86,7 @@ export default {
 			<ul>
 				<li>
 					<a href="#">
-						<span class="avatar"></span>
+						<span class="avatar" :style="['background-image: url(\''+ user.avatar.imageBase64 + '\')']"></span>
 						<span class="title" @click="switchPage(State.USER)">{{ user.username }}</span>
 					</a>
 				</li>

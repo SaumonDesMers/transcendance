@@ -10,6 +10,7 @@ export default {
 			coalition: '',
 			isDark: false,
 			username: 'USERNAME',
+			avatar: 'AVATAR',
 			user,
 		};
 	},
@@ -25,7 +26,7 @@ export default {
 		setTheme(themeClass) {
 			var theme = themeClass;
 			const b = document.querySelector('body');
-			
+
 			b.classList.remove('ALLIANCE', 'ORDER', 'FEDERATION', 'ASSEMBLY', 'dark');
 			console.log('setting theme (' + themeClass + ') computed as ' + theme + ' dark == ' + this.isDark);
 			if (theme)
@@ -43,14 +44,14 @@ export default {
 		onFileChange(e) {
 			var files = e.target.files || e.dataTransfer.files;
 			if (!files.length)
-			return;
+				return;
 			this.createImage(files[0]);
 		},
 		createImage(file) {
 			var image = new Image();
 			var reader = new FileReader();
 			var vm = this;
-			
+
 			reader.onload = (e) => {
 				vm.image = e.target.result;
 			};
@@ -59,7 +60,14 @@ export default {
 		removeImage: function (e) {
 			this.image = '';
 		},
-		saveAndSubmit() {
+		async requestUploadFile() {
+			var imageFile = this.$el.querySelector('#uploadmyfile').files[0];
+			if (imageFile.type.indexOf('image/') < 0) {
+				return;
+			}
+			this.user.avatar.setFile(imageFile);
+		},
+		async saveAndSubmit() {
 			if (!this.username || this.username == 'USERNAME') {
 				alert("Please select a username.")
 				return;
@@ -68,15 +76,19 @@ export default {
 				alert("Please select a coalition.")
 				return;
 			}
+			if (!this.user.avatar.imageBase64) {
+				alert("Please upload an avatar.")
+				return;
+			}
 			axios
-				.post('http://localhost:3001/users', 
-				{
-					"id": 0,
-					"username": this.username,
-					"darkMode": this.isDark,
-					"coa": this.coalition,
-					"bio": 'Praise the ' + this.coalition + '!'
-				})
+				.post('http://localhost:3001/users',
+					{
+						"id": 0,
+						"username": this.username,
+						"darkMode": this.isDark,
+						"coa": this.coalition,
+						"bio": 'Praise the ' + this.coalition + '!'
+					})
 				.then((res) => {
 					// this.$emit('user', res.data);
 					this.user.set(res.data);
@@ -106,18 +118,24 @@ export default {
 				<div class="actions-content">
 					<form :class="[isDark ? 'btn dark' : 'btn brown']">
 						<span>
-							<input class="input" v-model='username' @click="username=''"/>
+							<input class="input" v-model='username' @click="username = ''" />
 						</span>
 					</form>
-					<div :class="[isDark ? 'btn dark' : 'btn blue']">
-						<label for="files" ref="onFileChange"><span>AVATAR</span></label>
-						<input class="input" id="files" width="100%" type="file" style="visibility:hidden; height: 0;" />
-					</div>
+					<!-- <div :class="[isDark ? 'btn dark' : 'btn blue']"> -->
+						<img v-bind:src="user.avatar.imageBase64"/>
+						<!-- <label for="file">SELECT AN AVATAR</label> -->
+						<input type="file" id="uploadmyfile" @change="requestUploadFile" />
+						<div>
+							<button @click="user.uploadAvatar()"><span>Upload</span></button>
+						</div>
+					<!-- </div> -->
+					<!-- <input class="input" id="files" width="100%" type="file" style="visibility:hidden; height: 0;" />
+						<label for="files" ref="onFileChange" @click="user.uploadAvatar()"><span>AVATAR</span></label> -->
+					<!-- </div> -->
 				</div>
 				<div style="display: flex; justify-content: space-between; gap: 4px">
-					<button class="btn-coa alliance-btn" :class="[isDark ? 'dark' : '']"
-						@mouseover="setTheme('ALLIANCE')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('ALLIANCE')">
+					<button class="btn-coa alliance-btn" :class="[isDark ? 'dark' : '']" @mouseover="setTheme('ALLIANCE')"
+						@mouseout="applyPreviousThemeOnMouseOut()" @click="applyTheme('ALLIANCE')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -127,9 +145,8 @@ export default {
 							</path>
 						</svg>
 					</button>
-					<button class="btn-coa order-btn" :class="isDark ? 'dark' : ''"
-						@mouseover="setTheme('ORDER')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('ORDER')">
+					<button class="btn-coa order-btn" :class="isDark ? 'dark' : ''" @mouseover="setTheme('ORDER')"
+						@mouseout="applyPreviousThemeOnMouseOut()" @click="applyTheme('ORDER')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -139,9 +156,8 @@ export default {
 							</path>
 						</svg>
 					</button>
-					<button class="btn-coa federation-btn" :class="isDark ? 'dark' : ''"
-						@mouseover="setTheme('FEDERATION')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('FEDERATION')">
+					<button class="btn-coa federation-btn" :class="isDark ? 'dark' : ''" @mouseover="setTheme('FEDERATION')"
+						@mouseout="applyPreviousThemeOnMouseOut()" @click="applyTheme('FEDERATION')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"
@@ -151,9 +167,8 @@ export default {
 							</path>
 						</svg>
 					</button>
-					<button class="btn-coa assembly-btn" :class="isDark ? 'dark' : ''"
-						@mouseover="setTheme('ASSEMBLY')" @mouseout="applyPreviousThemeOnMouseOut()"
-						@click="applyTheme('ASSEMBLY')">
+					<button class="btn-coa assembly-btn" :class="isDark ? 'dark' : ''" @mouseover="setTheme('ASSEMBLY')"
+						@mouseout="applyPreviousThemeOnMouseOut()" @click="applyTheme('ASSEMBLY')">
 						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
 							id="Calque_1" x="0px" y="0px" viewBox="0 0 612 612"
 							style="enable-background:new 0 0 612 612;position: initial" xml:space="preserve"

@@ -52,8 +52,6 @@ export default {
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
 							@click="switchPage(State.USER)">
 							login</div>
-						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
-							block</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
 							@click="switchPage(State.CHAT)">
 							message</div>

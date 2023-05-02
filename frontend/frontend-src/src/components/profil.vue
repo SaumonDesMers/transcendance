@@ -20,6 +20,10 @@ export default {
 		switchPage(page) {
 			this.$emit('switchPage', page);
 		},
+		logout() {
+			this.$cookies.remove('jwt');
+			this.switchPage(State.LOGIN);
+		},
 	},
 	mounted() { },
 	emits: [/*'onEdit', 'onChat', */'switchPage']
@@ -38,7 +42,7 @@ export default {
 			<div
 				:class="[user.darkMode == true ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
 				<div class="banner-profile" :class=user.coa>
-					<div class="avatar-profile">
+					<div class="avatar-profile" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']">
 						<div class="status-profile"
 							:style="[status ? 'background-color: green' : 'background-color: gray']"></div>
 					</div>
@@ -59,6 +63,8 @@ export default {
 							user.coa }} </div>
 						<div :class="[user.darkMode ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']"
 							@click="switchPage(State.EDIT)"></div>
+						<div :class="[user.darkMode ? 'text-nav text-color-dark fa-solid fa-right-from-bracket' : 'text-nav text-color-light fa-solid fa-right-from-bracket']"
+							@click="logout"></div>
 					</div>
 					<div class="bio-container grid-border">
 						<div :class="[user.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">Bio</div>
@@ -112,28 +118,30 @@ export default {
 						<div class="child-container">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non
 							porttitor sem. Vestibulum ac massa tempus, auctor ex ut, lobortis tellus. Phasellus id tortor
 							viverra, dictum diam nec, efficitur dui. Nullam placerat viverra tortor in ultricies. Quisque
-						pellentesque hendrerit vulputate. Aenean dapibus dui lectus, nec dapibus arcu aliquam eget.
-						Aenean dignissim arcu quis iaculis auctor.</div>
-				</div>
-				<div class="history-container grid-border">
-					<div :class="[user.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']" @click="switchPage(State.HISTORY)">history
+							pellentesque hendrerit vulputate. Aenean dapibus dui lectus, nec dapibus arcu aliquam eget.
+							Aenean dignissim arcu quis iaculis auctor.</div>
 					</div>
-					<div class="child-container">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non
-						porttitor sem. Vestibulum ac massa tempus, auctor ex ut, lobortis tellus. Phasellus id tortor
-						viverra, dictum diam nec, efficitur dui. Nullam placerat viverra tortor in ultricies. Quisque
-						pellentesque hendrerit vulputate. Aenean dapibus dui lectus, nec dapibus arcu aliquam eget.
-						Aenean dignissim arcu quis iaculis auctor.</div>
+					<div class="history-container grid-border">
+						<div :class="[user.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']"
+							@click="switchPage(State.HISTORY)">history
+						</div>
+						<div class="child-container">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non
+							porttitor sem. Vestibulum ac massa tempus, auctor ex ut, lobortis tellus. Phasellus id tortor
+							viverra, dictum diam nec, efficitur dui. Nullam placerat viverra tortor in ultricies. Quisque
+							pellentesque hendrerit vulputate. Aenean dapibus dui lectus, nec dapibus arcu aliquam eget.
+							Aenean dignissim arcu quis iaculis auctor.</div>
+					</div>
 				</div>
 			</div>
-		</div>
-		<div v-if="user.darkMode == false">
-		</div>
-		<div v-else>
-			<div class="stars"></div>
-			<div class="stars1"></div>
-			<div class="stars2"></div>
+			<div v-if="user.darkMode == false">
+			</div>
+			<div v-else>
+				<div class="stars"></div>
+				<div class="stars1"></div>
+				<div class="stars2"></div>
+			</div>
 		</div>
 	</div>
-</div></template>
+</template>
 
 <style lang="scss" scoped src="../styles/profil.scss"></style>
