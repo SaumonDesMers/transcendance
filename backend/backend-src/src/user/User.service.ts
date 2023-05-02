@@ -79,4 +79,40 @@ export class UserService {
 
 		return exclude(user, ['twoFactorAuthenticationSecret']);
 	}
+
+	async addFriend(id: User['id'], friendUserName: string)
+	{
+		const friend = await this.repository.getSingleUser({
+			username: friendUserName
+		});
+
+		const user = await this.repository.updateUser({
+			where: {
+				id,
+			},
+			data: {
+				following: {
+					connect: {id:friend.id}
+				}
+			}
+		});
+
+		return(friend.id);
+	}
+
+	async removeFriend(id: User['id'], friendId: number)
+	{
+		const user = await this.repository.updateUser({
+			where: {
+				id,
+			},
+			data: {
+				following: {
+					disconnect: {id:friendId}
+				}
+			}
+		});
+
+		return friendId;
+	}
 }
