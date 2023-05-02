@@ -9,7 +9,6 @@ export class CreateGroupChannelDto {
 	name: string;
 
 	@IsArray()
-	@IsInt()
 	usersId: number[];
 
 	@IsEnum(ChanType)

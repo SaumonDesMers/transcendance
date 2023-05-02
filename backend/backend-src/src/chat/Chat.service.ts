@@ -261,7 +261,7 @@ export class ChatService {
 		
 		// INSERT GAME BACK CALL TO GENERATE UID HERE
 		
-		const { success, error, uid } = await this.gameService.createUniqueQueue(newInvite.gameInvite.gameType, newInvite.authorId);
+		const { success, error, uid } = await this.gameService.createUniqueQueue(newInvite.gameInvite.gameType.toString(), newInvite.authorId);
 		
 		// ID OF USER INVITING IS newMessage.authorId
 		
