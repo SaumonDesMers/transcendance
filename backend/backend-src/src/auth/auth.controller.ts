@@ -2,7 +2,6 @@ import { Body, Controller, Get, Post, Query, Req, Res, UnauthorizedException, Us
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { FortyTwoAuthGuard } from './fortytwo/fortytwo.guard';
-import { JwtAuthGuard } from './jwt/jwt.guard';
 import { Public } from './public.decorator';
 import { HttpStatus } from '@nestjs/common';
 import { ApiNoContentResponse, ApiOkResponse, ApiProperty, ApiTags } from '@nestjs/swagger';
