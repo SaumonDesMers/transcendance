@@ -3,6 +3,11 @@ import { User,
 import { ApiProperty } from "@nestjs/swagger";
 import { UserWithoutSecret } from "./User.module";
 
+export class SimpleUser {
+	@ApiProperty()
+	id: number;
+}
+
 export class UserEntity implements UserWithoutSecret {
 	@ApiProperty({uniqueItems: true})
 	id: number;
@@ -23,7 +28,10 @@ export class UserEntity implements UserWithoutSecret {
 	picture: string | null;
 
 	@ApiProperty()
-	bio: string
+	bio: string;
+
+	@ApiProperty({isArray: true, type: SimpleUser})
+	following?: SimpleUser[];
 }
 
 export class UserWithGameCountEntity extends UserEntity {

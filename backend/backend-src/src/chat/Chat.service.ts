@@ -2,17 +2,18 @@ import { Injectable } from "@nestjs/common";
 import { Prisma, Channel, ChatUser, Message, Mute, GroupChannel, ChanType } from "@prisma/client";
 import { MessageRepository } from "./Message.repository";
 import { ChannelRepository } from "./Channel.repository";
-import { MessageWithAll, MessageWithAuthor, MessageWithChannel } from "./Chat.module";
+import { GroupChannelWithMembers, MessageWithAll, MessageWithAuthor, MessageWithChannel, saltRounds } from "./Chat.module";
 import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { CreateDMChannelDto } from "./DMChannel.create.dto";
 import { PrismaModule } from "src/database/prisma.module";
 import { PrismaService } from "src/database/prisma.service";
-import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO, ChanRequestDTO, basicChanRequestDTO, InviteRequestDTO, inviteUpdateDTO, ChanTypeRequestDTO, GroupChannelSnippetDTO, ChanKeyRequestDTO, CreateMessageDto, MessageDTO } from "./Chat.entities";
+import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO, ChanRequestDTO, basicChanRequestDTO, InviteRequestDTO, inviteUpdateDTO, ChanTypeRequestDTO, GroupChannelSnippetDTO, ChanKeyRequestDTO, CreateMessageDto, MessageDTO, SimpleChatUserDTO } from "./Chat.entities";
 import { WsException } from "@nestjs/websockets";
 import { error } from "console";
 import { ValidationError } from "./Chat.error";
 import { type, userInfo } from "os";
 import { GameService } from "src/game/game.service";
+import * as bcrypt from 'bcrypt'
 
 
 const includeMembers = {
@@ -189,7 +190,24 @@ export class ChatService {
 		// is user muted
 		if (await this.isMuted(newMessage.authorId, newMessage.ChannelId) == true)
 			throw new ValidationError("The user is muted and can't send a message");
-			
+		
+		const channel = await this.prisma.channel.findUnique({
+			where: {
+				id:newMessage.ChannelId
+			},
+			include: {
+				users:true
+			}
+		});
+
+		if (channel == null)
+			throw new ValidationError("This channel doesnt exist");
+		//if user isnt on channel
+		if (channel.users.find(user => {
+			return user.userId == newMessage.authorId;
+		}) == undefined)
+			throw new ValidationError("You are not on this channel")		
+
 			//this prisma request 
 			// - assigns message content
 		// - connects to an existing channel using the channelId
@@ -215,39 +233,12 @@ export class ChatService {
 		
 
 		//if the user wants to embed a game invite in the message
-		if (newMessage.gameInvite !== undefined)
-		{
-			// INSERT GAME BACK CALL TO GENERATE UID HERE
-
-			const { success, error, uid } = await this.gameService.createUniqueQueue(newMessage.gameInvite.gameType, newMessage.authorId);
-
-			// ID OF USER INVITING IS newMessage.authorId
-
-			//if you need more than id and a game type you can add everything you want
-			//in gameInvitArgs interface in chat.entities
-			//then you will also need to send these infos in the front where the call is made
-
-			if (!success)
-				throw new ValidationError(error);
-			//you have to set
-			// message.gameInvite.gameInviteUid
-
-			//this is for testing
-			message.gameInvite = {
-				status: 'PENDING',
-				type: newMessage.gameInvite.gameType,
-				uid: uid
-			};
-		}
 		
 		
 		return message;
 	}
 	
-	async eraseMessage(params: {
-		id: Message['id'];
-	}) {
-		const {id} = params;
+	async eraseMessage(id: number) {
 		const message = await this.messageRepository.deleteMessage({
 			where: {id}
 		},
@@ -259,18 +250,56 @@ export class ChatService {
 		)
 	}
 	
-	async acceptGameInvite(userId: number, InviteUid: string)
+	async createGameInvite(newInvite: CreateMessageDto) {
+		
+		if (await this.isMuted(newInvite.authorId, newInvite.ChannelId) == true)
+			throw new ValidationError("The user is muted and can't send a message");
+		
+		if (newInvite.gameInvite == undefined)
+			throw new ValidationError("Invalid Invite message");
+		
+		
+		// INSERT GAME BACK CALL TO GENERATE UID HERE
+		
+		const { success, error, uid } = await this.gameService.createUniqueQueue(newInvite.gameInvite.gameType.toString(), newInvite.authorId);
+		
+		// ID OF USER INVITING IS newMessage.authorId
+		
+		//if you need more than id and a game type you can add everything you want
+		//in gameInvitArgs interface in chat.entities
+		//then you will also need to send these infos in the front where the call is made
+
+		if (!success)
+		throw new ValidationError(error);
+
+		
+		let message: MessageDTO = {
+			id: 0,
+			gameInvite: {
+				status: 'PENDING',
+				type: newInvite.gameInvite.gameType,
+				uid: uid
+			},
+			author: {userId:newInvite.authorId},
+			channelId: newInvite.ChannelId,
+			content: newInvite.content,
+			postedAt: new Date(),
+		}
+
+		return message;
+	}
+	
+	async acceptGameInvite(userId: number, invite_message: MessageDTO)
 	{
 		// HERE ADD THE CALLS YOU WANT TO DO TO GAME BACK
 		//THROW AN EXCEPTION IF THERE IS A PROBLEM
 		/*
 			throw new ValidationError("Game invite expired or Invalid")
 		*/
-
-		const { success, error } = await this.gameService.joinUniqueQueue(InviteUid, userId);
+		const { success, error } = await this.gameService.joinUniqueQueue(invite_message.gameInvite.uid, userId);
 
 		if (!success) {
-			throw new ValidationError("Game invite expired or Invalid");
+			throw new ValidationError(error);
 		}
 	}
 
@@ -281,17 +310,35 @@ export class ChatService {
 			where: {channelId},
 			include: {
 				banned: true,
-				invited: true
+				invited: true,
+				channel: {
+					select: {
+						users: {
+							select: {
+								userId:true
+							}
+						}
+					}
+				}
 			}
 		})
 
+		if (channel.channel.users.find(user => {
+			return user.userId == userId;
+		}) != undefined)
+			throw new ValidationError("User is already on channel");
+
 		if (channel.banned.find(user => {
 			return user.userId == userId;
-		}) != null)
+		}) != undefined)
 			throw new ValidationError("User is banned from this channel");
 
-		if (channel.type === 'KEY' && key != channel.key)
-			throw new ValidationError("Incorrect or missing channel key");
+		if (channel.type === 'KEY')
+		{
+			const match = await bcrypt.compare(key, channel.key);
+			if (!match)
+				throw new ValidationError("Incorrect or missing channel key");
+		}
 
 		if (channel.type === 'PRIV' && channel.invited.find(user =>
 			{return user.userId == userId}) == undefined)
@@ -299,16 +346,27 @@ export class ChatService {
 
 			
 		//remove user from invite list if he was invited
-		if (channel.type === 'PRIV')
-		await this.prisma.groupChannel.update({
-			where: {channelId},
-			data: {
-				invited: {
-					disconnect: {userId}
+		if (channel.type === 'PRIV') {
+			await this.prisma.groupChannel.update({
+				where: {channelId},
+				data: {
+					invited: {
+						disconnect: {userId}
+					}
 				}
-			}
-		});
-			
+			});
+		}
+
+		if (channel.ownerId == null) {
+			await this.prisma.groupChannel.update({
+				where: {channelId},
+				data: {
+					owner: {
+						connect:{userId}
+					}
+				}
+			});
+		}
 		//this prisma request updates a group channel
 		// -the group channel is found using its base channel's channelId
 
@@ -338,14 +396,56 @@ export class ChatService {
 		return update;
 	}
 
-	async leaveGroupChannel(channelId: number, userId: number) {
+	//i chose to expect a whole channel as parameter to avoid having to fetch the db twice because
+	//every caller of this function fetches the channel for some operations before calling this function
+	async leaveGroupChannel(channel: GroupChannelWithMembers, userId: number) {
 
 		//this prisma request is pretty similar to join channel
+
+		if (channel.ownerId == userId) {
+			let newOwnerId: number | undefined;
+			delete_user_from_array(userId, channel.admins);
+			delete_user_from_array(userId, channel.channel.users);
+
+			//look for a random admin
+			if (channel.admins.length > 0) //since owner is admin too
+				newOwnerId = channel.admins[Math.random() * (channel.admins.length - 1)].userId;
+			//look for a random user
+			else if (channel.channel.users.length > 0)
+			{
+				console.log(channel.channel.users);
+				newOwnerId = channel.channel.users[Math.random() * (channel.channel.users.length - 1)].userId;
+				
+			}
+
+			if (newOwnerId != undefined) {
+				await this.prisma.groupChannel.update({
+					where:{channelId:channel.channelId},
+					data: {
+						owner: {
+							connect: {
+								userId:newOwnerId
+							}
+						}
+					}
+				});
+			} else { //just remove owner from the channel
+				await this.prisma.groupChannel.update({
+					where:{channelId:channel.channelId},
+					data: {
+						owner: {
+							disconnect: true
+						}
+					}
+				});
+			}
+		}
 		
+
 		//but instead of connecting a new user to the users field
 		//we delete one
 		const update = await this.channelRepository.updateGroupChannel({
-			where:{channelId},
+			where:{channelId:channel.channelId},
 			data: {
 				channel: {
 					update: {
@@ -353,7 +453,9 @@ export class ChatService {
 							disconnect: {userId}
 						}
 					}
-				}
+				},
+				admins: {disconnect: {userId}},
+				invited: {disconnect: {userId}},
 			}
 		});
 
@@ -393,10 +495,15 @@ export class ChatService {
 			channelId:channelId
 			}, include: {
 			channel: { include:{
-				users: {include: {
-							user: true
+				users: {select: {
+							userId:true
 						}}
-				}}
+				}},
+			admins: {
+				select: {
+					userId: true
+				}
+			},
 			}
 		});
 
@@ -789,6 +896,17 @@ export class ChatService {
 		if (this.isAdmin(request.authorUserId, channel) != true)
 			throw new ValidationError("You are not admin");
 
+		if (channel.type == request.type)
+			throw new ValidationError("Chan is already " + channel.type);
+
+		if (request.type == 'KEY')
+		{
+			if (request.key == undefined)
+				throw new ValidationError("new channel key missing");
+			//hashing password like a pro around here
+			request.key = await bcrypt.hash(request.key, saltRounds);
+		}
+
 		await this.prisma.groupChannel.update({
 			where: {channelId: request.channelId},
 			data: {
@@ -814,10 +932,11 @@ export class ChatService {
 		if (channel.type != 'KEY')
 			throw new ValidationError("Cannot put key on this channel, change channel type");
 		
+		const new_hash = await bcrypt.hash(request.key, saltRounds);
 		await this.prisma.groupChannel.update({
 			where: {channelId:request.channelId},
 			data: {
-				key:request.key
+				key:new_hash
 			}
 		});
 	}
@@ -850,7 +969,7 @@ export class ChatService {
 		// if (this.isAdmin(targetUserId, channel))
 		// 	throw new ValidationError("Permission denied, you cant kick another admin");
 		
-		await this.leaveGroupChannel(channelId, targetUserId);
+		await this.leaveGroupChannel(channel, targetUserId);
 	}
 
 	//in an invite request there is an username ( for ease of use, its better to remember usernames than userId :p)
@@ -1004,5 +1123,17 @@ export class ChatService {
 		return (channel.admins.find(user => 
 			{return user.userId == userId;}) != undefined
 			|| channel.ownerId == userId);
+	}
+}
+
+function  delete_user_from_array(userId: number, array: SimpleChatUserDTO[])
+{
+	for (let i = 0; i < array.length; i++)
+	{
+		if (array[i].userId == userId)
+		{
+			array.splice(i, 1);
+			break;
+		}
 	}
 }

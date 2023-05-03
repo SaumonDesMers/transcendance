@@ -32,9 +32,10 @@ export class UserRepository {
 		return this.prisma.user.findMany({skip, take, cursor, where, orderBy});
 	}
 
-	async getSingleUser(params: Prisma.UserWhereUniqueInput) : Promise<User> {
+	async getSingleUser(params: Prisma.UserWhereUniqueInput, include?: Prisma.UserInclude) : Promise<User> {
 		return this.prisma.user.findUniqueOrThrow({
-				where: params
+				where: params,
+				include,
 			}
 		);
 	}

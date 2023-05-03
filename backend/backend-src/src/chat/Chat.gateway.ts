@@ -41,7 +41,7 @@ import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { Channel, ChatUser, GroupChannel, User } from "@prisma/client";
 import { Public } from "src/auth/public.decorator";
 import { AuthService } from "src/auth/auth.service";
-import { Inject, Injectable, ParseIntPipe, UseFilters, forwardRef } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, ParseIntPipe, UseFilters, UsePipes, ValidationPipe, forwardRef } from "@nestjs/common";
 
 import { ArgumentsHost, Catch, HttpException } from "@nestjs/common";
 import { IsNumber, validateOrReject } from "class-validator";
@@ -66,7 +66,14 @@ export class WebsocketExceptionsFilter extends BaseWsExceptionFilter {
 		}
     );
   }}
-  
+
+@Catch(BadRequestException)
+	export class BadRequestTransformationFilter extends BaseWsExceptionFilter {
+		catch(exception: BadRequestException, host: ArgumentsHost) {
+		const properException = new WsException(exception.getResponse());
+		super.catch(properException, host);
+	}
+}
   
   /**
    * The Chat Gateway is here to syncronise every connected client to the chat
@@ -79,7 +86,9 @@ export class WebsocketExceptionsFilter extends BaseWsExceptionFilter {
    * The different events that it can receive and send are documented in chat.events
    * and the different interfaces/DTOs used are documented in chat.entities
    */
+@UseFilters(new BadRequestTransformationFilter())
 @UseFilters(new BaseWsExceptionFilter())
+@UsePipes(new ValidationPipe())
 @WebSocketGateway(
 	{namespace: "chat"}
 )
@@ -108,6 +117,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			console.log("ERROR WHILE CONNECTING");
 			console.log(e);
 			socket.disconnect(true);
+			return;
 		}
 
 		//joining every channel the user was connected to
@@ -127,14 +137,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	@SubscribeMessage("create_channel")
 	async handleCreateEvent(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() createChannel: CreateGroupChannelDto
+		@MessageBody() data: CreateGroupChannelDto
 	) : Promise<GroupChannelDTO>
 	{
 		let channel;
 		let returnedChannel: GroupChannelDTO;
 
 		try {
-			channel = await this.chatService.createGroupChannel(createChannel,
+			channel = await this.chatService.createGroupChannel(data,
 				{
 					channel: {
 						include: {
@@ -152,7 +162,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		try {
-			returnedChannel = await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId, createChannel.key);
+			returnedChannel = await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId, data.key);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
@@ -166,7 +176,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 	@SubscribeMessage("join_channel")
 	async handleJoinEvent(
-		@MessageBody() request: joinRequestDTO,
+		@MessageBody() data: joinRequestDTO,
 		@ConnectedSocket() socket: chatSocket)
 		: Promise<GroupChannelDTO>
 	{
@@ -174,12 +184,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		let channelWithMessage: GroupChannelDTO;
 		try {
 
-			if (request.channelId == undefined)
-				channelId = (await this.chatService.findGroupChannelbyName(request.channelName)).channelId;
+			if (data.channelId == undefined)
+				channelId = (await this.chatService.findGroupChannelbyName(data.channelName)).channelId;
 			else
-				channelId = request.channelId;
+				channelId = data.channelId;
 
-			channelWithMessage = await this.chatService.joinGroupChannel(channelId, socket.data.userId, request.key);
+			channelWithMessage = await this.chatService.joinGroupChannel(channelId, socket.data.userId, data.key);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e.message);
@@ -198,34 +208,39 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 	@SubscribeMessage("leave_channel")
 	async handleLeaveEvent(
-		@MessageBody() channelId: number,
+		@MessageBody() data: number,
 		@ConnectedSocket() socket: chatSocket
 	)
 	{
-		let channel: any;
+		let channel: any = await this.chatService.findGroupChannelbyID(data);
+		let oldOwner = channel.ownerId;
 
 		try {
-			channel = await this.chatService.findGroupChannelbyID(channelId);
-		} catch (e: any) {
-			console.log(e);
-			throw new WsException(e);
-		}
-
-		try {
-			await this.chatService.leaveGroupChannel(channelId,
+			channel = await this.chatService.leaveGroupChannel(channel,
 				socket.data.userId);
 		} catch (e: any) {
 			console.log(e);
-			throw new WsException(e);
+			throw new WsException(e.message);
 		}
 
-		const user = await this.chatService.getChatUser(socket.data.userId);
-		console.log("user %d leaving channel %s", socket.data.userId, channel.name)
-		socket.leave(channelId.toString());
+		socket.leave(data.toString());
 		this.server.to(channel.channelId.toString()).emit("user_left_room", {
-			user: user,
+			user: {
+				userId:socket.data.userId
+			},
 			channelId: channel.channelId
 		});
+		console.log("user %d leaving channel %s", socket.data.userId, channel.name)
+
+		if(oldOwner != channel.ownerId)
+		{
+			this.server.to(channel.channelId.toString()).emit("owner_update", {
+				newOwner: {
+					userId:channel.ownerId
+				},
+				channelId:channel.channelId
+			});
+		}
 		// return undefined;
 	}
 
@@ -245,10 +260,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 	@SubscribeMessage("chan_key_request")
 	async handleChanKey(@ConnectedSocket() socket: chatSocket,
-		@MessageBody() request: ChanKeyRequestDTO)
+		@MessageBody() data: ChanKeyRequestDTO)
 	{
 		try {
-			this.chatService.changeChanKey(request);
+			this.chatService.changeChanKey(data);
 		} catch (e: any) {
 			throw new WsException(e.message);
 		}
@@ -283,12 +298,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	@SubscribeMessage("send_message")
 	async sendMessage(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() messageCreate: CreateMessageDto
+		@MessageBody() data: CreateMessageDto
 		)
 	{
 		let message: MessageDTO; 
 		try {
-			message = await this.chatService.sendMessage(messageCreate);
+			message = await this.chatService.sendMessage(data);
 		}
 		catch (e: any) {
 			console.log(e);
@@ -300,14 +315,31 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		this.server.to(message.channelId.toString()).emit("message", message);
 	}
 
+	@SubscribeMessage("send_game_invite")
+	async sendGameInvite(
+		@ConnectedSocket() socket: chatSocket,
+		@MessageBody() data: CreateMessageDto
+		)
+	{
+		let message: MessageDTO;
+
+		// try {
+			message = await this.chatService.createGameInvite(data);
+		// } catch (e: any) {
+			// throw new WsException(e.message);
+		// }
+
+		this.server.to(message.channelId.toString()).emit("message", message);
+	}
+
 	@SubscribeMessage("invite_request")
 	async inviteUser(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() request: InviteRequestDTO)
+		@MessageBody() data: InviteRequestDTO)
 	{
 		let update: inviteUpdateDTO;
 		try {
-			update = await this.chatService.inviteUser(request);
+			update = await this.chatService.inviteUser(data);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e.message);
@@ -327,32 +359,33 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	@SubscribeMessage("chan_type_request")
 	async setVisiblity(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() request: ChanTypeRequestDTO)
+		@MessageBody() data: ChanTypeRequestDTO)
 	{
 		let oldChan: GroupChannel & {
 			invited: ChatUser[];
 			admins: ChatUser[];
 		};
 		try {
-			oldChan = await this.chatService.set_chan_type(request);
+			oldChan = await this.chatService.set_chan_type(data);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e.message);
 		}
 
 		//GLOBAL NOTIFICATIONS
-
+		if (oldChan.type != data.type)
+		{
 		//if channel was public, send notice that it isnt anymore
 		if (oldChan.type == 'PUBLIC')
 			this.server.emit("public_chans", {channels:[oldChan], add: false});
 		//if channel is going public send notice
-		else if (request.type == 'PUBLIC')
+		else if (data.type == 'PUBLIC')
 			this.server.emit("public_chans", {channels:[oldChan], add: true});
 		//note: the type channelSnippet that is sent will only extract the name and id of the channel
 		//so it's not the whole channel that is being sent
 
 		//INVITE NOTIFICATIONS
-		if (request.type == 'KEY' || request.type == 'PRIV')
+		if (data.type == 'KEY' || data.type == 'PRIV')
 		{
 			oldChan.invited.forEach(async user => {
 				const otherSocket = await this.findSocket(user.userId);
@@ -368,89 +401,90 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		//CHANNEL NOTIFICATIONS
-		this.server.to(request.channelId.toString()).emit("chan_type_update", request);		
+		this.server.to(data.channelId.toString()).emit("chan_type_update", data);		
+		}
 	}
 
 	@SubscribeMessage("admin")
 	async setAdmin(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() request: ChanRequestDTO)
+		@MessageBody() data: ChanRequestDTO)
 	{
 		try {
-			await this.chatService.setUserAdmin(request)
+			await this.chatService.setUserAdmin(data)
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
 		}
 
-		this.server.to(request.channelId.toString()).emit("admin_update", request);
+		this.server.to(data.channelId.toString()).emit("admin_update", data);
 	}
 
 	@SubscribeMessage("mute_request")
 	async muteUser(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() request: MuteDTO)
+		@MessageBody() data: MuteDTO)
 	{
 		try {
-			await this.chatService.muteUser(request);
+			await this.chatService.muteUser(data);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
 		}
 
-		this.server.to(request.groupChannelId.toString()).emit("user_muted", request);
+		this.server.to(data.groupChannelId.toString()).emit("user_muted", data);
 	}
 
 	@SubscribeMessage("kick_request")
 	async kickUser(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() request: basicChanRequestDTO
+		@MessageBody() data: basicChanRequestDTO
 	)
 	{
 		try {
-			await this.chatService.kickUser(request)
+			await this.chatService.kickUser(data)
 		} catch (e: any) {
 			console.log(e)
 			throw new WsException(e.message);
 		}
 
-		const user = await this.chatService.getChatUser(request.targetUserId);
-		this.server.to(request.channelId.toString()).emit("user_kicked", request);
+		const user = await this.chatService.getChatUser(data.targetUserId);
+		this.server.to(data.channelId.toString()).emit("user_kicked", data);
 
-		const targetSocket = await this.findSocket(request.targetUserId);
+		const targetSocket = await this.findSocket(data.targetUserId);
 
-		targetSocket?.leave(request.channelId.toString());
+		targetSocket?.leave(data.channelId.toString());
 	}
 
 	@SubscribeMessage("ban_request")
 	async banUser(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() request: ChanRequestDTO
+		@MessageBody() data: ChanRequestDTO
 	)
 	{
 		try {
-			await this.chatService.banUser(request)
+			await this.chatService.banUser(data)
 		} catch (e: any) {
 			console.log(e)
 			throw new WsException(e.message);
 		}
 
 
-		const user = await this.chatService.getChatUser(request.targetUserId);
-		this.server.to(request.channelId.toString()).emit("user_banned", request);
+		const user = await this.chatService.getChatUser(data.targetUserId);
+		this.server.to(data.channelId.toString()).emit("user_banned", data);
 
-		if (request.action) //if user is getting banned
+		if (data.action) //if user is getting banned
 		{
-			const targetSocket = await this.findSocket(request.targetUserId);
+			const targetSocket = await this.findSocket(data.targetUserId);
 
-			targetSocket.leave(request.channelId.toString());
+			targetSocket.leave(data.channelId.toString());
 		}
 	}
 
 	@SubscribeMessage("start_dm")
 	async startDM(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() targetUserName: string
+		@MessageBody() data: string
 	): Promise<DMChannelDTO>
 	{
 		let channel : DMChannelDTO;
@@ -458,8 +492,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 		//ask the service to start a DM with the other user, will return a DMChannel
 		try {
-			channel = await this.chatService.startDM(socket.data.userId, targetUserName);
-			target_user = await this.chatService.getChatUserByName(targetUserName);
+			channel = await this.chatService.startDM(socket.data.userId, data);
+			target_user = await this.chatService.getChatUserByName(data);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e.toString());
@@ -480,19 +514,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	@SubscribeMessage("accept_game_invite")
 	async acceptGameInvite(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() msg: MessageDTO
+		@MessageBody() data: MessageDTO
 	)
 	{
+
+		this.server.to(data.channelId.toString()).emit("game_invite_expire", data);
 		try {
-			this.chatService.acceptGameInvite(socket.data.userId, msg.gameInvite.uid);
+			await this.chatService.acceptGameInvite(socket.data.userId, data);
 		} catch (e: any) {
 			throw new WsException(e.message);
 		}
 		
 		//send update that invite has expired
 		
-		console.log("An User accepted the game invite", msg);
-		this.server.to(msg.channelId.toString()).emit("game_invite_expire", msg);
+		console.log("An User accepted the game invite", data);
 	}
 
 	updateUser(userId: number, update: UserWithoutSecret)

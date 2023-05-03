@@ -1,5 +1,12 @@
 import { ChanType } from "@prisma/client"
+import { Type } from "class-transformer";
+import { IsBase64, IsBoolean, IsDate, IsDefined, IsEnum, IsNegative, IsNotEmpty, IsNumber, IsObject, IsOptional, IsPositive, IsString, IsUUID, MaxLength, ValidateIf, ValidateNested, isBase64, isDefined } from "class-validator";
+import { channel } from "diagnostics_channel";
 
+enum gameType {
+	NORMAL,
+	CUSTOM,
+}
 
 /**
  * TRANSFER OBJECTS
@@ -9,9 +16,11 @@ import { ChanType } from "@prisma/client"
  * and stored in the client
  */
 
-export interface GameInvite {
+export class GameInvite {
+
 	status: 'PENDING' | 'EXPIRED';
-	type: 'CUSTOM' | 'NORMAL';
+	type: gameType;
+
 	uid: string;
 }
 
@@ -51,17 +60,27 @@ export interface GroupChannelSnippetDTO{
 	name: string
 }
 
-export interface gameInviteArgs {
-	gameType: 'CUSTOM' | 'NORMAL';
+
+export class gameInviteArgs {
+	@IsNotEmpty()
+	@IsDefined()
+	@IsEnum(gameType)
+	gameType: gameType;
 }
 
-export interface CreateMessageDto {
+export class CreateMessageDto {
+	@IsNumber()
 	authorId: number;
 
+	@IsNumber()
 	ChannelId: number;
 
+	@IsString()
 	content: string;
 
+	@IsOptional()
+	@ValidateNested()
+	@Type(() => gameInviteArgs)
 	gameInvite?: gameInviteArgs;
 }
 
@@ -129,61 +148,169 @@ export interface ChatUserUpdateDTO {
  * All those interfaces are used to send a request to the server
  * and sometimes used by the serer as updates when possible
 *****************/
-export interface joinRequestDTO {
-	channelName?: string,
-	channelId?: number,
+export class joinRequestDTO {
+
+	@ValidateIf(o => o.channelId == undefined)
+	@IsNotEmpty()
+	channelName?: string;
+
+	@ValidateIf(o => o.channelName == undefined)
+	@IsNotEmpty()
+	@IsNumber()
+	@IsPositive()
+	channelId?: number;
+
+	@IsString()
+	@MaxLength(72)
+	@IsOptional()
+	key?: string;
+}
+
+export class adminRequestDTO {
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	callerUserId: number;
+
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	targetUserId: number;
+	
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	groupChannelId: number;
+}
+
+export class basicChanRequestDTO {
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	authorUserId: number;
+	
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	targetUserId: number;
+	
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	channelId: number;
+}
+
+export class ChanRequestDTO {
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	authorUserId: number;
+	
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	targetUserId: number;
+	
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	channelId: number;
+	
+	@IsDefined()
+	@IsBoolean()
+	action: boolean; //true means set/do action, false means undo/unset
+}
+
+export class InviteRequestDTO {
+
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	authorUserId: number;
+
+	@IsDefined()
+	@IsNotEmpty()
+	@IsString()
+	targetUserName: string;
+
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	channelId: number;
+
+	@IsDefined()
+	@IsBoolean()
+	action: boolean;
+}
+
+export class ChanTypeRequestDTO {
+
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	authorUserId: number;
+	
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	channelId: number;
+
+	@IsEnum(ChanType)
+	@IsDefined()
+	type: ChanType;
+
+	@IsOptional()
+	@IsString()
+	@MaxLength(72) //because bcrypt hash have a limit of 72 for the pass
 	key?: string
 }
 
-export interface adminRequestDTO {
-	callerUserId: number,
-	targetUserId: number,
-	groupChannelId: number,
-}
+export class ChanKeyRequestDTO {
 
-export interface basicChanRequestDTO {
-	authorUserId: number,
-	targetUserId: number,
-	channelId: number
-}
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	authorUserId: number;
 
-export interface ChanRequestDTO {
-	authorUserId: number,
-	targetUserId: number,
-	channelId: number,
-	action: boolean //true means set/do action, false means undo/unset
-}
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	channelId: number;
 
-export interface InviteRequestDTO {
-	authorUserId: number,
-	targetUserName: string,
-	channelId: number,
-	action: boolean 
-}
-
-export interface ChanTypeRequestDTO {
-	authorUserId: number,
-	channelId: number,
-	type: ChanType,
-	key?: string
-}
-
-export interface ChanKeyRequestDTO {
-	authorUserId: number,
-	channelId: number,
+	@IsDefined()
+	@IsString()
+	@MaxLength(72)
 	key: string
 }
 
-export interface DMRequestDTO {
-	callerUserId: number,
-	targetUserId: number
+export class DMRequestDTO {
+	@IsDefined()
+	@IsNumber()
+	callerUserId: number;
+
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	targetUserId: number;
 }
 
-export interface MuteDTO {
-	authorUserId: number,
-	targetUserId: number,
-	groupChannelId: number,
-	endDate: Date
+export class MuteDTO {
+
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	authorUserId: number;
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	targetUserId: number;
+	@IsDefined()
+	@IsNumber()
+	@IsPositive()
+	groupChannelId: number;
+
+	@IsDate()
+	endDate: Date;
 }
 
 // export interface GroupChannelUpdateDTO {

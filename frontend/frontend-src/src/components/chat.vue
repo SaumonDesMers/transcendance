@@ -9,7 +9,8 @@ import {
 	joinRequestDTO,
 	adminRequestDTO,
 	MuteDTO,
-	CreateMessageDto
+	CreateMessageDto,
+gameInviteArgs
 } from '../../../../backend/backend-src/src/chat/Chat.entities';
 import {
 	ServerToClientEvents,
@@ -24,12 +25,10 @@ export default {
 	data() {
 		return {
 			messageInputBuffer: '',
-			current_channelId: -1 as number,
 			channelInputBuffer: '',
 			keyInputBuffer: '',
 			setKeyInputBuffer: '',
 			userNameInputBuffer: '',
-			currentDMchannel: false,
 			customGameInvite: false,
 			store,
 			user,
@@ -37,23 +36,20 @@ export default {
 	},
 	computed: {
 		currentChannel() {
-			if (this.currentDMchannel == false)
-				return this.store.getGroupChannel(this.current_channelId);
-			else
-				return this.store.getDMChannel(this.current_channelId);
+			return store.getCurrentChannel();
 		}
 	},
-	renderTriggered(event) {
-		console.log(event);
-		// debugger
-	},
+	// renderTriggered(event) {
+	// 	// console.log(event);
+   	// 	// debugger
+  	// },
 	methods: {
 		print() {
 			console.log(store);
 		},
 
 		connectToServer() {
-			store.connectToServer();
+			store.connectToServer(this.$cookies.get('jwt'));
 		},
 
 		disconnectFromServer() {
@@ -62,13 +58,11 @@ export default {
 		},
 
 		selectChannel(id: number) {
-			this.currentDMchannel = false;
-			this.current_channelId = id;
+			store.selectChannel(id, false);
 		},
 
 		selectDMChannel(id: number) {
-			this.currentDMchannel = true;
-			this.current_channelId = id;
+			store.selectChannel(id, true);
 		},
 
 		async createChannel() {
@@ -92,32 +86,21 @@ export default {
 		},
 
 		async leaveChannel() {
-			store.leaveChannel(this.current_channelId);
-			this.current_channelId = null;
+			store.leaveChannel();
 		},
 
 		async SendMessage() {
-			const msg = {
-				content: this.messageInputBuffer,
-				ChannelId: this.current_channelId,
-				authorId: store.user.userId
-			};
+			store.sendMessage(this.messageInputBuffer);
 			this.messageInputBuffer = "";
-			store.sendMessage(msg);
 		},
 
 		async sendInvite() {
-			const msg: CreateMessageDto = {
-				content: this.messageInputBuffer,
-				ChannelId: this.current_channelId,
-				authorId: store.user.userId,
-				gameInvite: {
-					gameType: this.customGameInvite ? 'CUSTOM' : 'NORMAL'
-				}
-			}
+			const invite: gameInviteArgs = {
+				gameType: this.customGameInvite ? 'CUSTOM' : 'NORMAL'
+			};
+			store.sendGameInvite(invite, this.messageInputBuffer);
 			this.messageInputBuffer = "";
-			store.sendMessage(msg);
-		}
+		},
 
 	},
 
@@ -170,13 +153,14 @@ export default {
 				<button @click="selectChannel(channelId)">{{ channel.name }}</button>
 			</div>
 
-			<div>
-				<input type="text" v-model="messageInputBuffer">
-				<button @click="SendMessage">Send</button>
-				<button @click="sendInvite">Send Game Invite</button>
-				<input type="checkbox" id="checkbox" v-model="customGameInvite">
-				<label for="checkbox">Custom Game</label>
-			</div>
+		<div v-if="this.currentChannel != undefined">
+		<!-- <div> -->
+			<input type="text" v-model="messageInputBuffer">
+			<button @click="SendMessage">Send</button>
+			<button @click="sendInvite">Send Game Invite</button>
+			<input type="checkbox" id ="checkbox" v-model="customGameInvite">
+			<label for="checkbox">Custom Game</label>
+		</div>
 
 			<!-- ici on affiche tout les DM ouverts -->
 			<div v-for="[channelId, channel] in store.dmChannels">
@@ -184,18 +168,32 @@ export default {
 				}}</button>
 			</div>
 
-			<!-- Ici on affiche un channel de groupe avec les messages et les options... -->
-			<div v-if="this.current_channelId != null && this.currentDMchannel == false">
-
-				<div v-for="message in this.currentChannel?.channel.messages">
-					<p>
-						{{ store.getUserName(message.author.userId) }} : {{ message.content }}
+		<!-- Ici on affiche un channel de groupe avec les messages et les options... -->
+		<div v-if="this.currentChannel != undefined && store.isCurrentDM == false">
+			<p>Current Channel : {{ this.currentChannel.name }}</p>
+			<p>Channel Owner: {{ store.getUserName(this.currentChannel.owner?.userId) }}</p>
+			<div v-for="message in this.currentChannel?.channel.messages">
+				<p>
+					{{ store.getUserName(message.author.userId) }} : {{ message.content }}
 					<p v-if="message.gameInvite != undefined">
 						Game Invite status: {{ message.gameInvite.status }}
 						<button v-if="message.gameInvite.status == 'PENDING'"
 							@click="store.acceptGameInvite(message)">Join</button>
 					</p>
 					</p>
+			</div>
+			<div v-for="user in this.currentChannel?.channel.users">
+				<!-- <button @click="">ban</button> -->
+				<p>{{ store.getUserName(user.userId) }}</p>
+				<button @click="store.kick_user(user.userId)">kick</button>
+				<button @click="store.ban_user(user.userId, true)">ban</button>
+			</div>
+
+			<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PRIVÉ -->
+			<div v-if="this.currentChannel?.type == 'PRIV' || this.currentChannel?.type == 'PUBLIC'">
+				<p>Invited Users:</p>
+				<div v-for="user in this.currentChannel?.invited">
+					<p> {{ store.getUserName(user.userId) }}</p>
 				</div>
 				<div v-for="user in this.currentChannel?.channel.users">
 					<!-- <button @click="">ban</button> -->
@@ -211,6 +209,10 @@ export default {
 						<p> {{ store.getUserName(user.userId) }}</p>
 					</div>
 					<input type="text" v-model="userNameInputBuffer">
+				<!-- Exemple d'un appel a la fonction Pour invite et uninvite un user -->
+				<button @click="store.invite_user(userNameInputBuffer, true)">Invite User</button>
+				<button @click="store.invite_user(userNameInputBuffer, false)">Uninvite User</button>
+			</div>
 
 					<!-- Exemple d'un appel a la fonction Pour invite et uninvite un user -->
 					<button @click="store.invite_user(userNameInputBuffer, current_channelId, true)">Invite User</button>
@@ -232,12 +234,22 @@ export default {
 				<!-- ça c'est à l'arrache faut pas faire ça ( j'ai la même var d'input que le champ du dessus) -->
 				<input type="text" v-model="setKeyInputBuffer">
 
-				<button @click="store.setChanType(current_channelId, 'KEY', setKeyInputBuffer)">Set Channel
-					KeyProtected</button>
+				<button @click="store.setChanKey(setKeyInputBuffer)">Set Chan Key</button>
 			</div>
 
-			<div v-if="this.current_channelId != null && this.currentDMchannel == true">
-				<p>Chat With
+			<!-- un exemple d'un ensemble de boutons pour changer le type du channel actuellement selectionné -->
+
+			<button @click="store.setChanType('PUBLIC')">Set Channel Public</button>
+			<button @click="store.setChanType('PRIV')">Set Channel Private</button>
+
+			<!-- ça c'est à l'arrache faut pas faire ça ( j'ai la même var d'input que le champ du dessus) -->
+			<input type="text" v-model="setKeyInputBuffer">
+
+			<button @click="store.setChanType('KEY', setKeyInputBuffer)">Set Channel KeyProtected</button>
+		</div>
+
+		<div v-if="this.currentChannel != undefined && store.isCurrentDM == true">
+			<p>Chat With
 				<p v-for="user in this.currentChannel?.channel.users">{{ store.getUserName(user.userId) }}</p>
 				</p>
 
@@ -261,7 +273,6 @@ export default {
 			{{ store.error }}
 			<button @click="store.error = ''">clear Error</button>
 		</div>
-	</div>
 	<!-- <button @click="print()">click me</button> -->
 </template>
 

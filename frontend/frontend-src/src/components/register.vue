@@ -28,7 +28,7 @@ export default {
 			const b = document.querySelector('body');
 
 			b.classList.remove('ALLIANCE', 'ORDER', 'FEDERATION', 'ASSEMBLY', 'dark');
-			console.log('setting theme (' + themeClass + ') computed as ' + theme + ' dark == ' + this.isDark);
+			// console.log('setting theme (' + themeClass + ') computed as ' + theme + ' dark == ' + this.isDark);
 			if (theme)
 				b.classList.add(theme);
 			if (this.isDark)
@@ -81,17 +81,17 @@ export default {
 				return;
 			}
 			axios
-				.post('http://localhost:3001/users',
-					{
-						"id": 0,
-						"username": this.username,
-						"darkMode": this.isDark,
-						"coa": this.coalition,
-						"bio": 'Praise the ' + this.coalition + '!'
-					})
-				.then((res) => {
-					// this.$emit('user', res.data);
+			.post('http://localhost:3001/users',
+			{
+				"id": 0,
+				"username": this.username,
+				"darkMode": this.isDark,
+				"coa": this.coalition,
+				"bio": 'Praise the ' + this.coalition + '!'
+			})
+			.then((res) => {
 					this.user.set(res.data);
+					this.user.uploadAvatar();
 					this.$emit('switchPage', State.MAIN);
 				})
 				.catch((error) => {
@@ -121,17 +121,11 @@ export default {
 							<input class="input" v-model='username' @click="username = ''" />
 						</span>
 					</form>
-					<!-- <div :class="[isDark ? 'btn dark' : 'btn blue']"> -->
-						<img v-bind:src="user.avatar.imageBase64"/>
-						<!-- <label for="file">SELECT AN AVATAR</label> -->
-						<input type="file" id="uploadmyfile" @change="requestUploadFile" />
-						<div>
-							<button @click="user.uploadAvatar()"><span>Upload</span></button>
-						</div>
-					<!-- </div> -->
-					<!-- <input class="input" id="files" width="100%" type="file" style="visibility:hidden; height: 0;" />
-						<label for="files" ref="onFileChange" @click="user.uploadAvatar()"><span>AVATAR</span></label> -->
-					<!-- </div> -->
+					<div :class="[isDark ? 'btn dark' : 'btn blue']">
+						<span><img v-bind:src="user.avatar.imageBase64"/></span>
+						<label for="uploadmyfile"><span>SELECT AN AVATAR</span></label>
+						<input type="file" id="uploadmyfile" @change="requestUploadFile" style="display: none;"/>
+					</div>
 				</div>
 				<div style="display: flex; justify-content: space-between; gap: 4px">
 					<button class="btn-coa alliance-btn" :class="[isDark ? 'dark' : '']" @mouseover="setTheme('ALLIANCE')"

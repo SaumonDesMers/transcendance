@@ -4,6 +4,7 @@ import { UserRepository } from "./User.repository";
 import { CreateUserDto } from "./User.create-dto";
 import { UpdateUserDto } from "./User.update-dto";
 import { UserWithoutSecret } from "./User.module";
+import { UserEntity } from "./User.entity";
 
 export function exclude<User, Key extends keyof User>(
 	user: User,
@@ -41,9 +42,22 @@ export class UserService {
 		return usersWithoutSecret;
 	}
 
-	async getOneUser(id: User['id']): Promise<UserWithoutSecret> 
+	async getOneUser(id: User['id'], includeFriends?: boolean): Promise<UserWithoutSecret> 
 	{
-		const user = await this.repository.getSingleUser({id});
+		let user: User;
+
+		if (includeFriends) {
+			user = await this.repository.getSingleUser({id}, {
+				following: {
+					select: {
+						id: true
+					}
+				}
+			});
+		} else {
+			user = await this.repository.getSingleUser({id});
+		}
+		
 		return exclude(user, ['twoFactorAuthenticationSecret']);
 	}
 
@@ -78,5 +92,41 @@ export class UserService {
 		});
 
 		return exclude(user, ['twoFactorAuthenticationSecret']);
+	}
+
+	async addFriend(id: User['id'], friendUserName: string)
+	{
+		const friend = await this.repository.getSingleUser({
+			username: friendUserName
+		});
+
+		const user = await this.repository.updateUser({
+			where: {
+				id,
+			},
+			data: {
+				following: {
+					connect: {id:friend.id}
+				}
+			}
+		});
+
+		return(friend.id);
+	}
+
+	async removeFriend(id: User['id'], friendId: number)
+	{
+		const user = await this.repository.updateUser({
+			where: {
+				id,
+			},
+			data: {
+				following: {
+					disconnect: {id:friendId}
+				}
+			}
+		});
+
+		return friendId;
 	}
 }

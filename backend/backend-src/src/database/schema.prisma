@@ -39,6 +39,9 @@ model User {
 
 	winningGames Game[] @relation("winner")
 	losingGames Game[] @relation("loser")
+
+	following User[] @relation("friend")
+	followedBy User[] @relation("friend")
 }
 
 model ChatUser {
@@ -110,8 +113,8 @@ model GroupChannel {
 	type ChanType
 	key String?
 
-	ownerId Int
-	owner ChatUser @relation("ChannelOwner", fields: [ownerId], references: [userId])
+	ownerId Int?
+	owner ChatUser? @relation("ChannelOwner", fields: [ownerId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
 	admins ChatUser[] @relation("ChannelAdmin")
 	mutes Mute[] @relation("ChannelMute")
 	banned ChatUser[] @relation("ChannelBanned")
