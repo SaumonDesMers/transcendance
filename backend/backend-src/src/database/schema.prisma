@@ -113,8 +113,8 @@ model GroupChannel {
 	type ChanType
 	key String?
 
-	ownerId Int
-	owner ChatUser @relation("ChannelOwner", fields: [ownerId], references: [userId])
+	ownerId Int?
+	owner ChatUser? @relation("ChannelOwner", fields: [ownerId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
 	admins ChatUser[] @relation("ChannelAdmin")
 	mutes Mute[] @relation("ChannelMute")
 	banned ChatUser[] @relation("ChannelBanned")

@@ -212,30 +212,35 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@ConnectedSocket() socket: chatSocket
 	)
 	{
-		let channel: any;
+		let channel: any = await this.chatService.findGroupChannelbyID(data);
+		let oldOwner = channel.ownerId;
 
 		try {
-			channel = await this.chatService.findGroupChannelbyID(data);
-		} catch (e: any) {
-			console.log(e);
-			throw new WsException(e);
-		}
-
-		try {
-			await this.chatService.leaveGroupChannel(data,
+			channel = await this.chatService.leaveGroupChannel(channel,
 				socket.data.userId);
 		} catch (e: any) {
 			console.log(e);
-			throw new WsException(e);
+			throw new WsException(e.message);
 		}
 
-		const user = await this.chatService.getChatUser(socket.data.userId);
-		console.log("user %d leaving channel %s", socket.data.userId, channel.name)
 		socket.leave(data.toString());
 		this.server.to(channel.channelId.toString()).emit("user_left_room", {
-			user: user,
+			user: {
+				userId:socket.data.userId
+			},
 			channelId: channel.channelId
 		});
+		console.log("user %d leaving channel %s", socket.data.userId, channel.name)
+
+		if(oldOwner != channel.ownerId)
+		{
+			this.server.to(channel.channelId.toString()).emit("owner_update", {
+				newOwner: {
+					userId:channel.ownerId
+				},
+				channelId:channel.channelId
+			});
+		}
 		// return undefined;
 	}
 
@@ -368,7 +373,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		//GLOBAL NOTIFICATIONS
-
+		if (oldChan.type != data.type)
+		{
 		//if channel was public, send notice that it isnt anymore
 		if (oldChan.type == 'PUBLIC')
 			this.server.emit("public_chans", {channels:[oldChan], add: false});
@@ -396,6 +402,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 		//CHANNEL NOTIFICATIONS
 		this.server.to(data.channelId.toString()).emit("chan_type_update", data);		
+		}
 	}
 
 	@SubscribeMessage("admin")
