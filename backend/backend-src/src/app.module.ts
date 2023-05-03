@@ -9,6 +9,7 @@ import { Jwt2faAuthGuard } from './auth/jwt-2fa/jwt-2fa.guard';
 import { GameModule } from './game/game.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { ChatModule } from './chat/Chat.module';
+import { StatusModule } from './status/status.module'
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -21,6 +22,7 @@ import { join } from 'path';
 		UserModule,
 		GameModule,
 		ChatModule,
+		StatusModule,
 		MulterModule.register({
 			dest: './images',
 		}),
