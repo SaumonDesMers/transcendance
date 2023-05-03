@@ -27,7 +27,7 @@ class FriendData extends UserData {
 	avatar: Avatar;
 	constructor() {
 		super();
-		this.avatar = new Avatar();
+		this.avatar = reactive(new Avatar());
 	}
 }
 
@@ -194,7 +194,7 @@ export class User {
 		this._data = new UserData();
 		this.avatar = new Avatar();
 		this._friendsStatus = new statusClient();
-		this.friends = new Array();
+		this.friends = reactive(new Array<FriendData>());
 	}
 
 	set(newData: any) {
