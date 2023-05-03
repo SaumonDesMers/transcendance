@@ -162,6 +162,7 @@ export default {
 		<!-- Ici on affiche un channel de groupe avec les messages et les options... -->
 		<div v-if="this.currentChannel != undefined && store.isCurrentDM == false">
 			<p>Current Channel : {{ this.currentChannel.name }}</p>
+			<p>Channel Owner: {{ store.getUserName(this.currentChannel.owner?.userId) }}</p>
 			<div v-for="message in this.currentChannel?.channel.messages">
 				<p>
 					{{ store.getUserName(message.author.userId) }} : {{ message.content }}
