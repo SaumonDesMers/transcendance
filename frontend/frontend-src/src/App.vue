@@ -34,7 +34,10 @@ export default {
 	data() {
 		return {
 			State,
-			state: State.LOGIN,
+			state: {
+				page: State,
+				uid: 0,
+			},
 			previousPage: 10,
 			user,
 			gameGateway,
@@ -42,17 +45,51 @@ export default {
 	},
 
 	methods: {
-		switchPage(arg) {
-			this.state = arg;
+		setState(page, uid) {
+			console.log('setState', page);
+			this.state.page = page;
+			// this.state.uid = uid;
+		},
+		switchPage(page) {
+			this.setState(page, this.state.uid+1);
+			window.history.pushState({ current: page, uid: this.state.uid }, "", page);
+			console.log('history', window.history.state);
 		},
 	},
 
-	mounted() {},
+	mounted() {
+		
+	},
 
-	created() {},
+	created() {
+
+		console.log('history', window.history.state);
+
+		const jwt = this.$cookies.get('jwt');
+
+		if (jwt) {
+			axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
+			this.user.get();
+			this.setState(window.history.state.current, 0);
+		} else {
+			this.setState(State.LOGIN, 0);
+		}
+		
+		window.addEventListener('popstate', (event) => {
+			console.log('popstate event');
+			console.log('	!!event.state', !!event.state);
+			console.log('	event.state', event.state);
+			console.log('	history', window.history.state);
+			if (!!event.state) {
+				// this.setState(event.state.page, 0);
+				this.setState(window.history.state.current, 0);
+			}
+		});
+	},
 
 	watch: {
-		state() {
+		'state.page'(newValue, oldValue) {
+			console.log('state changed from', oldValue, 'to', newValue);
 			if (this.user.isLoggedIn && this.$cookies.get('jwt') && this.gameGateway.socket.disconnected) {
 				this.gameGateway.connect(this.$cookies.get('jwt'));
 			}
@@ -62,35 +99,35 @@ export default {
 </script>
 
 <template>
-	<div v-if="state == State.LOGIN">
+	<div v-if="state.page == State.LOGIN">
 		<loginPage @switchPage="switchPage"></loginPage>
 	</div>
-	<div v-if="state == State.VALIDATE_2FA">
+	<div v-if="state.page == State.VALIDATE_2FA">
 		<validate2fa @switchPage="switchPage"></validate2fa>
 	</div>
-	<div v-else-if="state == State.REGISTER">
+	<div v-else-if="state.page == State.REGISTER">
 		<register @switchPage="switchPage"></register>
 	</div>
-	<div v-else-if="state == State.MAIN">
+	<div v-else-if="state.page == State.MAIN">
 		<mainPage @switchPage="switchPage"></mainPage>
 
 	</div>
-	<div v-else-if="state == State.USER">
+	<div v-else-if="state.page == State.USER">
 		<profil @switchPage="switchPage"></profil>
 	</div>
-	<div v-else-if="state == State.FRIENDS">
+	<div v-else-if="state.page == State.FRIENDS">
 		<friends @switchPage="switchPage"></friends>
 	</div>
-	<div v-else-if="state == State.GAME">
+	<div v-else-if="state.page == State.GAME">
 		<game></game>
 	</div>
-	<div v-else-if="state == State.CHAT">
+	<div v-else-if="state.page == State.CHAT">
 		<chat></chat>
 	</div>
-	<div v-else-if="state == State.EDIT">
+	<div v-else-if="state.page == State.EDIT">
 		<edit @switchPage="switchPage"></edit>
 	</div>
-	<div v-else-if="state == State.HISTORY">
+	<div v-else-if="state.page == State.HISTORY">
 		<history @switchPage="switchPage"></history>
 	</div>
 </template>
