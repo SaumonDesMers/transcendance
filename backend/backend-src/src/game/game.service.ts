@@ -12,6 +12,7 @@ import {
 	Game,
 } from "@prisma/client";
 import { QueueService } from "./queue.service";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
 @Injectable()
 export class GameService {
@@ -24,6 +25,7 @@ export class GameService {
 		private readonly broadcastService: BroadcastService,
 		private readonly queueService: QueueService,
 		private prismaService: PrismaService,
+		private eventEmitter: EventEmitter2,
 	) {}
 
 	private getPlayerBySocket(socket: Socket): PlayerEntity {
@@ -149,7 +151,7 @@ export class GameService {
 	}
 
 	async createGame(player_1: PlayerEntity, player_2: PlayerEntity, type: string) {
-		this.games.push(new GameEntity(this, this.broadcastService, player_1, player_2, type));
+		this.games.push(new GameEntity(this, this.broadcastService, this.eventEmitter, player_1, player_2, type));
 	}
 
 	async playerInput(socket: Socket, input: string) {

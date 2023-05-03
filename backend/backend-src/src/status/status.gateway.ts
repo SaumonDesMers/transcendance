@@ -12,6 +12,7 @@ import { GameService } from '../game/game.service'
 import { UsePipes, ValidationPipe } from '@nestjs/common'
 import { AuthService } from 'src/auth/auth.service';
 import { playerStatus } from './status.events'
+import { OnEvent } from '@nestjs/event-emitter';
 
 @WebSocketGateway({
 	namespace: "status"
@@ -52,6 +53,22 @@ export class StatusGateway {
 		}
 	}
 
+	@OnEvent("ingame")
+	OnIngame(userId: number)
+	{
+		console.log(userId);
+		console.log("received event");
+		this.playersStatus.set(userId, playerStatus.IN_GAME);
+		this.server.emit("update", {userId, status:playerStatus.IN_GAME});
+	}
+
+	@OnEvent("endgame")
+	OnEndgame(userId: number)
+	{
+		this.playersStatus.set(userId, playerStatus.ONLINE);
+		this.server.emit("update", {userId, status:playerStatus.ONLINE});
+	}
+
 	@SubscribeMessage('getStatus')
 	async onGetStatus(
 		@MessageBody() userId: number,
@@ -65,5 +82,4 @@ export class StatusGateway {
 		else
 			return status;
 	}
-
 }

@@ -2,6 +2,7 @@ import { PlayerEntity } from "./player.entity"
 import { v4 as uuid } from "uuid";
 import { BroadcastService } from './broadcast.service'
 import { GameService } from "./game.service";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
 // side
 const LEFT = 0;
@@ -305,6 +306,7 @@ export class GameEntity {
 	constructor(
 		private readonly gameService: GameService,
 		private readonly broadcastService: BroadcastService,
+		private eventEmitter: EventEmitter2,
 		player1: PlayerEntity, player2: PlayerEntity,
 		public type: string
 	) {
@@ -325,6 +327,9 @@ export class GameEntity {
 
 		player1.joinGame(this);
 		player2.joinGame(this);
+		this.eventEmitter.emit("ingame", player1.id)
+		this.eventEmitter.emit("ingame", player2.id)
+
 		this.broadcastService.to(this.UID, 'start');
 
 		if (type == 'CUSTOM') {
@@ -493,8 +498,11 @@ export class GameEntity {
 		this.broadcastService.to(this.UID, 'end', { winner: winnerSide.player.id });
 		this.side[0].player.leaveGame();
 		this.side[1].player.leaveGame();
+		this.eventEmitter.emit("endgame", this.side[1].player.id);
+		this.eventEmitter.emit("endgame", this.side[0].player.id);
 		this.gameService.games = this.gameService.games.filter(g => g.UID != this.UID);
 		this.gameService.saveGame(parseInt(winnerSide.player.id), parseInt(loserSide.player.id), winnerSide.score, loserSide.score);
+
 	}
 	
 	async playerInput(player: PlayerEntity, input: string) {
