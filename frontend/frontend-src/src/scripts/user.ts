@@ -1,5 +1,17 @@
 import axios from 'axios'
 import { reactive } from 'vue'
+import { Socket, io } from 'socket.io-client'
+import {
+	ServerToClientEvents,
+	ClientToServerEvents,
+	updateDTO,
+} from '../../../../backend/backend-src/src/status/status.events';
+
+enum playerStatus {
+	ONLINE,
+	OFFLINE,
+	IN_GAME
+}
 
 class UserData {
 
@@ -9,6 +21,92 @@ class UserData {
 	isTwoFactorAuthenticationEnabled: boolean;
 	coa: string;
 	bio: string;
+}
+
+class FriendData extends UserData {
+	avatar: Avatar;
+	constructor() {
+		super();
+		this.avatar = new Avatar();
+	}
+}
+
+class statusClient {
+	private _friendsStatus: Map<number, playerStatus>;
+	private _socket: Socket<ServerToClientEvents, ClientToServerEvents>;
+
+	constructor() {
+		this._friendsStatus = reactive (new Map());
+		this.initSocket();
+	}
+
+	connect(jwt: string) {
+		console.log("status client connecting");
+		this._socket.io.opts.extraHeaders = {
+			authorization: `Bearer ${jwt}`
+		};
+		this._socket.connect();
+	}
+
+	getFriendStatus(userId: number){
+		let status = this._friendsStatus.get(userId);
+		if (status == undefined)
+			return 'OFFLINE';
+		switch (status)
+		{
+		case playerStatus.ONLINE:
+			return "ONLINE";
+		case playerStatus.OFFLINE:
+			return "OFFLINE";
+		case playerStatus.IN_GAME:
+			return "IN GAME";
+		}
+	}
+
+	get friendsMap() {return this._friendsStatus;}
+
+	set friends(users: {id: number}[])
+	{
+		this._friendsStatus.clear();
+		users.forEach((user: {id: number}) => {
+			this._friendsStatus.set(user.id, playerStatus.OFFLINE);
+		});
+		this.fetchFriendsStatus();
+	}
+
+	addFriend(userId: number)
+	{
+		this._friendsStatus.set(userId, playerStatus.OFFLINE);
+		this._socket.emit('getStatus', userId, (stat: playerStatus) => {
+			this._friendsStatus.set(userId, stat);
+		})
+	}
+
+	removeFriend(userId: number)
+	{
+		this._friendsStatus.delete(userId);
+	}
+
+	private fetchFriendsStatus()
+	{
+		this._friendsStatus.forEach( (stat: playerStatus, userId: number) => {
+			this._socket.emit('getStatus', userId, (stat: playerStatus) => {
+				this._friendsStatus.set(userId, stat);
+			})
+		});
+	}
+
+	private initSocket()
+	{
+		this._socket = io('http://localhost:3001/status', {
+			autoConnect: false
+		});
+
+		this._socket.on('update', (payload: updateDTO) => {
+			if (this._friendsStatus.has(payload.userId))
+				this._friendsStatus.set(payload.userId, payload.status);
+		})
+	}
 }
 
 class Avatar {
@@ -70,6 +168,9 @@ class Avatar {
 export class User {
 
 	private _data: UserData;
+	friends: FriendData[];
+	private _friendsStatus: statusClient;
+
 	avatar: Avatar;
 	isLoggedIn: boolean = false;
 
@@ -87,17 +188,23 @@ export class User {
 	set coa(arg) { this._data.coa = arg; }
 	set bio(arg) { this._data.bio = arg; }
 
+	getFriendStatus(userId: number) {return this._friendsStatus.getFriendStatus(userId);}
 
 	constructor() {
 		this._data = new UserData();
 		this.avatar = new Avatar();
+		this._friendsStatus = new statusClient();
+		this.friends = new Array();
 	}
 
 	set(newData: any) {
 		for (const key in newData) {
 			if (key == 'picture')
 				this.avatar.fileName = newData[key];
-			else
+			else if (key == 'following') {
+				console.log(newData[key]);
+				this._friendsStatus.friends = newData[key];
+			} else
 				this[key] = newData[key];
 		}
 	}
@@ -106,9 +213,13 @@ export class User {
 		let data: any = null;
 		let error: any = null;
 
+		this._friendsStatus.connect(jwt);
 		await axios.get('http://localhost:3001/auth/user', {
 				headers: {
 					Authorization: `Bearer ${jwt}`
+				},
+				params: {
+					includeMembers: true
 				}
 			})
 			.then(res => {
@@ -196,6 +307,58 @@ export class User {
 		.catch(err => {
 			console.log('err :', err);
 		});
+	}
+
+	async addFriend(username: string) {
+		axios.post(`http://localhost:3001/users/${this.id}/friends`, {username})
+		.then(res => {
+			console.log('res :', res);
+			this._friendsStatus.addFriend(res.data);
+		})
+		.catch(err => {
+			console.log('err :', err);
+		})
+	}
+
+	async removeFriend(userId: number) {
+		axios.delete(`http://localhost:3001/users/${this.id}/friends/${userId}`)
+		.then(res => {
+			this._friendsStatus.removeFriend(userId);
+		})
+		.catch(err => {
+			console.log('err :', err);
+		});
+	}
+
+	async loadFriends() {
+		this.friends = [];
+		this._friendsStatus.friendsMap.forEach((stat: playerStatus, id: number) => {
+			axios.get(`http://localhost:3001/users/${id}`)
+			.then(res => {
+				let friend: FriendData;
+
+				friend = new FriendData();
+				for (const key in res.data) {
+					if (key == 'picture')
+						friend.avatar.fileName = res.data[key];
+					else
+						friend[key] = res.data[key];
+				}
+				if (friend.avatar.fileName != undefined) {
+					axios.get(`http://localhost:3001/${friend.avatar.fileName}`, {
+					responseType: 'blob'
+					})
+					.then(res => {
+						friend.avatar.setFile(res.data);
+					})
+				}
+				console.log(friend);
+				this.friends.push(friend);
+			})
+			.catch(err => {
+				console.log('err :', err);
+			});
+		})
 	}
 }
 
