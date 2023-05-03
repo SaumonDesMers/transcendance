@@ -29,7 +29,7 @@ export type GroupChannelWithBase = Prisma.GroupChannelGetPayload<typeof groupCha
 
 const includeChannelUsers = Prisma.validator<Prisma.ChannelArgs>()({include: {users: true}});
 const includeDMChannel = Prisma.validator<Prisma.DMChannelArgs>()({include: {channel: includeChannelUsers}});
-const includeGroupChannel = Prisma.validator<Prisma.GroupChannelArgs>()({include: {channel: includeChannelUsers}});
+const includeGroupChannel = Prisma.validator<Prisma.GroupChannelArgs>()({include: {channel: includeChannelUsers, admins:true}});
 export type DMChannelWithMembers = Prisma.DMChannelGetPayload<typeof includeDMChannel>
 export type GroupChannelWithMembers = Prisma.GroupChannelGetPayload<typeof includeGroupChannel>
 

@@ -221,6 +221,9 @@ export class Chat {
 	 * @returns the username of the user
 	 */
 	getUserName(id: number): string {
+		if (id == undefined || id == 0)
+			return "unkown";
+
 		const ret = this.getUser(id)?.user.username;
 
 		if (ret == undefined)
@@ -622,7 +625,9 @@ export class Chat {
 			let chan = this._group_channels.get(payload.channelId);
 
 			if (chan !== undefined)
+			{
 				chan.owner = payload.newOwner;
+			}
 		});
 
 		this.socket.on("game_invite_expire", (payload: MessageDTO) => {
