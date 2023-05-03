@@ -42,27 +42,35 @@ export default {
 			<div class="stars2"></div>
 		</div>
 		<div style="height: 100vh; overflow: scroll;">
-			<div class="friends-grid">
-				<div v-for="n in 21">
-					<div class="friend">
-						<div class="avatar">
-							<div class="avatar-style"></div>
-							<div class="status"></div>
-						</div>
-						<div class="avatar">
-							<div class="avatar-style"></div>
-							<div class="status"></div>
-						</div>
-						<div class="result-grid" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
-							<p class="login" @click="switchPage(State.USER)">Login<br></p>
-							<p class="fa-solid fa-skull"><br></p>
-							<p class="score">Score<br></p>
-						</div>
-						<div class="result-grid goldBG goldText"
-							:class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
-							<p class="login" @click="switchPage(State.USER)">Login<br></p>
-							<p class="fa-solid fa-trophy"><br></p>
-							<p class="score">Score<br></p>
+			<div class="grid-history">
+				<div class="best-players">
+					<h1 class="text-color-dark"><p class="fa-solid fa-ranking-star"></p> BEST PLAYERS <p class="fa-solid fa-ranking-star"></p><br></h1>
+					<div v-for="n in 10">
+						<p class="text-color-dark">{{ n }} : login<br></p>
+					</div>
+				</div>
+				<div class="friends-grid">
+					<div v-for="n in 21">
+						<div class="friend">
+							<div class="avatar">
+								<div class="avatar-style"></div>
+								<div class="status"></div>
+							</div>
+							<div class="avatar">
+								<div class="avatar-style"></div>
+								<div class="status"></div>
+							</div>
+							<div class="result-grid" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
+								<p class="login" @click="switchPage(State.USER)">Login<br></p>
+								<p class="fa-solid fa-skull"><br></p>
+								<p class="score">Score<br></p>
+							</div>
+							<div class="result-grid goldBG goldText"
+								:class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
+								<p class="login" @click="switchPage(State.USER)">Login<br></p>
+								<p class="fa-solid fa-trophy"><br></p>
+								<p class="score">Score<br></p>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -72,12 +80,36 @@ export default {
 </template>
 
 <style lang="scss" scoped>
+.grid-history {
+	display: grid;
+	grid-template-columns: 1fr 2fr;
+	// grid-template-rows: 1fr 1fr;
+}
+
+.best-players {
+	display: grid;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 92.8vh;
+	margin-left: 1rem;
+	gap: 1rem;
+	background-color: rgba(0, 0, 0, 0.5);
+	margin-top: 1rem;
+	margin-bottom: 0.5rem;
+}
+
+.title {
+	font-size: 25px;
+}
+
 .friends-grid {
 	display: flex;
 	flex-wrap: wrap;
 	margin-top: 0.5rem;
 	margin-bottom: 0.5rem;
-	gap: 2rem;
+	// gap: 1rem;
 	align-items: center;
 	justify-content: center;
 }
@@ -85,7 +117,7 @@ export default {
 .friend {
 	background-color: rgba(0, 0, 0, 0.5);
 	display: grid;
-	padding: 0.5rem;
+	// padding: 0.5rem;
 	grid-template-columns: 1fr 1fr;
 	grid-template-rows: 1fr 1fr;
 	width: 35rem;

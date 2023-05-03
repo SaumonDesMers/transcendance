@@ -21,7 +21,7 @@ export default {
 			this.$emit('switchPage', page);
 		},
 	},
-	mounted() { },
+	mounted() { user.loadFriends() },
 	emits: ['switchPage']
 }
 </script>
@@ -34,31 +34,48 @@ export default {
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	</head>
 	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
-		<div v-if="user.darkMode == false">
-		</div>
-		<div v-else>
+		<div v-if="user.darkMode == true">
 			<div class="stars"></div>
 			<div class="stars1"></div>
 			<div class="stars2"></div>
 		</div>
 		<div style="height: 100vh; overflow: scroll;">
 			<div class="friends-grid">
-				<div v-for="n in 10">
+				<div class="friend" v-for="friend in user.friends">
 					<div class="friend">
 						<div class="avatar">
-							<div class="avatar-style"></div>
-							<div class="status"></div>
+							<div class="avatar-style" :style="['background-image: url(\'' + friend.avatar.imageBase64 + '\')']">
+								<div class="status-friend" :style="[friend.id ? 'background-color: green' : 'background-color: gray']"></div>
+							</div>
 						</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
 							@click="switchPage(State.USER)">
-							login</div>
+							{{ friend.username }}</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
 							@click="switchPage(State.CHAT)">
 							message</div>
-						<p class="bio" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">{{ user.bio }}</p>
+						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
+							block</div>
+						<p class="bio" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">{{ friend.bio
+						}}
+						</p>
 					</div>
 				</div>
 			</div>
+			<!-- <div class="friends-grid">
+			<div class="friend" v-for="friend in user.friends">
+				<div class="avatar">
+					<img v-bind:src="friend.avatar.imageBase64" />
+					<div class="status">
+						<p>{{ user.getFriendStatus(friend.id) }}</p>
+					</div>
+				</div>
+				<button class="login">{{ friend.username }}</button>
+				<button class="block"></button>
+				<button class="msg"></button>
+				<p class="bio">{{  friend.bio }}</p>
+			</div>
+		</div> -->
 		</div>
 	</div>
 </template>
@@ -90,7 +107,7 @@ export default {
 	font-size: 20px;
 	text-transform: uppercase;
 	text-align: center;
-
+	padding: 0.2rem;
 	&:hover,
 	&:active {
 		text-shadow:
@@ -128,20 +145,38 @@ export default {
 }
 
 .avatar {
-	display: flex;
 	grid-row: span 4;
-	align-items: center;
+	position: relative;
+	display: flex;
 	justify-content: center;
+	align-items: center;
 }
 
 .avatar-style {
 	border-radius: 50%;
-	background: url("https://unsplash.it/100/100");
-	width: 100px;
-	height: 100px;
+	width: 120px;
+	height: 120px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-size: cover;
 }
 
 .bio {
 	overflow-wrap: break-word;
 	font-size: 15px;
-}</style>
+	padding: 2rem;
+	// color: white;
+}
+
+.status-friend {
+	border-radius: 50%;
+	position: relative;
+	left: 35%;
+	width: 20%;
+	height: 20%;
+	z-index: 10;
+	top: 40%;
+	display: flex;
+}
+</style>

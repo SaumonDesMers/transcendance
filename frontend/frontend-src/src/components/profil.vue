@@ -44,7 +44,7 @@ export default {
 				<div class="banner-profile" :class=user.coa>
 					<div class="avatar-profile" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']">
 						<div class="status-profile"
-							:style="[status ? 'background-color: green' : 'background-color: gray']"></div>
+							:style="[user.id ? 'background-color: green' : 'background-color: gray']"></div>
 					</div>
 					<span class="profile-toggle" @click="toggleDarkMode" style="display: flex;">
 						<div :class="[user.darkMode ? 'fa-solid fa-moon' : 'fa-solid fa-sun']" style="font-size: 1.5vw">
