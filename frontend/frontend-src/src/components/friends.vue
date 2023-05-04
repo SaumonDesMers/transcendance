@@ -9,7 +9,7 @@ export default {
 	data: function () {
 		return {
 			State,
-			status: false,
+			status: '',
 			user,
 			usersStatus,
 		}
@@ -25,7 +25,7 @@ export default {
 	},
 	mounted() {
 		user.loadFriends(),
-		usersStatus.fetchUsers(user._friendsIdList);
+			usersStatus.fetchUsers(user._friendsIdList);
 	},
 	emits: ['switchPage']
 }
@@ -49,8 +49,14 @@ export default {
 				<div class="friend" v-for="friend in user.friends">
 					<div class="friend">
 						<div class="avatar">
-							<div class="avatar-style" :style="['background-image: url(\'' + friend.avatar.imageBase64 + '\')']">
-								<div class="status-friend" :style="[friend.id ? 'background-color: green' : 'background-color: gray']"></div>
+							<div class="avatar-style"
+								:style="['background-image: url(\'' + friend.avatar.imageBase64 + '\')']">
+								<div v-if="usersStatus.getUserStatus(friend.id) == 'ONLINE'" class="status-friend"
+									style="background-color: green"></div>
+								<div v-if="usersStatus.getUserStatus(friend.id) == 'OFFLINE'" class="status-friend"
+									style="background-color: gray"></div>
+								<div v-if="usersStatus.getUserStatus(friend.id) == 'IN GAME'" class="status-friend"
+									style="background-color: red"></div>
 							</div>
 						</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
@@ -61,26 +67,11 @@ export default {
 							message</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
 							block</div>
-						<p class="bio" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">{{ friend.bio
-						}}
+						<p class="bio" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">{{ friend.bio }}
 						</p>
 					</div>
 				</div>
 			</div>
-			<!-- <div class="friends-grid">
-			<div class="friend" v-for="friend in user.friends">
-				<div class="avatar">
-					<img v-bind:src="friend.avatar.imageBase64" />
-					<div class="status">
-						<p>{{ usersStatus.getUserStatus(friend.id) }}</p>
-					</div>
-				</div>
-				<button class="login">{{ friend.username }}</button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio">{{  friend.bio }}</p>
-			</div>
-		</div> -->
 		</div>
 	</div>
 </template>
@@ -113,6 +104,7 @@ export default {
 	text-transform: uppercase;
 	text-align: center;
 	padding: 0.2rem;
+
 	&:hover,
 	&:active {
 		text-shadow:
@@ -183,5 +175,4 @@ export default {
 	z-index: 10;
 	top: 40%;
 	display: flex;
-}
-</style>
+}</style>
