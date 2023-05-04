@@ -81,7 +81,6 @@ export default {
 			</div>
 		</div>
 	</div>
-	<div :style="[windowSize.width < 620 ? 'display : none' : 'display : flex']">
 		<div class="navigation">
 			<ul>
 				<li>
@@ -132,7 +131,6 @@ export default {
 		<div class="main-container">
 			<button class="main-button" @click="switchPage(State.GAME)">GAME</button>
 		</div>
-	</div>
 	<div style="overflow: hidden;">
 	<div :class="[user.darkMode ? 'ocean dark' : 'ocean', user.coa]">
 		<div class="wave" :class="[user.darkMode ? 'dark' : '', user.coa]"></div>
