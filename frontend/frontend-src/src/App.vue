@@ -36,7 +36,7 @@ export default {
 			State,
 			state: {
 				page: State,
-				uid: 0,
+				// uid: 0,
 			},
 			previousPage: 10,
 			user,
@@ -45,29 +45,33 @@ export default {
 	},
 
 	methods: {
-		setState(page, uid) {
+		setState(page) {
 			console.log('setState', page);
+			console.log();
 			this.state.page = page;
-			// this.state.uid = uid;
 		},
 		switchPage(page) {
-			this.setState(page, this.state.uid+1);
-			window.history.pushState({ current: page, uid: this.state.uid }, "", page);
-			console.log('history', window.history.state);
+			window.history.pushState({ current: page }, "", page);
+			// this.$router.push({ path: page });
+			console.log('switchPage', page);
+			console.log('history.state', window.history.state);
+			console.log('router', this.$router.currentRoute.value.path);
+			console.log();
+			this.setState(page);
 		},
 	},
 
-	mounted() {
-		
-	},
+	mounted() {},
 
 	created() {
 
-		console.log('history', window.history.state);
+		console.log('created');
+		console.log('history.state', window.history.state);
+		console.log();
 
 		const jwt = this.$cookies.get('jwt');
 
-		if (jwt) {
+		if (jwt && localStorage.userId) {
 			axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 			this.user.get();
 			this.setState(window.history.state.current, 0);
@@ -75,21 +79,35 @@ export default {
 			this.setState(State.LOGIN, 0);
 		}
 		
-		window.addEventListener('popstate', (event) => {
-			console.log('popstate event');
-			console.log('	!!event.state', !!event.state);
-			console.log('	event.state', event.state);
-			console.log('	history', window.history.state);
+		// window.addEventListener('popstate', (event) => {
+		// 	console.log('popstate event');
+		// 	console.log('event.state', event.state);
+		// 	console.log('history.state', window.history.state);
+		// 	console.log('router', this.$router.currentRoute.value.path);
+		// 	console.log();
+		// 	if (!!event.state) {
+		// 		// this.setState(event.state.page, 0);
+		// 		this.setState(window.history.state.current, 0);
+		// 	}
+		// });
+
+		onpopstate = (event) => {
+			console.log('onpopstate event');
+			console.log('event.state', event.state);
+			console.log('history.state', window.history.state);
+			console.log('router', this.$router.currentRoute.value.path);
+			console.log();
 			if (!!event.state) {
 				// this.setState(event.state.page, 0);
 				this.setState(window.history.state.current, 0);
 			}
-		});
+		};
 	},
 
 	watch: {
 		'state.page'(newValue, oldValue) {
 			console.log('state changed from', oldValue, 'to', newValue);
+			console.log();
 			if (this.user.isLoggedIn && this.$cookies.get('jwt') && this.gameGateway.socket.disconnected) {
 				this.gameGateway.connect(this.$cookies.get('jwt'));
 			}
