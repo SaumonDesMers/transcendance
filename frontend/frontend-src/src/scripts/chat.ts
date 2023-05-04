@@ -585,21 +585,17 @@ export class Chat {
 		this.socket.on("invite_update", (payload: inviteUpdateDTO) => {
 			if (payload.targetUserId == this.user.userId)
 			{
-				if (payload.action == true){
-					this.channelInvites.set(payload.channelId, payload.channelName);
-				} else {
-					this.channelInvites.delete(payload.channelId);
-				}
+				this._group_channels.set(payload.channel.channelId, payload.channel);
 			}
-			let channel = this._group_channels.get(payload.channelId);
-			if (channel != undefined)
-			{
-				if (payload.action == true ) {
-					channel.invited.push({userId:payload.targetUserId});
-				} else {
-					this.delete_user_from_array(payload.targetUserId, channel.invited);
-			}
-			}
+			// let channel = this._group_channels.get(payload.channelId);
+			// if (channel != undefined)
+			// {
+			// 	if (payload.action == true ) {
+			// 		channel.invited.push({userId:payload.targetUserId});
+			// 	} else {
+			// 		this.delete_user_from_array(payload.targetUserId, channel.invited);
+			// }
+			// }
 		});
 
 		this.socket.on("chan_type_update", (payload: ChanTypeRequestDTO) => {

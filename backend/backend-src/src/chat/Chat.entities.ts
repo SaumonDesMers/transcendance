@@ -129,9 +129,7 @@ export interface JoinDTO {
 
 export interface inviteUpdateDTO {
 	targetUserId: number,
-	channelId: number, //to be able to indentify the channel
-	channelName: string, //purely for display
-	action: boolean //true means invite false means uninvite
+	channel: GroupChannelDTO,
 }
 
 export interface ChatUserUpdateDTO {

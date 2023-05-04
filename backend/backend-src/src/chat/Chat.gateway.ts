@@ -337,9 +337,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@ConnectedSocket() socket: chatSocket,
 		@MessageBody() data: InviteRequestDTO)
 	{
-		let update: inviteUpdateDTO;
 		try {
-			update = await this.chatService.inviteUser(data);
+			const {targetUserId, channel} = await this.chatService.inviteUser(data);
+			const targetSocket = await this.findSocket(targetUserId);
+
+			this.server.to(channel.channelId.toString())
+			.emit("user_joined_room", {user: {userId: targetUserId}, channelId: channel.channelId});
+
+			if (targetSocket != undefined)
+			{
+				targetSocket.emit("invite_update", {targetUserId, channel});
+				targetSocket.join(channel.channelId.toString());
+			}
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e.message);
@@ -347,13 +356,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 
 		//sending invite/uninvite to target
-		const targetSocket = await this.findSocket(update.targetUserId);
 
-		targetSocket?.emit("invite_update", update);
+		// targetSocket?.emit("invite_update", update);
+		
 
 
 		//maybe send update to channel members to keep track of current invites in channel ?
-		this.server.to(update.channelId.toString()).except(targetSocket.id.toString()).emit("invite_update", update);
+		// this.server.to(update.channelId.toString()).except(targetSocket.id.toString()).emit("invite_update", update);
 	}
 
 	@SubscribeMessage("chan_type_request")
@@ -385,20 +394,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		//so it's not the whole channel that is being sent
 
 		//INVITE NOTIFICATIONS
-		if (data.type == 'KEY' || data.type == 'PRIV')
-		{
-			oldChan.invited.forEach(async user => {
-				const otherSocket = await this.findSocket(user.userId);
+		// removed temporarily because invites are instantaneous now
+		// if (data.type == 'KEY' || data.type == 'PRIV')
+		// {
+		// 	oldChan.invited.forEach(async user => {
+		// 		const otherSocket = await this.findSocket(user.userId);
 
-				//uninvite notif
-				otherSocket?.emit("invite_update", {
-					channelId:oldChan.channelId,
-					channelName:oldChan.name,
-					targetUserId:user.userId,
-					action:false
-				});
-			});
-		}
+		// 		//uninvite notif
+		// 		otherSocket?.emit("invite_update", {
+		// 			channelId:oldChan.channelId,
+		// 			channelName:oldChan.name,
+		// 			targetUserId:user.userId,
+		// 			action:false
+		// 		});
+		// 	});
+		// }
 
 		//CHANNEL NOTIFICATIONS
 		this.server.to(data.channelId.toString()).emit("chan_type_update", data);		
