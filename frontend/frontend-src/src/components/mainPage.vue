@@ -98,8 +98,8 @@ export default {
 				</li>
 				<li>
 					<a href="#">
-						<span class="icon"><i class="fa-solid fa-trophy"></i></span>
-						<span class="title" @click="switchPage(State.STATS)">Statistics</span>
+						<span class="icon"><i class="fa-solid fa-edit"></i></span>
+						<span class="title" @click="switchPage(State.EDIT)">Edit</span>
 					</a>
 				</li>
 				<li>

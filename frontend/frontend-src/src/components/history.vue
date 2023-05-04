@@ -92,7 +92,7 @@ export default {
 	align-items: center;
 	justify-content: center;
 	width: 100%;
-	height: 92.8vh;
+	height: 95vh;
 	margin-left: 1rem;
 	gap: 1rem;
 	background-color: rgba(0, 0, 0, 0.5);
