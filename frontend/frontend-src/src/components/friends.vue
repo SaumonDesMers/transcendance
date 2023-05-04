@@ -2,6 +2,7 @@
 
 import axios from 'axios'
 import { State } from '../scripts/state';
+import usersStatus from '../scripts/status';
 import user from '../scripts/user';
 
 export default {
@@ -10,6 +11,7 @@ export default {
 			State,
 			status: false,
 			user,
+			usersStatus,
 		}
 	},
 	methods: {
@@ -21,7 +23,10 @@ export default {
 			this.$emit('switchPage', page);
 		},
 	},
-	mounted() { },
+	mounted() {
+		user.loadFriends(),
+		usersStatus.fetchUsers(user._friendsIdList);
+	},
 	emits: ['switchPage']
 }
 </script>
@@ -35,7 +40,20 @@ export default {
 	</head>
 	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
 		<div class="friends-grid">
-			<div class="friend">
+			<div class="friend" v-for="friend in user.friends">
+				<div class="avatar">
+					<!-- <img src="https://unsplash.it/80/80" /> -->
+					<img v-bind:src="friend.avatar.imageBase64" />
+					<div class="status">
+						<p>{{ usersStatus.getUserStatus(friend.id) }}</p>
+					</div>
+				</div>
+				<button class="login">{{ friend.username }}</button>
+				<button class="block"></button>
+				<button class="msg"></button>
+				<p class="bio">{{  friend.bio }}</p>
+			</div>
+			<!-- <div class="friend">
 				<div class="avatar">
 					<img src="https://unsplash.it/80/80" />
 					<div class="status"></div>
@@ -174,17 +192,7 @@ export default {
 				<button class="block"></button>
 				<button class="msg"></button>
 				<p class="bio"></p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/80/80" />
-					<div class="status"></div>
-				</div>
-				<button class="login"></button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio"></p>
-			</div>
+			</div> -->
 		</div>
 	</div>
 </template>

@@ -16,7 +16,7 @@ export class PlayerEntity {
 	game: GameEntity | null = null
 
 	constructor(socket: any) {
-		this.id = socket.data.userId;
+		this.id = parseInt(socket.data.userId);
 		this.socket = socket;
 	}
 

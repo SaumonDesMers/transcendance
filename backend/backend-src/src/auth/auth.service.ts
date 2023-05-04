@@ -28,7 +28,7 @@ export class AuthService {
 	async getUser(userId: number): Promise<any> {
 		let user: any = null;
 		try {
-			user = await this.userService.getOneUser(userId);
+			user = await this.userService.getOneUser(userId, true);
 		} catch {
 			user = null;
 		}

@@ -1,8 +1,9 @@
 import axios from 'axios'
 import { reactive } from 'vue'
 
-class UserData {
 
+
+class UserData {
 	id: number;
 	username: string;
 	darkMode: boolean;
@@ -69,7 +70,10 @@ class Avatar {
 }
 export class User {
 
-	private _data: UserData;
+	_data: UserData;
+	_friendsIdList: {id: number}[];
+	friends: User[];
+
 	avatar: Avatar;
 	isLoggedIn: boolean = false;
 
@@ -87,19 +91,76 @@ export class User {
 	set coa(arg) { this._data.coa = arg; }
 	set bio(arg) { this._data.bio = arg; }
 
-
 	constructor() {
 		this._data = new UserData();
 		this.avatar = new Avatar();
+		this.friends = reactive(new Array<User>());
+		this._friendsIdList = new Array();
 	}
 
 	set(newData: any) {
 		for (const key in newData) {
 			if (key == 'picture')
 				this.avatar.fileName = newData[key];
+			else if (key == 'following')
+				this._friendsIdList = newData[key];
 			else
 				this[key] = newData[key];
 		}
+	}
+
+	async loadUser(userId: number) {
+		await axios.get(`http://localhost:3001/users/${userId}`, {
+				params: {
+					includeFriends: true
+				}
+			})
+			.then(res => {
+				this.isLoggedIn = true;
+				this.set(res.data);
+				this.downloadAvatar();
+				}
+			)
+			.catch(err => {
+				console.log('err :', err);
+			});
+	}
+
+	async downloadAvatar() {
+		if (!this.avatar.fileName) {
+			console.log('downloadAvatar: no avatar to download')
+			return;
+		}
+
+		axios.get(`http://localhost:3001/${this.avatar.fileName}`, {
+			responseType: 'blob'
+		})
+		.then(res => {
+			this.avatar.setFile(res.data);
+		})
+		.catch(err => {
+			console.log('err :', err);
+		});
+	}
+
+	async loadFriends() {
+		console.log("LOADING FRIENDS");
+		this.friends = [];
+		this._friendsIdList.forEach((user: {id: number}) => {
+			let friend: User;
+
+			friend = reactive(new User());
+			friend.loadUser(user.id);
+			this.friends.push(friend);
+		})
+	}
+}
+
+export class MyUser extends User
+{
+	constructor()
+	{
+		super();
 	}
 
 	async login(jwt: string) {
@@ -109,6 +170,9 @@ export class User {
 		await axios.get('http://localhost:3001/auth/user', {
 				headers: {
 					Authorization: `Bearer ${jwt}`
+				},
+				params: {
+					includeMembers: true
 				}
 			})
 			.then(res => {
@@ -165,23 +229,6 @@ export class User {
 		});
 	}
 
-	async downloadAvatar() {
-		if (!this.avatar.fileName) {
-			console.log('downloadAvatar: no avatar to download')
-			return;
-		}
-
-		axios.get(`http://localhost:3001/${this.avatar.fileName}`, {
-			responseType: 'blob'
-		})
-		.then(res => {
-			this.avatar.setFile(res.data);
-		})
-		.catch(err => {
-			console.log('err :', err);
-		});
-	}
-
 	async deleteAvatar() {
 		if (!this.avatar.fileName) {
 			console.log('deleteAvatar: no avatar to delete')
@@ -197,6 +244,26 @@ export class User {
 			console.log('err :', err);
 		});
 	}
+
+	async addFriend(username: string) {
+		axios.post(`http://localhost:3001/users/${this.id}/friends`, {username})
+		.then(res => {
+			console.log('res :', res);
+		})
+		.catch(err => {
+			console.log('err :', err);
+		})
+	}
+
+	async removeFriend(userId: number) {
+		axios.delete(`http://localhost:3001/users/${this.id}/friends/${userId}`)
+		.then(res => {
+		})
+		.catch(err => {
+			console.log('err :', err);
+		});
+	}
+
 }
 
-export default reactive<User>(new User());
+export default reactive<MyUser>(new MyUser());

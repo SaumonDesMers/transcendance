@@ -12,7 +12,9 @@ import { State } from './scripts/state'
 import validate2fa from './components/validate2fa.vue'
 import toggle2fa from './components/toggle2fa.vue'
 import user from './scripts/user'
+import usersStatus from './scripts/status'
 import gameGateway from './scripts/game'
+import chatGateway from './scripts/chat'
 import friends from './components/friends.vue'
 import history from './components/history.vue'
 
@@ -37,7 +39,9 @@ export default {
 			state: State.LOGIN,
 			previousPage: 10,
 			user,
+			usersStatus,
 			gameGateway,
+			chatGateway
 		}
 	},
 
@@ -53,8 +57,11 @@ export default {
 
 	watch: {
 		state() {
-			if (this.user.isLoggedIn && this.$cookies.get('jwt') && this.gameGateway.socket.disconnected) {
-				this.gameGateway.connect(this.$cookies.get('jwt'));
+			const jwt = this.$cookies.get('jwt');
+			if (this.user.isLoggedIn && jwt && this.gameGateway.socket.disconnected) {
+				this.gameGateway.connect(jwt);
+				this.usersStatus.connect(jwt);
+				this.chatGateway.connect(jwt);
 			}
 		}
 	}

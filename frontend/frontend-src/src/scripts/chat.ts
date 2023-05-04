@@ -168,7 +168,7 @@ export class Chat {
 	 * Be carefull, auth must have been completed
 	 * @date 4/24/2023 - 5:26:02 PM
 	 */
-	connectToServer(jwt: string) {
+	connect(jwt: string) {
 		this.socket.io.opts.extraHeaders = {
 			authorization: `Bearer ${jwt}`
 		};

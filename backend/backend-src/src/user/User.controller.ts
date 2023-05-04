@@ -150,7 +150,7 @@ export class UserController {
 		description: "Id of the added friend",
 		type: Number
 	})
-	@Post(':id/friend')
+	@Post(':id/friends')
 	async addFriend(
 		@Param('id', ParseIntPipe) id:number,
 		@Body('friendUserName') friendUserName: string,
@@ -166,14 +166,11 @@ export class UserController {
 		return ret;
 	}
 
-	@ApiBody({
-		description: "id of the friend you want to remove",
-	})
 	@ApiOkResponse({})
-	@Delete(":id/friend")
+	@Delete(":id/friends/:friendId")
 	async removeFriend(
 		@Param('id', ParseIntPipe) id: number,
-		@Body('friendId', ParseIntPipe) friendId: number,
+		@Param('friendId', ParseIntPipe) friendId: number,
 		@Req() req
 	)
 	{
