@@ -2,6 +2,7 @@
 
 import axios from 'axios'
 import { State } from '../scripts/state';
+import usersStatus from '../scripts/status';
 import user from '../scripts/user';
 
 export default {
@@ -10,6 +11,7 @@ export default {
 			State,
 			status: false,
 			user,
+			usersStatus,
 		}
 	},
 	methods: {
@@ -21,7 +23,10 @@ export default {
 			this.$emit('switchPage', page);
 		},
 	},
-	mounted() { user.loadFriends() },
+	mounted() {
+		user.loadFriends(),
+		usersStatus.fetchUsers(user._friendsIdList);
+	},
 	emits: ['switchPage']
 }
 </script>
@@ -40,7 +45,7 @@ export default {
 					<!-- <img src="https://unsplash.it/80/80" /> -->
 					<img v-bind:src="friend.avatar.imageBase64" />
 					<div class="status">
-						<p>{{ user.getFriendStatus(friend.id) }}</p>
+						<p>{{ usersStatus.getUserStatus(friend.id) }}</p>
 					</div>
 				</div>
 				<button class="login">{{ friend.username }}</button>
