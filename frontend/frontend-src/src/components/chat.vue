@@ -118,12 +118,11 @@ export default {
 
 <template>
 	<div class="chat" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
-		<div v-if="user.darkMode == true">
+		<div v-if="user.darkMode == true" style="width: 0; height: 0;">
 			<div class="stars"></div>
 			<div class="stars1"></div>
 			<div class="stars2"></div>
 		</div>
-
 		<div class="chat-container">
 			<!-- <div style="justify-content: center; align-items: center;">
 				<button class="nocolor-btn text-color-dark" style="width: 100%; height: 5rem;" v-if="store.disconnected"
@@ -132,12 +131,12 @@ export default {
 			</div> -->
 			<!-- <div v-if="store.connected"> -->
 			<div class="chat-list">
-				<div>
+				<div style="height: 4vh;">
 					<button style="color: red" @click="createChannel">Create Channel</button>
 					<input type='test' v-model="channelInputBuffer">
 				</div>
 				<div>
-					<p class="text-color-dark" style="overflow:auto;">Public Channels </p>
+					<p class="text-color-dark grid-border" style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;">Public Channels </p>
 					<div class="chan-can-join">
 						<div v-for="[channelId, channel] in store.groupChannels">
 							<button @click="selectChannel(channelId)"
@@ -147,43 +146,43 @@ export default {
 					</div>
 				</div>
 				<div>
-					<p class="text-color-dark" style="overflow:auto;">Protected CHAN </p>
+					<p class="text-color-dark grid-border" style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;">Protected CHAN </p>
 					<div class="chan-can-join">
 						<div v-for="n in 10">
-							<p style="color: white; font-size: 15px; border: none; background-color: transparent;">Channels random<br></p>
+							<p style="color: white; font-size: 15px; border: none; background-color: transparent;">Channels
+								random<br></p>
 						</div>
 					</div>
 				</div>
 				<div>
-					<p class="text-color-dark" style="overflow:auto;">Your channels </p>
+					<p class="text-color-dark grid-border" style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;">Your channels </p>
 					<div class="chan-can-join">
 						<div v-for="[channelId, channel] in store.groupChannels">
-							<button @click="selectChannel(channelId)" style="color: white; font-size: 15px; border: none; background-color: transparent;">{{ channel.name }}</button>
+							<button @click="selectChannel(channelId)"
+								style="color: white; font-size: 15px; border: none; background-color: transparent;">{{
+									channel.name }}</button>
 						</div>
 					</div>
 				</div>
 				<div>
-					<p class="text-color-dark" style="overflow:auto;">Private message</p>
+					<p class="text-color-dark grid-border" style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;">Private message</p>
 					<div class="chan-can-join">
 						<div v-for="n in 10">
-							<p style="color: white; font-size: 15px; border: none; background-color: transparent;">Channels random<br></p>
+							<p style="color: white; font-size: 15px; border: none; background-color: transparent;">Channels
+								random<br></p>
 						</div>
 						<div v-for="[channelId, channel] in store.dmChannels">
-							<button @click="selectDMChannel(channelId)" style="color: white; font-size: 15px; border: none; background-color: transparent;">{{ channel.channel.users.map(a =>
-								store.getUserName(a.userId))
-							}}</button>
+							<button @click="selectDMChannel(channelId)"
+								style="color: white; font-size: 15px; border: none; background-color: transparent;">{{
+									channel.channel.users.map(a =>
+										store.getUserName(a.userId))
+								}}</button>
 						</div>
 					</div>
 				</div>
-				<div>
-					<p class="text-color-dark" style="overflow:auto;">Private message</p>
-					<div class="chan-can-join">
-						<div v-for="[channelId, channel] in store.dmChannels">
-							<button @click="selectDMChannel(channelId)">{{ channel.channel.users.map(a =>
-								store.getUserName(a.userId))
-							}}</button>
-						</div>
-					</div>
+				<div style="height: 5vh; margin-left: -5px; display: flex; align-items: center; margin-top: 1rem; padding-top: 0.5rem; padding-bottom: 0.5rem;">
+						<div class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']"></div>
+						<p style="margin-left: 0.7rem;" class="text-color-dark">{{ user.username }}</p>
 				</div>
 			</div>
 			<div>
@@ -372,20 +371,40 @@ export default {
 }
 
 .chan-can-join {
+	padding: 1rem;
 	overflow: scroll;
-	height: 50%;
+	max-height: 14vh;
 }
 
 .chat-list {
+	padding-left: 20px;
 	margin-top: 1.5rem;
-	height: 95vh;
+	height: 100vh;
 	width: 100%;
 	background-color: rgba(0, 0, 0, 0.5);
-	display: grid;
-	grid-template-rows: 1fr 3fr 3fr 3fr 3fr 2fr;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	// grid-template-rows: 5vh 20vh 20vh 20vh 20vh 5vh;
 }
 
 .chat-box {}
 
 .users {}
+
+.avatar {
+	width: 5rem;
+	height: 5rem;
+	border-radius: 50%;
+	background-color: white;
+	background-size: cover;
+}
+
+.grid-border {
+    $border: 5px;
+    color: #FFF;
+    border-bottom: 1px solid;
+    border-image: linear-gradient(0.25turn, rgb(66, 66, 66, 0), rgb(158, 158, 158, 10), rgb(255, 255, 255), rgb(158, 158, 158, 10), rgb(66, 66, 66, 0));
+    border-image-slice: 1;
+}
 </style>
