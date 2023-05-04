@@ -18,11 +18,15 @@ import {
 } from '../../../../backend/backend-src/src/chat/Chat.events';
 import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto';
 import store from "../scripts/chat"
+import user from '../scripts/user';
+import { State } from '../scripts/state';
 
 export default {
 
 	data() {
 		return {
+			State,
+			user,
 			messageInputBuffer: '',
 			channelInputBuffer: '',
 			keyInputBuffer: '',
@@ -42,6 +46,9 @@ export default {
    	// 	// debugger
   	// },
 	methods: {
+		switchPage(page) {
+			this.$emit('switchPage', page);
+		},
 		print() {
 			console.log(store);
 		},
@@ -107,6 +114,7 @@ export default {
 
 	created() {
 	},
+	emits: ['switchPage'],
 }
 
 </script>
@@ -122,7 +130,8 @@ export default {
 		<div>
 			<input type='test' v-model="channelInputBuffer">
 			<input type='test' v-model="keyInputBuffer">
-			<button @click="createChannel">Create Channel</button>
+			<button @click="switchPage(State.CREATECHAT)">Create Channel</button>
+			<!-- <button @click="createChannel">Create Channel</button> -->
 			<button @click="joinChannel">Join Channel</button>
 			<button @click="leaveChannel">Leave Channel</button>
 			<button @click="store.startDM(channelInputBuffer)">Start DM</button>

@@ -15,6 +15,7 @@ import user from './scripts/user'
 import gameGateway from './scripts/game'
 import friends from './components/friends.vue'
 import history from './components/history.vue'
+import createChat from './components/createChat.vue'
 
 export default {
 
@@ -29,6 +30,7 @@ export default {
 		validate2fa,
 		friends,
 		history,
+		createChat,
 	},
 
 	data() {
@@ -73,7 +75,6 @@ export default {
 	</div>
 	<div v-else-if="state == State.MAIN">
 		<mainPage @switchPage="switchPage"></mainPage>
-
 	</div>
 	<div v-else-if="state == State.USER">
 		<profil @switchPage="switchPage"></profil>
@@ -82,16 +83,19 @@ export default {
 		<friends @switchPage="switchPage"></friends>
 	</div>
 	<div v-else-if="state == State.GAME">
-		<game></game>
+		<game @switchPage="switchPage"></game>
 	</div>
 	<div v-else-if="state == State.CHAT">
-		<chat></chat>
+		<chat @switchPage="switchPage"></chat>
 	</div>
 	<div v-else-if="state == State.EDIT">
 		<edit @switchPage="switchPage"></edit>
 	</div>
 	<div v-else-if="state == State.HISTORY">
 		<history @switchPage="switchPage"></history>
+	</div>
+	<div v-else-if="state == State.CREATECHAT">
+		<createChat @switchPage="switchPage"></createChat>
 	</div>
 </template>
 
