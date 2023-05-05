@@ -9,7 +9,7 @@ export default {
 	data: function () {
 		return {
 			State,
-			status: false,
+			status: '',
 			user,
 			usersStatus,
 		}
@@ -25,7 +25,7 @@ export default {
 	},
 	mounted() {
 		user.loadFriends(),
-		usersStatus.fetchUsers(user._friendsIdList);
+			usersStatus.fetchUsers(user._friendsIdList);
 	},
 	emits: ['switchPage']
 }
@@ -39,191 +39,140 @@ export default {
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	</head>
 	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
-		<div class="friends-grid">
-			<div class="friend" v-for="friend in user.friends">
-				<div class="avatar">
-					<!-- <img src="https://unsplash.it/80/80" /> -->
-					<img v-bind:src="friend.avatar.imageBase64" />
-					<div class="status">
-						<p>{{ usersStatus.getUserStatus(friend.id) }}</p>
+		<div v-if="user.darkMode == true">
+			<div class="stars"></div>
+			<div class="stars1"></div>
+			<div class="stars2"></div>
+		</div>
+		<div style="height: 100vh; overflow: scroll;">
+			<div class="friends-grid">
+				<div class="friend" v-for="friend in user.friends">
+					<div class="friend">
+						<div class="avatar">
+							<div class="avatar-style"
+								:style="['background-image: url(\'' + friend.avatar.imageBase64 + '\')']">
+								<div v-if="usersStatus.getUserStatus(friend.id) == 'ONLINE'" class="status-friend"
+									style="background-color: green"></div>
+								<div v-if="usersStatus.getUserStatus(friend.id) == 'OFFLINE'" class="status-friend"
+									style="background-color: gray"></div>
+								<div v-if="usersStatus.getUserStatus(friend.id) == 'IN GAME'" class="status-friend"
+									style="background-color: red"></div>
+							</div>
+						</div>
+						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
+							@click="switchPage(State.USER)">
+							{{ friend.username }}</div>
+						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
+							@click="switchPage(State.CHAT)">
+							message</div>
+						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
+							block</div>
+						<p class="bio" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">{{ friend.bio }}
+						</p>
 					</div>
 				</div>
-				<button class="login">{{ friend.username }}</button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio">{{  friend.bio }}</p>
 			</div>
-			<!-- <div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/80/80" />
-					<div class="status"></div>
-				</div>
-				<button class="login"></button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio"></p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/80/80" />
-					<div class="status"></div>
-				</div>
-				<button class="login"></button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio"></p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/80/80" />
-					<div class="status"></div>
-				</div>
-				<button class="login"></button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio"></p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/80/80" />
-					<div class="status"></div>
-				</div>
-				<button class="login"></button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio"></p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/80/80" />
-					<div class="status"></div>
-				</div>
-				<button class="login"></button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio"></p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/80/80" />
-					<div class="status"></div>
-				</div>
-				<button class="login"></button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio"></p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/80/80" />
-					<div class="status"></div>
-				</div>
-				<button class="login"></button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio"></p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/80/80" />
-					<div class="status"></div>
-				</div>
-				<button class="login"></button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio"></p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/80/80" />
-					<div class="status"></div>
-				</div>
-				<button class="login"></button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio"></p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/80/80" />
-					<div class="status"></div>
-				</div>
-				<button class="login"></button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio"></p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/80/80" />
-					<div class="status"></div>
-				</div>
-				<button class="login"></button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio"></p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/80/80" />
-					<div class="status"></div>
-				</div>
-				<button class="login"></button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio"></p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/80/80" />
-					<div class="status"></div>
-				</div>
-				<button class="login"></button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio"></p>
-			</div>
-			<div class="friend">
-				<div class="avatar">
-					<img src="https://unsplash.it/80/80" />
-					<div class="status"></div>
-				</div>
-				<button class="login"></button>
-				<button class="block"></button>
-				<button class="msg"></button>
-				<p class="bio"></p>
-			</div> -->
 		</div>
 	</div>
 </template>
 
-<style lang="scss" scoped src="../styles/all.scss"></style>
-
-<style scoped>
+<style lang="scss" scoped>
 .friends-grid {
 	display: flex;
 	flex-wrap: wrap;
-	margin-top: 4rem;
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
 	gap: 2rem;
 	align-items: center;
 	justify-content: center;
 }
 
 .friend {
-	background-color: brown;
+	background-color: rgba(0, 0, 0, 0.5);
 	display: grid;
 	padding: 0.5rem;
-	grid-template-columns: 1fr 2fr;
+	border-radius: 4px;
+	grid-template-columns: 30% 70%;
 	grid-template-rows: 1fr 1fr 1fr 2fr;
 	width: 35rem;
 	height: 15rem;
 }
 
+.text-color-dark {
+	color: white;
+	font-size: 20px;
+	text-transform: uppercase;
+	text-align: center;
+	padding: 0.2rem;
+
+	&:hover,
+	&:active {
+		text-shadow:
+			0 0 10px #fff,
+			0 0 15px #777777,
+			0 0 25px #000000,
+	}
+}
+
+.text-color-light {
+	color: rgb(0, 0, 0, 0.6);
+
+	&:hover,
+	&:active {
+		color: rgb(0, 0, 0, 1);
+	}
+}
+
+@media screen and (min-width: 768px) {
+	body {
+		align-items: center;
+		justify-content: center;
+	}
+
+	.friend {
+		padding: 0.5rem;
+		width: 35rem;
+		height: 15rem;
+	}
+
+	.friends-grid {
+		margin-top: 2rem;
+		gap: 5rem;
+	}
+}
+
 .avatar {
 	grid-row: span 4;
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.avatar-style {
+	border-radius: 50%;
+	width: 120px;
+	height: 120px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-size: cover;
 }
 
 .bio {
-	background-color: cadetblue;
+	overflow-wrap: break-word;
+	font-size: 15px;
+	padding: 2rem;
+	// color: white;
 }
-</style>
+
+.status-friend {
+	border-radius: 50%;
+	position: relative;
+	left: 35%;
+	width: 20%;
+	height: 20%;
+	z-index: 10;
+	top: 40%;
+	display: flex;
+}</style>
