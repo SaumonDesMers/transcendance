@@ -42,7 +42,10 @@ export default {
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	</head>
 	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
-		<div v-if="user.darkMode == true">
+		<div v-show="user.darkMode == false">
+				<div class="sun"></div>
+			</div>
+		<div v-show="user.darkMode == true">
 			<div class="stars"></div>
 			<div class="stars1"></div>
 			<div class="stars2"></div>
