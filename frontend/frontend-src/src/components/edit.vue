@@ -33,18 +33,13 @@ export default {
 				this.errorMsg = error;
 			}
 		},
-
 		async requestUploadFile() {
 			var imageFile = this.$el.querySelector('#uploadmyfile').files[0];
-
 			if (imageFile.type.indexOf('image/') < 0) {
 				return;
 			}
-
 			this.user.avatar.setFile(imageFile);
 		},
-
-
 		switchPage(page) {
 			this.$emit('switchPage', page);
 		},
@@ -84,7 +79,7 @@ export default {
 						</div>
 					</span>
 				</div>
-				<div class="grid">
+				<div class="grid" style="overflow: scroll; width: 100%; padding: 2rem 25% 2rem 25%;">
 					<div class="form-group">
 						<label>LOGIN</label>
 						<input class="input" v-model='editName' type="text" @click="username = ''" />
@@ -146,7 +141,6 @@ export default {
 							</svg>
 						</button>
 					</div>
-				</div>
 
 				<div class="edit-buttons">
 					<div class="button-container">
@@ -161,6 +155,7 @@ export default {
 				</div>
 			</div>
 		</div>
+	</div>
 	</div>
 </template>
 

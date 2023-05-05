@@ -81,12 +81,11 @@ export default {
 			</div>
 		</div>
 	</div>
-	<div :style="[windowSize.width < 620 ? 'display : none' : 'display : flex']">
 		<div class="navigation">
 			<ul>
 				<li>
 					<a href="#">
-						<span class="avatar"></span>
+						<span class="avatar" :style="['background-image: url(\''+ user.avatar.imageBase64 + '\')']"></span>
 						<span class="title" @click="switchPage(State.USER)">{{ user.username }}</span>
 					</a>
 				</li>
@@ -98,8 +97,8 @@ export default {
 				</li>
 				<li>
 					<a href="#">
-						<span class="icon"><i class="fa-solid fa-trophy"></i></span>
-						<span class="title" @click="switchPage(State.STATS)">Statistics</span>
+						<span class="icon"><i class="fa-solid fa-edit"></i></span>
+						<span class="title" @click="switchPage(State.EDIT)">Edit</span>
 					</a>
 				</li>
 				<li>
@@ -131,12 +130,12 @@ export default {
 		</div>
 		<div class="main-container">
 			<button class="main-button" @click="switchPage(State.GAME)">GAME</button>
-			<button class="main-button">CUSTOM GAME</button>
 		</div>
-	</div>
+	<div style="overflow: hidden;">
 	<div :class="[user.darkMode ? 'ocean dark' : 'ocean', user.coa]">
 		<div class="wave" :class="[user.darkMode ? 'dark' : '', user.coa]"></div>
 		<div class="wave" :class="[user.darkMode ? 'dark' : '', user.coa]"></div>
+	</div>
 	</div>
 </template>
 
