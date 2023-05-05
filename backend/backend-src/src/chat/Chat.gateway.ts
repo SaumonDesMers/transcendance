@@ -32,7 +32,8 @@ import {
 	inviteUpdateDTO,
 	ChanKeyRequestDTO,
 	DMChannelDTO,
-	CreateMessageDto
+	CreateMessageDto,
+	GroupChannelSnippetDTO
 } from './Chat.entities'
 
 import { Server, Socket } from 'socket.io';
@@ -169,8 +170,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		socket.join(channel.channel.id.toString());
-		if (returnedChannel.type == 'PUBLIC')
-			this.server.emit('public_chans', {channels: [returnedChannel], add: true});
+		if (returnedChannel.type == 'PUBLIC' || returnedChannel.type == 'PRIV')
+		{
+			const snippet: GroupChannelSnippetDTO = {
+				channelId:returnedChannel.channelId,
+				type:returnedChannel.type,
+				name:returnedChannel.name
+			}
+			this.server.emit('public_chans', {channels: [snippet], add: true});
+		}
 		return (returnedChannel);
 	}
 
@@ -384,34 +392,34 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		//GLOBAL NOTIFICATIONS
 		if (oldChan.type != data.type)
 		{
-		//if channel was public, send notice that it isnt anymore
-		if (oldChan.type == 'PUBLIC')
-			this.server.emit("public_chans", {channels:[oldChan], add: false});
-		//if channel is going public send notice
-		else if (data.type == 'PUBLIC')
-			this.server.emit("public_chans", {channels:[oldChan], add: true});
-		//note: the type channelSnippet that is sent will only extract the name and id of the channel
-		//so it's not the whole channel that is being sent
+			//if new channel is priv then it was visible before so send notif
+			if (data.type == 'PRIV')
+				this.server.emit("public_chans", {channels:[oldChan], add: false});
+			//every other case, update channel in visible chan list
+			else
+				this.server.emit("public_chans", {channels:[oldChan], add: true});
+			//note: the type channelSnippet that is sent will only extract the name and id of the channel
+			//so it's not the whole channel that is being sent
 
-		//INVITE NOTIFICATIONS
-		// removed temporarily because invites are instantaneous now
-		// if (data.type == 'KEY' || data.type == 'PRIV')
-		// {
-		// 	oldChan.invited.forEach(async user => {
-		// 		const otherSocket = await this.findSocket(user.userId);
+			//INVITE NOTIFICATIONS
+			// removed temporarily because invites are instantaneous now
+			// if (data.type == 'KEY' || data.type == 'PRIV')
+			// {
+			// 	oldChan.invited.forEach(async user => {
+			// 		const otherSocket = await this.findSocket(user.userId);
 
-		// 		//uninvite notif
-		// 		otherSocket?.emit("invite_update", {
-		// 			channelId:oldChan.channelId,
-		// 			channelName:oldChan.name,
-		// 			targetUserId:user.userId,
-		// 			action:false
-		// 		});
-		// 	});
-		// }
+			// 		//uninvite notif
+			// 		otherSocket?.emit("invite_update", {
+			// 			channelId:oldChan.channelId,
+			// 			channelName:oldChan.name,
+			// 			targetUserId:user.userId,
+			// 			action:false
+			// 		});
+			// 	});
+			// }
 
-		//CHANNEL NOTIFICATIONS
-		this.server.to(data.channelId.toString()).emit("chan_type_update", data);		
+			//CHANNEL NOTIFICATIONS
+			this.server.to(data.channelId.toString()).emit("chan_type_update", data);		
 		}
 	}
 

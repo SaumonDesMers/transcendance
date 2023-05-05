@@ -654,13 +654,23 @@ export class ChatService {
 	{
 		const channels = this.prisma.groupChannel.findMany({
 			where: {
-				type: {
-					equals: 'PUBLIC'
-				}
+				OR: [
+					{
+						type: {
+							equals: 'PUBLIC'
+						},
+					},
+					{
+						type: {
+							equals: 'KEY'
+						}
+					}
+				]
 			},
 			select: {
 				channelId: true,
-				name: true
+				name: true,
+				type: true
 			}
 		});
 
