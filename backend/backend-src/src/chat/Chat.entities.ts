@@ -3,7 +3,7 @@ import { Type } from "class-transformer";
 import { IsBase64, IsBoolean, IsDate, IsDefined, IsEnum, IsNegative, IsNotEmpty, IsNumber, IsObject, IsOptional, IsPositive, IsString, IsUUID, MaxLength, ValidateIf, ValidateNested, isBase64, isDefined } from "class-validator";
 import { channel } from "diagnostics_channel";
 
-enum gameType {
+export enum gameType {
 	NORMAL,
 	CUSTOM,
 }
@@ -57,7 +57,8 @@ export interface DMChannelDTO {
 export interface GroupChannelSnippetDTO{
 	channelId: number,
 	// channel: ChannelDTO,
-	name: string
+	name: string,
+	type: ChanType,
 }
 
 

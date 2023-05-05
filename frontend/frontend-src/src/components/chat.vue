@@ -10,7 +10,8 @@ import {
 	adminRequestDTO,
 	MuteDTO,
 	CreateMessageDto,
-gameInviteArgs
+	gameInviteArgs,
+	gameType,
 } from '../../../../backend/backend-src/src/chat/Chat.entities';
 import {
 	ServerToClientEvents,
@@ -93,7 +94,7 @@ export default {
 
 		async sendInvite() {
 			const invite: gameInviteArgs = {
-				gameType: this.customGameInvite ? 'CUSTOM' : 'NORMAL'
+				gameType: this.customGameInvite ? gameType.CUSTOM : gameType.NORMAL
 			};
 			store.sendGameInvite(invite, this.messageInputBuffer);
 			this.messageInputBuffer = "";
