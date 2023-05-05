@@ -6,6 +6,7 @@ export class CreateGroupChannelDto {
 	ownerId: number;
 
 	@IsString()
+	@IsNotEmpty()
 	name: string;
 
 	@IsArray()

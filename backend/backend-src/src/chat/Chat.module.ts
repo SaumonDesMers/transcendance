@@ -33,6 +33,23 @@ const includeGroupChannel = Prisma.validator<Prisma.GroupChannelArgs>()({include
 export type DMChannelWithMembers = Prisma.DMChannelGetPayload<typeof includeDMChannel>
 export type GroupChannelWithMembers = Prisma.GroupChannelGetPayload<typeof includeGroupChannel>
 
+export const includeAllGroupChannel = Prisma.validator<Prisma.GroupChannelArgs>()({
+	include: {
+		channel: {
+			include: {
+				users: true,
+				messages: {
+					include: {
+						author: true
+					}
+				}
+			}
+		},
+		admins: true,
+		owner: true,
+		invited: true,
+	}
+})
 
 export type chatSocket = Socket<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
 export type chatServer = Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;

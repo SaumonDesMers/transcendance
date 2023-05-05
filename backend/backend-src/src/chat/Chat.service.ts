@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Prisma, Channel, ChatUser, Message, Mute, GroupChannel, ChanType } from "@prisma/client";
 import { MessageRepository } from "./Message.repository";
 import { ChannelRepository } from "./Channel.repository";
-import { GroupChannelWithMembers, MessageWithAll, MessageWithAuthor, MessageWithChannel, saltRounds } from "./Chat.module";
+import { GroupChannelWithMembers, MessageWithAll, MessageWithAuthor, MessageWithChannel, includeAllGroupChannel, saltRounds } from "./Chat.module";
 import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { CreateDMChannelDto } from "./DMChannel.create.dto";
 import { PrismaModule } from "src/database/prisma.module";
@@ -69,15 +69,22 @@ export class ChatService {
 				private gameService: GameService,
 				private prisma: PrismaService) {}
 
-	async createGroupChannel(newGroupChannel: CreateGroupChannelDto, include: Prisma.GroupChannelInclude) {
+	async createGroupChannel(newGroupChannel: CreateGroupChannelDto): Promise<GroupChannelDTO> {
 		//im sorry for these ugly things i dont know how to do this any other way
 		let my_arr: Prisma.ChatUserWhereUniqueInput[];
+		let new_key: string;
 		newGroupChannel.usersId.forEach(userId => my_arr.push({userId}));
+		my_arr.push({userId:newGroupChannel.ownerId});
 
-		const channel = await this.prisma.groupChannel.create({
+		if (newGroupChannel.type == 'KEY')
+		{
+			new_key = await bcrypt.hash(newGroupChannel.key, saltRounds);
+		}
+
+		const channel: GroupChannelDTO = await this.prisma.groupChannel.create({
 			data: {
 				name: newGroupChannel.name,
-				key: newGroupChannel.key,
+				key: new_key,
 				type: newGroupChannel.type,
 				owner: {
 					connect: {
@@ -97,7 +104,7 @@ export class ChatService {
 					}
 				},
 			},
-			include
+			include: includeAllGroupChannel.include
 		});
 
 		return channel;

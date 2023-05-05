@@ -141,45 +141,26 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@MessageBody() data: CreateGroupChannelDto
 	) : Promise<GroupChannelDTO>
 	{
-		let channel;
-		let returnedChannel: GroupChannelDTO;
+		let channel: GroupChannelDTO;
 
 		try {
-			channel = await this.chatService.createGroupChannel(data,
-				{
-					channel: {
-						include: {
-							users: true,
-							messages: true,
-						}
-					},
-					admins: true,
-					owner: true,
-					invited: true,
-				});
-		} catch (e: any) {
-			console.log(e);
-			throw new WsException(e);
-		}
-
-		try {
-			returnedChannel = await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId, data.key);
+			channel = await this.chatService.createGroupChannel(data);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
 		}
 
 		socket.join(channel.channel.id.toString());
-		if (returnedChannel.type == 'PUBLIC' || returnedChannel.type == 'PRIV')
+		if (channel.type == 'PUBLIC' || channel.type == 'PRIV')
 		{
 			const snippet: GroupChannelSnippetDTO = {
-				channelId:returnedChannel.channelId,
-				type:returnedChannel.type,
-				name:returnedChannel.name
+				channelId:channel.channelId,
+				type:channel.type,
+				name:channel.name
 			}
 			this.server.emit('public_chans', {channels: [snippet], add: true});
 		}
-		return (returnedChannel);
+		return (channel);
 	}
 
 	@SubscribeMessage("join_channel")
