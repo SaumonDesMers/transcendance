@@ -1,7 +1,9 @@
 <script>
+import chat from '../scripts/chat';
 
 import { State } from '../scripts/state';
 import user from '../scripts/user';
+
 
 export default {
 
@@ -13,6 +15,19 @@ data: function () {
     };
 },
 methods: {
+    async saveModifications() {
+        // a modifier avec les channels 
+        // necessite l'import de la classe chat? 
+			// this.user.username = this.editName;
+			// this.user.bio = this.editBio;
+			// this.user.coa = this.editCoa;
+			// const { success, error } = await this.user.save();
+			if (success) {
+				this.switchPage(State.CHAT);
+			} else {
+				this.errorMsg = error;
+			}
+		},
     switchPage(page) {
         this.$emit('switchPage', page);
     },
@@ -72,9 +87,10 @@ emits: ['switchPage']
         </div>
         <div>
             <!-- enregistre avant de revenir a la page precedente -->
-            <button class="chat-btn">Save</button>
+            <!-- <button class="chat-btn" @click="createChannel()">Save</button> -->
+            <button class="chat-btn" @click="saveModifications()">Save</button>
             <!-- ne change rien et fait revenir a la page precedente -->
-            <button class="chat-btn">Cancel</button>
+            <button class="chat-btn" @click="switchPage(State.CHAT)">Cancel</button>
         </div>
     </div>
     </div>
