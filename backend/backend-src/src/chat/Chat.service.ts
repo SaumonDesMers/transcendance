@@ -71,7 +71,7 @@ export class ChatService {
 
 	async createGroupChannel(newGroupChannel: CreateGroupChannelDto): Promise<GroupChannelDTO> {
 		//im sorry for these ugly things i dont know how to do this any other way
-		let my_arr: Prisma.ChatUserWhereUniqueInput[];
+		let my_arr: Prisma.ChatUserWhereUniqueInput[] = new Array();
 		let new_key: string;
 		newGroupChannel.usersId.forEach(userId => my_arr.push({userId}));
 		my_arr.push({userId:newGroupChannel.ownerId});

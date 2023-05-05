@@ -35,7 +35,6 @@ export default {
 			userNameInputBuffer: '',
 			customGameInvite: false,
 			store,
-			user,
 		}
 	},
 	computed: {
