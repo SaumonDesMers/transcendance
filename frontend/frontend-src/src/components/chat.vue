@@ -139,8 +139,8 @@ export default {
 				<div>
 					<p class="text-color-dark grid-border" style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;">Public Channels </p>
 					<div class="chan-can-join">
-						<div v-for="[channelId, channel] in store.groupChannels">
-							<button @click="selectChannel(channelId)"
+						<div v-for="[channelId, channel] in store.publicChannels">
+							<button @click="store.joinChannel({channelId})"
 								style="color: white; font-size: 15px; border: none; background-color: transparent;">{{
 									channel.name }}</button>
 						</div>

@@ -80,8 +80,8 @@ export class CreateMessageDto {
 	content: string;
 
 	@IsOptional()
-	@ValidateNested()
-	@Type(() => gameInviteArgs)
+	// @ValidateNested()
+	// @Type(() => gameInviteArgs)
 	gameInvite?: gameInviteArgs;
 }
 

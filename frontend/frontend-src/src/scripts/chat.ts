@@ -181,6 +181,7 @@ export class Chat {
 	 * @date 4/24/2023 - 5:26:02 PM
 	 */
 	connect(jwt: string) {
+		console.log("connecting chat with token: ", jwt);
 		this.socket.io.opts.extraHeaders = {
 			authorization: `Bearer ${jwt}`
 		};
@@ -192,12 +193,12 @@ export class Chat {
 			console.log(user);
 			user.invites?.forEach(invite => {
 				this.channelInvites.set(invite.channelId, invite.name);
-				console.log(invite);
 			})
 		});
 		
 		this._group_channels.clear();
 		this.socket.emit("get_groupchannels", (channels: GroupChannelDTO[]) => {
+			console.log(channels);
 			channels.forEach(channel => {
 				this._group_channels.set(channel.channelId, channel);
 			});
