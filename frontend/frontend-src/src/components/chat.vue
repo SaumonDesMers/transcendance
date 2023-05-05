@@ -155,10 +155,15 @@ export default {
 				<div>
 					<p class="text-color-dark grid-border" style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;">Protected CHAN </p>
 					<div class="chan-can-join">
-						<div v-for="n in 10">
+						<!-- TODO: RAJOUTER LE POP UP AVEC L'INPUT DE TEXTE POUR JOIN -->
+						<div v-for="[channelId, channel] in store.keyChannels">
+							<p style="color: white; font-size: 15px; border: none; background-color: transparent;">
+								{{ channel.name }}</p>
+						</div>
+						<!-- <div v-for="n in 10">
 							<p style="color: white; font-size: 15px; border: none; background-color: transparent;">Channels
 								random<br></p>
-						</div>
+						</div> -->
 					</div>
 				</div>
 				<div>

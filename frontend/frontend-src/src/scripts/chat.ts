@@ -208,7 +208,10 @@ export class Chat {
 		this.socket.emit("get_public_channels", (channels: GroupChannelSnippetDTO[]) => {
 			console.log("Received public chans");
 			channels.forEach(channel => {
-				this._visible_public_channels.set(channel.channelId, channel);
+				if (channel.type == 'PUBLIC')
+						this._visible_public_channels.set(channel.channelId, channel);
+				else if (channel.type == 'KEY')
+						this._visible_key_channels.set(channel.channelId, channel);
 			})
 		});
 
