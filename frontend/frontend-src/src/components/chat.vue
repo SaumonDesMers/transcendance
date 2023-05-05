@@ -140,7 +140,7 @@ export default {
 			<!-- <div v-if="store.connected"> -->
 			<div class="chat-list">
 				<div style="height: 4vh;">
-					<button style="color: red" @click="createChannel">Create Channel</button>
+					<button style="color: red" @click="this.switchPage(State.CREATECHAT)">Create Channel</button>
 					<input type='test' v-model="channelInputBuffer">
 				</div>
 				<div>
