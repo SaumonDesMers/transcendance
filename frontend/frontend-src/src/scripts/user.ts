@@ -144,15 +144,17 @@ export class User {
 	}
 
 	async loadFriends() {
-		console.log("LOADING FRIENDS");
-		this.friends = [];
-		this._friendsIdList.forEach((user: {id: number}) => {
-			let friend: User;
+		if (this.id != null) {
+			await this.loadUser(this.id);
+			this.friends = [];
+			this._friendsIdList.forEach((user: {id: number}) => {
+				let friend: User;
 
-			friend = reactive(new User());
-			friend.loadUser(user.id);
-			this.friends.push(friend);
-		})
+				friend = reactive(new User());
+				friend.loadUser(user.id);
+				this.friends.push(friend);
+			})
+		}
 	}
 }
 

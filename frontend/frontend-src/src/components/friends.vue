@@ -3,14 +3,17 @@
 import axios from 'axios'
 import { State } from '../scripts/state';
 import usersStatus from '../scripts/status';
-import user from '../scripts/user';
+// import Myuser from '../scripts/user';
+import { User } from '../scripts/user';
 
 export default {
+	props: {
+		user: User
+	},
 	data: function () {
 		return {
 			State,
 			status: '',
-			user,
 			usersStatus,
 		}
 	},
@@ -24,8 +27,8 @@ export default {
 		},
 	},
 	mounted() {
-		user.loadFriends(),
-			usersStatus.fetchUsers(user._friendsIdList);
+		this.user.loadFriends(),
+			usersStatus.fetchUsers(this.user._friendsIdList);
 	},
 	emits: ['switchPage']
 }

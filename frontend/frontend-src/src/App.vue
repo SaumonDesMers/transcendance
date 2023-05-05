@@ -87,7 +87,7 @@ export default {
 		<profil @switchPage="switchPage"></profil>
 	</div>
 	<div v-else-if="state == State.FRIENDS">
-		<friends @switchPage="switchPage"></friends>
+		<friends @switchPage="switchPage" :user="user"></friends>
 	</div>
 	<div v-else-if="state == State.GAME">
 		<game @switchPage="switchPage"></game>
