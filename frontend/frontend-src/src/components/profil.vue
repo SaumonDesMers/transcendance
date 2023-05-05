@@ -133,13 +133,25 @@ export default {
 					</div>
 				</div>
 			</div>
-			<div v-if="user.darkMode == false">
+			<div v-show="user.darkMode == false">
+				<div class="sun"></div>
+				<!-- <div class="cloud cloud0"></div>
+				<div class="cloud cloud1"></div>
+				<div class="cloud cloud2"></div> -->
+			</div>
+			<div v-show="user.darkMode == true">
+				<div class="stars"></div>
+				<div class="stars1"></div>
+				<div class="stars2"></div>
+				<div class="shooting-stars"></div>
+			</div>
+			<!-- <div v-if="user.darkMode == false">
 			</div>
 			<div v-else>
 				<div class="stars"></div>
 				<div class="stars1"></div>
 				<div class="stars2"></div>
-			</div>
+			</div> -->
 		</div>
 	</div>
 </template>
