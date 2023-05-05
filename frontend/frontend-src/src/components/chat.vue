@@ -379,9 +379,9 @@ export default {
 .chat-list {
 	padding-left: 20px;
 	margin-top: 1.5rem;
-	height: 100vh;
+	height: 95vh;
 	width: 100%;
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: rgba(0, 0, 0, 1);
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
