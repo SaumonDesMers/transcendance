@@ -21,6 +21,7 @@ import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/
 import store from "../scripts/chat"
 import user from '../scripts/user';
 import { State } from '../scripts/state';
+import { reactive } from 'vue';
 
 export default {
 
@@ -35,6 +36,7 @@ export default {
 			userNameInputBuffer: '',
 			customGameInvite: false,
 			searchInput: '',
+			searchArray: [],
 			store,
 		}
 	},
@@ -115,11 +117,12 @@ export default {
 	watch: {
 		searchInput()
 		{
-			store.search_user(this.searchInput);
+			store.search_user(this.searchInput).then((arr) => {
+				this.searchArray = arr;
+			});
 		}
 	},
 	mounted() {
-		store.clear_search();
 	},
 
 	created() {
@@ -147,6 +150,10 @@ export default {
 			<div class="chat-list">
 				<div style="height: 4vh;">
 					<button style="color: red" @click="this.switchPage(State.CREATECHAT)">Create Channel</button>
+				</div>
+				<div>
+					<input type="text" v-model="searchInput"/>
+					<p v-for="username in this.searchArray">{{ username }}</p>
 				</div>
 				<div>
 					<p class="text-color-dark grid-border"

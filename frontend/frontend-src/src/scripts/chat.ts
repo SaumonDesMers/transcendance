@@ -47,7 +47,6 @@ export class Chat {
 	private _channel_invites: Map<number, string>; //channel id and channel names
 	private _user: ChatUserDTO;
 	private socket: Socket<ServerToClientEvents, ClientToServerEvents>;
-	private _search_array: string[];
 	error: Ref<string>;
 	// private currentGroupChannelId: number;
 	// private currentDmChannelId: number;
@@ -115,16 +114,6 @@ export class Chat {
 	 */
 	get disconnected () { return this.socket.disconnected;}
 
-	
-	/**
-	 * Getter for the search array
-	 * @date 5/6/2023 - 5:46:51 PM
-	 *
-	 * @readonly
-	 * @type {{}}
-	 */
-	get searchArray() {return this._search_array;}
-
 	/**
 	 * Getter for the user
 	 * @date 4/24/2023 - 5:27:56 PM
@@ -175,7 +164,6 @@ export class Chat {
 		this._visible_public_channels = reactive(new Map());
 		this._visible_key_channels = reactive(new Map());
 		this._dm_channels = reactive(new Map())
-		this._search_array = reactive(new Array());
 		this.error = ref<string>("");
 		
 		this.initSocket();
@@ -520,7 +508,12 @@ export class Chat {
 		});
 	}
 
-	
+
+
+	/*******************
+	 * UTILS FUNCTIONS *
+	 *******************/
+
 	/**
 	 * Will populate the user search array
 	 * @date 5/6/2023 - 5:39:50 PM
@@ -530,23 +523,35 @@ export class Chat {
 	async search_user(username: string)
 	{
 		if (username == null || username.length == 0)
-		{
-			this._search_array = [];
-			return;
-		}
-		this.socket.emit("search_username", username, (usernames => {
-			this._search_array = usernames;
-		}));
+			return [];
+
+		return this.socket.emitWithAck("search_username", username);
+		// this.socket.emit("search_username", username, (usernames => {
+		// 	searchArray = usernames;
+		// 	console.log("assigning usernames:", searchArray);
+		// }));
+	}
+	
+	isAdmin() : boolean
+	{
+		if (this.isCurrentDM) return false;
+		const chan = this._group_channels.get(this.currentChannelId);
+
+		if (chan == undefined) return false;
+
+		return (chan.admins.find(user => {
+			return user.userId == this.user.userId;
+		}) != undefined)
 	}
 
-	
-	/**
-	 * Clears the search array
-	 * @date 5/6/2023 - 5:50:42 PM
-	 */
-	clear_search()
+	isOwner() : boolean
 	{
-		this._search_array = [];
+		if (this.isCurrentDM) return false;
+		const chan = this._group_channels.get(this.currentChannelId);
+
+		if (chan == undefined) return false;
+
+		return (chan.owner.userId == this.user.userId);
 	}
 
 	/******************************
