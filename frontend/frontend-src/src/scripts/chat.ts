@@ -13,16 +13,17 @@ import {
 	ChanTypeRequestDTO,
 	ChanRequestDTO,
 	inviteUpdateDTO,
-	ChatUserUpdateDTO,
 	SimpleChatUserDTO,
 	NewChannelOwnerDTO,
 	GroupChannelSnippetDTO,
 	DMChannelDTO,
 	CreateMessageDto,
-	gameInviteArgs
+	gameInviteArgs,
+	ChanNotifDTO
 } from '../../../../backend/backend-src/src/chat/Chat.entities'
 import {CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto'
 import { ServerToClientEvents, ClientToServerEvents } from '../../../../backend/backend-src/src/chat/Chat.events'
+import { User } from './user'
 
 enum ChanType{
 	PUBLIC,
@@ -43,7 +44,7 @@ export class Chat {
 	private _visible_public_channels: Map<number, GroupChannelSnippetDTO>;
 	private _visible_key_channels: Map<number, GroupChannelSnippetDTO>;
 	private _dm_channels: Map<number, DMChannelDTO>;
-	private _other_users: Map<number, {status: boolean, data: ChatUserDTO | undefined}>;
+	private _other_users: Map<number, User>;
 	private _channel_invites: Map<number, string>; //channel id and channel names
 	private _user: ChatUserDTO;
 	private socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -241,27 +242,24 @@ export class Chat {
 		if (id == undefined || id == 0)
 			return "unkown";
 
-		const ret = this.getUser(id)?.user.username;
+		const ret = this.getUser(id)?.username;
 
 		if (ret == undefined)
 			return "loading...";
 		return ret;
 	}
 
-	getUser(id: number): ChatUserDTO | undefined{
+	getUser(id: number): User | undefined{
 		let obj = this._other_users.get(id);
 
 		if (obj == undefined)
 		{
-			console.log(id);
-			obj = {status: false, data: undefined};
-			this._other_users.set(id, obj);
-			this.socket.emitWithAck("get_other_user", id).then(user => {
-				this._other_users.set(user.userId, {status: true, data: user});
-			})
+			let user = reactive(new User());
+			user.loadUser(id);
+			this._other_users.set(id, user);
 		}
 
-		return obj.data;
+		return obj;
 	}
 	
 	
@@ -436,14 +434,14 @@ export class Chat {
 	 * Kick a user from the current channel
 	 * @date 4/28/2023 - 2:55:14 PM
 	 *
-	 * @param {number} targetUserId id of the user to kick
+	 * @param {string} targetUserName username of the user to kick
 	 */
-	kick_user(targetUserId: number)
+	kick_user(targetUserName: string)
 	{
 		if (this.isCurrentDM || this.currentChannelId == -1)
 			return;
 		this.socket.emit("kick_request", {
-			targetUserId,
+			targetUserName,
 			channelId:this.currentChannelId,
 			authorUserId: this.user.userId
 		});
@@ -453,10 +451,10 @@ export class Chat {
 	 * Set or Unset a user as admin in the current channel
 	 * @date 4/28/2023 - 2:56:11 PM
 	 *
-	 * @param {number} targetUserId id of the targeted user
+	 * @param {string} targetUserName name of the targeted user
 	 * @param {boolean} action `true` to set as admin, `false` to unset
 	 */
-	user_admin(targetUserId: number, action: boolean)
+	user_admin(targetUserName: string, action: boolean)
 	{
 
 		if (this.isCurrentDM || this.currentChannelId == -1)
@@ -464,7 +462,7 @@ export class Chat {
 		this.socket.emit('admin_request', 
 		{
 			authorUserId:this.user.userId,
-			targetUserId,
+			targetUserName,
 			channelId:this.currentChannelId,
 			action,
 		});
@@ -474,16 +472,16 @@ export class Chat {
 	 * Ban or Unban user from the current channel
 	 * @date 4/28/2023 - 2:59:36 PM
 	 *
-	 * @param {number} targetUserId id of the targeted user
+	 * @param {string} targetUserName name of the targeted user
 	 * @param {boolean} action `true` to ban, `false` to unban
 	 */
-	ban_user(targetUserId: number, action: boolean)
+	ban_user(targetUserName: string, action: boolean)
 	{
 		if (this.isCurrentDM || this.currentChannelId == -1)
 			return;
 		this.socket.emit("ban_request", {
 			authorUserId:this.user.userId,
-			targetUserId,
+			targetUserName,
 			channelId:this.currentChannelId,
 			action,
 		});
@@ -619,7 +617,7 @@ export class Chat {
 			this.delete_user_from_chan(payload.user.userId, payload.channelId);
 		});
 
-		this.socket.on("user_kicked", (payload: basicChanRequestDTO) => {
+		this.socket.on("user_kicked", (payload: ChanNotifDTO) => {
 			if (payload.targetUserId == this.user.userId)
 			{
 				this.groupChannels.delete(payload.channelId);
@@ -634,7 +632,7 @@ export class Chat {
 
 		});
 
-		this.socket.on("user_banned", (payload: basicChanRequestDTO) => {
+		this.socket.on("user_banned", (payload: ChanNotifDTO) => {
 			if (payload.targetUserId == this.user.userId)
 			{
 				this.groupChannels.delete(payload.channelId);
@@ -725,10 +723,10 @@ export class Chat {
 			this.error.value = payload.message;
 		})
 
-		this.socket.on("user_update", (payload: ChatUserDTO) => {
-			if (this._other_users.has(payload.userId))
+		this.socket.on("user_update", (userId: number) => {
+			if (this._other_users.has(userId))
 			{
-				this._other_users.set(payload.userId, {status: true, data: payload});
+				this._other_users.get(userId)?.loadUser(userId);
 			}
 		})
 

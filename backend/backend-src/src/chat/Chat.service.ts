@@ -7,7 +7,7 @@ import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { CreateDMChannelDto } from "./DMChannel.create.dto";
 import { PrismaModule } from "src/database/prisma.module";
 import { PrismaService } from "src/database/prisma.service";
-import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO, ChanRequestDTO, basicChanRequestDTO, InviteRequestDTO, inviteUpdateDTO, ChanTypeRequestDTO, GroupChannelSnippetDTO, ChanKeyRequestDTO, CreateMessageDto, MessageDTO, SimpleChatUserDTO } from "./Chat.entities";
+import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO, ChanRequestDTO, basicChanRequestDTO, InviteRequestDTO, inviteUpdateDTO, ChanTypeRequestDTO, GroupChannelSnippetDTO, ChanKeyRequestDTO, CreateMessageDto, MessageDTO, SimpleChatUserDTO, ChanNotifDTO } from "./Chat.entities";
 import { WsException } from "@nestjs/websockets";
 import { error } from "console";
 import { ValidationError } from "./Chat.error";
@@ -706,6 +706,14 @@ export class ChatService {
 	{
 		// const groupChannel = this.channelRepository.getSingleGroupChannel({channelId:GroupChannelId}, true);
 
+		const target = await this.prisma.user.findUniqueOrThrow({
+			where: {
+				username: request.targetUserName
+			},
+			select: {
+				id: true
+			}
+		});
 		const channel = await this.prisma.groupChannel.findUniqueOrThrow({
 			where: { 
 				channelId:request.channelId
@@ -732,12 +740,12 @@ export class ChatService {
 
 		//and presence of target in channel
 		if (channel.channel.users.find(user => {
-			user.userId == request.targetUserId;
+			user.userId == target.id;
 		}) === undefined)
 			throw new ValidationError("This user isn't on channel");
 
 		//if we want to demote an admin
-		if (request.action == false && channel.admins.find(user => {user.userId == request.targetUserId}) == undefined)
+		if (request.action == false && channel.admins.find(user => {user.userId == target.id}) == undefined)
 			throw new ValidationError("This user is not an admin");
 
 		if (request.action)
@@ -749,7 +757,7 @@ export class ChatService {
 			data: {
 				admins: {
 					connect: {
-						userId: request.targetUserId
+						userId: target.id
 					}
 				}
 			}
@@ -763,7 +771,7 @@ export class ChatService {
 			data: {
 				admins: {
 					connect: {
-						userId: request.targetUserId
+						userId: target.id
 					}
 				}
 			}
@@ -791,8 +799,17 @@ export class ChatService {
 		}
 		});
 
+		const target = await this.prisma.user.findUniqueOrThrow({
+			where: {
+				username: request.targetUserName
+			},
+			select: {
+				id: true
+			}
+		});
+
 		// if target is owner
-		if (channel.ownerId == request.targetUserId)
+		if (channel.ownerId == target.id)
 			throw new ValidationError("The owner can't be mute");
 
 		//if author isnt admin
@@ -803,7 +820,7 @@ export class ChatService {
 
 		//and presence of target in channel
 		if (channel.channel.users.find(user => {
-			user.userId == request.targetUserId;
+			user.userId == target.id;
 		}) === undefined)
 			throw new ValidationError("This user isn't on channel");
 		
@@ -813,7 +830,7 @@ export class ChatService {
 					connect: {userId:request.authorUserId}
 				},
 				target: {
-					connect: {userId:request.targetUserId}
+					connect: {userId:target.id}
 				},
 				groupChannel: {
 					connect: {channelId:request.groupChannelId}
@@ -823,9 +840,18 @@ export class ChatService {
 		});
 	}
 
-	async banUser(request: ChanRequestDTO) {
+	async banUser(request: ChanRequestDTO): Promise<ChanNotifDTO> {
 
-		const {authorUserId, targetUserId, channelId } = request;
+		const {authorUserId, targetUserName, channelId, action } = request;
+
+		const target = await this.prisma.user.findUnique({
+			where: {
+				username: targetUserName
+			},
+			select: {
+				id: true
+			}
+		});
 		const channel = await this.prisma.groupChannel.findUnique({
 			where: {
 				channelId
@@ -837,12 +863,12 @@ export class ChatService {
 		});
 
 
-		if (request.action) { //banning the target
+		if (action) { //banning the target
 
 			if (!this.isAdmin(authorUserId, channel))
 				throw new ValidationError("Permission denied, you cant ban another user");
 			
-			if (this.isAdmin(targetUserId, channel))
+			if (this.isAdmin(target.id, channel))
 				throw new ValidationError("Permission denied, you cant ban another admin");
 			
 			//this prisma request updates an existing channel
@@ -853,24 +879,24 @@ export class ChatService {
 				data: {
 					banned: {
 						connect: {
-							userId:targetUserId
+							userId:target.id
 						}
 					},
 					invited: {
 						disconnect: {
-							userId:targetUserId
+							userId:target.id
 						}
 					},
 					admins: {
 						disconnect: {
-							userId:targetUserId
+							userId:target.id
 						}
 					},
 					channel: {
 						update: {
 							users: {
 								disconnect: {
-									userId: targetUserId
+									userId: target.id
 								}
 							}
 						}
@@ -887,13 +913,15 @@ export class ChatService {
 				data: {
 					banned: {
 						disconnect: {
-							userId:targetUserId
+							userId:target.id
 						}
 					}
 				}
 			});
 				
 		}
+
+		return {channelId, action, callerUserId:authorUserId, targetUserId:target.id};
 	}
 
 	/**
@@ -958,9 +986,18 @@ export class ChatService {
 		});
 	}
 
-	async kickUser(request: basicChanRequestDTO) {
+	async kickUser(request: basicChanRequestDTO): Promise<ChanNotifDTO> {
 
-		const {channelId, authorUserId, targetUserId} = request;
+		const {channelId, authorUserId, targetUserName} = request;
+
+		const target = await this.prisma.user.findUnique({
+			where: {
+				username: targetUserName
+			},
+			select: {
+				id: true,
+			}
+		})
 		const channel = await this.prisma.groupChannel.findUnique({
 			where: {
 				channelId
@@ -980,13 +1017,15 @@ export class ChatService {
 			throw new ValidationError("Permission denied, you cant kick another user");
 
 		if (channel.channel.users.find(user =>
-			{return user.userId == targetUserId}) == undefined)
+			{return user.userId == target.id}) == undefined)
 			throw new ValidationError("Target is not in channel");
 
 		// if (this.isAdmin(targetUserId, channel))
 		// 	throw new ValidationError("Permission denied, you cant kick another admin");
 		
-		await this.leaveGroupChannel(channel, targetUserId);
+		await this.leaveGroupChannel(channel, target.id);
+
+		return {channelId, callerUserId:authorUserId, targetUserId:target.id, action:true};
 	}
 
 	//in an invite request there is an username ( for ease of use, its better to remember usernames than userId :p)

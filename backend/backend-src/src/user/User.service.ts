@@ -5,6 +5,7 @@ import { CreateUserDto } from "./User.create-dto";
 import { UpdateUserDto } from "./User.update-dto";
 import { UserWithoutSecret } from "./User.module";
 import { UserEntity } from "./User.entity";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
 export function exclude<User, Key extends keyof User>(
 	user: User,
@@ -19,7 +20,8 @@ export function exclude<User, Key extends keyof User>(
 
 @Injectable()
 export class UserService {
-	constructor(private repository: UserRepository) {}
+	constructor(private repository: UserRepository,
+				private eventEmitter: EventEmitter2) {}
 
 	async createUser(createDto: CreateUserDto, id: number): Promise<UserWithoutSecret> {
 		let params;
@@ -79,6 +81,7 @@ export class UserService {
 		});
 
 		const userBis = exclude(user, ['twoFactorAuthenticationSecret']);
+		this.eventEmitter.emit("user_update", id);
 
 		return userBis;
 	}

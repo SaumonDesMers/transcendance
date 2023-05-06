@@ -113,11 +113,6 @@ export interface ChatUserDTO {
  * they are here to inform of data change,
  * a user joined a channel or changed their username by example
  ***************/
-export interface userNameChangeDTO {
-	userId: number,
-	newUserName: string,
-}
-
 export interface NewChannelOwnerDTO {
 	newOwner: SimpleChatUserDTO,
 	channelId: number,
@@ -133,12 +128,11 @@ export interface inviteUpdateDTO {
 	channel: GroupChannelDTO,
 }
 
-export interface ChatUserUpdateDTO {
-	userId: number,
-	user: {
-		id: number,
-		username :string
-	}
+export interface ChanNotifDTO {
+	callerUserId: number,
+	targetUserId: number,
+	channelId: number,
+	action: boolean,
 }
 
 /*****************
@@ -189,9 +183,8 @@ export class basicChanRequestDTO {
 	authorUserId: number;
 	
 	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	targetUserId: number;
+	@IsString()
+	targetUserName: string;
 	
 	@IsDefined()
 	@IsNumber()
@@ -206,9 +199,8 @@ export class ChanRequestDTO {
 	authorUserId: number;
 	
 	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	targetUserId: number;
+	@IsString()
+	targetUserName: string;
 	
 	@IsDefined()
 	@IsNumber()
@@ -299,10 +291,11 @@ export class MuteDTO {
 	@IsNumber()
 	@IsPositive()
 	authorUserId: number;
+
 	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	targetUserId: number;
+	@IsString()
+	targetUserName: string;
+
 	@IsDefined()
 	@IsNumber()
 	@IsPositive()

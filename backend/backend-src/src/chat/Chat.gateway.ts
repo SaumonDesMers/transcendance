@@ -33,7 +33,8 @@ import {
 	ChanKeyRequestDTO,
 	DMChannelDTO,
 	CreateMessageDto,
-	GroupChannelSnippetDTO
+	GroupChannelSnippetDTO,
+	ChanNotifDTO
 } from './Chat.entities'
 
 import { Server, Socket } from 'socket.io';
@@ -50,6 +51,7 @@ import { chatSocket, chatServer } from "./Chat.module";
 import { ValidationError } from "./Chat.error";
 import { UpdateUserDto } from "src/user/User.update-dto";
 import { UserWithoutSecret } from "src/user/User.module";
+import { OnEvent } from "@nestjs/event-emitter";
 
 @Catch(WsException, HttpException)
 export class WebsocketExceptionsFilter extends BaseWsExceptionFilter {
@@ -458,17 +460,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@MessageBody() data: basicChanRequestDTO
 	)
 	{
+		let update: ChanNotifDTO;
 		try {
-			await this.chatService.kickUser(data)
+			update = await this.chatService.kickUser(data)
 		} catch (e: any) {
 			console.log(e)
 			throw new WsException(e.message);
 		}
 
-		const user = await this.chatService.getChatUser(data.targetUserId);
-		this.server.to(data.channelId.toString()).emit("user_kicked", data);
+		// const user = await this.chatService.getChatUser(data.targetUserId);
+		this.server.to(data.channelId.toString()).emit("user_kicked", update);
 
-		const targetSocket = await this.findSocket(data.targetUserId);
+		const targetSocket = await this.findSocket(update.targetUserId);
 
 		targetSocket?.leave(data.channelId.toString());
 	}
@@ -479,20 +482,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@MessageBody() data: ChanRequestDTO
 	)
 	{
+		let update: ChanNotifDTO;
 		try {
-			await this.chatService.banUser(data)
+			update = await this.chatService.banUser(data)
 		} catch (e: any) {
 			console.log(e)
 			throw new WsException(e.message);
 		}
 
 
-		const user = await this.chatService.getChatUser(data.targetUserId);
-		this.server.to(data.channelId.toString()).emit("user_banned", data);
+		const user = await this.chatService.getChatUser(update.targetUserId);
+		this.server.to(data.channelId.toString()).emit("user_banned", update);
 
 		if (data.action) //if user is getting banned
 		{
-			const targetSocket = await this.findSocket(data.targetUserId);
+			const targetSocket = await this.findSocket(update.targetUserId);
 
 			targetSocket.leave(data.channelId.toString());
 		}
@@ -547,9 +551,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		console.log("An User accepted the game invite", data);
 	}
 
-	updateUser(userId: number, update: UserWithoutSecret)
+	@OnEvent("user_update")
+	updateUser(userId: number)
 	{
-		this.server.emit("user_update", {userId:userId, user:update});
+		this.server.emit("user_update", userId);
 	}
 
 	private async findSocket(userId: number)

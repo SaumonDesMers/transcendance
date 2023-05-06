@@ -11,7 +11,6 @@ import { MessageDTO,
 	basicChanRequestDTO,
 	inviteUpdateDTO,
 	InviteRequestDTO,
-	ChatUserUpdateDTO,
 	ChanTypeRequestDTO,
 	GroupChannelSnippetDTO,
 	SimpleChatUserDTO,
@@ -19,6 +18,7 @@ import { MessageDTO,
 	ChanKeyRequestDTO,
 	DMChannelDTO,
 	CreateMessageDto,
+	ChanNotifDTO,
  } from './Chat.entities'
 import { CreateGroupChannelDto } from './GroupChannel.create.dto';
 
@@ -51,7 +51,6 @@ export interface ServerToClientEvents {
 
 	/**
 	 * Notice that you have been invited to a channel
-	 * or someone has been invited to a channel you have currently joined
 	 */
 	invite_update: (payload: inviteUpdateDTO) => void;
 
@@ -78,7 +77,7 @@ export interface ServerToClientEvents {
 	 * no need to store this,
 	 * might be you
 	 */
-	user_kicked: (payload: basicChanRequestDTO) => void;
+	user_kicked: (payload: ChanNotifDTO) => void;
 
 	/**
 	 * Notice of user muted in a channel you have currently joined,
@@ -91,7 +90,7 @@ export interface ServerToClientEvents {
 	 * Notice of user banned or unbanned in a channel you have currently joined,
 	 * might be you
 	 */
-	user_banned: (paylaod: basicChanRequestDTO) => void;
+	user_banned: (payload: ChanNotifDTO) => void;
 
 	/*
 	* DIRECT EVENTS
@@ -106,7 +105,7 @@ export interface ServerToClientEvents {
 	 * if a user changes username,
 	 * this will be sent to everyone so they can keep track of usernames
 	 */
-	user_update: (payload: ChatUserUpdateDTO) => void;
+	user_update: (userId: number) => void;
 
 	/**
 	 * when an invite expires,
