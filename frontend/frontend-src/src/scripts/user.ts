@@ -77,14 +77,14 @@ export class User {
 	avatar: Avatar;
 	isLoggedIn: boolean = false;
 
-	get id() { return this._data.id; }
+	get id() { this._data.id = localStorage.userId; return this._data.id; }
 	get username() { return this._data.username; }
 	get darkMode() { return this._data.darkMode; }
 	get isTwoFactorAuthenticationEnabled() { return this._data.isTwoFactorAuthenticationEnabled; }
 	get coa() { return this._data.coa; }
 	get bio() { return this._data.bio; }
 
-	set id(arg) { this._data.id = arg; }
+	set id(arg) { this._data.id = arg; localStorage.userId = arg; }
 	set username(arg) { this._data.username = arg; }
 	set darkMode(arg) { this._data.darkMode = arg; }
 	set isTwoFactorAuthenticationEnabled(arg) { this._data.isTwoFactorAuthenticationEnabled = arg; }
@@ -208,6 +208,18 @@ export class MyUser extends User
 		});
 
 		return { success, error };
+	}
+
+	async get() {
+		await axios.get(`http://localhost:3001/users/${this.id}`)
+		.then(res => {
+			this.isLoggedIn = true;
+			this.set(res.data);
+			this.downloadAvatar();
+		})
+		.catch(err => {
+			console.log('err :', err);
+		});
 	}
 
 	async uploadAvatar() {
