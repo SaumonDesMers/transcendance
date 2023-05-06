@@ -36,6 +36,10 @@ export default {
 			customGameInvite: false,
 			searchInput: '',
 			store,
+			onInvit: false,
+			showMP: false,
+			showChannel: false,
+			yourChan: true,
 		}
 	},
 	computed: {
@@ -67,9 +71,20 @@ export default {
 		selectChannel(id: number) {
 			store.selectChannel(id, false);
 		},
-
+		clickInvite() {
+			this.onInvit = !this.onInvit;
+		},
 		selectDMChannel(id: number) {
 			store.selectChannel(id, true);
+		},
+		displayJoinChannel() {
+			this.showChannel = !this.showChannel;
+		},
+		displayYourChan() {
+			this.yourChan = !this.yourChan;
+		},
+		displayMP() {
+			this.showMP = !this.showMP;
 		},
 
 		async createChannel() {
@@ -113,8 +128,7 @@ export default {
 
 	},
 	watch: {
-		searchInput()
-		{
+		searchInput() {
 			store.search_user(this.searchInput);
 		}
 	},
@@ -139,52 +153,32 @@ export default {
 				<div class="cloud cloud2"></div> -->
 		</div>
 		<div v-else="user.darkMode == true">
+			<div style="width: 0;">
+			<div class="moon" style="z-index: -1;">
+					<div class="dark">
+					</div>
+					<div class="dark">
+					</div>
+					<div class="dark">
+					</div>
+				</div>
+			</div>
 			<div class="stars"></div>
 			<div class="stars1"></div>
 			<div class="stars2"></div>
 			<div class="shooting-stars"></div>
 		</div>
 		<div class="chat-container">
-			<!-- <div style="justify-content: center; align-items: center;">
-				<button class="nocolor-btn text-color-dark" style="width: 100%; height: 5rem;" v-if="store.disconnected"
-					@click="connectToServer">Connect To Chat</button>
-				<button class="nocolor-btn" v-else @click="disconnectFromServer">Disconnect from Chat</button>
-			</div> -->
-			<!-- <div v-if="store.connected"> -->
 			<div class="chat-list" :class="[user.darkMode == true ? 'dark' : 'light']">
 				<div style="height: 4vh;">
-					<button style="color: red" @click="this.switchPage(State.CREATECHAT)">Create Channel</button>
+					<p style="position:relative; margin-left: 8.5rem; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 2vw;"
+							class="fa-solid fa-plus" @click="this.switchPage(State.CREATECHAT)"></p>	
+							<!-- <p class="fa-solid fa-plus" style="position:fixed; font-size: 1.5vw; margin-top: 0.2rem; color:black"></p> -->
 				</div>
 				<div>
 					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
-						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;">Public Channels </p>
-					<div class="chan-can-join">
-						<div v-for="[channelId, channel] in store.publicChannels">
-							<button @click="store.joinChannel({ channelId })"
-								style="color: white; font-size: 15px; border: none; background-color: transparent;">{{
-									channel.name }}</button>
-						</div>
-					</div>
-				</div>
-				<div>
-					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
-						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;">Protected CHAN </p>
-					<div class="chan-can-join">
-						<!-- TODO: RAJOUTER LE POP UP AVEC L'INPUT DE TEXTE POUR JOIN -->
-						<div v-for="[channelId, channel] in store.keyChannels">
-							<p style="color: white; font-size: 15px; border: none; background-color: transparent;">
-								{{ channel.name }}</p>
-						</div>
-						<!-- <div v-for="n in 10">
-							<p style="color: white; font-size: 15px; border: none; background-color: transparent;">Channels
-								random<br></p>
-						</div> -->
-					</div>
-				</div>
-				<div>
-					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
-						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;">Your channels </p>
-					<div class="chan-can-join">
+						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;" @click="displayYourChan()">Your channels </p>
+					<div v-show="yourChan" class="chan-can-join">
 						<div v-for="[channelId, channel] in store.groupChannels">
 							<button @click="selectChannel(channelId)"
 								style="color: white; font-size: 15px; border: none; background-color: transparent;">{{
@@ -194,8 +188,8 @@ export default {
 				</div>
 				<div>
 					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
-						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;">Private message</p>
-					<div class="chan-can-join">
+						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;" @click="displayMP()">Private message</p>
+					<div v-show="showMP" class="chan-can-join">
 						<div v-for="n in 10">
 							<p style="color: white; font-size: 15px; border: none; background-color: transparent;">Channels
 								random<br></p>
@@ -209,8 +203,22 @@ export default {
 						</div>
 					</div>
 				</div>
-				<div
-					style="height: 5vh; margin-left: -5px; display: flex; align-items: center; margin-top: 1rem; padding-top: 0.5rem; padding-bottom: 0.5rem;">
+				<div>
+					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
+						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;" @click="displayJoinChannel()">Join channel</p>
+					<div v-show="showChannel" class="chan-can-join">
+						<div v-for="[channelId, channel] in store.publicChannels">
+							<button @click="store.joinChannel({ channelId })"
+								style="color: white; font-size: 15px; border: none; background-color: transparent;">{{
+									channel.name }}</button>
+						</div>
+						<div v-for="[channelId, channel] in store.keyChannels">
+							<p style="color: white; font-size: 15px; border: none; background-color: transparent;">
+								{{ channel.name }} <p class="fa-solid fa-lock"></p></p>
+						</div>
+					</div>
+				</div>
+				<div style="margin-top:45%; height: 5vh; margin-left: -5px; display: flex; align-items: center; padding-top: 0.5rem; padding-bottom: 0.5rem;">
 					<div class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']"></div>
 					<p style="margin-left: 0.7rem;"
 						:class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">{{ user.username }}</p>
@@ -219,10 +227,9 @@ export default {
 			<div class="chat-box" :class="[user.darkMode == true ? 'dark' : 'light']">
 				<div v-if="this.currentChannel != undefined">
 					<div class="grid-border">
-						<p class="title-chat"
-						:class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">
-						{{ this.currentChannel.name }}
-					</p>
+						<p class="title-chat" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">
+							{{ this.currentChannel.name }}
+						</p>
 					</div>
 				</div>
 				<div v-if="this.currentChannel != undefined && store.isCurrentDM == false">
@@ -259,14 +266,36 @@ export default {
 			</div>
 			<div class="users" :class="[user.darkMode == true ? 'dark' : 'light']">
 				<div v-if="this.currentChannel != undefined && store.isCurrentDM == false">
-					<p style="position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 1vw" 
-						class="fa-solid fa-gear"
-						@click="switchPage(State.CHATSETTINGS)"></p>
-					<p>{{ store.getUserName(this.currentChannel.owner?.userId) }}
-					<p class="fa-solid fa-crown" style="padding:10px; color: gold"></p>
+					<div style="height: 2rem;">
+						<input id="invite" type="radio" value="KEY" @click="clickInvite()" class="nodisplay visibility ">
+						<label for="invite">
+							<i class="fa-solid fa-user-plus"
+								style="position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 1vw"></i>
+						</label>
+						<div :style="[onInvit ? '' : 'display:none']">
+							<input
+								style="width: 9%; position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 2rem; font-size: 1vw"
+								type="text" v-model="searchInput" />
+							<div>
+								<p @click="store.invite_user(username, current_channelId, true)" v-for="username in store.searchArray">{{ username }}
+									<!-- <button @click="store.invite_user(username, current_channelId, true)">Invite
+						User</button> -->
 					</p>
-					<div v-for="n in 10">
-						<p v-for="user in this.currentChannel?.channel.users">{{ store.getUserName(user.userId) }}</p>
+							</div>
+						</div>
+						<p v-show="!onInvit" style="position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 1vw; margin-right: 2rem;"
+							class="fa-solid fa-gear" @click="switchPage(State.CHATSETTINGS)"></p>
+						<p v-show="!onInvit" style="position:absolute; right: 40px; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 1vw; margin-right: 2rem;"
+							class="fa-solid fa-arrow-right-from-bracket" @click="leaveChannel()"></p>	
+							
+					</div>
+					<div v-show="!onInvit">
+						<p>{{ store.getUserName(this.currentChannel.owner?.userId) }}
+							<p class="fa-solid fa-crown" style="padding:10px; color: gold"></p>
+						</p>
+						<div v-for="n in 10">
+							<p v-for="user in this.currentChannel?.channel.users">{{ store.getUserName(user.userId) }}</p>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -444,6 +473,14 @@ export default {
 	}
 }
 
+.visibility {
+	visibility: hidden;
+}
+
+.nodisplay {
+	display: none;
+}
+
 .text-color-dark {
 	color: white;
 	font-size: 20px;
@@ -469,7 +506,7 @@ export default {
 .chan-can-join {
 	padding: 1rem;
 	overflow: scroll;
-	max-height: 14vh;
+	max-height: 25vh;
 }
 
 .dark {

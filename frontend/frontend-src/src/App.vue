@@ -133,7 +133,7 @@ export default {
 		<createChat @switchPage="switchPage"></createChat>
 	</div>
 	<div v-else-if="state == State.CHATSETTINGS">
-		<createChat @switchPage="switchPage"></createChat>
+		<chatSettings @switchPage="switchPage"></chatSettings>
 	</div>
 </template>
 
