@@ -117,7 +117,7 @@ export class GameStatController
 	)
 	{
 		try {
-			const user = this.prismaService.user.findUniqueOrThrow({
+			let user:any = await this.prismaService.user.findUniqueOrThrow({
 				where: {id},
 				select: {
 					id: true,
@@ -129,6 +129,45 @@ export class GameStatController
 					}
 				}
 			});
+
+			const idk:any  = this.prismaService.user.groupBy({
+				by: ['id'],
+				_count: {
+					
+				}
+			});
+
+		// 	const bis = this.prismaService.user.findMany({
+		// 		where: {
+		// 			winningGames: {
+						
+		// 			}
+		// 		}
+		// 		select: {
+		// 			_count: {
+		// 				select: {
+		// 					winningGames: {
+		// 						where: {
+									
+		// 						}
+		// 					}
+		// 				}
+		// 			}
+		// 		}
+		// });
+		
+			const rank = (await this.prismaService.game.groupBy({
+				by: ['winnerId'],
+				having: {
+					winnerId: {
+						_count: {
+							gt: user._count.winningGames
+						}
+					}
+				},
+			})).length + 1;
+
+			user.rank = rank;
 
 			return user;
 		} catch (e: any) {
