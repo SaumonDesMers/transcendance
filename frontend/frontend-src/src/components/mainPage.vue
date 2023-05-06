@@ -30,6 +30,7 @@ export default {
 			this.$emit('switchPage', page);
 		},
 		logout() {
+			localStorage.removeItem('userId');
 			this.$cookies.remove('jwt');
 			this.switchPage(State.LOGIN);
 		}
