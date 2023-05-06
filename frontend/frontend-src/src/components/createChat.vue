@@ -98,6 +98,7 @@ methods: {
             <button class="chat-btn" @click="switchPage(State.CHAT)">Cancel</button>
         </div>
     </div>
+    </div>
 </template>
 
 <style lang="scss" scoped>
