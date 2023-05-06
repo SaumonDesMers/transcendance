@@ -55,6 +55,8 @@ export class Game {
 			console.log("Error connecting to the game websocket server: ", error);
 		});
 
+		this.socket.on('queue', this.onQueueUpdate.bind(this));
+
 		this.socket.on('start', this.onGameStart.bind(this));
 		this.socket.on('update', this.onGameUpdate.bind(this));
 		this.socket.on('end', this.onGameEnd.bind(this));
@@ -82,7 +84,12 @@ export class Game {
 			}
 		});
 	}
-	
+
+	onQueueUpdate(event: any) {
+		console.log('queue update');
+		this.state.set('queue', event.type);
+	}
+
 	onGameStart(event: any) {
 		console.log('game start');
 		this.state.value = 'game';

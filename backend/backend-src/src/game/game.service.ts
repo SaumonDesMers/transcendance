@@ -63,13 +63,14 @@ export class GameService {
 		if (!player)
 			return;
 
+		console.log(player.id, ': disconnect from game with state', player.state.value);
 		if (player.state.value == 'game') {
 			// wait some time before delete to let him reconnect
 			player.disconnectInGame();
 			this.reconnectionHub.push(player);
 			setTimeout(this.disconnectionAfterDelay.bind(this), 30 * 1000, player);
 		} else if (player.state.value == 'queue') {
-			this.queueService.leave(player);
+			this.queueService.leaveCurrentQueue(player);
 		}
 		this.onlinePlayer.splice(this.onlinePlayer.indexOf(player), 1);
 	}
@@ -99,7 +100,7 @@ export class GameService {
 
 		} else if (body.value == 'leave') {
 
-			this.queueService.leave(player);
+			this.queueService.leaveCurrentQueue(player);
 
 		} else {
 			return 'error';
@@ -122,7 +123,7 @@ export class GameService {
 		}
 
 		const uid = uuid();
-		this.queueService.createUniqueQueue(player, type, uid);
+		await this.queueService.createUniqueQueue(player, type, uid);
 
 		return { success: true, error: '', uid: uid };
 	}
