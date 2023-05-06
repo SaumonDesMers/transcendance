@@ -29,39 +29,39 @@ methods: {
             usersId: []
         };
 
-        if (newChan.type == 'KEY')
-            newChan.key = this.channelKeyInput;
+            if (newChan.type == 'KEY')
+                newChan.key = this.channelKeyInput;
 
-        console.log(newChan);
-        chat.createChannel(newChan);
-        this.switchPage(State.CHAT);
-	},
-    switchPage(page) {
-        this.$emit('switchPage', page);
-    },
-    applyTheme(themeClass) {
-        this.editCoa = themeClass;
-    },
-    toggleDarkMode() {
-        this.user.set({ darkMode: !this.user.darkMode });
-        this.user.save();
-    },
-    
-},
+            console.log(newChan);
+            chat.createChannel(newChan);
+            this.switchPage(State.CHAT);
+        },
+        switchPage(page) {
+            this.$emit('switchPage', page);
+        },
+        applyTheme(themeClass) {
+            this.editCoa = themeClass;
+        },
+        toggleDarkMode() {
+            this.user.set({ darkMode: !this.user.darkMode });
+            this.user.save();
+        },
 
-mounted() {
-    this.editName = this.user.username;
-    this.editBio = this.user.bio;
-    this.editCoa = this.user.coa;
-},
-emits: ['switchPage']
+    },
+
+    mounted() {
+        this.editName = this.user.username;
+        this.editBio = this.user.bio;
+        this.editCoa = this.user.coa;
+    },
+    emits: ['switchPage']
 }
 
 </script>
 
 <template>
-	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]" style="display: flex; justify-content: center; align-items: center;">
-        <div v-if ="user.darkMode == true">
+    <div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
+        <div v-if="user.darkMode == true" style="width: 0; height: 0;">
             <div class="stars"></div>
             <div class="stars1"></div>
             <div class="stars2"></div>
@@ -98,11 +98,9 @@ emits: ['switchPage']
             <button class="chat-btn" @click="switchPage(State.CHAT)">Cancel</button>
         </div>
     </div>
-    </div>
 </template>
 
 <style lang="scss" scoped>
-
 .create-chat-container {
     width: 80vw;
     height: 80vh;
