@@ -13,6 +13,8 @@ import history from './components/history.vue';
 import game from './components/game.vue';
 import chat from './components/chat.vue';
 import friends from './components/friends.vue';
+import stats from './components/statistics.vue';
+import createChat from './components/createChat.vue';
 
 const routes = [
 	{ name: 'main', path: '/', component: main },
@@ -25,6 +27,8 @@ const routes = [
 	{ name: 'game', path: '/game', component: game },
 	{ name: 'chat', path: '/chat', component: chat },
 	{ name: 'friends', path: '/friends', component: friends },
+	{ name: 'stats', path: '/stats', component: stats },
+	{ name: 'createChat', path: '/createChat', component: createChat },
 ];
 
 const router = createRouter({
