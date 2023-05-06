@@ -34,6 +34,7 @@ export default {
 			setKeyInputBuffer: '',
 			userNameInputBuffer: '',
 			customGameInvite: false,
+			searchInput: '',
 			store,
 		}
 	},
@@ -111,9 +112,14 @@ export default {
 		},
 
 	},
-
+	watch: {
+		searchInput()
+		{
+			store.search_user(this.searchInput);
+		}
+	},
 	mounted() {
-
+		store.clear_search();
 	},
 
 	created() {

@@ -1155,6 +1155,26 @@ export class ChatService {
 			{return user.userId == userId;}) != undefined
 			|| channel.ownerId == userId);
 	}
+
+	async search_user(username: string): Promise<string[]>
+	{
+		if (username == null || username.length == 0)
+			return [];
+		const possible_usernames = await this.prisma.user.findMany({
+			where: {
+				username: {
+					contains: username,
+					mode: 'insensitive'
+				}
+			},
+			select: {
+				username: true
+			}
+		});
+
+		return possible_usernames.map(a => a.username);
+	}
+
 }
 
 function  delete_user_from_array(userId: number, array: SimpleChatUserDTO[])

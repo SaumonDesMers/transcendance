@@ -168,6 +168,8 @@ export interface ClientToServerEvents {
 	 */
 	get_public_channels: (callback: (channels: GroupChannelSnippetDTO[]) => void) => void;
 
+	search_username: (username: string, callback: (usernames: string[]) => void ) => void;
+
 	// get_invites: (callback: (invites: inviteUpdateDTO[]) => void) => void;
 
 	start_dm: (targetUserName: string, callback: (payload: DMChannelDTO) => void) => void;

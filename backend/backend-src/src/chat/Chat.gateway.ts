@@ -284,6 +284,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		return this.chatService.getUserDMChannels(socket.data.userId);
 	}
 
+	@SubscribeMessage("search_username")
+	async handleSearch(
+		@ConnectedSocket() socket: chatSocket,
+		@MessageBody() username: string
+	)
+	{
+		let usernames: string[];
+		try {
+			usernames = await this.chatService.search_user(username);
+		} catch (e: any) {
+			console.log(e);
+			throw new WsException(e.message);
+		}
+
+		return usernames;
+	}
+
+
 	@SubscribeMessage("send_message")
 	async sendMessage(
 		@ConnectedSocket() socket: chatSocket,
