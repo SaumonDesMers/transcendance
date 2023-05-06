@@ -28,7 +28,7 @@ const routes = [
 	{ name: 'chat', path: '/chat', component: chat },
 	{ name: 'friends', path: '/friends', component: friends },
 	{ name: 'stats', path: '/stats', component: stats },
-	{ name: 'createChat', path: '/createChat', component: createChat },
+	{ name: 'create-chat', path: '/create-chat', component: createChat },
 ];
 
 const router = createRouter({

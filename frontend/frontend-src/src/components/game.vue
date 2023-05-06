@@ -4,6 +4,7 @@ import io from "socket.io-client"
 import gameCanvas from './gameCanvas.vue'
 import game from '../scripts/game'
 import user from '../scripts/user';
+import { State } from '../scripts/state';
 
 export default {
 
@@ -19,11 +20,17 @@ export default {
 		}
 	},
 
-	methods: {},
+	methods: {
+		switchPage(page) {
+			this.$emit('switchPage', page);
+		},
+	},
 
-	mounted() { },
+	mounted() {},
 
-	created() { },
+	created() {},
+
+	emits: ['switchPage'],
 
 }
 </script>
