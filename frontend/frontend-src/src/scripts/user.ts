@@ -77,14 +77,14 @@ export class User {
 	avatar: Avatar;
 	isLoggedIn: boolean = false;
 
-	get id() { this._data.id = localStorage.userId; return this._data.id; }
+	get id() { return this._data.id; }
 	get username() { return this._data.username; }
 	get darkMode() { return this._data.darkMode; }
 	get isTwoFactorAuthenticationEnabled() { return this._data.isTwoFactorAuthenticationEnabled; }
 	get coa() { return this._data.coa; }
 	get bio() { return this._data.bio; }
 
-	set id(arg) { this._data.id = arg; localStorage.userId = arg; }
+	set id(arg) { this._data.id = arg; }
 	set username(arg) { this._data.username = arg; }
 	set darkMode(arg) { this._data.darkMode = arg; }
 	set isTwoFactorAuthenticationEnabled(arg) { this._data.isTwoFactorAuthenticationEnabled = arg; }
@@ -164,6 +164,10 @@ export class MyUser extends User
 	{
 		super();
 	}
+
+	get id() { this._data.id = localStorage.userId; return this._data.id; }
+	set id(arg) { this._data.id = arg; localStorage.userId = arg; }
+
 
 	async login(jwt: string) {
 		let data: any = null;
