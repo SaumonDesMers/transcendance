@@ -40,7 +40,7 @@ export default {
 	data() {
 		return {
 			State,
-			state: State.LOGIN,
+			state: State,
 			previousPage: 10,
 			user,
 			usersStatus,
@@ -50,23 +50,44 @@ export default {
 	},
 
 	methods: {
-		switchPage(arg) {
-			this.state = arg;
+		switchPage(page) {
+			this.$router.push({ path: page });
+			this.state = page;
 		},
+		connectToWebsocket() {
+			const jwt = this.$cookies.get('jwt');
+			this.gameGateway.connect(jwt);
+			this.usersStatus.connect(jwt);
+			this.chatGateway.connect(jwt);
+		}
 	},
 
 	mounted() {},
 
-	created() {},
+	created() {
+
+		const jwt = this.$cookies.get('jwt');
+
+		if (jwt && localStorage.userId) {
+			axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
+			this.user.get();
+			this.state = window.history.state.current;
+			this.connectToWebsocket();
+		} else {
+			this.state = State.LOGIN;
+		}
+
+		onpopstate = (event) => {
+			if (this.user.isLoggedIn && this.$cookies.get('jwt'))
+				this.state = this.$route.fullPath;
+			else
+				this.switchPage(State.LOGIN);
+		};
+	},
 
 	watch: {
 		state() {
-			const jwt = this.$cookies.get('jwt');
-			if (this.user.isLoggedIn && jwt && this.gameGateway.socket.disconnected) {
-				this.gameGateway.connect(jwt);
-				this.usersStatus.connect(jwt);
-				this.chatGateway.connect(jwt);
-			}
+			this.connectToWebsocket();
 		}
 	}
 }

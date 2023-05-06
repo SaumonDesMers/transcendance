@@ -165,6 +165,10 @@ export class MyUser extends User
 		super();
 	}
 
+	get id() { this._data.id = localStorage.userId; return this._data.id; }
+	set id(arg) { this._data.id = arg; localStorage.userId = arg; }
+
+
 	async login(jwt: string) {
 		let data: any = null;
 		let error: any = null;
@@ -208,6 +212,18 @@ export class MyUser extends User
 		});
 
 		return { success, error };
+	}
+
+	async get() {
+		await axios.get(`http://localhost:3001/users/${this.id}`)
+		.then(res => {
+			this.isLoggedIn = true;
+			this.set(res.data);
+			this.downloadAvatar();
+		})
+		.catch(err => {
+			console.log('err :', err);
+		});
 	}
 
 	async uploadAvatar() {

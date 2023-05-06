@@ -181,6 +181,8 @@ export class Chat {
 	 * @date 4/24/2023 - 5:26:02 PM
 	 */
 	connect(jwt: string) {
+		if (this.socket.connected)
+			return;
 		console.log("connecting chat with token: ", jwt);
 		this.socket.io.opts.extraHeaders = {
 			authorization: `Bearer ${jwt}`
