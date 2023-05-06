@@ -17,6 +17,8 @@ class statusClient {
 	}
 
 	connect(jwt: string) {
+		if (this._socket.connected)
+			return;
 		console.log("status client connecting");
 		this._socket.io.opts.extraHeaders = {
 			authorization: `Bearer ${jwt}`
