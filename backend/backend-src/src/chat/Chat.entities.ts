@@ -3,7 +3,7 @@ import { Type } from "class-transformer";
 import { IsBase64, IsBoolean, IsDate, IsDefined, IsEnum, IsNegative, IsNotEmpty, IsNumber, IsObject, IsOptional, IsPositive, IsString, IsUUID, MaxLength, ValidateIf, ValidateNested, isBase64, isDefined } from "class-validator";
 import { channel } from "diagnostics_channel";
 
-enum gameType {
+export enum gameType {
 	NORMAL,
 	CUSTOM,
 }
@@ -57,7 +57,8 @@ export interface DMChannelDTO {
 export interface GroupChannelSnippetDTO{
 	channelId: number,
 	// channel: ChannelDTO,
-	name: string
+	name: string,
+	type: ChanType,
 }
 
 
@@ -79,8 +80,8 @@ export class CreateMessageDto {
 	content: string;
 
 	@IsOptional()
-	@ValidateNested()
-	@Type(() => gameInviteArgs)
+	// @ValidateNested()
+	// @Type(() => gameInviteArgs)
 	gameInvite?: gameInviteArgs;
 }
 
@@ -129,9 +130,7 @@ export interface JoinDTO {
 
 export interface inviteUpdateDTO {
 	targetUserId: number,
-	channelId: number, //to be able to indentify the channel
-	channelName: string, //purely for display
-	action: boolean //true means invite false means uninvite
+	channel: GroupChannelDTO,
 }
 
 export interface ChatUserUpdateDTO {

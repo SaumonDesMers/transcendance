@@ -40,7 +40,8 @@ enum ChanType{
  */
 export class Chat {
 	private _group_channels: Map<number, GroupChannelDTO>;
-	private _public_channels: Map<number, GroupChannelSnippetDTO>;
+	private _visible_public_channels: Map<number, GroupChannelSnippetDTO>;
+	private _visible_key_channels: Map<number, GroupChannelSnippetDTO>;
 	private _dm_channels: Map<number, DMChannelDTO>;
 	private _other_users: Map<number, {status: boolean, data: ChatUserDTO | undefined}>;
 	private _channel_invites: Map<number, string>; //channel id and channel names
@@ -74,7 +75,17 @@ export class Chat {
 	 *
 	 * @readonly
 	 */
-	get publicChannels() { return this._public_channels }
+	get publicChannels() { return this._visible_public_channels }
+
+
+	/**
+	 * Public and key protected channels getter, the list is auto updated
+	 * @date 5/5/2023 - 1:47:22 PM
+	 *
+	 * @readonly
+	 * @type {*}
+	 */
+	get keyChannels() {return this._visible_key_channels }
 
 	/**
 	 * Current opened DMs Getter, the list is auto updated
@@ -151,7 +162,8 @@ export class Chat {
 		this._group_channels = reactive(new Map());
 		this._channel_invites = reactive (new Map());
 		this._other_users = reactive(new Map());
-		this._public_channels = reactive(new Map());
+		this._visible_public_channels = reactive(new Map());
+		this._visible_key_channels = reactive(new Map());
 		this._dm_channels = reactive(new Map())
 		this.error = ref<string>("");
 		
@@ -168,7 +180,8 @@ export class Chat {
 	 * Be carefull, auth must have been completed
 	 * @date 4/24/2023 - 5:26:02 PM
 	 */
-	connectToServer(jwt: string) {
+	connect(jwt: string) {
+		console.log("connecting chat with token: ", jwt);
 		this.socket.io.opts.extraHeaders = {
 			authorization: `Bearer ${jwt}`
 		};
@@ -180,22 +193,25 @@ export class Chat {
 			console.log(user);
 			user.invites?.forEach(invite => {
 				this.channelInvites.set(invite.channelId, invite.name);
-				console.log(invite);
 			})
 		});
 		
 		this._group_channels.clear();
 		this.socket.emit("get_groupchannels", (channels: GroupChannelDTO[]) => {
+			console.log(channels);
 			channels.forEach(channel => {
 				this._group_channels.set(channel.channelId, channel);
 			});
 		});
 		
-		this._public_channels.clear();
+		this._visible_public_channels.clear();
 		this.socket.emit("get_public_channels", (channels: GroupChannelSnippetDTO[]) => {
 			console.log("Received public chans");
 			channels.forEach(channel => {
-				this._public_channels.set(channel.channelId, channel);
+				if (channel.type == 'PUBLIC')
+						this._visible_public_channels.set(channel.channelId, channel);
+				else if (channel.type == 'KEY')
+						this._visible_key_channels.set(channel.channelId, channel);
 			})
 		});
 
@@ -585,21 +601,17 @@ export class Chat {
 		this.socket.on("invite_update", (payload: inviteUpdateDTO) => {
 			if (payload.targetUserId == this.user.userId)
 			{
-				if (payload.action == true){
-					this.channelInvites.set(payload.channelId, payload.channelName);
-				} else {
-					this.channelInvites.delete(payload.channelId);
-				}
+				this._group_channels.set(payload.channel.channelId, payload.channel);
 			}
-			let channel = this._group_channels.get(payload.channelId);
-			if (channel != undefined)
-			{
-				if (payload.action == true ) {
-					channel.invited.push({userId:payload.targetUserId});
-				} else {
-					this.delete_user_from_array(payload.targetUserId, channel.invited);
-			}
-			}
+			// let channel = this._group_channels.get(payload.channelId);
+			// if (channel != undefined)
+			// {
+			// 	if (payload.action == true ) {
+			// 		channel.invited.push({userId:payload.targetUserId});
+			// 	} else {
+			// 		this.delete_user_from_array(payload.targetUserId, channel.invited);
+			// }
+			// }
 		});
 
 		this.socket.on("chan_type_update", (payload: ChanTypeRequestDTO) => {
@@ -678,13 +690,22 @@ export class Chat {
 			if (payload.add == true)//if we want to add or update channels to the list of public chans
 			{
 				payload.channels.forEach(channel => {
-					this._public_channels.set(channel.channelId, channel);
+					if (channel.type == 'PUBLIC')
+					{
+						this._visible_key_channels.delete(channel.channelId);
+						this._visible_public_channels.set(channel.channelId, channel);
+					}
+					else if (channel.type == 'KEY') {
+						this._visible_public_channels.delete(channel.channelId);
+						this._visible_key_channels.set(channel.channelId, channel);
+					}
 				})
 			}
 			else
 			{
 				payload.channels.forEach(channel => {
-					this._public_channels.delete(channel.channelId);
+					this._visible_public_channels.delete(channel.channelId);
+					this._visible_key_channels.delete(channel.channelId);
 				})
 			}
 		})

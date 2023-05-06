@@ -32,7 +32,8 @@ import {
 	inviteUpdateDTO,
 	ChanKeyRequestDTO,
 	DMChannelDTO,
-	CreateMessageDto
+	CreateMessageDto,
+	GroupChannelSnippetDTO
 } from './Chat.entities'
 
 import { Server, Socket } from 'socket.io';
@@ -140,38 +141,26 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@MessageBody() data: CreateGroupChannelDto
 	) : Promise<GroupChannelDTO>
 	{
-		let channel;
-		let returnedChannel: GroupChannelDTO;
+		let channel: GroupChannelDTO;
 
 		try {
-			channel = await this.chatService.createGroupChannel(data,
-				{
-					channel: {
-						include: {
-							users: true,
-							messages: true,
-						}
-					},
-					admins: true,
-					owner: true,
-					invited: true,
-				});
-		} catch (e: any) {
-			console.log(e);
-			throw new WsException(e);
-		}
-
-		try {
-			returnedChannel = await this.chatService.joinGroupChannel(channel.channel.id, socket.data.userId, data.key);
+			channel = await this.chatService.createGroupChannel(data);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
 		}
 
 		socket.join(channel.channel.id.toString());
-		if (returnedChannel.type == 'PUBLIC')
-			this.server.emit('public_chans', {channels: [returnedChannel], add: true});
-		return (returnedChannel);
+		if (channel.type == 'PUBLIC' || channel.type == 'PRIV')
+		{
+			const snippet: GroupChannelSnippetDTO = {
+				channelId:channel.channelId,
+				type:channel.type,
+				name:channel.name
+			}
+			this.server.emit('public_chans', {channels: [snippet], add: true});
+		}
+		return (channel);
 	}
 
 	@SubscribeMessage("join_channel")
@@ -337,9 +326,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@ConnectedSocket() socket: chatSocket,
 		@MessageBody() data: InviteRequestDTO)
 	{
-		let update: inviteUpdateDTO;
 		try {
-			update = await this.chatService.inviteUser(data);
+			const {targetUserId, channel} = await this.chatService.inviteUser(data);
+			const targetSocket = await this.findSocket(targetUserId);
+
+			this.server.to(channel.channelId.toString())
+			.emit("user_joined_room", {user: {userId: targetUserId}, channelId: channel.channelId});
+
+			if (targetSocket != undefined)
+			{
+				targetSocket.emit("invite_update", {targetUserId, channel});
+				targetSocket.join(channel.channelId.toString());
+			}
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e.message);
@@ -347,13 +345,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 
 		//sending invite/uninvite to target
-		const targetSocket = await this.findSocket(update.targetUserId);
 
-		targetSocket?.emit("invite_update", update);
+		// targetSocket?.emit("invite_update", update);
+		
 
 
 		//maybe send update to channel members to keep track of current invites in channel ?
-		this.server.to(update.channelId.toString()).except(targetSocket.id.toString()).emit("invite_update", update);
+		// this.server.to(update.channelId.toString()).except(targetSocket.id.toString()).emit("invite_update", update);
 	}
 
 	@SubscribeMessage("chan_type_request")
@@ -375,33 +373,34 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		//GLOBAL NOTIFICATIONS
 		if (oldChan.type != data.type)
 		{
-		//if channel was public, send notice that it isnt anymore
-		if (oldChan.type == 'PUBLIC')
-			this.server.emit("public_chans", {channels:[oldChan], add: false});
-		//if channel is going public send notice
-		else if (data.type == 'PUBLIC')
-			this.server.emit("public_chans", {channels:[oldChan], add: true});
-		//note: the type channelSnippet that is sent will only extract the name and id of the channel
-		//so it's not the whole channel that is being sent
+			//if new channel is priv then it was visible before so send notif
+			if (data.type == 'PRIV')
+				this.server.emit("public_chans", {channels:[oldChan], add: false});
+			//every other case, update channel in visible chan list
+			else
+				this.server.emit("public_chans", {channels:[oldChan], add: true});
+			//note: the type channelSnippet that is sent will only extract the name and id of the channel
+			//so it's not the whole channel that is being sent
 
-		//INVITE NOTIFICATIONS
-		if (data.type == 'KEY' || data.type == 'PRIV')
-		{
-			oldChan.invited.forEach(async user => {
-				const otherSocket = await this.findSocket(user.userId);
+			//INVITE NOTIFICATIONS
+			// removed temporarily because invites are instantaneous now
+			// if (data.type == 'KEY' || data.type == 'PRIV')
+			// {
+			// 	oldChan.invited.forEach(async user => {
+			// 		const otherSocket = await this.findSocket(user.userId);
 
-				//uninvite notif
-				otherSocket?.emit("invite_update", {
-					channelId:oldChan.channelId,
-					channelName:oldChan.name,
-					targetUserId:user.userId,
-					action:false
-				});
-			});
-		}
+			// 		//uninvite notif
+			// 		otherSocket?.emit("invite_update", {
+			// 			channelId:oldChan.channelId,
+			// 			channelName:oldChan.name,
+			// 			targetUserId:user.userId,
+			// 			action:false
+			// 		});
+			// 	});
+			// }
 
-		//CHANNEL NOTIFICATIONS
-		this.server.to(data.channelId.toString()).emit("chan_type_update", data);		
+			//CHANNEL NOTIFICATIONS
+			this.server.to(data.channelId.toString()).emit("chan_type_update", data);		
 		}
 	}
 

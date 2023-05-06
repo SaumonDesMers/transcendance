@@ -51,30 +51,21 @@ export default {
 	</head>
 	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
 		<div style="width: 100vw; height: 100vh; display: block; position:relative;">
-			<div v-show ="user.darkMode == false">
-			<div class="sun"></div>
-				<div class="cloud large cloud-1"><div></div><div></div><div></div><div></div></div>
-				<div class="cloud normal cloud-2"><div></div><div></div><div></div><div></div></div>
-				<div class="cloud small cloud-3"><div></div><div></div><div></div><div></div></div>
-				<div class="cloud tiny cloud-4"><div></div><div></div><div></div><div></div></div>
-				<div class="cloud large cloud-5"><div></div><div></div><div></div><div></div></div>
-				<div class="cloud normal cloud-6"><div></div><div></div><div></div><div></div></div>
-				<div class="cloud small cloud-7"><div></div><div></div><div></div><div></div></div>
-				<div class="cloud tiny cloud-8"><div></div><div></div><div></div><div></div></div>
-				<div class="cloud small cloud-9"><div></div><div></div><div></div><div></div></div>
-				<div class="cloud normal cloud-10"><div></div><div></div><div></div><div></div></div>
-				<div class="cloud tiny cloud-11"><div></div><div></div><div></div><div></div></div>
-				<div class="cloud small cloud-12"><div></div><div></div><div></div><div></div></div>
+			<div v-show="user.darkMode == false">
+				<div class="sun"></div>
+				<div class="cloud cloud0"></div>
+				<div class="cloud cloud1"></div>
+				<div class="cloud cloud2"></div>
 			</div>
-			<div v-show ="user.darkMode == true">
+			<div v-show="user.darkMode == true">
 				<div class="moon">
-				<div class="dark">
+					<div class="dark">
+					</div>
+					<div class="dark">
+					</div>
+					<div class="dark">
+					</div>
 				</div>
-				<div class="dark">
-				</div>
-				<div class="dark">
-				</div>
-			</div>
 				<div class="stars"></div>
 				<div class="stars1"></div>
 				<div class="stars2"></div>
@@ -82,62 +73,61 @@ export default {
 			</div>
 		</div>
 	</div>
-	<div :style="[windowSize.width < 620 ? 'display : none' : 'display : flex']">
-		<div class="navigation">
-			<ul>
-				<li>
-					<a href="#">
-						<span class="avatar"></span>
-						<span class="title" @click="switchPage(State.USER)">{{ user.username }}</span>
-					</a>
-				</li>
-				<li>
-					<a href="#">
-						<span class="icon"><i class="fa-solid fa-comments"></i></span>
-						<span class="title" @click="switchPage(State.CHAT)">Messages</span>
-					</a>
-				</li>
-				<li>
-					<a href="#">
-						<span class="icon"><i class="fa-solid fa-trophy"></i></span>
-						<span class="title" @click="switchPage(State.STATS)">Statistics</span>
-					</a>
-				</li>
-				<li>
-					<a href="#">
-						<span class="icon"><i class="fa-solid fa-floppy-disk"></i></span>
-						<span class="title" @click="switchPage(State.HISTORY)">Game history</span>
-					</a>
-				</li>
-				<li>
-					<a href="#">
-						<span class="icon"><i class="fa-solid fa-users"></i></span>
-						<span class="title" @click="switchPage(State.FRIENDS)">Friends</span>
-					</a>
-				</li>
-				<li>
-					<a href="#">
-						<span class="icon" @click="toggleDarkMode"><i
-								:class="[user.darkMode ? 'fa-solid fa-moon' : 'fa-solid fa-sun']"></i></span>
-						<span class="title" @click="toggleDarkMode">Theme</span>
-					</a>
-				</li>
-				<li>
-					<a href="#">
-						<span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span>
-						<span class="title" @click="logout">SignOut</span>
-					</a>
-				</li>
-			</ul>
-		</div>
-		<div class="main-container">
-			<button class="main-button" @click="switchPage(State.GAME)">GAME</button>
-			<button class="main-button">CUSTOM GAME</button>
-		</div>
+	<div class="navigation">
+		<ul>
+			<li>
+				<a href="#">
+					<span class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']"></span>
+					<span class="title" @click="switchPage(State.USER)">{{ user.username }}</span>
+				</a>
+			</li>
+			<li>
+				<a href="#">
+					<span class="icon"><i class="fa-solid fa-comments"></i></span>
+					<span class="title" @click="switchPage(State.CHAT)">Messages</span>
+				</a>
+			</li>
+			<li>
+				<a href="#">
+					<span class="icon"><i class="fa-solid fa-edit"></i></span>
+					<span class="title" @click="switchPage(State.EDIT)">Edit</span>
+				</a>
+			</li>
+			<li>
+				<a href="#">
+					<span class="icon"><i class="fa-solid fa-floppy-disk"></i></span>
+					<span class="title" @click="switchPage(State.HISTORY)">Game history</span>
+				</a>
+			</li>
+			<li>
+				<a href="#">
+					<span class="icon"><i class="fa-solid fa-users"></i></span>
+					<span class="title" @click="switchPage(State.FRIENDS)">Friends</span>
+				</a>
+			</li>
+			<li>
+				<a href="#">
+					<span class="icon" @click="toggleDarkMode"><i
+							:class="[user.darkMode ? 'fa-solid fa-moon' : 'fa-solid fa-sun']"></i></span>
+					<span class="title" @click="toggleDarkMode">Theme</span>
+				</a>
+			</li>
+			<li>
+				<a href="#">
+					<span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span>
+					<span class="title" @click="logout">SignOut</span>
+				</a>
+			</li>
+		</ul>
 	</div>
-	<div :class="[user.darkMode ? 'ocean dark' : 'ocean', user.coa]">
-		<div class="wave" :class="[user.darkMode ? 'dark' : '', user.coa]"></div>
-		<div class="wave" :class="[user.darkMode ? 'dark' : '', user.coa]"></div>
+	<div class="main-container">
+		<button class="main-button" @click="switchPage(State.GAME)">GAME</button>
+	</div>
+	<div style="overflow: hidden;">
+		<div :class="[user.darkMode ? 'ocean dark' : 'ocean', user.coa]">
+			<div class="wave" :class="[user.darkMode ? 'dark' : '', user.coa]"></div>
+			<div class="wave" :class="[user.darkMode ? 'dark' : '', user.coa]"></div>
+		</div>
 	</div>
 </template>
 

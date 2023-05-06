@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Prisma, Channel, ChatUser, Message, Mute, GroupChannel, ChanType } from "@prisma/client";
 import { MessageRepository } from "./Message.repository";
 import { ChannelRepository } from "./Channel.repository";
-import { GroupChannelWithMembers, MessageWithAll, MessageWithAuthor, MessageWithChannel, saltRounds } from "./Chat.module";
+import { GroupChannelWithMembers, MessageWithAll, MessageWithAuthor, MessageWithChannel, includeAllGroupChannel, saltRounds } from "./Chat.module";
 import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { CreateDMChannelDto } from "./DMChannel.create.dto";
 import { PrismaModule } from "src/database/prisma.module";
@@ -69,15 +69,22 @@ export class ChatService {
 				private gameService: GameService,
 				private prisma: PrismaService) {}
 
-	async createGroupChannel(newGroupChannel: CreateGroupChannelDto, include: Prisma.GroupChannelInclude) {
+	async createGroupChannel(newGroupChannel: CreateGroupChannelDto): Promise<GroupChannelDTO> {
 		//im sorry for these ugly things i dont know how to do this any other way
-		let my_arr: Prisma.ChatUserWhereUniqueInput[];
+		let my_arr: Prisma.ChatUserWhereUniqueInput[] = new Array();
+		let new_key: string;
 		newGroupChannel.usersId.forEach(userId => my_arr.push({userId}));
+		my_arr.push({userId:newGroupChannel.ownerId});
 
-		const channel = await this.prisma.groupChannel.create({
+		if (newGroupChannel.type == 'KEY')
+		{
+			new_key = await bcrypt.hash(newGroupChannel.key, saltRounds);
+		}
+
+		const channel: GroupChannelDTO = await this.prisma.groupChannel.create({
 			data: {
 				name: newGroupChannel.name,
-				key: newGroupChannel.key,
+				key: new_key,
 				type: newGroupChannel.type,
 				owner: {
 					connect: {
@@ -97,7 +104,7 @@ export class ChatService {
 					}
 				},
 			},
-			include
+			include: includeAllGroupChannel.include
 		});
 
 		return channel;
@@ -654,13 +661,23 @@ export class ChatService {
 	{
 		const channels = this.prisma.groupChannel.findMany({
 			where: {
-				type: {
-					equals: 'PUBLIC'
-				}
+				OR: [
+					{
+						type: {
+							equals: 'PUBLIC'
+						},
+					},
+					{
+						type: {
+							equals: 'KEY'
+						}
+					}
+				]
 			},
 			select: {
 				channelId: true,
-				name: true
+				name: true,
+				type: true
 			}
 		});
 
@@ -974,7 +991,7 @@ export class ChatService {
 
 	//in an invite request there is an username ( for ease of use, its better to remember usernames than userId :p)
 	//so i need to return a InviteUpdate object with an userId since the rest of the codebase uses userIds
-	async inviteUser(request: InviteRequestDTO) : Promise<inviteUpdateDTO>
+	async inviteUser(request: InviteRequestDTO) : Promise<{targetUserId: number, channel: GroupChannelDTO}>
 	{
 		const user = await this.prisma.user.findUniqueOrThrow({
 			where: {
@@ -1007,53 +1024,67 @@ export class ChatService {
 		if (channel.type == 'KEY')
 			throw new ValidationError("You can't invite to a pass protected channel");
 
-		if (request.action == true) //if we want to invite someone
-			{
-			// if (channel.channel.users.find(user => 
-			// 	{return user.userId == targetUserId}) != undefined)
-			// 	throw new ValidationError("User is already on channel");
+		// if (request.action == true) //if we want to invite someone
+		// {
+		if (channel.channel.users.find(user => 
+			{return user.userId == targetUserId}) != undefined)
+			throw new ValidationError("User is already on channel");
 			
-			if (!this.isAdmin(request.authorUserId, channel))
-				throw new ValidationError("You need to be admin to invite in private chan")
+		if (channel.type == 'PRIV' && !this.isAdmin(request.authorUserId, channel))
+			throw new ValidationError("You need to be admin to invite in private chan")
 
-			if (channel.banned.find(user => {
-				return user.userId == targetUserId;
-			}) != undefined)
-				throw new ValidationError("This user is banned from this channel");
-			
-			await this.prisma.groupChannel.update({
-				where: {channelId:request.channelId},
-				data: {
-					invited: {
-						connect: {userId:targetUserId}
+		if (channel.banned.find(user => {
+			return user.userId == targetUserId;
+		}) != undefined)
+			throw new ValidationError("This user is banned from this channel");
+		
+		// await this.prisma.groupChannel.update({
+		// 	where: {channelId:request.channelId},
+		// 	data: {
+		// 		invited: {
+		// 			connect: {userId:targetUserId}
+		// 		}
+		// 	}
+		// });
+
+		const channelWithMessages = await this.prisma.groupChannel.update({
+			where: {channelId:request.channelId},
+			data: {
+				channel: {
+					update: {
+						users: {
+							connect: {userId:targetUserId}
+						}
 					}
 				}
-			});
-		}
-		else { //if we want to uninvite someone
-			if (this.isAdmin(request.authorUserId, channel) == false)
-			throw new ValidationError("You must be Admin to uninvite someone");
-
-		if (channel.invited.find(user =>
-			{user.userId == targetUserId}) != undefined)
-			throw new ValidationError("User is not invited !")
-
-		await this.prisma.groupChannel.update({
-			where:{channelId:request.channelId},
-			data: {
-				invited: {
-					disconnect: {userId: targetUserId}
-				}
+			},
+			include: {
+				channel: includeMembersAndLast10Messages,
+				admins: true,
+				owner: true ,
+				invited: true,
 			}
-		});	
-		}
-
-		return  ({
-			targetUserId:user.id,
-			action:request.action,
-			channelId:channel.channelId,
-			channelName:channel.name
 		});
+		// }
+		// else { //if we want to uninvite someone
+		// 	if (this.isAdmin(request.authorUserId, channel) == false)
+		// 	throw new ValidationError("You must be Admin to uninvite someone");
+
+		// if (channel.invited.find(user =>
+		// 	{user.userId == targetUserId}) != undefined)
+		// 	throw new ValidationError("User is not invited !")
+
+		// const channelWithMessages = await this.prisma.groupChannel.update({
+		// 	where:{channelId:request.channelId},
+		// 	data: {
+		// 		invited: {
+		// 			disconnect: {userId: targetUserId}
+		// 		}
+		// 	}
+		// });	
+		// }
+
+		return  ({targetUserId, channel: channelWithMessages});
 	}
 
 

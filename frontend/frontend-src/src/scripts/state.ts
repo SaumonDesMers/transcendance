@@ -11,4 +11,5 @@ export enum State {
 	HISTORY	= '/history',
 	FRIENDS = '/friends',
 	EDIT = '/edit',
+	CREATECHAT = '/create-chat',
 }
