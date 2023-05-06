@@ -29,6 +29,8 @@ export class Game {
 	}
 
 	connect(jwt: string) {
+		if (this.socket.connected)
+			return;
 		this.socket.io.opts.extraHeaders = {
 			authorization: `Bearer ${jwt}`
 		};
