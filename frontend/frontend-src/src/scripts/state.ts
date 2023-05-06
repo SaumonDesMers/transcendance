@@ -12,4 +12,5 @@ export enum State {
 	FRIENDS,
 	EDIT,
 	CREATECHAT,
+	CHATSETTINGS,
 }

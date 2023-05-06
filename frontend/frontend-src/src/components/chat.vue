@@ -126,10 +126,17 @@ export default {
 <template>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	<div class="chat" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
-		<div v-if="user.darkMode == true" style="width: 0; height: 0;">
+		<div v-if="user.darkMode == false">
+			<div class="sun"></div>
+			<!-- <div class="cloud cloud0"></div>
+				<div class="cloud cloud1"></div>
+				<div class="cloud cloud2"></div> -->
+		</div>
+		<div v-else="user.darkMode == true">
 			<div class="stars"></div>
 			<div class="stars1"></div>
 			<div class="stars2"></div>
+			<div class="shooting-stars"></div>
 		</div>
 		<div class="chat-container">
 			<!-- <div style="justify-content: center; align-items: center;">
@@ -138,12 +145,12 @@ export default {
 				<button class="nocolor-btn" v-else @click="disconnectFromServer">Disconnect from Chat</button>
 			</div> -->
 			<!-- <div v-if="store.connected"> -->
-			<div class="chat-list">
+			<div class="chat-list" :class="[user.darkMode == true ? 'dark' : 'light']">
 				<div style="height: 4vh;">
 					<button style="color: red" @click="this.switchPage(State.CREATECHAT)">Create Channel</button>
 				</div>
 				<div>
-					<p class="text-color-dark grid-border"
+					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
 						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;">Public Channels </p>
 					<div class="chan-can-join">
 						<div v-for="[channelId, channel] in store.publicChannels">
@@ -154,7 +161,7 @@ export default {
 					</div>
 				</div>
 				<div>
-					<p class="text-color-dark grid-border"
+					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
 						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;">Protected CHAN </p>
 					<div class="chan-can-join">
 						<!-- TODO: RAJOUTER LE POP UP AVEC L'INPUT DE TEXTE POUR JOIN -->
@@ -169,7 +176,7 @@ export default {
 					</div>
 				</div>
 				<div>
-					<p class="text-color-dark grid-border"
+					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
 						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;">Your channels </p>
 					<div class="chan-can-join">
 						<div v-for="[channelId, channel] in store.groupChannels">
@@ -180,7 +187,7 @@ export default {
 					</div>
 				</div>
 				<div>
-					<p class="text-color-dark grid-border"
+					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
 						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;">Private message</p>
 					<div class="chan-can-join">
 						<div v-for="n in 10">
@@ -199,14 +206,18 @@ export default {
 				<div
 					style="height: 5vh; margin-left: -5px; display: flex; align-items: center; margin-top: 1rem; padding-top: 0.5rem; padding-bottom: 0.5rem;">
 					<div class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']"></div>
-					<p style="margin-left: 0.7rem;" class="text-color-dark">{{ user.username }}</p>
+					<p style="margin-left: 0.7rem;"
+						:class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">{{ user.username }}</p>
 				</div>
 			</div>
-			<div class="chat-box">
+			<div class="chat-box" :class="[user.darkMode == true ? 'dark' : 'light']">
 				<div v-if="this.currentChannel != undefined">
-					<p class="title-chat grid-border">
+					<div class="grid-border">
+						<p class="title-chat"
+						:class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">
 						{{ this.currentChannel.name }}
 					</p>
+					</div>
 				</div>
 				<div v-if="this.currentChannel != undefined && store.isCurrentDM == false">
 					<!-- <p>Current Channel : {{ this.currentChannel.name }}</p>
@@ -230,10 +241,9 @@ export default {
 				</div> -->
 					</div>
 				</div>
-				<div class="send-message">
-					<div v-if="this.currentChannel != undefined">
-						<!-- <div> -->
-						<input type="text" v-model="messageInputBuffer">
+				<div div v-if="this.currentChannel != undefined" class="send-message">
+					<textarea class="input-message" type="text" v-model="messageInputBuffer"></textarea>
+					<div style="display: flex; flex-direction: column;">
 						<button @click="SendMessage">Send</button>
 						<button @click="sendInvite">Send Game Invite</button>
 						<input type="checkbox" id="checkbox" v-model="customGameInvite">
@@ -241,10 +251,15 @@ export default {
 					</div>
 				</div>
 			</div>
-			<div class="users">
+			<div class="users" :class="[user.darkMode == true ? 'dark' : 'light']">
 				<div v-if="this.currentChannel != undefined && store.isCurrentDM == false">
-					<p>{{ store.getUserName(this.currentChannel.owner?.userId) }}<p class="fa-solid fa-crown" style="padding:10px; color: gold"></p></p>
-					<div v-for="n in 100">
+					<p style="position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 1vw" 
+						class="fa-solid fa-gear"
+						@click="switchPage(State.CHATSETTINGS)"></p>
+					<p>{{ store.getUserName(this.currentChannel.owner?.userId) }}
+					<p class="fa-solid fa-crown" style="padding:10px; color: gold"></p>
+					</p>
+					<div v-for="n in 10">
 						<p v-for="user in this.currentChannel?.channel.users">{{ store.getUserName(user.userId) }}</p>
 					</div>
 				</div>
@@ -408,6 +423,19 @@ export default {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	z-index: 3;
+}
+
+.text-color-light {
+	color: white;
+	font-size: 20px;
+	text-transform: uppercase;
+	text-align: center;
+
+	&:hover,
+	&:active {
+		color: rgb(0, 0, 0, 1);
+	}
 }
 
 .text-color-dark {
@@ -430,8 +458,6 @@ export default {
 	height: 100%;
 	display: grid;
 	grid-template-columns: 1fr 8fr 1fr;
-	// grid-template-rows: 1fr;
-	// background-color: rgba(0, 0, 0, 0.5);
 }
 
 .chan-can-join {
@@ -440,21 +466,25 @@ export default {
 	max-height: 14vh;
 }
 
+.dark {
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.light {
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
 .chat-list {
-	// padding-left: 10px;
+	z-index: 5;
 	color: white;
 	border: 1px solid;
 	height: 100vh;
 	width: 100%;
-	background-color: rgba(0, 0, 0, 1);
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
 	overflow-wrap: break-word;
 	align-items: center;
-	// border-radius: 2%;
-	// margin-top: 1rem;
-	// grid-template-rows: 5vh 20vh 20vh 20vh 20vh 5vh;
 }
 
 .title-chat {
@@ -468,32 +498,47 @@ export default {
 }
 
 .chat-box {
-	height: 100%;
+	z-index: 5;
+	// height: 100%;
 	width: 100%;
 	overflow-wrap: break-word;
-	// margin: 1rem;
-	background-color: rgba(0, 0, 0, 0.5);
-	// border-radius: 2%;
-	border: 1px solid;
+	background-color: rgba(0, 0, 0, 0.25);
+	border-top: 1px solid;
+	border-bottom: 1px solid;
 	color: white;
 	font-weight: bold;
 	overflow: scroll;
 }
 
 .send-message {
+	z-index: 5;
 	width: 100%;
-	height: 5vh;
+	height: 14.6vh;
 	display: flex;
-	border: 1px solid;
+	border-top: 1px solid;
 	color: white;
-	border-radius: 2%;
+	background-color: rgba(0, 0, 0, 0);
+}
+
+.input-message {
+	padding: 0.5rem;
+	width: 70vw;
+	height: 14.6vh;
+	background-color: rgba(0, 0, 0, 0);
+	border: none;
+	overflow-wrap: break-word;
+	resize: none;
+	color: white;
+	border-color: transparent;
+	outline: none;
+	overflow: auto;
 }
 
 .users {
+	z-index: 5;
 	border: 1px solid;
 	height: 100vh;
 	width: 100%;
-	background-color: rgba(0, 0, 0, 1);
 	display: flex;
 	flex-direction: column;
 	color: white;
@@ -516,4 +561,5 @@ export default {
 	border-bottom: 1px solid;
 	border-image: linear-gradient(0.25turn, rgb(66, 66, 66, 0), rgb(158, 158, 158, 10), rgb(255, 255, 255), rgb(158, 158, 158, 10), rgb(66, 66, 66, 0));
 	border-image-slice: 1;
-}</style>
+}
+</style>

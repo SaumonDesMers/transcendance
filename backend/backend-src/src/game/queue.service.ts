@@ -78,7 +78,7 @@ export class QueueService {
 		}
 
 		player.state.set('queue', 'UNIQUE');
-		this.playerInQueue.set(player, { type, uid });
+		this.playerInQueue.set(player, { type: 'UNIQUE', uid });
 
 		this.queueUnique.set(uid, { type, playerWaiting: player });
 	}
@@ -132,6 +132,7 @@ export class QueueService {
 	private leaveCurrentQueue(player: PlayerEntity) {
 
 		const state = this.playerInQueue.get(player);
+		console.log('queue.service: leaveCurrentQueue: user.state:', state);
 
 		if (state.type != 'UNIQUE') {
 

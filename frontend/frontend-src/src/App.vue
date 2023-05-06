@@ -18,6 +18,7 @@ import chatGateway from './scripts/chat'
 import friends from './components/friends.vue'
 import history from './components/history.vue'
 import createChat from './components/createChat.vue'
+import chatSettings from './components/chatSettings.vue'
 
 export default {
 
@@ -33,6 +34,7 @@ export default {
 		friends,
 		history,
 		createChat,
+		chatSettings,
 	},
 
 	data() {
@@ -102,6 +104,9 @@ export default {
 		<history @switchPage="switchPage"></history>
 	</div>
 	<div v-else-if="state == State.CREATECHAT">
+		<createChat @switchPage="switchPage"></createChat>
+	</div>
+	<div v-else-if="state == State.CHATSETTINGS">
 		<createChat @switchPage="switchPage"></createChat>
 	</div>
 </template>
