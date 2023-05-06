@@ -53,6 +53,7 @@ export default {
 		switchPage(page) {
 			this.$router.push({ path: page });
 			this.state = page;
+			console.log('switchPage', page);
 		},
 		connectToWebsocket() {
 			const jwt = this.$cookies.get('jwt');
@@ -88,7 +89,11 @@ export default {
 	watch: {
 		state() {
 			this.connectToWebsocket();
-		}
+		},
+		'gameGateway.state.value'(val, oldVal) {
+			if (oldVal != 'game' && val == 'game')
+				this.switchPage(State.GAME);
+		},
 	}
 }
 </script>
