@@ -69,9 +69,10 @@ export default {
 		}
 
 		onpopstate = (event) => {
-			if (!!event.state) {
+			if (this.user.isLoggedIn && this.$cookies.get('jwt'))
 				this.state = this.$route.fullPath;
-			}
+			else
+				this.switchPage(State.LOGIN);
 		};
 	},
 
