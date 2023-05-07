@@ -16,10 +16,14 @@ data: function () {
         channeltype: undefined,
         channelKeyInput: '',
         picked: '',
+        isPublic: '',
+        isPriv: '',
+        isProt: '',
         // a initialiser au statut du chan et ne proposer que les autres options?
       };
 },
 methods: {
+    // a modifier : ce n'est pas un newchan
     async saveModifications() {
         let newChan = {
             ownerId:user.id,
@@ -32,8 +36,8 @@ methods: {
             if (newChan.type == 'KEY')
                 newChan.key = this.channelKeyInput;
 
-            console.log(newChan);
-            chat.createChannel(newChan);
+            // console.log(newChan);
+            // chat.createChannel(newChan);
             this.switchPage(State.CHAT);
         },
         switchPage(page) {
@@ -49,8 +53,13 @@ methods: {
         // faire une fonction qui recupere le type du chan pour pouvoir ensuite 
         // avoir v-on:click="isPublic=false" (et pareil pour priv et key) et ne pas montrer le bouton inutile ?
         // ou c deja gere par le type: picked??
-        // checkType() {
-
+        // checkType(chan) {
+            // if (chan.type == "PUBLIC")
+            //     isPublic = true;
+            // else if (chan.type == "PRIV")
+            //     isPriv = true;
+            // else
+            //     isProt = true;
         // }
     },
 
@@ -84,14 +93,14 @@ methods: {
         <legend class="title">Change channel's type :</legend>
         
         <div class="title">
-            <input type="radio" id="public" value="PUBLIC" v-model="picked" />
+            <input style="[isPublic ? '' : 'display:none']" type="radio" id="public" value="PUBLIC" v-model="picked" />
             <!-- avec une condition du type v-if type=isPublic alors je n'affiche pas ?-->
             <label for="public">Public</label>
             
-            <input type="radio" id="private" value="PRIV" v-model="picked" />
+            <input style="[isPriv ? '' : 'display:none']" type="radio" id="private" value="PRIV" v-model="picked" />
             <label for="private">Private</label>
 
-            <input type="radio" id="protected" value="KEY" v-model="picked" />
+            <input style="[isProt ? '' : 'display:none']" type="radio" id="protected" value="KEY" v-model="picked" />
             <label for="protected">Protected</label>
             <div :style="[isProtected ? '' : 'display:none']">
             <p style="color: white">ENTER PASSWORD</p>
