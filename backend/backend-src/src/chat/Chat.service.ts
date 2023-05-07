@@ -283,7 +283,7 @@ export class ChatService {
 		)
 	}
 	
-	async createGameInvite(newInvite: CreateMessageDto) {
+	async createGameInvite(newInvite: CreateMessageDto, sessionId: string) {
 		
 		if (await this.isMuted(newInvite.authorId, newInvite.ChannelId) == true)
 			throw new ValidationError("The user is muted and can't send a message");
@@ -294,7 +294,7 @@ export class ChatService {
 		
 		// INSERT GAME BACK CALL TO GENERATE UID HERE
 		
-		const { success, error, uid } = await this.gameService.createUniqueQueue(newInvite.gameInvite.gameType.toString(), newInvite.authorId);
+		const { success, error, uid } = await this.gameService.createUniqueQueue(newInvite.gameInvite.gameType.toString(), sessionId);
 		
 		// ID OF USER INVITING IS newMessage.authorId
 		
@@ -322,14 +322,14 @@ export class ChatService {
 		return message;
 	}
 	
-	async acceptGameInvite(userId: number, invite_message: MessageDTO)
+	async acceptGameInvite(userId: number, invite_message: MessageDTO, sessionId: string)
 	{
 		// HERE ADD THE CALLS YOU WANT TO DO TO GAME BACK
 		//THROW AN EXCEPTION IF THERE IS A PROBLEM
 		/*
 			throw new ValidationError("Game invite expired or Invalid")
 		*/
-		const { success, error } = await this.gameService.joinUniqueQueue(invite_message.gameInvite.uid, userId);
+		const { success, error } = await this.gameService.joinUniqueQueue(invite_message.gameInvite.uid, sessionId);
 
 		if (!success) {
 			throw new ValidationError(error);

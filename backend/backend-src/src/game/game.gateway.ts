@@ -46,6 +46,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 			return;
 		}
 
+		console.log('game.gateway: session =', socket.handshake.headers.sessionid);
+
 		// attach userId to socket
 		socket.data.userId = payload.id;
 

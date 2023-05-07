@@ -12,7 +12,7 @@ import { State } from './scripts/state'
 import validate2fa from './components/validate2fa.vue'
 import toggle2fa from './components/toggle2fa.vue'
 import user from './scripts/user'
-import usersStatus from './scripts/status'
+import statusGateway from './scripts/status'
 import gameGateway from './scripts/game'
 import chatGateway from './scripts/chat'
 import friends from './components/friends.vue'
@@ -43,7 +43,7 @@ export default {
 			state: State,
 			previousPage: 10,
 			user,
-			usersStatus,
+			statusGateway,
 			gameGateway,
 			chatGateway
 		}
@@ -55,10 +55,20 @@ export default {
 			this.state = page;
 			console.log('switchPage', page);
 		},
+		makeid(length) {
+			let result = '';
+			const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+			for (let i = 0; i < length; i++)
+				result += characters.charAt(Math.floor(Math.random() * 62));
+			return result;
+		},
 		connectToWebsocket() {
+			if (!localStorage.sessionId)
+				localStorage.sessionId = this.makeid(10);
+			
 			const jwt = this.$cookies.get('jwt');
 			this.gameGateway.connect(jwt);
-			this.usersStatus.connect(jwt);
+			this.statusGateway.connect(jwt);
 			this.chatGateway.connect(jwt);
 		}
 	},
@@ -87,8 +97,9 @@ export default {
 	},
 
 	watch: {
-		state() {
-			this.connectToWebsocket();
+		state(val, oldVal) {
+			if (oldVal == State.LOGIN && val != State.LOGIN)
+				this.connectToWebsocket();
 		},
 		'gameGateway.state.value'(val, oldVal) {
 			if (oldVal != 'game' && val == 'game')

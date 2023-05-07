@@ -182,7 +182,8 @@ export class Chat {
 		if (this.socket.connected)
 			return;
 		this.socket.io.opts.extraHeaders = {
-			authorization: `Bearer ${jwt}`
+			authorization: `Bearer ${jwt}`,
+			sessionId: localStorage.sessionId
 		};
 		this.socket.connect();
 		

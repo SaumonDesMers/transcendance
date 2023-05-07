@@ -3,6 +3,9 @@
 import axios from 'axios'
 import { State } from '../scripts/state';
 import user from '../scripts/user';
+import gameGateway from '../scripts/game';
+import chatGateway from '../scripts/chat';
+import statusGateway from '../scripts/status';
 
 export default {
 	data: function () {
@@ -21,12 +24,16 @@ export default {
 			this.$emit('switchPage', page);
 		},
 		logout() {
+			gameGateway.disconnect();
+			chatGateway.disconnectFromServer();
+			statusGateway.disconnect();
+			localStorage.removeItem('userId');
 			this.$cookies.remove('jwt');
 			this.switchPage(State.LOGIN);
 		},
 	},
 	mounted() { },
-	emits: [/*'onEdit', 'onChat', */'switchPage']
+	emits: ['switchPage']
 }
 </script>
 

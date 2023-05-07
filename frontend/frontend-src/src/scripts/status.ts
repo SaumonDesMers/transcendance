@@ -21,9 +21,14 @@ class statusClient {
 			return;
 		console.log("status client connecting");
 		this._socket.io.opts.extraHeaders = {
-			authorization: `Bearer ${jwt}`
+			authorization: `Bearer ${jwt}`,
+			sessionId: localStorage.sessionId
 		};
 		this._socket.connect();
+	}
+
+	disconnect() {
+		this._socket.disconnect();
 	}
 
 	getUserStatus(userId: number){
