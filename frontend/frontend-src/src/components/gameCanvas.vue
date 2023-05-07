@@ -1,8 +1,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { GameData } from '../scripts/gameData';
+import { GameData, Vec2, Rect, Ball, Line } from '../scripts/gameData';
 import { computeShadowPolygone } from '../scripts/magic';
-import { Vec2 } from '../scripts/utils';
+
 
 export default defineComponent({
 
@@ -88,7 +88,7 @@ export default defineComponent({
 			);
 		},
 
-		drawGradient(ball) {
+		drawGradient(ball: Ball) {
 			const gradient = this.canvas.createRadialGradient(
 				ball.pos.x, ball.pos.y, ball.radius,
 				ball.pos.x, ball.pos.y, 500
@@ -99,7 +99,7 @@ export default defineComponent({
 			this.canvas.fillRect(0, 0, this.game.arena.width, this.game.arena.height);
 		},
 
-		drawBall(ball) {
+		drawBall(ball: Ball) {
 			this.canvas.beginPath();
 			this.canvas.arc(
 				ball.pos.x,
@@ -111,14 +111,14 @@ export default defineComponent({
 			this.canvas.fill();
 		},
 
-		drawObstacles(obstacles, color) {
+		drawObstacles(obstacles: Rect[], color: string) {
 			this.canvas.fillStyle = color;
 			for (let o of obstacles) {
 				this.canvas.fillRect(o.pos.x, o.pos.y, o.width, o.height);
 			}
 		},
 
-		drawObstaclesShadow(obstacles, lightSouce) {
+		drawObstaclesShadow(obstacles: Rect[], lightSouce: Vec2) {
 			this.canvas.fillStyle = "black";
 			for (let o of obstacles) {
 				const shadowPoints = computeShadowPolygone(o, new Vec2(lightSouce.x, lightSouce.y));
@@ -135,19 +135,19 @@ export default defineComponent({
 			}
 		},
 
-		drawPaddle(p) {
+		drawPaddle(p: Rect) {
 			this.canvas.fillStyle = "white";
 			this.canvas.fillRect(p.pos.x, p.pos.y, p.width, p.height);
 		},
 
-		point(x, y, size, color) {
+		point(x: number, y: number, size: number, color: string) {
 			this.canvas.fillStyle = color;
 			this.canvas.beginPath();
 			this.canvas.arc(x, y, size, 0, 2 * Math.PI);
 			this.canvas.fill();
 		},
 
-		line(x1, y1, x2, y2, color) {
+		line(x1: number, y1: number, x2: number, y2: number, color: string) {
 			this.canvas.strokeStyle = color;
 			this.canvas.lineWidth = 2;
 			this.canvas.beginPath();
