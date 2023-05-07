@@ -16,57 +16,40 @@ data: function () {
         channeltype: undefined,
         channelKeyInput: '',
         picked: '',
-        isPublic: '',
-        isPriv: '',
-        isProt: '',
-        // a initialiser au statut du chan et ne proposer que les autres options?
       };
 },
 methods: {
-    // a modifier : ce n'est pas un newchan
+
     async saveModifications() {
-        let newChan = {
-            ownerId:user.id,
-            name:this.channelNameInput,
-            type:this.picked,
-            key: null,
-            usersId: []
-        };
-
-            if (newChan.type == 'KEY')
-                newChan.key = this.channelKeyInput;
-
-            // console.log(newChan);
-            // chat.createChannel(newChan);
-            this.switchPage(State.CHAT);
+        // question : besoin de modifier ici le nouveau statut du channel ? 
+        // (meme question pour les statuts du user (ban/kick/mute/admin/unadmin)?
+        if (this.currentChannel.type == 'KEY')
+            this.currentChannel.key = this.channelKeyInput;
+        
+        console.log(this.currentChannel.type);
+        this.switchPage(State.CHAT);
         },
-        switchPage(page) {
-            this.$emit('switchPage', page);
+    switchPage(page) {
+        this.$emit('switchPage', page);
         },
-        applyTheme(themeClass) {
-            this.editCoa = themeClass;
+    applyTheme(themeClass) {
+        this.editCoa = themeClass;
         },
-        toggleDarkMode() {
-            this.user.set({ darkMode: !this.user.darkMode });
-            this.user.save();
+    toggleDarkMode() {
+        this.user.set({ darkMode: !this.user.darkMode });
+        this.user.save();
         },
-        // faire une fonction qui recupere le type du chan pour pouvoir ensuite 
-        // avoir v-on:click="isPublic=false" (et pareil pour priv et key) et ne pas montrer le bouton inutile ?
-        // ou c deja gere par le type: picked??
-        // checkType(chan) {
-            // if (chan.type == "PUBLIC")
-            //     isPublic = true;
-            // else if (chan.type == "PRIV")
-            //     isPriv = true;
-            // else
-            //     isProt = true;
-        // }
     },
 
     mounted() {
         this.editName = this.user.username;
         this.editBio = this.user.bio;
         this.editCoa = this.user.coa;
+    },
+    computed: {
+        currentChannel() {
+            return chat.getCurrentChannel();
+        }
     },
     emits: ['switchPage']
 }
@@ -83,24 +66,24 @@ methods: {
         
         
         <div class="admin-chat">
-            <h1 class="title">CHANNEL'S NAME : </h1>
+            <h1 class="title">{{ currentChannel.name }}</h1>
         
-        <p style="color: white"></p> 
-        <!-- > recuperer le chan's name (+ son type ?) -->
+        <p style="color: white" ></p> 
         
+        <!-- verifier (quand? comment?) si le user est bien owner ou admin avant tout  -->
         
         <!-- types -->
         <legend class="title">Change channel's type :</legend>
         
         <div class="title">
-            <input style="[isPublic ? '' : 'display:none']" type="radio" id="public" value="PUBLIC" v-model="picked" />
-            <!-- avec une condition du type v-if type=isPublic alors je n'affiche pas ?-->
+            <input type="radio" id="public" value="PUBLIC" v-model="picked" />
+            
             <label for="public">Public</label>
             
-            <input style="[isPriv ? '' : 'display:none']" type="radio" id="private" value="PRIV" v-model="picked" />
+            <input type="radio" id="private" value="PRIV" v-model="picked" />
             <label for="private">Private</label>
 
-            <input style="[isProt ? '' : 'display:none']" type="radio" id="protected" value="KEY" v-model="picked" />
+            <input type="radio" id="protected" value="KEY" v-model="picked" />
             <label for="protected">Protected</label>
             <div :style="[isProtected ? '' : 'display:none']">
             <p style="color: white">ENTER PASSWORD</p>
@@ -109,7 +92,6 @@ methods: {
         </div>
         <div>
             <legend class="title">Search user :</legend>
-            <p style="color: white">CHANNEL'S NAME</p>
             <input type="text" id="type" name="user" required size="15" v-model="userNameInput">
         </div>
         <p>Choose one of this options :</p>
