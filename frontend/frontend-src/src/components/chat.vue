@@ -7,7 +7,6 @@ import {
 	ChatUserDTO,
 	MessageDTO,
 	joinRequestDTO,
-	adminRequestDTO,
 	MuteDTO,
 	CreateMessageDto,
 	gameInviteArgs,
@@ -21,6 +20,7 @@ import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/
 import store from "../scripts/chat"
 import user from '../scripts/user';
 import { State } from '../scripts/state';
+import { reactive } from 'vue';
 
 export default {
 
@@ -35,6 +35,7 @@ export default {
 			userNameInputBuffer: '',
 			customGameInvite: false,
 			searchInput: '',
+			searchArray: [],
 			store,
 			onInvit: false,
 			showMP: false,
@@ -128,12 +129,14 @@ export default {
 
 	},
 	watch: {
-		searchInput() {
-			store.search_user(this.searchInput);
+		searchInput()
+		{
+			store.search_user(this.searchInput).then((arr) => {
+				this.searchArray = arr;
+			});
 		}
 	},
 	mounted() {
-		store.clear_search();
 	},
 
 	created() {
@@ -379,8 +382,8 @@ export default {
 					<div v-for="user in this.currentChannel?.channel.users">
 						<!-- <button @click="">ban</button> -->
 						<p>{{ store.getUserName(user.userId) }}</p>
-						<button @click="store.kick_user(user.userId, this.current_channelId)">kick</button>
-						<button @click="store.ban_user(user.userId, this.current_channelId, true)">ban</button>
+						<button @click="store.kick_user(user.userId)">kick</button>
+						<button @click="store.ban_user(user.userId, true)">ban</button>
 					</div>
 
 					<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PRIVÉ -->
@@ -396,9 +399,9 @@ export default {
 					</div>
 
 					<!-- Exemple d'un appel a la fonction Pour invite et uninvite un user -->
-					<button @click="store.invite_user(userNameInputBuffer, current_channelId, true)">Invite
+					<button @click="store.invite_user(userNameInputBuffer, true)">Invite
 						User</button>
-					<button @click="store.invite_user(userNameInputBuffer, current_channelId, false)">Uninvite
+					<button @click="store.invite_user(userNameInputBuffer, false)">Uninvite
 						User</button>
 				</div>
 
@@ -406,13 +409,13 @@ export default {
 				<div v-if="this.currentChannel?.type == 'KEY'">
 					<input type="text" v-model="setKeyInputBuffer">
 
-					<button @click="store.setChanKey(current_channelId, setKeyInputBuffer)">Set Chan Key</button>
+					<button @click="store.setChanKey(setKeyInputBuffer)">Set Chan Key</button>
 				</div>
 
 				<!-- un exemple d'un ensemble de boutons pour changer le type du channel actuellement selectionné -->
 
-				<button @click="store.setChanType(current_channelId, 'PUBLIC')">Set Channel Public</button>
-				<button @click="store.setChanType(current_channelId, 'PRIV')">Set Channel Private</button>
+				<button @click="store.setChanType('PUBLIC')">Set Channel Public</button>
+				<button @click="store.setChanType('PRIV')">Set Channel Private</button>
 
 				<!-- ça c'est à l'arrache faut pas faire ça ( j'ai la même var d'input que le champ du dessus) -->
 				<input type="text" v-model="setKeyInputBuffer">

@@ -113,19 +113,9 @@ export interface ChatUserDTO {
  * they are here to inform of data change,
  * a user joined a channel or changed their username by example
  ***************/
-export interface userNameChangeDTO {
-	userId: number,
-	newUserName: string,
-}
-
 export interface NewChannelOwnerDTO {
 	newOwner: SimpleChatUserDTO,
 	channelId: number,
-}
-
-export interface JoinDTO {
-	user: SimpleChatUserDTO,
-	channelId: number
 }
 
 export interface inviteUpdateDTO {
@@ -133,12 +123,11 @@ export interface inviteUpdateDTO {
 	channel: GroupChannelDTO,
 }
 
-export interface ChatUserUpdateDTO {
-	userId: number,
-	user: {
-		id: number,
-		username :string
-	}
+export interface ChanNotifDTO {
+	callerUserId?: number,
+	targetUserId: number,
+	channelId: number,
+	action?: boolean,
 }
 
 /*****************
@@ -165,23 +154,6 @@ export class joinRequestDTO {
 	key?: string;
 }
 
-export class adminRequestDTO {
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	callerUserId: number;
-
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	targetUserId: number;
-	
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	groupChannelId: number;
-}
-
 export class basicChanRequestDTO {
 	@IsDefined()
 	@IsNumber()
@@ -189,9 +161,8 @@ export class basicChanRequestDTO {
 	authorUserId: number;
 	
 	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	targetUserId: number;
+	@IsString()
+	targetUserName: string;
 	
 	@IsDefined()
 	@IsNumber()
@@ -206,9 +177,8 @@ export class ChanRequestDTO {
 	authorUserId: number;
 	
 	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	targetUserId: number;
+	@IsString()
+	targetUserName: string;
 	
 	@IsDefined()
 	@IsNumber()
@@ -218,28 +188,6 @@ export class ChanRequestDTO {
 	@IsDefined()
 	@IsBoolean()
 	action: boolean; //true means set/do action, false means undo/unset
-}
-
-export class InviteRequestDTO {
-
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	authorUserId: number;
-
-	@IsDefined()
-	@IsNotEmpty()
-	@IsString()
-	targetUserName: string;
-
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	channelId: number;
-
-	@IsDefined()
-	@IsBoolean()
-	action: boolean;
 }
 
 export class ChanTypeRequestDTO {
@@ -299,10 +247,11 @@ export class MuteDTO {
 	@IsNumber()
 	@IsPositive()
 	authorUserId: number;
+
 	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	targetUserId: number;
+	@IsString()
+	targetUserName: string;
+
 	@IsDefined()
 	@IsNumber()
 	@IsPositive()

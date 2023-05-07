@@ -20,17 +20,11 @@ export default {
 		}
 	},
 
-	methods: {
-		switchPage(page) {
-			this.$emit('switchPage', page);
-		},
-	},
+	methods: {},
 
 	mounted() {},
 
 	created() {},
-
-	emits: ['switchPage'],
 
 }
 </script>
