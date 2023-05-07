@@ -39,7 +39,7 @@ export default {
 			onInvit: false,
 			showMP: false,
 			showChannel: false,
-			yourChan: true,
+			yourChan: false,
 		}
 	},
 	computed: {
@@ -154,7 +154,7 @@ export default {
 		</div>
 		<div v-else="user.darkMode == true">
 			<div style="width: 0;">
-			<div class="moon" style="z-index: -1;">
+				<div class="moon" style="z-index: -1; position: fixed; top: 1rem;">
 					<div class="dark">
 					</div>
 					<div class="dark">
@@ -172,12 +172,13 @@ export default {
 			<div class="chat-list" :class="[user.darkMode == true ? 'dark' : 'light']">
 				<div style="height: 4vh;">
 					<p style="position:relative; margin-left: 8.5rem; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 2vw;"
-							class="fa-solid fa-plus" @click="this.switchPage(State.CREATECHAT)"></p>	
-							<!-- <p class="fa-solid fa-plus" style="position:fixed; font-size: 1.5vw; margin-top: 0.2rem; color:black"></p> -->
+						class="fa-solid fa-plus" @click="this.switchPage(State.CREATECHAT)"></p>
+					<!-- <p class="fa-solid fa-plus" style="position:fixed; font-size: 1.5vw; margin-top: 0.2rem; color:black"></p> -->
 				</div>
 				<div>
 					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
-						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;" @click="displayYourChan()">Your channels </p>
+						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;" @click="displayYourChan()">Your
+						channels </p>
 					<div v-show="yourChan" class="chan-can-join">
 						<div v-for="[channelId, channel] in store.groupChannels">
 							<button @click="selectChannel(channelId)"
@@ -188,7 +189,8 @@ export default {
 				</div>
 				<div>
 					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
-						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;" @click="displayMP()">Private message</p>
+						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;" @click="displayMP()">Private
+						message</p>
 					<div v-show="showMP" class="chan-can-join">
 						<div v-for="n in 10">
 							<p style="color: white; font-size: 15px; border: none; background-color: transparent;">Channels
@@ -205,7 +207,8 @@ export default {
 				</div>
 				<div>
 					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
-						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;" @click="displayJoinChannel()">Join channel</p>
+						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;" @click="displayJoinChannel()">
+						Join channel</p>
 					<div v-show="showChannel" class="chan-can-join">
 						<div v-for="[channelId, channel] in store.publicChannels">
 							<button @click="store.joinChannel({ channelId })"
@@ -214,11 +217,14 @@ export default {
 						</div>
 						<div v-for="[channelId, channel] in store.keyChannels">
 							<p style="color: white; font-size: 15px; border: none; background-color: transparent;">
-								{{ channel.name }} <p class="fa-solid fa-lock"></p></p>
+								{{ channel.name }}
+							<p class="fa-solid fa-lock"></p>
+							</p>
 						</div>
 					</div>
 				</div>
-				<div style="margin-top:45%; height: 5vh; margin-left: -5px; display: flex; align-items: center; padding-top: 0.5rem; padding-bottom: 0.5rem;">
+				<div
+					style="margin-top:45%; height: 5vh; margin-left: -5px; display: flex; align-items: center; padding-top: 0.5rem; padding-bottom: 0.5rem;">
 					<div class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']"></div>
 					<p style="margin-left: 0.7rem;"
 						:class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">{{ user.username }}</p>
@@ -257,10 +263,15 @@ export default {
 				<div div v-if="this.currentChannel != undefined" class="send-message">
 					<textarea class="input-message" type="text" v-model="messageInputBuffer"></textarea>
 					<div style="display: flex; flex-direction: column;">
-						<button @click="SendMessage">Send</button>
-						<button @click="sendInvite">Send Game Invite</button>
-						<input type="checkbox" id="checkbox" v-model="customGameInvite">
-						<label for="checkbox">Custom Game</label>
+						<button class="fa-solid fa-paper-plane text-color-dark"
+							style="font-size: 1.5vw; color: white; padding: 0.5rem; background-color: transparent; border: none;"
+							@click="SendMessage"></button>
+						<button class="fa-solid fa-gamepad text-color-dark"
+							style="font-size: 1.5vw; padding: 0.5rem; background-color: transparent; border: none;"
+							:style="[customGameInvite ? '	background: -webkit-linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); -webkit-background-clip: text; -webkit-text-fill-color: transparent;' : 'background: transparent; color: white']"
+							@click="sendInvite"></button>
+						<input style="font-size:1.5vw; padding: 0.5rem;" type="checkbox" id="checkbox" v-model="customGameInvite">
+						<label for="checkbox"></label>
 					</div>
 				</div>
 			</div>
@@ -277,21 +288,23 @@ export default {
 								style="width: 9%; position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 2rem; font-size: 1vw"
 								type="text" v-model="searchInput" />
 							<div>
-								<p @click="store.invite_user(username, current_channelId, true)" v-for="username in store.searchArray">{{ username }}
+								<p @click="store.invite_user(username, current_channelId, true)"
+									v-for="username in store.searchArray">{{ username }}
 									<!-- <button @click="store.invite_user(username, current_channelId, true)">Invite
 						User</button> -->
-					</p>
+								</p>
 							</div>
 						</div>
-						<p v-show="!onInvit" style="position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 1vw; margin-right: 2rem;"
+						<p v-show="!onInvit"
+							style="position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 1vw; margin-right: 2rem;"
 							class="fa-solid fa-gear" @click="switchPage(State.CHATSETTINGS)"></p>
-						<p v-show="!onInvit" style="position:absolute; right: 40px; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 1vw; margin-right: 2rem;"
-							class="fa-solid fa-arrow-right-from-bracket" @click="leaveChannel()"></p>	
-							
+						<p v-show="!onInvit"
+							style="position:absolute; right: 40px; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 1vw; margin-right: 2rem;"
+							class="fa-solid fa-arrow-right-from-bracket" @click="leaveChannel()"></p>
 					</div>
 					<div v-show="!onInvit">
 						<p>{{ store.getUserName(this.currentChannel.owner?.userId) }}
-							<p class="fa-solid fa-crown" style="padding:10px; color: gold"></p>
+						<p class="fa-solid fa-crown" style="padding:10px; color: gold"></p>
 						</p>
 						<div v-for="n in 10">
 							<p v-for="user in this.currentChannel?.channel.users">{{ store.getUserName(user.userId) }}</p>
@@ -503,6 +516,12 @@ export default {
 	grid-template-columns: 1fr 8fr 1fr;
 }
 
+.linear-text {
+	background: -webkit-linear-gradient(#eee, #333);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
 .chan-can-join {
 	padding: 1rem;
 	overflow: scroll;
@@ -604,5 +623,4 @@ export default {
 	border-bottom: 1px solid;
 	border-image: linear-gradient(0.25turn, rgb(66, 66, 66, 0), rgb(158, 158, 158, 10), rgb(255, 255, 255), rgb(158, 158, 158, 10), rgb(66, 66, 66, 0));
 	border-image-slice: 1;
-}
-</style>
+}</style>
