@@ -180,7 +180,7 @@ export class GameService {
 
 	async saveGame(winnerId: number, loserId: number, winnerScore: number, loserScore: number)
 	{
-		this.prismaService.game.create({
+		await this.prismaService.game.create({
 			data: {
 				loser: {
 					connect : {

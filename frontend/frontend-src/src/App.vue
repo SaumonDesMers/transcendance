@@ -138,7 +138,7 @@ export default {
 		<edit @switchPage="switchPage"></edit>
 	</div>
 	<div v-else-if="state == State.HISTORY">
-		<history @switchPage="switchPage"></history>
+		<history @switchPage="switchPage" :display-user-id="user.id"></history>
 	</div>
 	<div v-else-if="state == State.CREATECHAT">
 		<createChat @switchPage="switchPage"></createChat>

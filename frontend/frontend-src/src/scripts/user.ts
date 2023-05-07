@@ -12,6 +12,21 @@ class UserData {
 	bio: string;
 }
 
+class GameData {
+	winnerScore: number;
+	LoserScore: number;
+
+	winnerId: number;
+	loserId: number;
+}
+
+class StatsData {
+	GamesWon: number;
+	GamesLost: number;
+
+	rank: number;
+}
+
 class Avatar {
 
 	fileName: string;
@@ -68,14 +83,47 @@ class Avatar {
 		img.src = avatar.imageBase64;
 	}
 }
+
+export class UserPrison {
+	users: Map<number, User>;
+
+	constructor()
+	{
+		this.users = reactive(new Map())
+	}
+
+	getUser(id: number): User
+	{
+		const ret = this.users.get(id);
+
+		if (ret != undefined)
+			return ret;
+		let new_user = reactive(new User());
+		this.users.set(id, new_user);
+		new_user.loadUser(id).then( nothing => {
+			new_user.downloadAvatar();
+		});
+		return new_user;
+	}
+
+	addUser(user: User)
+	{
+		this.users.set(user.id, user);
+	}
+}
+
 export class User {
 
 	_data: UserData;
 	_friendsIdList: {id: number}[];
 	friends: User[];
+	history: GameData[];
+	stats: StatsData;
 
 	avatar: Avatar;
 	isLoggedIn: boolean = false;
+	HistoryLoaded: boolean = false;
+	StatsLoaded: boolean = false;
 
 	get id() { return this._data.id; }
 	get username() { return this._data.username; }
@@ -96,6 +144,8 @@ export class User {
 		this.avatar = new Avatar();
 		this.friends = reactive(new Array<User>());
 		this._friendsIdList = new Array();
+		this.history = reactive(new Array());
+		this.stats = new StatsData;
 	}
 
 	set(newData: any) {
@@ -155,6 +205,45 @@ export class User {
 				this.friends.push(friend);
 			})
 		}
+	}
+
+	async loadHistory() {
+		if (this.id == null) {
+			console.log("Empty User Object")
+			return;
+		}
+		
+		this.HistoryLoaded = false;
+		axios.get(`http://localhost:3001/games/user-history/${this.id}`, {
+			params: {
+				take: 10
+			}
+		})
+		.then(res => {
+			console.log(res.data);
+			this.history = res.data;
+			this.HistoryLoaded = true;
+		})
+		.catch(err => {
+			console.log('err :', err);
+		});
+	}
+
+	async loadStats() {
+		if (this.id == null) {
+			console.log("Empty User Object")
+			return;
+		}
+
+		this.StatsLoaded = false;
+		axios.get(`http://localhost:3001/games/user-stat/${this.id}`)
+		.then(res => {
+			this.stats = res.data;
+			this.StatsLoaded = true;
+		})
+		.catch(err => {
+			console.log('err :', err);
+		});
 	}
 }
 
