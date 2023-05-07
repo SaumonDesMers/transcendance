@@ -19,7 +19,7 @@ import createChat from './components/createChat.vue';
 const routes = [
 	{ name: 'main', path: '/', component: main },
 	{ name: 'login', path: '/login', component: login },
-	{ name: 'validate2fa', path: '/validate2fa', component: validate2fa },
+	{ name: 'validate-2fa', path: '/validate-2fa', component: validate2fa },
 	{ name: 'register', path: '/register', component: register },
 	{ name: 'profile', path: '/profile', component: profile },
 	{ name: 'edit', path: '/edit', component: edit },

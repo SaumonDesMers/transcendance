@@ -16,7 +16,7 @@ export default {
 	methods: {
 		validate2faCode() {
 			axios.post('http://localhost:3001/auth/2fa/authenticate', {
-				twoFactorAuthenticationCode: this.twoFactorAuthenticationCode
+				code: this.twoFactorAuthenticationCode
 			})
 			.then(res => {
 				// console.log('2fa/authenticate: res:', res);
