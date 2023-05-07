@@ -50,13 +50,26 @@ export default {
 			this.user.set({ darkMode: !this.user.darkMode });
 			this.user.save();
 		},
+		loadEditFields() {
+			this.editName = this.user.username;
+			this.editBio = this.user.bio;
+			this.editCoa = this.user.coa;
+		},
 	},
 
 	mounted() {
-		this.editName = this.user.username;
-		this.editBio = this.user.bio;
-		this.editCoa = this.user.coa;
+		this.loadEditFields();
 	},
+
+	watch: {
+		user: {
+			handler: function (val, oldVal) {
+				this.loadEditFields();
+			},
+			deep: true
+		}
+	},
+
 	emits: ['switchPage']
 }
 

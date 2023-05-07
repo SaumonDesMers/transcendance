@@ -53,7 +53,6 @@ export default {
 		switchPage(page) {
 			this.$router.push({ path: page });
 			this.state = page;
-			console.log('switchPage', page);
 		},
 		makeid(length) {
 			let result = '';
