@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import axios from 'axios'
 import io from "socket.io-client"
 import loginPage from './components/login.vue'
@@ -19,8 +19,9 @@ import friends from './components/friends.vue'
 import history from './components/history.vue'
 import createChat from './components/createChat.vue'
 import chatSettings from './components/chatSettings.vue'
+import { defineComponent } from 'vue'
 
-export default {
+export default defineComponent({
 
 	components: {
 		loginPage,
@@ -105,7 +106,8 @@ export default {
 				this.switchPage(State.GAME);
 		},
 	}
-}
+})
+
 </script>
 
 <template>
