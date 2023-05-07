@@ -63,7 +63,8 @@ class statusClient {
 	private initSocket()
 	{
 		this._socket = io('http://localhost:3001/status', {
-			autoConnect: false
+			autoConnect: false,
+			reconnection: false
 		});
 
 		this._socket.on('update', (payload: updateDTO) => {

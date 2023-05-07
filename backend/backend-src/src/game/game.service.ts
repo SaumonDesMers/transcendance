@@ -13,6 +13,7 @@ import {
 } from "@prisma/client";
 import { QueueService } from "./queue.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
+import { updateQueueDto } from "./game.dto";
 
 @Injectable()
 export class GameService {
@@ -34,13 +35,6 @@ export class GameService {
 			console.log('Error: game.service: player not found');
 		return player;
 	}
-
-	// private getPlayerById(id: number): PlayerEntity {
-	// 	let player: PlayerEntity = this.onlinePlayer.find(p => { return p.id == id; });
-	// 	if (player == undefined)
-	// 		console.log('Error: game.service: player not found');
-	// 	return player;
-	// }
 
 	private getPlayerBySessionId(sessionId: string): PlayerEntity {
 		let player: PlayerEntity = this.onlinePlayer.find(p => {
@@ -95,7 +89,7 @@ export class GameService {
 		this.reconnectionHub = this.reconnectionHub.filter(p => { return p != player });
 	}
 
-	async updateQueue(socket: Socket, body: { value: string, type: string }): Promise<string> {
+	async updateQueue(socket: Socket, body: updateQueueDto): Promise<string> {
 		let player: PlayerEntity = this.getPlayerBySocket(socket);
 
 		if (body.value == 'join' && player.state.value != 'game') {

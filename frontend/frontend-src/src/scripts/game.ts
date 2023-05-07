@@ -21,6 +21,7 @@ export class Game {
 	socket: Socket;
 	state: State;
 	data: GameData;
+	jwt: string;
 
 	constructor() {
 		this.data = reactive(new GameData());
@@ -31,8 +32,10 @@ export class Game {
 	connect(jwt: string) {
 		if (this.socket.connected)
 			return;
+		if (jwt)
+			this.jwt = jwt;
 		this.socket.io.opts.extraHeaders = {
-			authorization: `Bearer ${jwt}`,
+			authorization: `Bearer ${this.jwt}`,
 			sessionId: localStorage.sessionId
 		};
 		this.socket.connect();
@@ -44,21 +47,16 @@ export class Game {
 
 	initSocket() {
 		this.socket = io('http://localhost:3001/game', {
-			autoConnect: false
+			autoConnect: false,
+			reconnection: false
 		});
 		
 		this.socket.on('connect', () => {
-			console.log("Successfully connected to the game websocket server...");
 			this.state.set('none', '');
 		});
 		
-		this.socket.on('disconnect', function(reason) {
-			console.log("Connection to the game websocket server closed: ", reason);
-		});
-		
-		this.socket.on('connect_error', function(error) {
-			console.log("Error connecting to the game websocket server: ", error);
-		});
+		this.socket.on('disconnect', this.onDisconnect.bind(this));
+		this.socket.on('connect_error', this.onConnectError.bind(this));
 
 		this.socket.on('queue', this.onQueueUpdate.bind(this));
 
@@ -66,6 +64,14 @@ export class Game {
 		this.socket.on('update', this.onGameUpdate.bind(this));
 		this.socket.on('end', this.onGameEnd.bind(this));
 
+	}
+
+	onDisconnect(reason: string) {
+		setTimeout(this.connect.bind(this), 5000);
+	}
+
+	onConnectError(error: string) {
+		setTimeout(this.connect.bind(this), 5000);
 	}
 
 	joinQueue(type: string) {
