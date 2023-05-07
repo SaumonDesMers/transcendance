@@ -6,6 +6,7 @@ import { Public } from './public.decorator';
 import { HttpStatus } from '@nestjs/common';
 import { ApiNoContentResponse, ApiOkResponse, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from 'src/user/User.entity';
+import { twoFactorAuthenticationDto } from './auth.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -47,12 +48,12 @@ export class AuthController {
 	@Post('2fa/authenticate')
 	async authenticate(
 		@Req() req: any,
-		@Body() body: any,
+		@Body() body: twoFactorAuthenticationDto,
 		@Res({ passthrough: true }) response: Response
 	) {
 
 		const isCodeValid = await this.authService.is2faCodeValid(
-			body.twoFactorAuthenticationCode,
+			body.code,
 			parseInt(req.user.id),
 		);
 
