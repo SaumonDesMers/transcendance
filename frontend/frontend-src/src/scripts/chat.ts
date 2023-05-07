@@ -181,7 +181,6 @@ export class Chat {
 	connect(jwt: string) {
 		if (this.socket.connected)
 			return;
-		console.log("connecting chat with token: ", jwt);
 		this.socket.io.opts.extraHeaders = {
 			authorization: `Bearer ${jwt}`
 		};
@@ -190,7 +189,6 @@ export class Chat {
 		this._channel_invites.clear();
 		this.socket.emit("get_my_user", (user: ChatUserDTO) => {
 			this._user = user;
-			console.log(user);
 			user.invites?.forEach(invite => {
 				this.channelInvites.set(invite.channelId, invite.name);
 			})
@@ -198,7 +196,6 @@ export class Chat {
 		
 		this._group_channels.clear();
 		this.socket.emit("get_groupchannels", (channels: GroupChannelDTO[]) => {
-			console.log(channels);
 			channels.forEach(channel => {
 				this._group_channels.set(channel.channelId, channel);
 			});
@@ -206,7 +203,6 @@ export class Chat {
 		
 		this._visible_public_channels.clear();
 		this.socket.emit("get_public_channels", (channels: GroupChannelSnippetDTO[]) => {
-			console.log("Received public chans");
 			channels.forEach(channel => {
 				if (channel.type == 'PUBLIC')
 						this._visible_public_channels.set(channel.channelId, channel);
@@ -282,7 +278,6 @@ export class Chat {
 	 * Call this when you want to leave the current channel
 	*/
 	leaveChannel() {
-		console.log("leave channel called in front");
 
 		if (this.isCurrentDM == true || this.currentChannelId == -1)
 			return;
@@ -516,16 +511,12 @@ export class Chat {
 	 *
 	 * @param {string} username the username to search
 	 */
-	async search_user(username: string)
+	async search_user(username: string): Promise<string[]>
 	{
 		if (username == null || username.length == 0)
 			return [];
 
 		return this.socket.emitWithAck("search_username", username);
-		// this.socket.emit("search_username", username, (usernames => {
-		// 	searchArray = usernames;
-		// 	console.log("assigning usernames:", searchArray);
-		// }));
 	}
 	
 	isAdmin() : boolean
@@ -596,15 +587,9 @@ export class Chat {
 			console.log("received message:", message);
 
 			if(this._group_channels.has(message.channelId))
-			{
-				console.log("message going in group channel");
 				this.groupChannels.get(message.channelId)?.channel.messages.push(message);
-			}
 			else if (this._dm_channels.has(message.channelId))
-			{
-				console.log("message goin in dm channel");
 				this._dm_channels.get(message.channelId)?.channel.messages.push(message);
-			}
 		});
 		
 		this.socket.on('user_joined_room', (payload: ChanNotifDTO) => {
@@ -622,7 +607,6 @@ export class Chat {
 				if (payload.channelId == this.currentChannelId)
 				{
 					this.currentChannelId = -1;
-					console.log(this.currentChannelId);
 				}
 			}
 			else
@@ -687,7 +671,6 @@ export class Chat {
 
 		this.socket.on("game_invite_expire", (payload: MessageDTO) => {
 			let msg: MessageDTO | undefined;
-			console.log("received game_invite expire");
 			if (this._dm_channels.has(payload.channelId))
 			{
 				msg = this._dm_channels.get(payload.channelId)?.channel.messages.find(msg => {
@@ -703,7 +686,6 @@ export class Chat {
 
 			if (msg != undefined && msg.gameInvite != undefined)
 			{
-				console.log("fond invite, modifying it")
 				msg.gameInvite.status = 'EXPIRED';
 			}
 		});
