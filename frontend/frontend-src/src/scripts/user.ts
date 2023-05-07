@@ -165,7 +165,7 @@ export class MyUser extends User
 		super();
 	}
 
-	get id() { this._data.id = localStorage.userId; return this._data.id; }
+	get id() { this._data.id = parseInt(localStorage.userId); return this._data.id; }
 	set id(arg) { this._data.id = arg; localStorage.userId = arg; }
 
 

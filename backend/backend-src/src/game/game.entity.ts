@@ -155,7 +155,7 @@ class Collider {
 class Ball extends Collider {
 
 	initialPos: Vec2;
-	initialSpeedNorme: number = 5;
+	initialSpeedNorme: number = 7;
 
 	speed = new Vec2(0, 0);
 

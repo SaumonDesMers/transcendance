@@ -76,44 +76,44 @@ export default {
 	<div class="navigation">
 		<ul>
 			<li>
-				<a href="#">
+				<a>
 					<span class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']"></span>
 					<span class="title" @click="switchPage(State.USER)">{{ user.username }}</span>
 				</a>
 			</li>
 			<li>
-				<a href="#">
+				<a>
 					<span class="icon"><i class="fa-solid fa-comments"></i></span>
 					<span class="title" @click="switchPage(State.CHAT)">Messages</span>
 				</a>
 			</li>
 			<li>
-				<a href="#">
+				<a>
 					<span class="icon"><i class="fa-solid fa-edit"></i></span>
 					<span class="title" @click="switchPage(State.EDIT)">Edit</span>
 				</a>
 			</li>
 			<li>
-				<a href="#">
+				<a>
 					<span class="icon"><i class="fa-solid fa-floppy-disk"></i></span>
 					<span class="title" @click="switchPage(State.HISTORY)">Game history</span>
 				</a>
 			</li>
 			<li>
-				<a href="#">
+				<a>
 					<span class="icon"><i class="fa-solid fa-users"></i></span>
 					<span class="title" @click="switchPage(State.FRIENDS)">Friends</span>
 				</a>
 			</li>
 			<li>
-				<a href="#">
+				<a>
 					<span class="icon" @click="toggleDarkMode"><i
 							:class="[user.darkMode ? 'fa-solid fa-moon' : 'fa-solid fa-sun']"></i></span>
 					<span class="title" @click="toggleDarkMode">Theme</span>
 				</a>
 			</li>
 			<li>
-				<a href="#">
+				<a>
 					<span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span>
 					<span class="title" @click="logout">SignOut</span>
 				</a>

@@ -67,7 +67,7 @@ methods: {
             <div class="stars2"></div>
 			</div>
         
-        
+        <div style="display: flex; justify-content: center; align-items: center; align-content: center; position:absolute; top:10%; left:10%;">        
         <div class="create-chat-container">
             <h1 class="title">CREATE YOUR CHANNEL : </h1>
         
@@ -99,6 +99,8 @@ methods: {
         </div>
     </div>
     </div>
+</div>
+
 </template>
 
 <style lang="scss" scoped>

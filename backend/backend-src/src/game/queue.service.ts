@@ -36,7 +36,7 @@ export class QueueService {
 
 		this.queues[type].push(player);
 
-		return this.checkQueue(type);
+		return this.checkQueueForPlayers(type);
 	}
 
 	async leave(player: PlayerEntity) {
@@ -50,7 +50,7 @@ export class QueueService {
 		this.leaveCurrentQueue(player);
 	}
 
-	private checkQueue(type: string): { p1: PlayerEntity, p2: PlayerEntity } | null {
+	private checkQueueForPlayers(type: string): { p1: PlayerEntity, p2: PlayerEntity } | null {
 		if (this.queues[type].length < 2)
 			return null;
 
@@ -78,7 +78,7 @@ export class QueueService {
 		}
 
 		player.state.set('queue', 'UNIQUE');
-		this.playerInQueue.set(player, { type, uid });
+		this.playerInQueue.set(player, { type: 'UNIQUE', uid });
 
 		this.queueUnique.set(uid, { type, playerWaiting: player });
 	}
@@ -129,9 +129,10 @@ export class QueueService {
 	//###########################################################################################################
 
 	
-	private leaveCurrentQueue(player: PlayerEntity) {
+	leaveCurrentQueue(player: PlayerEntity) {
 
 		const state = this.playerInQueue.get(player);
+		console.log('queue.service: leaveCurrentQueue: user.state:', state);
 
 		if (state.type != 'UNIQUE') {
 

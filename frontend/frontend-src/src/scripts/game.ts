@@ -29,6 +29,8 @@ export class Game {
 	}
 
 	connect(jwt: string) {
+		if (this.socket.connected)
+			return;
 		this.socket.io.opts.extraHeaders = {
 			authorization: `Bearer ${jwt}`
 		};
@@ -52,6 +54,8 @@ export class Game {
 		this.socket.on('connect_error', function(error) {
 			console.log("Error connecting to the game websocket server: ", error);
 		});
+
+		this.socket.on('queue', this.onQueueUpdate.bind(this));
 
 		this.socket.on('start', this.onGameStart.bind(this));
 		this.socket.on('update', this.onGameUpdate.bind(this));
@@ -80,7 +84,12 @@ export class Game {
 			}
 		});
 	}
-	
+
+	onQueueUpdate(event: any) {
+		console.log('queue update');
+		this.state.set('queue', event.type);
+	}
+
 	onGameStart(event: any) {
 		console.log('game start');
 		this.state.value = 'game';

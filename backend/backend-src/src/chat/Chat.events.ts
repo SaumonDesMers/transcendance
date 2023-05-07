@@ -1,17 +1,13 @@
 import { Channel, DMChannel, Mute } from '@prisma/client';
 import { MessageDTO,
 	joinRequestDTO,
-	adminRequestDTO,
 	ChannelDTO,
 	ChatUserDTO,
 	MuteDTO,
 	GroupChannelDTO,
-	JoinDTO,
 	ChanRequestDTO,
 	basicChanRequestDTO,
 	inviteUpdateDTO,
-	InviteRequestDTO,
-	ChatUserUpdateDTO,
 	ChanTypeRequestDTO,
 	GroupChannelSnippetDTO,
 	SimpleChatUserDTO,
@@ -19,6 +15,7 @@ import { MessageDTO,
 	ChanKeyRequestDTO,
 	DMChannelDTO,
 	CreateMessageDto,
+	ChanNotifDTO,
  } from './Chat.entities'
 import { CreateGroupChannelDto } from './GroupChannel.create.dto';
 
@@ -47,11 +44,10 @@ export interface ServerToClientEvents {
 	/**
 	 * Notice of a new admin or demoted admin in a channel
 	 */
-	admin_update: (payload: ChanRequestDTO) => void;
+	admin_update: (payload: ChanNotifDTO) => void;
 
 	/**
 	 * Notice that you have been invited to a channel
-	 * or someone has been invited to a channel you have currently joined
 	 */
 	invite_update: (payload: inviteUpdateDTO) => void;
 
@@ -64,21 +60,21 @@ export interface ServerToClientEvents {
 	/**
 	 * Notice of owner change of a channel you have currently joined
 	 */
-	owner_update: (payload: NewChannelOwnerDTO) => void;
+	owner_update: (payload: ChanNotifDTO) => void;
 
 	/**
 	 * Notice of user join/leave in a channel you have currently joined
 	 */
-	user_joined_room: (payload: JoinDTO) => void;
+	user_joined_room: (payload: ChanNotifDTO) => void;
 
-	user_left_room: (payload: JoinDTO) => void;
+	user_left_room: (payload: ChanNotifDTO) => void;
 
 	/**
 	 * Notice of user kick in a channel you have currently joined
 	 * no need to store this,
 	 * might be you
 	 */
-	user_kicked: (payload: basicChanRequestDTO) => void;
+	user_kicked: (payload: ChanNotifDTO) => void;
 
 	/**
 	 * Notice of user muted in a channel you have currently joined,
@@ -91,7 +87,7 @@ export interface ServerToClientEvents {
 	 * Notice of user banned or unbanned in a channel you have currently joined,
 	 * might be you
 	 */
-	user_banned: (paylaod: basicChanRequestDTO) => void;
+	user_banned: (payload: ChanNotifDTO) => void;
 
 	/*
 	* DIRECT EVENTS
@@ -106,7 +102,7 @@ export interface ServerToClientEvents {
 	 * if a user changes username,
 	 * this will be sent to everyone so they can keep track of usernames
 	 */
-	user_update: (payload: ChatUserUpdateDTO) => void;
+	user_update: (userId: number) => void;
 
 	/**
 	 * when an invite expires,
@@ -168,6 +164,8 @@ export interface ClientToServerEvents {
 	 */
 	get_public_channels: (callback: (channels: GroupChannelSnippetDTO[]) => void) => void;
 
+	search_username: (username: string, callback: (usernames: string[]) => void ) => void;
+
 	// get_invites: (callback: (invites: inviteUpdateDTO[]) => void) => void;
 
 	start_dm: (targetUserName: string, callback: (payload: DMChannelDTO) => void) => void;
@@ -187,7 +185,7 @@ export interface ClientToServerEvents {
 	/**
 	 * Request to invite/uninvite someone in a channel
 	 */
-	invite_request: (request: InviteRequestDTO) => void;
+	invite_request: (request: ChanRequestDTO) => void;
 	
 	/**
 	 * Request to change Type of a channel ( private, public, key)

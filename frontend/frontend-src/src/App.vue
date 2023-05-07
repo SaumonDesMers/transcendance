@@ -18,6 +18,7 @@ import chatGateway from './scripts/chat'
 import friends from './components/friends.vue'
 import history from './components/history.vue'
 import createChat from './components/createChat.vue'
+import chatSettings from './components/chatSettings.vue'
 
 export default {
 
@@ -33,15 +34,13 @@ export default {
 		friends,
 		history,
 		createChat,
+		chatSettings,
 	},
 
 	data() {
 		return {
 			State,
-			state: {
-				page: State,
-				// uid: 0,
-			},
+			state: State,
 			previousPage: 10,
 			user,
 			usersStatus,
@@ -51,94 +50,68 @@ export default {
 	},
 
 	methods: {
-		setState(page) {
-			console.log('setState', page);
-			console.log();
-			this.state.page = page;
-		},
 		switchPage(page) {
-			window.history.pushState({ current: page }, "", page);
-			// this.$router.push({ path: page });
+			this.$router.push({ path: page });
+			this.state = page;
 			console.log('switchPage', page);
-			console.log('history.state', window.history.state);
-			console.log('router', this.$router.currentRoute.value.path);
-			console.log();
-			this.setState(page);
 		},
+		connectToWebsocket() {
+			const jwt = this.$cookies.get('jwt');
+			this.gameGateway.connect(jwt);
+			this.usersStatus.connect(jwt);
+			this.chatGateway.connect(jwt);
+		}
 	},
 
 	mounted() {},
 
 	created() {
 
-		console.log('created');
-		console.log('history.state', window.history.state);
-		console.log();
-
 		const jwt = this.$cookies.get('jwt');
 
 		if (jwt && localStorage.userId) {
 			axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 			this.user.get();
-			this.setState(window.history.state.current, 0);
+			this.state = window.history.state.current;
+			this.connectToWebsocket();
 		} else {
-			this.setState(State.LOGIN, 0);
+			this.state = State.LOGIN;
 		}
-		
-		// window.addEventListener('popstate', (event) => {
-		// 	console.log('popstate event');
-		// 	console.log('event.state', event.state);
-		// 	console.log('history.state', window.history.state);
-		// 	console.log('router', this.$router.currentRoute.value.path);
-		// 	console.log();
-		// 	if (!!event.state) {
-		// 		// this.setState(event.state.page, 0);
-		// 		this.setState(window.history.state.current, 0);
-		// 	}
-		// });
 
 		onpopstate = (event) => {
-			console.log('onpopstate event');
-			console.log('event.state', event.state);
-			console.log('history.state', window.history.state);
-			console.log('router', this.$router.currentRoute.value.path);
-			console.log();
-			if (!!event.state) {
-				// this.setState(event.state.page, 0);
-				this.setState(window.history.state.current, 0);
-			}
+			if (this.user.isLoggedIn && this.$cookies.get('jwt'))
+				this.state = this.$route.fullPath;
+			else
+				this.switchPage(State.LOGIN);
 		};
 	},
 
 	watch: {
-		'state.page'(newValue, oldValue) {
-			console.log('state changed from', oldValue, 'to', newValue);
-			console.log();
-			const jwt = this.$cookies.get('jwt');
-			if (this.user.isLoggedIn && jwt && this.gameGateway.socket.disconnected) {
-				this.gameGateway.connect(jwt);
-				this.usersStatus.connect(jwt);
-				this.chatGateway.connect(jwt);
-			}
-		}
+		state() {
+			this.connectToWebsocket();
+		},
+		'gameGateway.state.value'(val, oldVal) {
+			if (oldVal != 'game' && val == 'game')
+				this.switchPage(State.GAME);
+		},
 	}
 }
 </script>
 
 <template>
-	<div v-if="state.page == State.LOGIN">
+	<div v-if="state == State.LOGIN">
 		<loginPage @switchPage="switchPage"></loginPage>
 	</div>
-	<div v-if="state.page == State.VALIDATE_2FA">
+	<div v-if="state == State.VALIDATE_2FA">
 		<validate2fa @switchPage="switchPage"></validate2fa>
 	</div>
-	<div v-else-if="state.page == State.REGISTER">
+	<div v-else-if="state == State.REGISTER">
 		<register @switchPage="switchPage"></register>
 	</div>
-	<div v-else-if="state.page == State.MAIN">
+	<div v-else-if="state == State.MAIN">
 		<mainPage @switchPage="switchPage"></mainPage>
 	</div>
-	<div v-else-if="state.page == State.USER">
+	<div v-else-if="state == State.USER">
 		<profil @switchPage="switchPage"></profil>
 	</div>
 	<div v-else-if="state == State.FRIENDS">
@@ -150,14 +123,17 @@ export default {
 	<div v-else-if="state == State.CHAT">
 		<chat @switchPage="switchPage"></chat>
 	</div>
-	<div v-else-if="state.page == State.EDIT">
+	<div v-else-if="state == State.EDIT">
 		<edit @switchPage="switchPage"></edit>
 	</div>
-	<div v-else-if="state.page == State.HISTORY">
+	<div v-else-if="state == State.HISTORY">
 		<history @switchPage="switchPage"></history>
 	</div>
 	<div v-else-if="state == State.CREATECHAT">
 		<createChat @switchPage="switchPage"></createChat>
+	</div>
+	<div v-else-if="state == State.CHATSETTINGS">
+		<chatSettings @switchPage="switchPage"></chatSettings>
 	</div>
 </template>
 

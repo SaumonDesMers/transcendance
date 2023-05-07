@@ -4,6 +4,7 @@ import io from "socket.io-client"
 import gameCanvas from './gameCanvas.vue'
 import game from '../scripts/game'
 import user from '../scripts/user';
+import { State } from '../scripts/state';
 
 export default {
 
@@ -21,9 +22,9 @@ export default {
 
 	methods: {},
 
-	mounted() { },
+	mounted() {},
 
-	created() { },
+	created() {},
 
 }
 </script>
