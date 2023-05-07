@@ -1,9 +1,10 @@
-<script>
+<script lang="ts">
 import axios from 'axios'
 import user from '../scripts/user'
 import { State } from '../scripts/state'
+import { defineComponent } from 'vue'
 
-export default {
+export default defineComponent({
 	data() {
 		return {
 			State,
@@ -39,7 +40,7 @@ export default {
 				})
 		},
 
-		switchPage(page) {
+		switchPage(page: State) {
 			this.$emit('switchPage', page);
 		},
 	},
@@ -49,7 +50,7 @@ export default {
 	mounted() {	},
 
 	created() { }
-}
+})
 </script>
 
 <template>

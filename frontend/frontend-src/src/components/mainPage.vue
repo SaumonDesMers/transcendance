@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 
 import { State } from '../scripts/state';
 import user from '../scripts/user';
@@ -6,8 +6,9 @@ import '../styles/backgrounds.scss'
 import gameGateway from '../scripts/game';
 import chatGateway from '../scripts/chat';
 import statusGateway from '../scripts/status';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
 	data: function () {
 		return {
 			State,
@@ -29,7 +30,7 @@ export default {
 			this.user.set({ darkMode: !this.user.darkMode });
 			this.user.save();
 		},
-		switchPage(page) {
+		switchPage(page: State) {
 			this.$emit('switchPage', page);
 		},
 		logout() {
@@ -44,7 +45,7 @@ export default {
 	mounted() {
 	},
 	emits: ['switchPage'],
-}
+})
 </script>
 
 <template>

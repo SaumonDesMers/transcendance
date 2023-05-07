@@ -1,12 +1,13 @@
-<script>
+<script lang="ts">
 import axios from 'axios'
 import io from "socket.io-client"
 import gameCanvas from './gameCanvas.vue'
 import game from '../scripts/game'
 import user from '../scripts/user';
 import { State } from '../scripts/state';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
 
 	components: {
 		gameCanvas
@@ -20,13 +21,7 @@ export default {
 		}
 	},
 
-	methods: {},
-
-	mounted() {},
-
-	created() {},
-
-}
+})
 </script>
 
 <template>

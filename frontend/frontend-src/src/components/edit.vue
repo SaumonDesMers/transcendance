@@ -1,11 +1,12 @@
-<script>
+<script lang="ts">
 // import axios from 'axios'
 import "./profil.vue"
 import { State } from '../scripts/state';
 import user from '../scripts/user';
 import toggle2fa from "./toggle2fa.vue";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
 
 	components: {
 		toggle2fa,
@@ -40,10 +41,10 @@ export default {
 			}
 			this.user.avatar.setFile(imageFile);
 		},
-		switchPage(page) {
+		switchPage(page: State) {
 			this.$emit('switchPage', page);
 		},
-		applyTheme(themeClass) {
+		applyTheme(themeClass: string) {
 			this.editCoa = themeClass;
 		},
 		toggleDarkMode() {
@@ -71,8 +72,7 @@ export default {
 	},
 
 	emits: ['switchPage']
-}
-
+})
 </script>
 
 <template>
@@ -95,7 +95,7 @@ export default {
 				<div class="grid" style="overflow: scroll; width: 100%; padding: 2rem 25% 2rem 25%;">
 					<div class="form-group">
 						<label>LOGIN</label>
-						<input class="input" v-model='editName' type="text" @click="username = ''" />
+						<input class="input" v-model='editName' type="text" @click="editName = ''" />
 					</div>
 					<div class="form-group">
 						<label>AVATAR</label>
@@ -109,7 +109,7 @@ export default {
 					</div>
 					<div class="form-group">
 						<label>BIO</label>
-						<textarea v-model='editBio' style="height: 150px; width: 100%; text-align: justify;" type="text" @click="bio = ''" />
+						<textarea v-model='editBio' style="height: 150px; width: 100%; text-align: justify;" type="text" @click="editBio = ''" />
 					</div>
 
 					<div style="display: flex; justify-content: space-between; gap: 4px">

@@ -1,10 +1,11 @@
-<script>
+<script lang="ts">
 import axios from 'axios'
 import { State } from '../scripts/state'
 import user from '../scripts/user'
 import { registerRuntimeHelpers } from '@vue/compiler-core'
+import { defineComponent } from 'vue'
 
-export default {
+export default defineComponent({
 	data: function () {
 		return {
 			coalition: '',
@@ -17,22 +18,22 @@ export default {
 	mounted() {
 	},
 	methods: {
-		applyTheme(themeClass) {
+		applyTheme(themeClass: string) {
 			if (themeClass == this.coalition)
 				this.coalition = '';
 			else
 				this.coalition = themeClass;
 		},
-		setTheme(themeClass) {
+		setTheme(themeClass: string) {
 			var theme = themeClass;
 			const b = document.querySelector('body');
 
-			b.classList.remove('ALLIANCE', 'ORDER', 'FEDERATION', 'ASSEMBLY', 'dark');
+			b?.classList.remove('ALLIANCE', 'ORDER', 'FEDERATION', 'ASSEMBLY', 'dark');
 			// console.log('setting theme (' + themeClass + ') computed as ' + theme + ' dark == ' + this.isDark);
 			if (theme)
-				b.classList.add(theme);
+				b?.classList.add(theme);
 			if (this.isDark)
-				b.classList.add('dark');
+				b?.classList.add('dark');
 		},
 		applyPreviousThemeOnMouseOut() {
 			this.setTheme(this.coalition);
@@ -40,25 +41,6 @@ export default {
 		toggleDarkMode() {
 			this.isDark = !this.isDark;
 			this.setTheme(this.coalition);
-		},
-		onFileChange(e) {
-			var files = e.target.files || e.dataTransfer.files;
-			if (!files.length)
-				return;
-			this.createImage(files[0]);
-		},
-		createImage(file) {
-			var image = new Image();
-			var reader = new FileReader();
-			var vm = this;
-
-			reader.onload = (e) => {
-				vm.image = e.target.result;
-			};
-			reader.readAsDataURL(file);
-		},
-		removeImage: function (e) {
-			this.image = '';
 		},
 		async requestUploadFile() {
 			var imageFile = this.$el.querySelector('#uploadmyfile').files[0];
@@ -98,13 +80,12 @@ export default {
 					console.log(error);
 				});
 		},
-		switchPage(page) {
+		switchPage(page: State) {
 			this.$emit('switchPage', page);
 		},
 	},
 	emits: ['switchPage', 'user']
-}
-
+})
 </script>
 
 <template>

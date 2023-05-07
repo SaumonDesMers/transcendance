@@ -1,9 +1,10 @@
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue';
 import { GameData } from '../scripts/gameData';
 import { computeShadowPolygone } from '../scripts/magic';
 import { Vec2 } from '../scripts/utils';
 
-export default {
+export default defineComponent({
 
 	data() {
 		return {
@@ -171,7 +172,7 @@ export default {
 	
 	created() {
 	}
-}
+})
 </script>
 
 <template>

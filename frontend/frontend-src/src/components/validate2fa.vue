@@ -3,7 +3,6 @@ import axios from 'axios'
 import { State } from '../scripts/state'
 import user from '../scripts/user'
 import { defineComponent } from 'vue'
-import { VueCookieNext as $cookie } from 'vue-cookie-next'
 
 export default defineComponent({
 	data() {

@@ -1,12 +1,13 @@
-<script>
+<script lang="ts">
 import axios from 'axios'
 import { State } from '../scripts/state'
 import user from '../scripts/user'
 import '../styles/all.scss'
 import "../styles/themes.scss"
 import "../styles/buttons.scss"
+import { defineComponent } from 'vue'
 
-export default {
+export default defineComponent({
 	data() {
 		return {
 			errorMsg: '',
@@ -18,7 +19,7 @@ export default {
 		login() {
 			window.location.href = 'http://localhost:3001/auth/login'
 		},
-		async requestUserWithJwt(jwt) {
+		async requestUserWithJwt(jwt: string) {
 
 			const { data, error } = await this.user.login(jwt);
 
@@ -35,7 +36,7 @@ export default {
 			else
 				this.$emit('switchPage', State.MAIN);
 		},
-		switchPage(page) {
+		switchPage(page: State) {
 			this.$emit('switchPage', page);
 		},
 	},
@@ -49,7 +50,7 @@ export default {
 	},
 
 	created() { }
-}
+})
 </script>
 
 <template>
