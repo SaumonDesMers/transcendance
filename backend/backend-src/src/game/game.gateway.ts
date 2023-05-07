@@ -13,6 +13,7 @@ import { Server, Socket } from 'socket.io'
 import { AuthService } from 'src/auth/auth.service';
 import { GameService } from './game.service';
 import { BroadcastService } from './broadcast.service'
+import { updateQueueDto } from './game.dto';
 
 @WebSocketGateway({
 	namespace: 'game',
@@ -46,8 +47,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 			return;
 		}
 
-		console.log('game.gateway: session =', socket.handshake.headers.sessionid);
-
 		// attach userId to socket
 		socket.data.userId = payload.id;
 
@@ -61,7 +60,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
 	@SubscribeMessage('queue')
 	async onQueue(
-		@MessageBody() body: any,
+		@MessageBody() body: updateQueueDto,
 		@ConnectedSocket() socket: Socket
 	) {
 		console.log(socket.data.userId, ': queue :', body);
@@ -70,7 +69,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
 	@SubscribeMessage('input')
 	async onInput(
-		@MessageBody() body: any,
+		@MessageBody() body: string,
 		@ConnectedSocket() socket: Socket
 	) {
 		// console.log(socket.data.userId, ': input :', body);
