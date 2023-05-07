@@ -37,7 +37,7 @@ export default {
 			chatGateway.disconnectFromServer();
 			statusGateway.disconnect();
 			localStorage.removeItem('userId');
-			this.$cookies.remove('jwt');
+			this.$cookie.removeCookie('jwt');
 			this.switchPage(State.LOGIN);
 		}
 	},

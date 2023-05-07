@@ -58,7 +58,7 @@ export default {
 	// 	// debugger
 	// },
 	methods: {
-		switchPage(page) {
+		switchPage(page: State) {
 			this.$emit('switchPage', page);
 		},
 		print() {
@@ -66,7 +66,7 @@ export default {
 		},
 
 		connectToServer() {
-			store.connect(this.$cookies.get('jwt'));
+			store.connect(this.$cookie.getCookie('jwt'));
 		},
 
 		disconnectFromServer() {

@@ -23,7 +23,7 @@ export default {
 			const { data, error } = await this.user.login(jwt);
 
 			if (error) {
-				this.$cookies.remove('jwt');
+				this.$cookie.removeCookie('jwt');
 				this.login();
 				return;
 			}
@@ -43,7 +43,7 @@ export default {
 	emits: ['switchPage', 'user'],
 
 	mounted() {
-		let jwt = this.$cookies.get('jwt');
+		let jwt = this.$cookie.getCookie('jwt');
 		if (jwt)
 			this.requestUserWithJwt(jwt);
 	},
