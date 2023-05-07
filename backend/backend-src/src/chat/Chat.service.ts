@@ -1,13 +1,39 @@
 import { Injectable } from "@nestjs/common";
-import { Prisma, Channel, ChatUser, Message, Mute, GroupChannel, ChanType } from "@prisma/client";
+import {
+	Prisma,
+	Channel,
+	ChatUser,
+	Message,
+	Mute,
+	GroupChannel,
+	ChanType } from "@prisma/client";
 import { MessageRepository } from "./Message.repository";
 import { ChannelRepository } from "./Channel.repository";
-import { GroupChannelWithMembers, MessageWithAll, MessageWithAuthor, MessageWithChannel, includeAllGroupChannel, saltRounds } from "./Chat.module";
+import {
+	GroupChannelWithMembers,
+	MessageWithAll,
+	MessageWithAuthor,
+	MessageWithChannel,
+	includeAllGroupChannel,
+	saltRounds } from "./Chat.module";
 import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { CreateDMChannelDto } from "./DMChannel.create.dto";
 import { PrismaModule } from "src/database/prisma.module";
 import { PrismaService } from "src/database/prisma.service";
-import { MuteDTO, adminRequestDTO, DMRequestDTO, GroupChannelDTO, ChanRequestDTO, basicChanRequestDTO, InviteRequestDTO, inviteUpdateDTO, ChanTypeRequestDTO, GroupChannelSnippetDTO, ChanKeyRequestDTO, CreateMessageDto, MessageDTO, SimpleChatUserDTO, ChanNotifDTO } from "./Chat.entities";
+import {
+	MuteDTO,
+	DMRequestDTO,
+	GroupChannelDTO,
+	ChanRequestDTO,
+	basicChanRequestDTO,
+	inviteUpdateDTO,
+	ChanTypeRequestDTO,
+	GroupChannelSnippetDTO,
+	ChanKeyRequestDTO,
+	CreateMessageDto,
+	MessageDTO,
+	SimpleChatUserDTO,
+	ChanNotifDTO } from "./Chat.entities";
 import { WsException } from "@nestjs/websockets";
 import { error } from "console";
 import { ValidationError } from "./Chat.error";
@@ -700,9 +726,7 @@ export class ChatService {
 
 
 
-	async setUserAdmin(
-		request: ChanRequestDTO
-		)
+	async setUserAdmin(request: ChanRequestDTO): Promise<ChanNotifDTO>
 	{
 		// const groupChannel = this.channelRepository.getSingleGroupChannel({channelId:GroupChannelId}, true);
 
@@ -778,6 +802,14 @@ export class ChatService {
 		});
 
 		}
+
+		//returning object containing only ids
+		return {
+			action:request.action,
+			targetUserId:target.id,
+			callerUserId:request.authorUserId,
+			channelId:request.channelId
+		};
 	}
 
 	async muteUser(request: MuteDTO)
@@ -1030,7 +1062,7 @@ export class ChatService {
 
 	//in an invite request there is an username ( for ease of use, its better to remember usernames than userId :p)
 	//so i need to return a InviteUpdate object with an userId since the rest of the codebase uses userIds
-	async inviteUser(request: InviteRequestDTO) : Promise<{targetUserId: number, channel: GroupChannelDTO}>
+	async inviteUser(request: ChanRequestDTO) : Promise<{targetUserId: number, channel: GroupChannelDTO}>
 	{
 		const user = await this.prisma.user.findUniqueOrThrow({
 			where: {

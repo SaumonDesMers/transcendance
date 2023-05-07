@@ -5,8 +5,6 @@ import {
 	ChannelDTO,
 	ChatUserDTO,
 	MessageDTO,
-	JoinDTO,
-	adminRequestDTO,
 	MuteDTO,
 	joinRequestDTO,
 	basicChanRequestDTO,
@@ -609,12 +607,12 @@ export class Chat {
 			}
 		});
 		
-		this.socket.on('user_joined_room', (payload: JoinDTO) => {
-			this._group_channels.get(payload.channelId)?.channel.users.push(payload.user);
+		this.socket.on('user_joined_room', (payload: ChanNotifDTO) => {
+			this._group_channels.get(payload.channelId)?.channel.users.push({userId:payload.targetUserId});
 		});
 		
-		this.socket.on('user_left_room', (payload: JoinDTO) => {
-			this.delete_user_from_chan(payload.user.userId, payload.channelId);
+		this.socket.on('user_left_room', (payload: ChanNotifDTO) => {
+			this.delete_user_from_chan(payload.targetUserId, payload.channelId);
 		});
 
 		this.socket.on("user_kicked", (payload: ChanNotifDTO) => {
@@ -666,7 +664,7 @@ export class Chat {
 				chan.type = payload.type;
 		});
 
-		this.socket.on("admin_update", (payload: ChanRequestDTO) => {
+		this.socket.on("admin_update", (payload: ChanNotifDTO) => {
 			let chan = this._group_channels.get(payload.channelId);
 
 			if (chan != undefined)
@@ -678,12 +676,12 @@ export class Chat {
 			}
 		});
 
-		this.socket.on("owner_update", (payload: NewChannelOwnerDTO) => {
+		this.socket.on("owner_update", (payload: ChanNotifDTO) => {
 			let chan = this._group_channels.get(payload.channelId);
 
 			if (chan !== undefined)
 			{
-				chan.owner = payload.newOwner;
+				chan.owner = {userId: payload.targetUserId};
 			}
 		});
 

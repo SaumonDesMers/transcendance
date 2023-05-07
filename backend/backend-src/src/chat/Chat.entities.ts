@@ -118,21 +118,16 @@ export interface NewChannelOwnerDTO {
 	channelId: number,
 }
 
-export interface JoinDTO {
-	user: SimpleChatUserDTO,
-	channelId: number
-}
-
 export interface inviteUpdateDTO {
 	targetUserId: number,
 	channel: GroupChannelDTO,
 }
 
 export interface ChanNotifDTO {
-	callerUserId: number,
+	callerUserId?: number,
 	targetUserId: number,
 	channelId: number,
-	action: boolean,
+	action?: boolean,
 }
 
 /*****************
@@ -157,23 +152,6 @@ export class joinRequestDTO {
 	@MaxLength(72)
 	@IsOptional()
 	key?: string;
-}
-
-export class adminRequestDTO {
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	callerUserId: number;
-
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	targetUserId: number;
-	
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	groupChannelId: number;
 }
 
 export class basicChanRequestDTO {
@@ -210,28 +188,6 @@ export class ChanRequestDTO {
 	@IsDefined()
 	@IsBoolean()
 	action: boolean; //true means set/do action, false means undo/unset
-}
-
-export class InviteRequestDTO {
-
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	authorUserId: number;
-
-	@IsDefined()
-	@IsNotEmpty()
-	@IsString()
-	targetUserName: string;
-
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
-	channelId: number;
-
-	@IsDefined()
-	@IsBoolean()
-	action: boolean;
 }
 
 export class ChanTypeRequestDTO {

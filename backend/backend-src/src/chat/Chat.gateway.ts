@@ -22,13 +22,11 @@ import {
 	ChannelDTO,
 	ChatUserDTO,
 	joinRequestDTO,
-	adminRequestDTO,
 	MuteDTO,
 	GroupChannelDTO,
 	ChanRequestDTO,
 	ChanTypeRequestDTO,
 	basicChanRequestDTO,
-	InviteRequestDTO,
 	inviteUpdateDTO,
 	ChanKeyRequestDTO,
 	DMChannelDTO,
@@ -189,7 +187,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		const user = await this.chatService.getChatUser(socket.data.userId);
 		console.log("user %d joining channel %s", socket.data.userId, channelWithMessage.name)
 		this.server.to(channelId.toString()).emit("user_joined_room", {
-			user,
+			targetUserId:user.userId,
 			channelId
 		});
 		socket.join(channelId.toString());
@@ -216,19 +214,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 		socket.leave(data.toString());
 		this.server.to(channel.channelId.toString()).emit("user_left_room", {
-			user: {
-				userId:socket.data.userId
-			},
-			channelId: channel.channelId
+			targetUserId:socket.data.userId,
+			channelId: channel.channelId,
 		});
 		console.log("user %d leaving channel %s", socket.data.userId, channel.name)
 
 		if(oldOwner != channel.ownerId)
 		{
 			this.server.to(channel.channelId.toString()).emit("owner_update", {
-				newOwner: {
-					userId:channel.ownerId
-				},
+				targetUserId:channel.ownerId,
 				channelId:channel.channelId
 			});
 		}
@@ -344,14 +338,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	@SubscribeMessage("invite_request")
 	async inviteUser(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() data: InviteRequestDTO)
+		@MessageBody() data: ChanRequestDTO)
 	{
 		try {
 			const {targetUserId, channel} = await this.chatService.inviteUser(data);
 			const targetSocket = await this.findSocket(targetUserId);
 
 			this.server.to(channel.channelId.toString())
-			.emit("user_joined_room", {user: {userId: targetUserId}, channelId: channel.channelId});
+			.emit("user_joined_room", {targetUserId, channelId: channel.channelId});
 
 			if (targetSocket != undefined)
 			{
@@ -429,14 +423,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@ConnectedSocket() socket: chatSocket,
 		@MessageBody() data: ChanRequestDTO)
 	{
+		let update: ChanNotifDTO;
 		try {
-			await this.chatService.setUserAdmin(data)
+			update = await this.chatService.setUserAdmin(data)
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e);
 		}
 
-		this.server.to(data.channelId.toString()).emit("admin_update", data);
+		this.server.to(data.channelId.toString()).emit("admin_update", update);
 	}
 
 	@SubscribeMessage("mute_request")

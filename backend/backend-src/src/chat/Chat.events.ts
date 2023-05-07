@@ -1,16 +1,13 @@
 import { Channel, DMChannel, Mute } from '@prisma/client';
 import { MessageDTO,
 	joinRequestDTO,
-	adminRequestDTO,
 	ChannelDTO,
 	ChatUserDTO,
 	MuteDTO,
 	GroupChannelDTO,
-	JoinDTO,
 	ChanRequestDTO,
 	basicChanRequestDTO,
 	inviteUpdateDTO,
-	InviteRequestDTO,
 	ChanTypeRequestDTO,
 	GroupChannelSnippetDTO,
 	SimpleChatUserDTO,
@@ -47,7 +44,7 @@ export interface ServerToClientEvents {
 	/**
 	 * Notice of a new admin or demoted admin in a channel
 	 */
-	admin_update: (payload: ChanRequestDTO) => void;
+	admin_update: (payload: ChanNotifDTO) => void;
 
 	/**
 	 * Notice that you have been invited to a channel
@@ -63,14 +60,14 @@ export interface ServerToClientEvents {
 	/**
 	 * Notice of owner change of a channel you have currently joined
 	 */
-	owner_update: (payload: NewChannelOwnerDTO) => void;
+	owner_update: (payload: ChanNotifDTO) => void;
 
 	/**
 	 * Notice of user join/leave in a channel you have currently joined
 	 */
-	user_joined_room: (payload: JoinDTO) => void;
+	user_joined_room: (payload: ChanNotifDTO) => void;
 
-	user_left_room: (payload: JoinDTO) => void;
+	user_left_room: (payload: ChanNotifDTO) => void;
 
 	/**
 	 * Notice of user kick in a channel you have currently joined
@@ -188,7 +185,7 @@ export interface ClientToServerEvents {
 	/**
 	 * Request to invite/uninvite someone in a channel
 	 */
-	invite_request: (request: InviteRequestDTO) => void;
+	invite_request: (request: ChanRequestDTO) => void;
 	
 	/**
 	 * Request to change Type of a channel ( private, public, key)
