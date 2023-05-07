@@ -20,9 +20,9 @@ import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/
 import store from "../scripts/chat"
 import user from '../scripts/user';
 import { State } from '../scripts/state';
-import { reactive } from 'vue';
+import { defineComponent, reactive } from 'vue';
 
-export default {
+export default defineComponent({
 
 	data() {
 		return {
@@ -35,7 +35,7 @@ export default {
 			userNameInputBuffer: '',
 			customGameInvite: false,
 			searchInput: '',
-			searchArray: [],
+			searchArray: [] as string[],
 			store,
 			onInvit: false,
 			showMP: false,
@@ -48,6 +48,8 @@ export default {
 			tmpUser: '',
 		}
 	},
+	mounted() {
+	},
 	computed: {
 		currentChannel() {
 			return store.getCurrentChannel();
@@ -58,7 +60,7 @@ export default {
 	// 	// debugger
 	// },
 	methods: {
-		switchPage(page) {
+		switchPage(page: State) {
 			this.$emit('switchPage', page);
 		},
 		print() {
@@ -140,13 +142,11 @@ export default {
 			});
 		}
 	},
-	mounted() {
-	},
 
 	created() {
 	},
 	emits: ['switchPage'],
-}
+})
 
 </script>
 
@@ -179,7 +179,7 @@ export default {
 			<div class="chat-list" :class="[user.darkMode == true ? 'dark' : 'light']">
 				<div style="height: 4vh;">
 					<p style="position:relative; margin-left: 8.5rem; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 2vw;"
-						class="fa-solid fa-plus" @click="this.switchPage(State.CREATECHAT)"></p>
+						class="fa-solid fa-plus" @click="switchPage(State.CREATECHAT)"></p>
 					<!-- <p class="fa-solid fa-plus" style="position:fixed; font-size: 1.5vw; margin-top: 0.2rem; color:black"></p> -->
 				</div>
 				<div>
@@ -245,18 +245,18 @@ export default {
 				</div>
 			</div>
 			<div class="chat-box" :class="[user.darkMode == true ? 'dark' : 'light']">
-				<div v-if="this.currentChannel != undefined">
+				<div v-if="currentChannel != undefined">
 					<div class="grid-border">
 						<p class="title-chat" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">
-							{{ this.currentChannel.name }}
+							{{ currentChannel.name }}
 						</p>
 					</div>
 				</div>
-				<div v-if="this.currentChannel != undefined && store.isCurrentDM == false">
-					<!-- <p>Current Channel : {{ this.currentChannel.name }}</p>
-				<p>Channel Owner: {{ store.getUserName(this.currentChannel.owner?.userId) }}</p> -->
+				<div v-if="currentChannel != undefined && store.isCurrentDM == false">
+					<!-- <p>Current Channel : {{ currentChannel.name }}</p>
+				<p>Channel Owner: {{ store.getUserName(currentChannel.owner?.userId) }}</p> -->
 					<div class="conversation" style="overflow: scroll; height: 80vh;">
-						<div v-for="message in this.currentChannel?.channel.messages">
+						<div v-for="message in currentChannel?.channel.messages">
 							<p>
 								{{ store.getUserName(message.author.userId) }} : {{ message.content }}
 							<p v-if="message.gameInvite != undefined">
@@ -266,7 +266,7 @@ export default {
 							</p>
 							</p>
 						</div>
-						<!-- <div v-for="user in this.currentChannel?.channel.users"> -->
+						<!-- <div v-for="user in currentChannel?.channel.users"> -->
 						<!-- <button @click="">ban</button> -->
 						<!-- <p>{{ store.getUserName(user.userId) }}</p>
 					<button @click="store.kick_user(user.userId)">kick</button>
@@ -274,7 +274,7 @@ export default {
 				</div> -->
 					</div>
 				</div>
-				<div div v-if="this.currentChannel != undefined" class="send-message">
+				<div div v-if="currentChannel != undefined" class="send-message">
 					<textarea class="input-message" type="text" v-model="messageInputBuffer"></textarea>
 					<div style="display: flex; flex-direction: column; justify-content: space-between;">
 						<button class="fa-solid fa-paper-plane text-color-dark"
@@ -291,7 +291,7 @@ export default {
 				</div>
 			</div>
 			<div class="users" :class="[user.darkMode == true ? 'dark' : 'light']">
-				<div v-if="this.currentChannel != undefined && store.isCurrentDM == false">
+				<div v-if="currentChannel != undefined && store.isCurrentDM == false">
 					<div style="height: 2rem;">
 						<input id="invite" type="radio" value="KEY" @click="clickInvite()" class="nodisplay visibility ">
 						<label for="invite">
@@ -303,7 +303,7 @@ export default {
 								style="width: 9%; position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 2rem; font-size: 1vw"
 								type="text" v-model="searchInput" />
 							<div>
-								<p @click="store.invite_user(username, true)" v-for="username in this.searchArray">{{
+								<p @click="store.invite_user(username, true)" v-for="username in searchArray">{{
 									username }}
 									<button @click="store.invite_user(username, true)">Invite
 										User</button>
@@ -318,10 +318,10 @@ export default {
 							class="fa-solid fa-arrow-right-from-bracket" @click="leaveChannel()"></p>
 					</div>
 					<div v-show="!onInvit">
-						<p>{{ store.getUserName(this.currentChannel.owner?.userId) }}
+						<p>{{ store.getUserName(currentChannel.owner?.userId) }}
 						<p class="fa-solid fa-crown" style="padding:10px; color: gold"></p>
 						</p>
-						<div v-for="user in this.currentChannel?.channel.users">
+						<div v-for="user in currentChannel?.channel.users">
 							<p @click="moderationUser = !moderationUser; tmpUser = store.getUserName(user.userId)">
 								{{ store.getUserName(user.userId) }}
 								<p class="fa-solid fa-ellipsis-v" style="padding:10px; color: rgb(255, 255, 255)"></p>
@@ -372,7 +372,7 @@ export default {
 				<button @click="selectChannel(channelId)">{{ channel.name }}</button>
 			</div> -->
 
-			<!-- <div v-if="this.currentChannel != undefined"> -->
+			<!-- <div v-if="currentChannel != undefined"> -->
 			<!-- <div> -->
 			<!-- <input type="text" v-model="messageInputBuffer">
 				<button @click="SendMessage">Send</button>
@@ -389,10 +389,10 @@ export default {
 			</div> -->
 
 			<!-- Ici on affiche un channel de groupe avec les messages et les options... -->
-			<div v-if="this.currentChannel != undefined && store.isCurrentDM == false">
-				<!-- <p>Current Channel : {{ this.currentChannel.name }}</p>
-				<p>Channel Owner: {{ store.getUserName(this.currentChannel.owner?.userId) }}</p>
-				<div v-for="message in this.currentChannel?.channel.messages">
+			<!-- <div v-if="currentChannel != undefined && store.isCurrentDM == false"> -->
+				<!-- <p>Current Channel : {{ currentChannel.name }}</p>
+				<p>Channel Owner: {{ store.getUserName(currentChannel.owner?.userId) }}</p>
+				<div v-for="message in currentChannel?.channel.messages">
 					<p>
 						{{ store.getUserName(message.author.userId) }} : {{ message.content }}
 					<p v-if="message.gameInvite != undefined">
@@ -402,47 +402,47 @@ export default {
 					</p>
 					</p>
 				</div> -->
-				<div v-for="user in this.currentChannel?.channel.users">
+				<!-- <div v-for="user in currentChannel?.channel.users"> -->
 					<!-- <button @click="">ban</button> -->
-					<p>{{ store.getUserName(user.userId) }}</p>
+					<!-- <p>{{ store.getUserName(user.userId) }}</p>
 					<button @click="store.kick_user(user.userId)">kick</button>
 					<button @click="store.ban_user(user.userId, true)">ban</button>
-				</div>
+				</div> -->
 
 				<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PRIVÉ -->
-				<div v-if="this.currentChannel?.type == 'PRIV' || this.currentChannel?.type == 'PUBLIC'">
+				<!-- <div v-if="currentChannel?.type == 'PRIV' || currentChannel?.type == 'PUBLIC'">
 					<p>Invited Users:</p>
-					<div v-for="user in this.currentChannel?.invited">
+					<div v-for="user in currentChannel?.invited">
 						<p> {{ store.getUserName(user.userId) }}</p>
 					</div>
-					<div v-for="user in this.currentChannel?.channel.users">
+					<div v-for="user in currentChannel?.channel.users"> -->
 						<!-- <button @click="">ban</button> -->
-						<p>{{ store.getUserName(user.userId) }}</p>
+						<!-- <p>{{ store.getUserName(user.userId) }}</p>
 						<button @click="store.kick_user(user.userId)">kick</button>
 						<button @click="store.ban_user(user.userId, true)">ban</button>
-					</div>
+					</div> -->
 
 					<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PRIVÉ -->
-					<div v-if="this.currentChannel?.type == 'PRIV' || this.currentChannel?.type == 'PUBLIC'">
+					<!-- <div v-if="currentChannel?.type == 'PRIV' || currentChannel?.type == 'PUBLIC'">
 						<p>Invited Users:</p>
-						<div v-for="user in this.currentChannel?.invited">
+						<div v-for="user in currentChannel?.invited">
 							<p> {{ store.getUserName(user.userId) }}</p>
 						</div>
-						<input type="text" v-model="userNameInputBuffer">
+						<input type="text" v-model="userNameInputBuffer"> -->
 						<!-- Exemple d'un appel a la fonction Pour invite et uninvite un user -->
-						<button @click="store.invite_user(userNameInputBuffer, true)">Invite User</button>
-						<button @click="store.invite_user(userNameInputBuffer, false)">Uninvite User</button>
-					</div>
+						<!-- <button @click="store.invite_user(userNameInputBuffer, true)">Invite User</button>
+						<button @click="store.invite_user(userNameInputBuffer, false)">Uninvite User</button> -->
+					<!-- </div> -->
 
 					<!-- Exemple d'un appel a la fonction Pour invite et uninvite un user -->
-					<button @click="store.invite_user(userNameInputBuffer, true)">Invite
+					<!-- <button @click="store.invite_user(userNameInputBuffer, true)">Invite
 						User</button>
 					<button @click="store.invite_user(userNameInputBuffer, false)">Uninvite
 						User</button>
-				</div>
+				</div> -->
 
 				<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PROTEGE PAR CLÉ -->
-				<!-- <div v-if="this.currentChannel?.type == 'KEY'">
+				<!-- <div v-if="currentChannel?.type == 'KEY'">
 					<input type="text" v-model="setKeyInputBuffer">
 
 					<button @click="store.setChanKey(setKeyInputBuffer)">Set Chan Key</button>
@@ -450,42 +450,42 @@ export default {
 
 				<!-- un exemple d'un ensemble de boutons pour changer le type du channel actuellement selectionné -->
 
-				<button @click="store.setChanType('PUBLIC')">Set Channel Public</button>
-				<button @click="store.setChanType('PRIV')">Set Channel Private</button>
+				<!-- <button @click="store.setChanType('PUBLIC')">Set Channel Public</button> -->
+				<!-- <button @click="store.setChanType('PRIV')">Set Channel Private</button> -->
 
 				<!-- ça c'est à l'arrache faut pas faire ça ( j'ai la même var d'input que le champ du dessus) -->
-				<input type="text" v-model="setKeyInputBuffer">
+				<!-- <input type="text" v-model="setKeyInputBuffer"> -->
 
-				<button @click="store.setChanKey(setKeyInputBuffer)">Set Chan Key</button>
-			</div>
+				<!-- <button @click="store.setChanKey(setKeyInputBuffer)">Set Chan Key</button> -->
+			<!-- </div> -->
 
 			<!-- un exemple d'un ensemble de boutons pour changer le type du channel actuellement selectionné -->
 
-			<button @click="store.setChanType('PUBLIC')">Set Channel Public</button>
-			<button @click="store.setChanType('PRIV')">Set Channel Private</button>
+			<!-- <button @click="store.setChanType('PUBLIC')">Set Channel Public</button> -->
+			<!-- <button @click="store.setChanType('PRIV')">Set Channel Private</button> -->
 
 			<!-- ça c'est à l'arrache faut pas faire ça ( j'ai la même var d'input que le champ du dessus) -->
-			<input type="text" v-model="setKeyInputBuffer">
+			<!-- <input type="text" v-model="setKeyInputBuffer"> -->
 
-			<button @click="store.setChanType('KEY', setKeyInputBuffer)">Set Channel KeyProtected</button>
+			<!-- <button @click="store.setChanType('KEY', setKeyInputBuffer)">Set Channel KeyProtected</button> -->
 			<!-- </div> -->
 
-			<div v-if="this.currentChannel != undefined && store.isCurrentDM == true">
-				<p>Chat With
-				<p v-for="user in this.currentChannel?.channel.users">{{ store.getUserName(user.userId) }}</p>
-				</p>
+			<!-- <div v-if="currentChannel != undefined && store.isCurrentDM == true"> -->
+				<!-- <p>Chat With -->
+				<!-- <p v-for="user in currentChannel?.channel.users">{{ store.getUserName(user.userId) }}</p> -->
+				<!-- </p> -->
 
-				<div v-for="message in this.currentChannel?.channel.messages">
-					<p>
-						{{ store.getUserName(message.author.userId) }} : {{ message.content }}
-					<p v-if="message.gameInvite != undefined">
-						Game Invite status: {{ message.gameInvite.status }}
+				<!-- <div v-for="message in currentChannel?.channel.messages"> -->
+					<!-- <p> -->
+						<!-- {{ store.getUserName(message.author.userId) }} : {{ message.content }} -->
+					<!-- <p v-if="message.gameInvite != undefined"> -->
+						<!-- Game Invite status: {{ message.gameInvite.status }}
 						<button v-if="message.gameInvite.status == 'PENDING'"
 							@click="store.acceptGameInvite(message)">Join</button>
 					</p>
 					</p>
 				</div>
-			</div>
+			</div> -->
 
 		</div>
 
