@@ -49,12 +49,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 		// attach userId to socket
 		socket.data.userId = payload.id;
 
-		console.log(socket.data.userId, ': connect');
+		console.log(socket.data.userId, ': connect to game');
 		this.gameService.connection(socket);
 	}
 
 	async handleDisconnect(socket: any) {
-		console.log(socket.data.userId, ': disconnect');
 		await this.gameService.disconnection(socket);
 	}
 
