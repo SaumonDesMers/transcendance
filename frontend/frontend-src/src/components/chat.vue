@@ -151,10 +151,6 @@ export default {
 					<button style="color: red" @click="this.switchPage(State.CREATECHAT)">Create Channel</button>
 				</div>
 				<div>
-					<input type="text" v-model="searchInput"/>
-					<p v-for="username in this.searchArray">{{ username }}</p>
-				</div>
-				<div>
 					<p class="text-color-dark grid-border"
 						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;">Public Channels </p>
 					<div class="chan-can-join">
