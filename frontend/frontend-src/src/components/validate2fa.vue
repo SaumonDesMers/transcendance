@@ -1,9 +1,11 @@
-<script>
+<script lang="ts">
 import axios from 'axios'
 import { State } from '../scripts/state'
 import user from '../scripts/user'
+import { defineComponent } from 'vue'
+import { VueCookieNext as $cookie } from 'vue-cookie-next'
 
-export default {
+export default defineComponent({
 	data() {
 		return {
 			State,
@@ -29,11 +31,11 @@ export default {
 		},
 
 		cancel() {
-			this.$cookies.remove('jwt');
+			this.$cookie.removeCookie('jwt');
 			this.switchPage(State.LOGIN);
 		},
 
-		switchPage(page) {
+		switchPage(page: State) {
 			this.$emit('switchPage', page);
 		},
 	},
@@ -43,7 +45,7 @@ export default {
 	mounted() {	},
 
 	created() { }
-}
+})
 </script>
 
 <template>

@@ -41,7 +41,7 @@ export default defineComponent({
 	data() {
 		return {
 			State,
-			state: State,
+			state: State.MAIN,
 			previousPage: 10,
 			user,
 			statusGateway,
@@ -51,11 +51,11 @@ export default defineComponent({
 	},
 
 	methods: {
-		switchPage(page) {
+		switchPage(page: State) {
 			this.$router.push({ path: page });
 			this.state = page;
 		},
-		makeid(length) {
+		makeid(length: number) {
 			let result = '';
 			const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 			for (let i = 0; i < length; i++)
@@ -66,7 +66,7 @@ export default defineComponent({
 			if (!localStorage.sessionId)
 				localStorage.sessionId = this.makeid(10);
 			
-			const jwt = this.$cookies.get('jwt');
+			const jwt = this.$cookie.getCookie('jwt');
 			this.gameGateway.connect(jwt);
 			this.statusGateway.connect(jwt);
 			this.chatGateway.connect(jwt);
@@ -77,7 +77,7 @@ export default defineComponent({
 
 	created() {
 
-		const jwt = this.$cookies.get('jwt');
+		const jwt = this.$cookie.getCookie('jwt');
 
 		if (jwt && localStorage.userId) {
 			axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
@@ -89,8 +89,8 @@ export default defineComponent({
 		}
 
 		onpopstate = (event) => {
-			if (this.user.isLoggedIn && this.$cookies.get('jwt'))
-				this.state = this.$route.fullPath;
+			if (this.user.isLoggedIn && this.$cookie.getCookie('jwt'))
+				this.state = this.$route.fullPath as State;
 			else
 				this.switchPage(State.LOGIN);
 		};

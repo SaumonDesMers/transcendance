@@ -68,7 +68,7 @@ export default defineComponent({
 		},
 
 		connectToServer() {
-			store.connect(this.$cookies.get('jwt'));
+			store.connect(this.$cookie.getCookie('jwt'));
 		},
 
 		disconnectFromServer() {

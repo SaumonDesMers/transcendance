@@ -15,6 +15,7 @@ import chat from './components/chat.vue';
 import friends from './components/friends.vue';
 import stats from './components/statistics.vue';
 import createChat from './components/createChat.vue';
+import { VueCookieNext } from 'vue-cookie-next'
 
 const routes = [
 	{ name: 'main', path: '/', component: main },
@@ -38,6 +39,6 @@ const router = createRouter({
 
 const app = createApp(App);
 
-app.use(VueCookies).use(router);
+app.use(VueCookieNext).use(router);
 
 app.mount('#app');
