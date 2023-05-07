@@ -151,7 +151,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 
 		socket.join(channel.channel.id.toString());
-		if (channel.type == 'PUBLIC' || channel.type == 'PRIV')
+		if (channel.type == 'PUBLIC' || channel.type == 'KEY')
 		{
 			const snippet: GroupChannelSnippetDTO = {
 				channelId:channel.channelId,
