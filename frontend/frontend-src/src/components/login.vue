@@ -1,12 +1,13 @@
-<script>
+<script lang="ts">
 import axios from 'axios'
 import { State } from '../scripts/state'
 import user from '../scripts/user'
 import '../styles/all.scss'
 import "../styles/themes.scss"
 import "../styles/buttons.scss"
+import { defineComponent } from 'vue'
 
-export default {
+export default defineComponent({
 	data() {
 		return {
 			errorMsg: '',
@@ -18,38 +19,38 @@ export default {
 		login() {
 			window.location.href = 'http://localhost:3001/auth/login'
 		},
-		async requestUserWithJwt(jwt) {
+		async requestUserWithJwt(jwt: string) {
 
 			const { data, error } = await this.user.login(jwt);
 
 			if (error) {
-				this.$cookies.remove('jwt');
+				this.$cookie.removeCookie('jwt');
 				this.login();
 				return;
 			}
 			
 			if (data == '')
-				this.$emit('switchPage', State.REGISTER);
+				this.$emit('switchPage', {page:State.REGISTER});
 			else if (data == '2fa')
-				this.$emit('switchPage', State.VALIDATE_2FA);
+				this.$emit('switchPage', {page:State.VALIDATE_2FA});
 			else
-				this.$emit('switchPage', State.MAIN);
+				this.$emit('switchPage', {page:State.MAIN});
 		},
-		switchPage(page) {
-			this.$emit('switchPage', page);
+		switchPage(page: State, id?: number) {
+			this.$emit('switchPage', {page, id});
 		},
 	},
 
 	emits: ['switchPage', 'user'],
 
 	mounted() {
-		let jwt = this.$cookies.get('jwt');
+		let jwt = this.$cookie.getCookie('jwt');
 		if (jwt)
 			this.requestUserWithJwt(jwt);
 	},
 
 	created() { }
-}
+})
 </script>
 
 <template>

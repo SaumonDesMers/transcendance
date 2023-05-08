@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import axios from 'axios'
 import io from "socket.io-client"
 import loginPage from './components/login.vue'
@@ -19,8 +19,9 @@ import friends from './components/friends.vue'
 import history from './components/history.vue'
 import createChat from './components/createChat.vue'
 import chatSettings from './components/chatSettings.vue'
+import { defineComponent } from 'vue'
 
-export default {
+export default defineComponent({
 
 	components: {
 		loginPage,
@@ -40,7 +41,7 @@ export default {
 	data() {
 		return {
 			State,
-			state: State,
+			state: State.MAIN,
 			previousPage: 10,
 			user,
 			statusGateway,
@@ -50,11 +51,11 @@ export default {
 	},
 
 	methods: {
-		switchPage(page) {
-			this.$router.push({ path: page });
-			this.state = page;
+		switchPage(state: {page: State, id?: number}) {
+			this.$router.push({ path: state.page, query: { id:state.id } });
+			this.state = state.page;
 		},
-		makeid(length) {
+		makeid(length: number) {
 			let result = '';
 			const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 			for (let i = 0; i < length; i++)
@@ -65,7 +66,7 @@ export default {
 			if (!localStorage.sessionId)
 				localStorage.sessionId = this.makeid(10);
 			
-			const jwt = this.$cookies.get('jwt');
+			const jwt = this.$cookie.getCookie('jwt');
 			this.gameGateway.connect(jwt);
 			this.statusGateway.connect(jwt);
 			this.chatGateway.connect(jwt);
@@ -76,7 +77,7 @@ export default {
 
 	created() {
 
-		const jwt = this.$cookies.get('jwt');
+		const jwt = this.$cookie.getCookie('jwt');
 
 		if (jwt && localStorage.userId) {
 			axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
@@ -88,24 +89,30 @@ export default {
 		}
 
 		onpopstate = (event) => {
-			if (this.user.isLoggedIn && this.$cookies.get('jwt'))
-				this.state = this.$route.fullPath;
+			if (this.user.isLoggedIn && this.$cookie.getCookie('jwt'))
+				this.state = this.$route.path as State;
 			else
-				this.switchPage(State.LOGIN);
+				this.switchPage({ page: State.LOGIN });
 		};
+
+		console.log(this.$route);
 	},
 
 	watch: {
+		$route(val, oldVal) {
+			this.state = this.$route.path as State;
+		},
 		state(val, oldVal) {
 			if (oldVal == State.LOGIN && val != State.LOGIN)
 				this.connectToWebsocket();
 		},
 		'gameGateway.state.value'(val, oldVal) {
 			if (oldVal != 'game' && val == 'game')
-				this.switchPage(State.GAME);
+				this.switchPage({ page: State.GAME });
 		},
 	}
-}
+})
+
 </script>
 
 <template>

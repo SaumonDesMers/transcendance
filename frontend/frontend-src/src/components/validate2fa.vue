@@ -1,9 +1,10 @@
-<script>
+<script lang="ts">
 import axios from 'axios'
 import { State } from '../scripts/state'
 import user from '../scripts/user'
+import { defineComponent } from 'vue'
 
-export default {
+export default defineComponent({
 	data() {
 		return {
 			State,
@@ -29,12 +30,12 @@ export default {
 		},
 
 		cancel() {
-			this.$cookies.remove('jwt');
+			this.$cookie.removeCookie('jwt');
 			this.switchPage(State.LOGIN);
 		},
 
-		switchPage(page) {
-			this.$emit('switchPage', page);
+		switchPage(page: State, id?: number) {
+			this.$emit('switchPage', {page, id});
 		},
 	},
 
@@ -43,7 +44,7 @@ export default {
 	mounted() {	},
 
 	created() { }
-}
+})
 </script>
 
 <template>

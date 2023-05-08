@@ -1,11 +1,12 @@
-<script>
+<script lang="ts">
 
 import axios from 'axios'
 import { State } from '../scripts/state';
 import SelfUser from '../scripts/user';
 import { User, UserPrison } from '../scripts/user';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
 	props: {
 		displayUserId: Number
 	},
@@ -16,7 +17,7 @@ export default {
 			SelfUser,
 			displayUser: new User(),
 			userFactory: new UserPrison(),
-			ladder: []
+			ladder: [] as {id:number, username:string}[], // TODO: type this
 		}
 	},
 	methods: {
@@ -24,13 +25,13 @@ export default {
 			this.SelfUser.set({ darkMode: !this.SelfUser.darkMode });
 			this.SelfUser.save();
 		},
-		switchPage(page) {
-			this.$emit('switchPage', page);
+		switchPage(page: State, id?: number) {
+			this.$emit('switchPage', {page, id});
 		},
 	},
 	mounted() {
 		console.log(this.displayUserId);
-		this.displayUser.loadUser(this.displayUserId).then(nothin => {
+		this.displayUser.loadUser(this.displayUserId as number).then(nothin => {
 			this.displayUser.downloadAvatar();
 			this.displayUser.loadHistory();
 		});
@@ -47,7 +48,7 @@ export default {
 		});
 	},
 	emits: ['switchPage']
-}
+})
 </script>
 
 <template>
@@ -69,7 +70,7 @@ export default {
 			<div class="grid-history">
 				<div class="best-players">
 					<h1 class="text-color-dark"><p class="fa-solid fa-ranking-star"></p> BEST PLAYERS <p class="fa-solid fa-ranking-star"></p><br></h1>
-					<div v-for="(user, rank) in this.ladder">
+					<div v-for="(user, rank) in ladder">
 						<p class="text-color-dark">{{ rank + 1 }} : {{ user.username }}<br></p>
 					</div>
 				</div>

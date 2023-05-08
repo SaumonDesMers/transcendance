@@ -26,6 +26,12 @@ export class Game {
 	constructor() {
 		this.data = reactive(new GameData());
 		this.state = reactive(new State());
+		this.jwt = '';
+
+		this.socket = io('http://localhost:3001/game', {
+			autoConnect: false,
+			reconnection: false
+		});
 		this.initSocket();
 	}
 
@@ -46,14 +52,7 @@ export class Game {
 	}
 
 	initSocket() {
-		this.socket = io('http://localhost:3001/game', {
-			autoConnect: false,
-			reconnection: false
-		});
-		
-		this.socket.on('connect', () => {
-			this.state.set('none', '');
-		});
+		this.socket.on('connect', () => { this.state.set('none', ''); });
 		
 		this.socket.on('disconnect', this.onDisconnect.bind(this));
 		this.socket.on('connect_error', this.onConnectError.bind(this));
@@ -63,14 +62,13 @@ export class Game {
 		this.socket.on('start', this.onGameStart.bind(this));
 		this.socket.on('update', this.onGameUpdate.bind(this));
 		this.socket.on('end', this.onGameEnd.bind(this));
-
 	}
 
 	onDisconnect(reason: string) {
 		setTimeout(this.connect.bind(this), 5000);
 	}
 
-	onConnectError(error: string) {
+	onConnectError(error: Error) {
 		setTimeout(this.connect.bind(this), 5000);
 	}
 

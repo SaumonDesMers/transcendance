@@ -57,6 +57,7 @@ export interface ServerToClientEvents {
 	 */
 	chan_type_update: (payload: ChanTypeRequestDTO) => void;
 
+	chan_deleted: (channelId: number) => void;
 	/**
 	 * Notice of owner change of a channel you have currently joined
 	 */
@@ -214,8 +215,10 @@ export interface ClientToServerEvents {
 	 * Request to accept an invite made by another player in the chat 
 	 */
 	accept_game_invite: (msg: MessageDTO) => void;
-	//TODO BLOCK REQUEST
+
+	block_request: (data: {targetUserName: string, action: boolean}, callback: (userId: number) => void) => void;
 }
+
 
 export interface SocketData {
 	userId: number,
