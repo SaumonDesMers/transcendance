@@ -7,7 +7,6 @@ import store from "../scripts/chat"
 import { defineComponent } from 'vue';
 import { ChanType } from '../scripts/chat';
 
-
 export default defineComponent({
 
     data: function () {
@@ -94,10 +93,10 @@ export default defineComponent({
 					<div>
 						<p style="display:flex; justify-content: center; color: white;"
 							@click="store.invite_user(username, true)" v-for="username in searchArray">{{ username }}
+							<button style="" @click="store.user_admin(username, true)">MAKE ADMINISTRATOR</button>
 						</p>
 					</div>
 					<div>
-						<button style="" @click="store.invite_user(username, true)">MADE ADMINISTRATOR</button>
 					</div>
 					<div>
 						<div>
