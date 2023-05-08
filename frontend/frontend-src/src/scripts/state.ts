@@ -12,5 +12,6 @@ export enum State {
 	FRIENDS = '/friends',
 	EDIT = '/edit',
 	CREATECHAT = '/create-chat',
-	CHATSETTINGS = '/chat-settings'
+	CHATSETTINGS = '/chat-settings',
+	MUTE = '/mute'
 }

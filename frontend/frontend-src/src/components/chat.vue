@@ -149,7 +149,7 @@ export default defineComponent({
 			});
 		}
 	},
-
+	
 	created() {
 	},
 	emits: ['switchPage'],
@@ -165,7 +165,7 @@ export default defineComponent({
 			<!-- <div class="cloud cloud0"></div>
 				<div class="cloud cloud1"></div>
 				<div class="cloud cloud2"></div> -->
-		</div>
+			</div>
 		<div v-else="user.darkMode == true">
 			<div style="width: 0;">
 				<div class="moon" style="z-index: -1; position: fixed; top: 1rem;">
@@ -338,7 +338,8 @@ export default defineComponent({
 							<div
 								:style="[tmpUser == store.getUserName(user.userId) && moderationUser ? '' : 'display:none;']">
 								<p style="margin-top: 1rem;">
-									Mute<br>
+									<!-- Mute<br> -->
+									<button class="nocolor-btn" style="color:white" @click="switchPage(State.MUTE)">mute</button>
 									<!-- <button class="nocolor-btn" style="color:white" @click="store. (store.getUserName(user.userId))">Mute</button> -->
 									<div v-if="currentGroupChannel != undefined">
 										<button class="nocolor-btn" style="color:white" v-if="!store.isBlocked(user.userId)" @click="store.startDM(store.getUserName(user.userId))">DM</button>

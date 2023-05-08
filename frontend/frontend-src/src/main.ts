@@ -14,6 +14,7 @@ import game from './components/game.vue';
 import chat from './components/chat.vue';
 import friends from './components/friends.vue';
 import createChat from './components/createChat.vue';
+import mute from './components/mute.vue'
 import { VueCookieNext } from 'vue-cookie-next'
 
 const routes = [
@@ -29,6 +30,7 @@ const routes = [
 	{ name: 'friends', path: '/friends', component: friends },
 	{ name: 'create-chat', path: '/create-chat', component: createChat },
 	{ name: 'chat-settings', path: '/chat-settings', component: createChat },
+	{ name: 'mute', path: '/mute', component: mute },
 ];
 
 const router = createRouter({

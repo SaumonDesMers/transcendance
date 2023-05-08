@@ -4,13 +4,15 @@ affichage du user qui va se faire mute
 + cancel / save  -->
 
 
-<script>
+<script lang="ts">
 import chat from '../scripts/chat';
-import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto';
+// import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto';
 import { State } from '../scripts/state';
 import user from '../scripts/user';
+import store from "../scripts/chat"
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
 
 data: function () {
     return {
@@ -26,16 +28,16 @@ data: function () {
 methods: {
     async saveModifications() {
         // save les modifs du user selectionne
-            console.log(this.currentUser());
-            user = currentUser();
+            // console.log(this.currentUser());
+            // this.user = this.currentUser();
             this.switchPage(State.CHAT);
         },
-        switchPage(page) {
+        switchPage(page: State) {
             this.$emit('switchPage', page);
         },
-        applyTheme(themeClass) {
-            this.editCoa = themeClass;
-        },
+        // applyTheme(themeClass) {
+        //     this.editCoa = themeClass;
+        // },
         toggleDarkMode() {
             this.user.set({ darkMode: !this.user.darkMode });
             this.user.save();
@@ -44,19 +46,19 @@ methods: {
     },
 
     mounted() {
-        this.editName = this.user.username;
-        this.editBio = this.user.bio;
-        this.editCoa = this.user.coa;
+        // this.editName = this.user.username;
+        // this.editBio = this.user.bio;
+        // this.editCoa = this.user.coa;
     },
     computed: {
         currentUser() {
             // recuperer le user (a verifier pour l'argument)
-            console.log(store.getUserName(user.userId));
-            return user.getUserName(store.getUserName(user.userId));
+            console.log(store.getUserName(user.id));
+            return (store.getUserName(user.id));
         }
     },
     emits: ['switchPage']
-}
+})
 
 </script>
 
