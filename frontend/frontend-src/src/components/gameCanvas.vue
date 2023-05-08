@@ -2,6 +2,7 @@
 import { defineComponent } from 'vue';
 import { GameData, Vec2, Rect, Ball, Line } from '../scripts/gameData';
 import { computeShadowPolygone } from '../scripts/magic';
+import user from '../scripts/user';
 
 
 export default defineComponent({
@@ -13,6 +14,7 @@ export default defineComponent({
 				width: 0,
 				height: 0,
 			},
+			user,
 		}
 	},
 
@@ -187,19 +189,22 @@ export default defineComponent({
 	},
 
 	mounted() {
-		this.canvas = (<HTMLCanvasElement> document.getElementById("c")).getContext("2d");
+		this.canvas = (<HTMLCanvasElement>document.getElementById("c")).getContext("2d");
 	},
-	
+
 	created() {
 	}
 })
 </script>
 
 <template>
-
-	<canvas id="c" :width="arena.width" :height="arena.height" style="width:100%; max-height: 80vh;"></canvas>
-	
+	<div class="arena-wrapper">
+		<canvas id="c" :width="arena.width" :height="arena.height" style="width:100%; max-height: 80vh;"></canvas>
+	</div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+#arena-wrapper {
+	position: relative;
+}
 </style>
