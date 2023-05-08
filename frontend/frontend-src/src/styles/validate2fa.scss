@@ -7,12 +7,27 @@
     padding: 5rem 10rem;
     border-radius: .250rem;
     border: 1px solid rgba($black, .1);
-    box-shadow: 0 .125rem .25rem rgba($black, .04);
     display: flex;
-    flex: 0 0 auto;
     flex-direction: column;
 
-    &.dark {
-        background: $black;
-    }
+}
+
+.btn {
+	background-color: $brown-orange;
+	border-color: $brown-orange;
+	width: 45%;
+	padding: 0.5rem 1rem;
+
+	&.validate {
+		margin-left: 5%;
+	}
+
+	&.cancel {
+		margin-right: 5%;
+	}
+	
+	&:hover,
+	&:active {
+		color: $sem-black;
+	}
 }
