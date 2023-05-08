@@ -8,7 +8,7 @@ export default defineComponent({
 
 	data() {
 		return {
-			canvas: null,
+			canvas: null as CanvasRenderingContext2D | null,
 			arena: {
 				width: 0,
 				height: 0,
@@ -23,6 +23,8 @@ export default defineComponent({
 
 	methods: {
 		draw() {
+			if (this.canvas == null || this.game == null)
+				return;
 			// background
 			this.arena = this.game.arena;
 			this.canvas.fillStyle = "black";
@@ -59,6 +61,8 @@ export default defineComponent({
 		},
 
 		drawSeparator() {
+			if (this.canvas == null || this.game == null)
+				return;
 			this.canvas.strokeStyle = "grey";
 			this.canvas.lineWidth = 10;
 			this.canvas.beginPath();
@@ -73,6 +77,8 @@ export default defineComponent({
 		},
 
 		drawScore() {
+			if (this.canvas == null || this.game == null)
+				return;
 			this.canvas.fillStyle = "lightgrey";
 			this.canvas.font = "30px Arial";
 			this.canvas.textAlign = "center";
@@ -89,6 +95,8 @@ export default defineComponent({
 		},
 
 		drawGradient(ball: Ball) {
+			if (this.canvas == null || this.game == null)
+				return;
 			const gradient = this.canvas.createRadialGradient(
 				ball.pos.x, ball.pos.y, ball.radius,
 				ball.pos.x, ball.pos.y, 500
@@ -100,6 +108,8 @@ export default defineComponent({
 		},
 
 		drawBall(ball: Ball) {
+			if (this.canvas == null || this.game == null)
+				return;
 			this.canvas.beginPath();
 			this.canvas.arc(
 				ball.pos.x,
@@ -112,6 +122,8 @@ export default defineComponent({
 		},
 
 		drawObstacles(obstacles: Rect[], color: string) {
+			if (this.canvas == null || this.game == null)
+				return;
 			this.canvas.fillStyle = color;
 			for (let o of obstacles) {
 				this.canvas.fillRect(o.pos.x, o.pos.y, o.width, o.height);
@@ -119,6 +131,8 @@ export default defineComponent({
 		},
 
 		drawObstaclesShadow(obstacles: Rect[], lightSouce: Vec2) {
+			if (this.canvas == null || this.game == null)
+				return;
 			this.canvas.fillStyle = "black";
 			for (let o of obstacles) {
 				const shadowPoints = computeShadowPolygone(o, new Vec2(lightSouce.x, lightSouce.y));
@@ -136,11 +150,15 @@ export default defineComponent({
 		},
 
 		drawPaddle(p: Rect) {
+			if (this.canvas == null || this.game == null)
+				return;
 			this.canvas.fillStyle = "white";
 			this.canvas.fillRect(p.pos.x, p.pos.y, p.width, p.height);
 		},
 
 		point(x: number, y: number, size: number, color: string) {
+			if (this.canvas == null || this.game == null)
+				return;
 			this.canvas.fillStyle = color;
 			this.canvas.beginPath();
 			this.canvas.arc(x, y, size, 0, 2 * Math.PI);
@@ -148,6 +166,8 @@ export default defineComponent({
 		},
 
 		line(x1: number, y1: number, x2: number, y2: number, color: string) {
+			if (this.canvas == null || this.game == null)
+				return;
 			this.canvas.strokeStyle = color;
 			this.canvas.lineWidth = 2;
 			this.canvas.beginPath();
@@ -167,7 +187,7 @@ export default defineComponent({
 	},
 
 	mounted() {
-		this.canvas = document.getElementById("c").getContext("2d");
+		this.canvas = (<HTMLCanvasElement> document.getElementById("c")).getContext("2d");
 	},
 	
 	created() {
