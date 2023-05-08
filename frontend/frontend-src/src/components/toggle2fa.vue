@@ -40,8 +40,8 @@ export default defineComponent({
 				})
 		},
 
-		switchPage(page: State) {
-			this.$emit('switchPage', page);
+		switchPage(page: State, id?: number) {
+			this.$emit('switchPage', {page, id});
 		},
 	},
 

@@ -25,8 +25,8 @@ export default defineComponent({
 			this.SelfUser.set({ darkMode: !this.SelfUser.darkMode });
 			this.SelfUser.save();
 		},
-		switchPage(page: State) {
-			this.$emit('switchPage', page);
+		switchPage(page: State, id?: number) {
+			this.$emit('switchPage', {page, id});
 		},
 	},
 	mounted() {

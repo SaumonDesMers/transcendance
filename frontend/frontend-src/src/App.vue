@@ -51,9 +51,9 @@ export default defineComponent({
 	},
 
 	methods: {
-		switchPage(page: State) {
-			this.$router.push({ path: page });
-			this.state = page;
+		switchPage(state: {page: State, id?: number}) {
+			this.$router.push({ path: state.page, query: { id:state.id } });
+			this.state = state.page;
 		},
 		makeid(length: number) {
 			let result = '';
@@ -90,20 +90,25 @@ export default defineComponent({
 
 		onpopstate = (event) => {
 			if (this.user.isLoggedIn && this.$cookie.getCookie('jwt'))
-				this.state = this.$route.fullPath as State;
+				this.state = this.$route.path as State;
 			else
-				this.switchPage(State.LOGIN);
+				this.switchPage({ page: State.LOGIN });
 		};
+
+		console.log(this.$route);
 	},
 
 	watch: {
+		$route(val, oldVal) {
+			this.state = this.$route.path as State;
+		},
 		state(val, oldVal) {
 			if (oldVal == State.LOGIN && val != State.LOGIN)
 				this.connectToWebsocket();
 		},
 		'gameGateway.state.value'(val, oldVal) {
 			if (oldVal != 'game' && val == 'game')
-				this.switchPage(State.GAME);
+				this.switchPage({ page: State.GAME });
 		},
 	}
 })

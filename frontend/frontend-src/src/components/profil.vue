@@ -21,8 +21,8 @@ export default defineComponent({
 			this.user.set({ darkMode: !this.user.darkMode });
 			this.user.save();
 		},
-		switchPage(page: State) {
-			this.$emit('switchPage', page);
+		switchPage(page: State, id?: number) {
+			this.$emit('switchPage', {page, id});
 		},
 		logout() {
 			gameGateway.disconnect();
@@ -33,7 +33,10 @@ export default defineComponent({
 			this.switchPage(State.LOGIN);
 		},
 	},
-	mounted() { },
+	mounted() {
+		console.log("HEHO");
+		console.log(this.$route);
+	},
 	emits: ['switchPage']
 })
 </script>

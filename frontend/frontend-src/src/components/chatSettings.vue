@@ -1,11 +1,13 @@
-<script>
+<script lang="ts">
 import chat from '../scripts/chat';
 import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto';
 import { State } from '../scripts/state';
 import user from '../scripts/user';
+import { defineComponent } from 'vue';
+import { ChanType } from '../scripts/chat';
 
 
-export default {
+export default defineComponent({
 
     data: function () {
         return {
@@ -14,47 +16,53 @@ export default {
             isProtected: false,
             chat,
             channelNameInput: '',
-            channeltype: undefined,
+            channeltype: ChanType.PUBLIC as ChanType,
             channelKeyInput: '',
         };
     },
     methods: {
         async saveModifications() {
-            let newChan = {
-                ownerId: user.id,
-                name: this.channelNameInput,
-                type: this.channeltype,
-                key: null,
-                usersId: []
-            };
+            // let newChan = {
+            //     ownerId: user.id,
+            //     name: this.channelNameInput,
+            //     type: this.channeltype,
+            //     key: null,
+            //     usersId: []
+            // };
 
-            if (newChan.type == 'KEY')
-                newChan.key = this.channelKeyInput;
+            // if (newChan.type == 'KEY')
+            //     newChan.key = this.channelKeyInput;
 
-            console.log(newChan);
-            chat.createChannel(newChan);
-            this.switchPage(State.CHAT);
+            // console.log(newChan);
+            // chat.createChannel(newChan);
+            // this.switchPage(State.CHAT);
         },
-        switchPage(page) {
-            this.$emit('switchPage', page);
-        },
-        applyTheme(themeClass) {
-            this.editCoa = themeClass;
-        },
+		switchPage(page: State, id?: number) {
+			this.$emit('switchPage', {page, id});
+		},
+        // applyTheme(themeClass: string) {
+        //     this.editCoa = themeClass;
+        // },
         toggleDarkMode() {
             this.user.set({ darkMode: !this.user.darkMode });
             this.user.save();
         },
 
     },
-
+	computed: {
+		currentGroupChannel() {
+			return chat.getCurrentGroupChannel();
+		}
+	},
     mounted() {
-        this.editName = this.user.username;
-        this.editBio = this.user.bio;
-        this.editCoa = this.user.coa;
+		if (this.currentGroupChannel != undefined)
+			this.channeltype = this.currentGroupChannel.type;
+        // this.editName = this.user.username;
+        // this.editBio = this.user.bio;
+        // this.editCoa = this.user.coa;
     },
     emits: ['switchPage']
-}
+})
 
 </script>
 
@@ -76,17 +84,17 @@ export default {
                 <legend class="title">Choose your channel's feature:</legend>
 
                 <div class="title">
-                    <input v-on:click="isProtected = false; this.channeltype = 'PUBLIC'" type="radio" id="public"
+                    <input v-on:click="isProtected = false; channeltype = 'PUBLIC'" type="radio" id="public"
                         name="channel" value="publicChan" checked>
                     <label for="public">Public</label>
                 </div>
                 <div class="title">
-                    <input v-on:click=" isProtected = false; this.channeltype = 'PRIV' " type="radio" id="private" name="channel"
+                    <input v-on:click=" isProtected = false; channeltype = 'PRIV' " type="radio" id="private" name="channel"
                         value="privateChan">
                     <label for="private">Private</label>
                 </div>
                 <div class="title">
-                    <input v-on:click=" isProtected = true; this.channeltype = 'KEY' " type="radio" id="protected" name="channel"
+                    <input v-on:click=" isProtected = true; channeltype = 'KEY' " type="radio" id="protected" name="channel"
                         value="isProtected">
                     <label for="protected">Protected</label>
                     <div :style=" [isProtected ? '' : 'display:none'] ">
