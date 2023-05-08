@@ -19,11 +19,15 @@ class statusClient {
 	connect(jwt: string) {
 		if (this._socket.connected)
 			return;
-		console.log("status client connecting");
 		this._socket.io.opts.extraHeaders = {
-			authorization: `Bearer ${jwt}`
+			authorization: `Bearer ${jwt}`,
+			sessionId: localStorage.sessionId
 		};
 		this._socket.connect();
+	}
+
+	disconnect() {
+		this._socket.disconnect();
 	}
 
 	getUserStatus(userId: number){
@@ -58,7 +62,8 @@ class statusClient {
 	private initSocket()
 	{
 		this._socket = io('http://localhost:3001/status', {
-			autoConnect: false
+			autoConnect: false,
+			reconnection: false
 		});
 
 		this._socket.on('update', (payload: updateDTO) => {

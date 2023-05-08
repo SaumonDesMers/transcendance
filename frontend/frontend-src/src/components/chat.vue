@@ -41,6 +41,11 @@ export default {
 			showMP: false,
 			showChannel: false,
 			yourChan: false,
+			displayKey: false,
+			tmpChannel: 0,
+			KeyInputBuffer: '',
+			moderationUser: false,
+			tmpUser: '',
 		}
 	},
 	computed: {
@@ -129,8 +134,7 @@ export default {
 
 	},
 	watch: {
-		searchInput()
-		{
+		searchInput() {
 			store.search_user(this.searchInput).then((arr) => {
 				this.searchArray = arr;
 			});
@@ -219,10 +223,17 @@ export default {
 									channel.name }}</button>
 						</div>
 						<div v-for="[channelId, channel] in store.keyChannels">
-							<p style="color: white; font-size: 15px; border: none; background-color: transparent;">
-								{{ channel.name }}
+							<p style="color: white; font-size: 15px; border: none; background-color: transparent;"
+								@click="tmpChannel = channel.channelId; displayKey = !displayKey;">{{ channel.name }}
 							<p class="fa-solid fa-lock"></p>
 							</p>
+							<div :style="[tmpChannel == channel.channelId && displayKey ? '' : 'display:none;']">
+								<input
+									style="width: 9%; position:absolute; left: 10px; display:flex; justify-content: end;  font-size: 1vw"
+									type="text" v-model="KeyInputBuffer" />
+								<button style="margin-top: 1rem;"
+									@click="store.joinChannel({ channelId, key: KeyInputBuffer });">Join channel</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -265,15 +276,16 @@ export default {
 				</div>
 				<div div v-if="this.currentChannel != undefined" class="send-message">
 					<textarea class="input-message" type="text" v-model="messageInputBuffer"></textarea>
-					<div style="display: flex; flex-direction: column;">
+					<div style="display: flex; flex-direction: column; justify-content: space-between;">
 						<button class="fa-solid fa-paper-plane text-color-dark"
 							style="font-size: 1.5vw; color: white; padding: 0.5rem; background-color: transparent; border: none;"
 							@click="SendMessage"></button>
 						<button class="fa-solid fa-gamepad text-color-dark"
 							style="font-size: 1.5vw; padding: 0.5rem; background-color: transparent; border: none;"
-							:style="[customGameInvite ? '	background: -webkit-linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); -webkit-background-clip: text; -webkit-text-fill-color: transparent;' : 'background: transparent; color: white']"
+							:style="[customGameInvite ? 'background: -webkit-linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); -webkit-background-clip: text; -webkit-text-fill-color: transparent;' : 'background: transparent; color: white']"
 							@click="sendInvite"></button>
-						<input style="font-size:1.5vw; padding: 0.5rem;" type="checkbox" id="checkbox" v-model="customGameInvite">
+						<input style="font-size:1.5vw; padding: 0.5rem;" type="checkbox" id="checkbox"
+							v-model="customGameInvite">
 						<label for="checkbox"></label>
 					</div>
 				</div>
@@ -291,10 +303,10 @@ export default {
 								style="width: 9%; position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 2rem; font-size: 1vw"
 								type="text" v-model="searchInput" />
 							<div>
-								<p @click="store.invite_user(username, true)"
-									v-for="username in this.searchArray">{{ username }}
+								<p @click="store.invite_user(username, true)" v-for="username in this.searchArray">{{
+									username }}
 									<button @click="store.invite_user(username, true)">Invite
-						User</button>
+										User</button>
 								</p>
 							</div>
 						</div>
@@ -309,9 +321,33 @@ export default {
 						<p>{{ store.getUserName(this.currentChannel.owner?.userId) }}
 						<p class="fa-solid fa-crown" style="padding:10px; color: gold"></p>
 						</p>
-						<div v-for="n in 10">
-							<p v-for="user in this.currentChannel?.channel.users">{{ store.getUserName(user.userId) }}</p>
+						<div v-for="user in this.currentChannel?.channel.users">
+							<p @click="moderationUser = !moderationUser; tmpUser = store.getUserName(user.userId)">
+								{{ store.getUserName(user.userId) }}
+								<p class="fa-solid fa-ellipsis-v" style="padding:10px; color: rgb(255, 255, 255)"></p>
+							</p>
+							<div :style="[tmpUser == store.getUserName(user.userId) && moderationUser ? '' : 'display:none;']">
+								<p style="margin-top: 1rem;">
+									Block<br>
+									Mute<br>
+									<button @click="store.kick_user(store.getUserName(user.userId))">kick</button>
+									<button @click="store.ban_user(store.getUserName(user.userId), true)">ban</button>
+								</p>
+							</div>
 						</div>
+						<!-- <div v-for="[channelId, channel] in store.keyChannels">
+							<p style="color: white; font-size: 15px; border: none; background-color: transparent;"
+								@click="tmpChannel = channel.channelId; displayKey = !displayKey;">{{ channel.name }}
+							<p class="fa-solid fa-lock"></p>
+							</p>
+							<div :style="[tmpChannel == channel.channelId && displayKey ? '' : 'display:none;']">
+								<input
+									style="width: 9%; position:absolute; left: 10px; display:flex; justify-content: end;  font-size: 1vw"
+									type="text" v-model="KeyInputBuffer" />
+								<button style="margin-top: 1rem;"
+									@click="store.joinChannel({ channelId, key: KeyInputBuffer });">Join channel</button>
+							</div>
+						</div> -->
 					</div>
 				</div>
 			</div>
@@ -406,11 +442,11 @@ export default {
 				</div>
 
 				<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PROTEGE PAR CLÉ -->
-				<div v-if="this.currentChannel?.type == 'KEY'">
+				<!-- <div v-if="this.currentChannel?.type == 'KEY'">
 					<input type="text" v-model="setKeyInputBuffer">
 
 					<button @click="store.setChanKey(setKeyInputBuffer)">Set Chan Key</button>
-				</div>
+				</div> -->
 
 				<!-- un exemple d'un ensemble de boutons pour changer le type du channel actuellement selectionné -->
 
@@ -587,7 +623,7 @@ export default {
 
 .input-message {
 	padding: 0.5rem;
-	width: 70vw;
+	width: 80vw;
 	height: 14.6vh;
 	background-color: rgba(0, 0, 0, 0);
 	border: none;

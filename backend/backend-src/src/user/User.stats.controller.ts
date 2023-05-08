@@ -37,7 +37,7 @@ export class GameStatController
 		required: false
 	})
 	async getLadder(
-		@Query('take') take?: number,
+		@Query('take', ParseIntPipe) take?: number,
 	) : Promise<UserWithGameCountEntity[]>
 	{
 		if (take == undefined)
@@ -77,7 +77,7 @@ export class GameStatController
 	@Get('user-history/:id')
 	async getuserHistory(
 		@Param('id', ParseIntPipe) userId: number,
-		@Query('take') take?: number
+		@Query('take', ParseIntPipe) take?: number
 	)
 	{
 		if (take == undefined)

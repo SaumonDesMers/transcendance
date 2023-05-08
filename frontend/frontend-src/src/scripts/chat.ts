@@ -182,7 +182,8 @@ export class Chat {
 		if (this.socket.connected)
 			return;
 		this.socket.io.opts.extraHeaders = {
-			authorization: `Bearer ${jwt}`
+			authorization: `Bearer ${jwt}`,
+			sessionId: localStorage.sessionId
 		};
 		this.socket.connect();
 		
@@ -571,12 +572,9 @@ export class Chat {
 
 	private initSocket() {
 		this.socket = io('http://localhost:3001/chat', {
-			autoConnect: false
+			autoConnect: false,
+			reconnection: false
 		});
-		
-		// this.socket.io.opts.extraHeaders = {
-		// 	authorization: `Bearer ${localStorage.jwt}`
-		// };
 
 
 		/******************

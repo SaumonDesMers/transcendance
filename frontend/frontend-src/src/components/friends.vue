@@ -27,8 +27,8 @@ export default {
 		},
 	},
 	mounted() {
-		this.user.loadFriends(),
-			usersStatus.fetchUsers(this.user._friendsIdList);
+		this.user.loadFriends();
+		usersStatus.fetchUsers(this.user._friendsIdList);
 	},
 	emits: ['switchPage']
 }

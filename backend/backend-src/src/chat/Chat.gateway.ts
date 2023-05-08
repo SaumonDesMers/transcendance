@@ -327,7 +327,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		let message: MessageDTO;
 
 		// try {
-			message = await this.chatService.createGameInvite(data);
+			message = await this.chatService.createGameInvite(data, socket.handshake.headers.sessionid as string);
 		// } catch (e: any) {
 			// throw new WsException(e.message);
 		// }
@@ -536,7 +536,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 		this.server.to(data.channelId.toString()).emit("game_invite_expire", data);
 		try {
-			await this.chatService.acceptGameInvite(socket.data.userId, data);
+			await this.chatService.acceptGameInvite(socket.data.userId, data, socket.handshake.headers.sessionid as string);
 		} catch (e: any) {
 			throw new WsException(e.message);
 		}

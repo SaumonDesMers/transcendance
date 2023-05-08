@@ -2,26 +2,50 @@
 
 import axios from 'axios'
 import { State } from '../scripts/state';
-import user from '../scripts/user';
+import SelfUser from '../scripts/user';
+import { User, UserPrison } from '../scripts/user';
 
 export default {
+	props: {
+		displayUserId: Number
+	},
 	data: function () {
 		return {
 			State,
 			status: false,
-			user,
+			SelfUser,
+			displayUser: new User(),
+			userFactory: new UserPrison(),
+			ladder: []
 		}
 	},
 	methods: {
 		toggleDarkMode() {
-			this.user.set({ darkMode: !this.user.darkMode });
-			this.user.save();
+			this.SelfUser.set({ darkMode: !this.SelfUser.darkMode });
+			this.SelfUser.save();
 		},
 		switchPage(page) {
 			this.$emit('switchPage', page);
 		},
 	},
-	mounted() { },
+	mounted() {
+		console.log(this.displayUserId);
+		this.displayUser.loadUser(this.displayUserId).then(nothin => {
+			this.displayUser.downloadAvatar();
+			this.displayUser.loadHistory();
+		});
+		this.userFactory.addUser(this.displayUser);
+
+		axios.get(`http://localhost:3001/games/ladder`, {
+			params: {
+				take: 10
+			}
+		}).then(res => {
+			this.ladder = res.data;
+		}).catch(err => {
+			console.log('err :', err);
+		});
+	},
 	emits: ['switchPage']
 }
 </script>
@@ -33,8 +57,8 @@ export default {
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	</head>
-	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
-		<div v-if="user.darkMode == false">
+	<div class="main-page" :class="[SelfUser.darkMode == true ? 'dark' : 'light ', SelfUser.coa]">
+		<div v-if="SelfUser.darkMode == false">
 		</div>
 		<div v-else>
 			<div class="stars"></div>
@@ -45,31 +69,37 @@ export default {
 			<div class="grid-history">
 				<div class="best-players">
 					<h1 class="text-color-dark"><p class="fa-solid fa-ranking-star"></p> BEST PLAYERS <p class="fa-solid fa-ranking-star"></p><br></h1>
-					<div v-for="n in 10">
-						<p class="text-color-dark">{{ n }} : login<br></p>
+					<div v-for="(user, rank) in this.ladder">
+						<p class="text-color-dark">{{ rank + 1 }} : {{ user.username }}<br></p>
 					</div>
 				</div>
 				<div class="friends-grid">
-					<div v-for="n in 21">
+					<div v-for="game in displayUser.history">
 						<div class="friend">
-							<div class="avatar">
-								<div class="avatar-style"></div>
+							<div class="avatar">	
+								<div class="avatar-style" :style="['background-image: url(\'' + userFactory.getUser(game.loserId).avatar.imageBase64 + '\')']">
+									<div class="status-profile"
+										:style="[SelfUser.id ? 'background-color: green' : 'background-color: gray']"></div>
+								</div>
 								<div class="status"></div>
 							</div>
 							<div class="avatar">
-								<div class="avatar-style"></div>
+								<div class="avatar-style" :style="['background-image: url(\'' + userFactory.getUser(game.winnerId).avatar.imageBase64 + '\')']">
+									<div class="status-profile"
+										:style="[SelfUser.id ? 'background-color: green' : 'background-color: gray']"></div>
+								</div>
 								<div class="status"></div>
 							</div>
-							<div class="result-grid" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
-								<p class="login" @click="switchPage(State.USER)">Login<br></p>
+							<div class="result-grid" :class="[SelfUser.darkMode ? 'text-color-dark' : 'text-color-light']">
+								<p class="login" @click="switchPage(State.USER)">{{ userFactory.getUser(game.loserId).username }}<br></p>
 								<p class="fa-solid fa-skull"><br></p>
-								<p class="score">Score<br></p>
+								<p class="score">{{ game.LoserScore }}<br></p>
 							</div>
 							<div class="result-grid goldBG goldText"
-								:class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
-								<p class="login" @click="switchPage(State.USER)">Login<br></p>
+								:class="[SelfUser.darkMode ? 'text-color-dark' : 'text-color-light']">
+								<p class="login" @click="switchPage(State.USER)">{{ userFactory.getUser(game.winnerId).username }}<br></p>
 								<p class="fa-solid fa-trophy"><br></p>
-								<p class="score">Score<br></p>
+								<p class="score">{{ game.winnerScore }}<br></p>
 							</div>
 						</div>
 					</div>

@@ -13,6 +13,7 @@ import {
 } from "@prisma/client";
 import { QueueService } from "./queue.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
+import { updateQueueDto } from "./game.dto";
 
 @Injectable()
 export class GameService {
@@ -35,8 +36,10 @@ export class GameService {
 		return player;
 	}
 
-	private getPlayerById(id: number): PlayerEntity {
-		let player: PlayerEntity = this.onlinePlayer.find(p => { return p.id == id; });
+	private getPlayerBySessionId(sessionId: string): PlayerEntity {
+		let player: PlayerEntity = this.onlinePlayer.find(p => {
+			return p.socket.handshake.headers.sessionid == sessionId;
+		});
 		if (player == undefined)
 			console.log('Error: game.service: player not found');
 		return player;
@@ -86,7 +89,7 @@ export class GameService {
 		this.reconnectionHub = this.reconnectionHub.filter(p => { return p != player });
 	}
 
-	async updateQueue(socket: Socket, body: { value: string, type: string }): Promise<string> {
+	async updateQueue(socket: Socket, body: updateQueueDto): Promise<string> {
 		let player: PlayerEntity = this.getPlayerBySocket(socket);
 
 		if (body.value == 'join' && player.state.value != 'game') {
@@ -109,8 +112,8 @@ export class GameService {
 		return body.value;
 	}
 
-	async createUniqueQueue(type: string, playerId: number): Promise<{ success: boolean, error: string, uid?: string }> {
-		let player: PlayerEntity = this.getPlayerById(playerId);
+	async createUniqueQueue(type: string, sessionId: string): Promise<{ success: boolean, error: string, uid?: string }> {
+		let player: PlayerEntity = this.getPlayerBySessionId(sessionId);
 
 		if (!player) {
 			console.log('game.service: createUniqueQueue: player not found');
@@ -128,8 +131,8 @@ export class GameService {
 		return { success: true, error: '', uid: uid };
 	}
 
-	async joinUniqueQueue(uid: string, playerId: number): Promise<{ success: boolean, error: string }> {
-		let player: PlayerEntity = this.getPlayerById(playerId);
+	async joinUniqueQueue(uid: string, sessionId: string): Promise<{ success: boolean, error: string }> {
+		let player: PlayerEntity = this.getPlayerBySessionId(sessionId);
 		if (!player) {
 			console.log('game.service: joinUniqueQueue: player not found');
 			return { success: false, error: 'Player not found' };
@@ -177,7 +180,7 @@ export class GameService {
 
 	async saveGame(winnerId: number, loserId: number, winnerScore: number, loserScore: number)
 	{
-		this.prismaService.game.create({
+		await this.prismaService.game.create({
 			data: {
 				loser: {
 					connect : {
