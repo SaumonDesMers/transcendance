@@ -249,10 +249,13 @@ export default defineComponent({
 				</div>
 			</div>
 			<div class="chat-box" :class="[user.darkMode == true ? 'dark' : 'light']">
-				<div v-if="currentGroupChannel != undefined">
+				<div v-if="currentChannel != undefined">
 					<div class="grid-border">
-						<p class="title-chat" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">
+						<p v-if="currentGroupChannel != undefined" class="title-chat" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">
 							{{ currentGroupChannel.name }}
+						</p>
+						<p v-else-if="currentDMChannel != undefined" class="title-chat" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">
+							{{ store.getUserName(currentDMChannel.channel.users[0].userId) }}
 						</p>
 					</div>
 				</div>
@@ -278,24 +281,8 @@ export default defineComponent({
 				</div> -->
 					</div>
 				</div>
-				<div v-if="currentChannel != undefined && store.isCurrentDM == true">
-					<div class="conversation" style="overflow: scroll; height: 80vh;">
-						<p>Chat With
-						<p v-for="user in currentChannel?.channel.users">{{ store.getUserName(user.userId) }}</p>
-						</p>
-						<div v-for="message in currentChannel?.channel.messages">
-							<p>
-								{{ store.getUserName(message.author.userId) }} : {{ message.content }}
-							<p v-if="message.gameInvite != undefined">
-								Game Invite status: {{ message.gameInvite.status }}
-								<button v-if="message.gameInvite.status == 'PENDING'"
-									@click="store.acceptGameInvite(message)">Join</button>
-							</p>
-							</p>
-						</div>
-					</div>
-				</div>
-				<div div v-if="currentChannel != undefined" class="send-message">
+
+				<div v-if="currentChannel != undefined" class="send-message">
 					<textarea class="input-message" type="text" v-model="messageInputBuffer"></textarea>
 					<div style="display: flex; flex-direction: column; justify-content: space-between;">
 						<button class="fa-solid fa-paper-plane text-color-dark"
