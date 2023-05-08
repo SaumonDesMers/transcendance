@@ -33,6 +33,7 @@ export default {
 			keyInputBuffer: '',
 			setKeyInputBuffer: '',
 			userNameInputBuffer: '',
+			dmInputBuffer: '',
 			customGameInvite: false,
 			searchInput: '',
 			searchArray: [],
@@ -199,10 +200,8 @@ export default {
 						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;" @click="displayMP()">Private
 						message</p>
 					<div v-show="showMP" class="chan-can-join">
-						<div v-for="n in 10">
-							<p style="color: white; font-size: 15px; border: none; background-color: transparent;">Channels
-								random<br></p>
-						</div>
+						<input style="background-color: transparent; color:white" type='test' v-model="dmInputBuffer">
+						<button class="nocolor-btn" style="color:white" @click="store.startDM(dmInputBuffer)">send message</button>
 						<div v-for="[channelId, channel] in store.dmChannels">
 							<button @click="selectDMChannel(channelId)"
 								style="color: white; font-size: 15px; border: none; background-color: transparent;">{{
@@ -274,6 +273,23 @@ export default {
 				</div> -->
 					</div>
 				</div>
+				<div v-if="this.currentChannel != undefined && store.isCurrentDM == true">
+					<div class="conversation" style="overflow: scroll; height: 80vh;">
+						<p>Chat With
+						<p v-for="user in this.currentChannel?.channel.users">{{ store.getUserName(user.userId) }}</p>
+						</p>
+						<div v-for="message in this.currentChannel?.channel.messages">
+							<p>
+								{{ store.getUserName(message.author.userId) }} : {{ message.content }}
+							<p v-if="message.gameInvite != undefined">
+								Game Invite status: {{ message.gameInvite.status }}
+								<button v-if="message.gameInvite.status == 'PENDING'"
+									@click="store.acceptGameInvite(message)">Join</button>
+							</p>
+							</p>
+						</div>
+					</div>
+				</div>
 				<div div v-if="this.currentChannel != undefined" class="send-message">
 					<textarea class="input-message" type="text" v-model="messageInputBuffer"></textarea>
 					<div style="display: flex; flex-direction: column; justify-content: space-between;">
@@ -324,39 +340,27 @@ export default {
 						<div v-for="user in this.currentChannel?.channel.users">
 							<p @click="moderationUser = !moderationUser; tmpUser = store.getUserName(user.userId)">
 								{{ store.getUserName(user.userId) }}
-								<p class="fa-solid fa-ellipsis-v" style="padding:10px; color: rgb(255, 255, 255)"></p>
+							<p class="fa-solid fa-ellipsis-v" style="padding:10px; color: rgb(255, 255, 255)"></p>
 							</p>
-							<div :style="[tmpUser == store.getUserName(user.userId) && moderationUser ? '' : 'display:none;']">
+							<div
+								:style="[tmpUser == store.getUserName(user.userId) && moderationUser ? '' : 'display:none;']">
 								<p style="margin-top: 1rem;">
 									Block<br>
 									Mute<br>
-									<button @click="store.kick_user(store.getUserName(user.userId))">kick</button>
-									<button @click="store.ban_user(store.getUserName(user.userId), true)">ban</button>
+									<button class="nocolor-btn" style="color:white" @click="store.kick_user(store.getUserName(user.userId))">kick</button><br>
+									<button class="nocolor-btn" style="color:white" @click="store.ban_user(store.getUserName(user.userId), true)">ban</button>
 								</p>
 							</div>
 						</div>
-						<!-- <div v-for="[channelId, channel] in store.keyChannels">
-							<p style="color: white; font-size: 15px; border: none; background-color: transparent;"
-								@click="tmpChannel = channel.channelId; displayKey = !displayKey;">{{ channel.name }}
-							<p class="fa-solid fa-lock"></p>
-							</p>
-							<div :style="[tmpChannel == channel.channelId && displayKey ? '' : 'display:none;']">
-								<input
-									style="width: 9%; position:absolute; left: 10px; display:flex; justify-content: end;  font-size: 1vw"
-									type="text" v-model="KeyInputBuffer" />
-								<button style="margin-top: 1rem;"
-									@click="store.joinChannel({ channelId, key: KeyInputBuffer });">Join channel</button>
-							</div>
-						</div> -->
 					</div>
 				</div>
 			</div>
-			<!-- <div>
+			<div>
 				<input type='test' v-model="keyInputBuffer">
-				<button @click="joinChannel">Join Channel</button>
-				<button @click="leaveChannel">Leave Channel</button>
+				<!-- <button @click="joinChannel">Join Channel</button>
+				<button @click="leaveChannel">Leave Channel</button> -->
 				<button @click="store.startDM(channelInputBuffer)">Start DM</button>
-			</div> -->
+			</div>
 			<!-- <p class="text-color-dark">Invites:</p> -->
 			<!-- Ici on affiche tout les channels pour lesquels on est invité -->
 			<!-- en crééant un bouton qui permet de rejoindre le channel concerné -->
@@ -470,7 +474,7 @@ export default {
 			<button @click="store.setChanType('KEY', setKeyInputBuffer)">Set Channel KeyProtected</button>
 			<!-- </div> -->
 
-			<div v-if="this.currentChannel != undefined && store.isCurrentDM == true">
+			<!-- <div v-if="this.currentChannel != undefined && store.isCurrentDM == true">
 				<p>Chat With
 				<p v-for="user in this.currentChannel?.channel.users">{{ store.getUserName(user.userId) }}</p>
 				</p>
@@ -485,7 +489,7 @@ export default {
 					</p>
 					</p>
 				</div>
-			</div>
+			</div> -->
 
 		</div>
 
@@ -662,4 +666,5 @@ export default {
 	border-bottom: 1px solid;
 	border-image: linear-gradient(0.25turn, rgb(66, 66, 66, 0), rgb(158, 158, 158, 10), rgb(255, 255, 255), rgb(158, 158, 158, 10), rgb(66, 66, 66, 0));
 	border-image-slice: 1;
-}</style>
+}
+</style>

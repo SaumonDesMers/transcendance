@@ -6,10 +6,13 @@ import user from '../scripts/user';
 import gameGateway from '../scripts/game';
 import chatGateway from '../scripts/chat';
 import statusGateway from '../scripts/status';
+import { User, UserPrison } from '../scripts/user';
 
 export default {
 	data: function () {
 		return {
+			matches: [
+			],
 			State,
 			status: false,
 			user,
@@ -32,16 +35,13 @@ export default {
 			this.switchPage(State.LOGIN);
 		},
 	},
-	mounted() { },
+	mounted() {},
 	emits: ['switchPage']
 }
 </script>
 
 <template>
 	<head>
-		<meta charset="UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	</head>
 	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
@@ -122,21 +122,34 @@ export default {
 					<div class="stats-container grid-border">
 						<div :class="[user.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">stats
 						</div>
-						<div class="child-container">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non
-							porttitor sem. Vestibulum ac massa tempus, auctor ex ut, lobortis tellus. Phasellus id tortor
-							viverra, dictum diam nec, efficitur dui. Nullam placerat viverra tortor in ultricies. Quisque
-							pellentesque hendrerit vulputate. Aenean dapibus dui lectus, nec dapibus arcu aliquam eget.
-							Aenean dignissim arcu quis iaculis auctor.</div>
+						<div class="child-container">
+							<div class="bar-container">
+								<div class="bar bar-green" :style="{ width: (10 / 17) * 100 + '%' }"></div>
+								<div class="bar bar-red" :style="{ width: (7 / 17) * 100 + '%' }"></div>
+							</div>
+							<div class="stats-text">
+								<div>You played : </div>
+								<div>Parties gagnées : 10</div>
+								<div>Parties perdues : 7</div>
+								<div>Moyenne : 58.8%</div>
+							</div>
+						</div>
 					</div>
-					<div class="history-container grid-border">
+					<div class="history-container grid-border" style="overflow-y: auto;">
 						<div :class="[user.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']"
 							@click="switchPage(State.HISTORY)">history
 						</div>
-						<div class="child-container">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non
-							porttitor sem. Vestibulum ac massa tempus, auctor ex ut, lobortis tellus. Phasellus id tortor
-							viverra, dictum diam nec, efficitur dui. Nullam placerat viverra tortor in ultricies. Quisque
-							pellentesque hendrerit vulputate. Aenean dapibus dui lectus, nec dapibus arcu aliquam eget.
-							Aenean dignissim arcu quis iaculis auctor.</div>
+						<div class="child-container">
+							<table class="history-table">
+								<tbody>
+									<tr v-for="n in 10">
+										<div class="row-tab">
+											<p>{{ user.username }} | 10 | login | 5</p>
+										</div>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -152,13 +165,6 @@ export default {
 				<div class="stars2"></div>
 				<div class="shooting-stars"></div>
 			</div>
-			<!-- <div v-if="user.darkMode == false">
-			</div>
-			<div v-else>
-				<div class="stars"></div>
-				<div class="stars1"></div>
-				<div class="stars2"></div>
-			</div> -->
 		</div>
 	</div>
 </template>
