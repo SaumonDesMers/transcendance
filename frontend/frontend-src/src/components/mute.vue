@@ -25,19 +25,9 @@ data: function () {
 },
 methods: {
     async saveModifications() {
-        let newChan = {
-            ownerId:user.id,
-            name:this.channelNameInput,
-            type:this.picked,
-            key: null,
-            usersId: []
-        };
-
-            if (newChan.type == 'KEY')
-                newChan.key = this.channelKeyInput;
-
-            console.log(newChan);
-            chat.createChannel(newChan);
+        // save les modifs du user selectionne
+            console.log(this.currentUser());
+            user = currentUser();
             this.switchPage(State.CHAT);
         },
         switchPage(page) {
@@ -58,6 +48,13 @@ methods: {
         this.editBio = this.user.bio;
         this.editCoa = this.user.coa;
     },
+    computed: {
+        currentUser() {
+            // recuperer le user (a verifier pour l'argument)
+            console.log(store.getUserName(user.userId));
+            return user.getUserName(store.getUserName(user.userId));
+        }
+    },
     emits: ['switchPage']
 }
 
@@ -72,43 +69,32 @@ methods: {
 			</div>
         
         <div style="display: flex; justify-content: center; align-items: center; align-content: center; position:absolute; top:10%; left:10%;">        
-        <div class="create-chat-container">
-            <h1 class="title">CREATE YOUR CHANNEL : </h1>
+        <div class="mute-chat-container">
+            <h1 class="title">{{ currentUser }}</h1>
         
-        <p style="color: white">CHANNEL'S NAME</p>
-        <input type="text" id="name" name="channel" required size="15" v-model="channelNameInput">
+        <select v-model="selected">
+            <option style="color: white" disabled value="">Please select one mute option</option>
+            <option>10 minutes</option>
+            <option>30 minutes</option>
+            <option>1 hour</option>
+            <option>3 hours</option>
+            <option>24 hours</option>
+        </select>
+        <span>Selected: {{ selected }}</span>
         
-        <!-- types -->
-        <legend class="title">Choose your channel's feature:</legend>
         
-        <div class="title">
-            <input v-on:click="isProtected=false" type="radio" id="public" value="PUBLIC" v-model="picked" checked/>
-            <label for="public">Public</label>
-            
-            <input v-on:click="isProtected=false" type="radio" id="private" value="PRIV" v-model="picked" />
-            <label for="private">Private</label>
-
-            <input v-on:click="isProtected=true" type="radio" id="protected" value="KEY" v-model="picked" />
-            <label for="protected">Protected</label>
-            <div :style="[isProtected ? '' : 'display:none']">
-            <p style="color: white">ENTER PASSWORD</p>
-            <input type="text" id="name" name="channel" required size="15" v-model="channelKeyInput">
-            </div>
-        </div>
-        <div>
             <!-- enregistre avant de revenir a la page precedente -->
             <button class="chat-btn" @click="saveModifications()">Save</button>
             <!-- ne change rien et fait revenir a la page precedente -->
             <button class="chat-btn" @click="switchPage(State.CHAT)">Cancel</button>
         </div>
     </div>
-    </div>
 </div>
 
 </template>
 
 <style lang="scss" scoped>
-.create-chat-container {
+.mute-chat-container {
     width: 80vw;
     height: 80vh;
     background-color: rgba(0, 0, 0, 0.5);
