@@ -46,6 +46,7 @@ export interface GroupChannelDTO{
 	admins: SimpleChatUserDTO[],
 	invited: SimpleChatUserDTO[],
 	owner: SimpleChatUserDTO,
+	ownerId: number,
 	type: ChanType,
 }
 

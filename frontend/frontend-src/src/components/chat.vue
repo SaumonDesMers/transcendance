@@ -53,6 +53,12 @@ export default defineComponent({
 	computed: {
 		currentChannel() {
 			return store.getCurrentChannel();
+		},
+		currentGroupChannel() {
+			return store.getCurrentGroupChannel();
+		},
+		currentDMChannel() {
+			return store.getCurrentDM();
 		}
 	},
 	// renderTriggered(event) {
@@ -245,10 +251,10 @@ export default defineComponent({
 				</div>
 			</div>
 			<div class="chat-box" :class="[user.darkMode == true ? 'dark' : 'light']">
-				<div v-if="currentChannel != undefined">
+				<div v-if="currentGroupChannel != undefined">
 					<div class="grid-border">
 						<p class="title-chat" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">
-							{{ currentChannel.name }}
+							{{ currentGroupChannel.name }}
 						</p>
 					</div>
 				</div>
@@ -291,7 +297,7 @@ export default defineComponent({
 				</div>
 			</div>
 			<div class="users" :class="[user.darkMode == true ? 'dark' : 'light']">
-				<div v-if="currentChannel != undefined && store.isCurrentDM == false">
+				<div v-if="currentGroupChannel != undefined">
 					<div style="height: 2rem;">
 						<input id="invite" type="radio" value="KEY" @click="clickInvite()" class="nodisplay visibility ">
 						<label for="invite">
@@ -318,7 +324,7 @@ export default defineComponent({
 							class="fa-solid fa-arrow-right-from-bracket" @click="leaveChannel()"></p>
 					</div>
 					<div v-show="!onInvit">
-						<p>{{ store.getUserName(currentChannel.owner?.userId) }}
+						<p>{{ store.getUserName(currentGroupChannel.ownerId) }}
 						<p class="fa-solid fa-crown" style="padding:10px; color: gold"></p>
 						</p>
 						<div v-for="user in currentChannel?.channel.users">

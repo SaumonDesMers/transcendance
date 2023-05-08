@@ -44,13 +44,13 @@ export class Chat {
 	private _dm_channels: Map<number, DMChannelDTO>;
 	private _other_users: Map<number, User>;
 	private _channel_invites: Map<number, string>; //channel id and channel names
-	private _user: ChatUserDTO;
+	private _user!: ChatUserDTO;
 	private socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 	error: Ref<string>;
 	// private currentGroupChannelId: number;
 	// private currentDmChannelId: number;
-	private currentChannelId: number;
-	isCurrentDM: boolean;
+	private currentChannelId: number = -1;
+	isCurrentDM: boolean = false;
 	
 	/**
 	 * Pending invites getter, the list is auto updated
@@ -150,6 +150,16 @@ export class Chat {
 			return this._group_channels.get(this.currentChannelId);
 	}
 
+	getCurrentGroupChannel(): GroupChannelDTO | undefined
+	{
+		return this._group_channels.get(this.currentChannelId);
+	}
+
+	getCurrentDM(): DMChannelDTO | undefined
+	{
+		return this._dm_channels.get(this.currentChannelId);
+	}
+
 	selectChannel(id: number, isDMChannel: boolean)
 	{
 		this.currentChannelId = id;
@@ -164,7 +174,11 @@ export class Chat {
 		this._visible_key_channels = reactive(new Map());
 		this._dm_channels = reactive(new Map())
 		this.error = ref<string>("");
-		
+
+		this.socket = io('http://localhost:3001/chat', {
+			autoConnect: false,
+			reconnection: false
+		});	
 		this.initSocket();
 	}
 	
@@ -178,7 +192,7 @@ export class Chat {
 	 * Be carefull, auth must have been completed
 	 * @date 4/24/2023 - 5:26:02 PM
 	 */
-	connect(jwt: string) {
+	async connect(jwt: string) {
 		if (this.socket.connected)
 			return;
 		this.socket.io.opts.extraHeaders = {
@@ -188,12 +202,7 @@ export class Chat {
 		this.socket.connect();
 		
 		this._channel_invites.clear();
-		this.socket.emit("get_my_user", (user: ChatUserDTO) => {
-			this._user = user;
-			user.invites?.forEach(invite => {
-				this.channelInvites.set(invite.channelId, invite.name);
-			})
-		});
+		this._user = await this.socket.emitWithAck("get_my_user");
 		
 		this._group_channels.clear();
 		this.socket.emit("get_groupchannels", (channels: GroupChannelDTO[]) => {
@@ -298,6 +307,7 @@ export class Chat {
 	{
 		this.socket.emit("join_channel", request, (channel: GroupChannelDTO) => {
 			this._group_channels.set(channel.channelId, channel);
+			this.selectChannel(channel.channelId, false);
 		})
 	}
 	
@@ -325,6 +335,7 @@ export class Chat {
 	{
 		this.socket.emit("start_dm", username, (channel: DMChannelDTO) => {
 			this._dm_channels.set(channel.channelId, channel);
+			this.selectChannel(channel.channelId, true);
 		})
 	}
 
@@ -571,10 +582,7 @@ export class Chat {
 
 
 	private initSocket() {
-		this.socket = io('http://localhost:3001/chat', {
-			autoConnect: false,
-			reconnection: false
-		});
+		
 
 
 		/******************
