@@ -6,6 +6,7 @@ import user from '../scripts/user';
 import gameGateway from '../scripts/game';
 import chatGateway from '../scripts/chat';
 import statusGateway from '../scripts/status';
+import { User, UserPrison } from '../scripts/user';
 
 export default {
 	data: function () {
@@ -34,7 +35,7 @@ export default {
 			this.switchPage(State.LOGIN);
 		},
 	},
-	mounted() { },
+	mounted() {},
 	emits: ['switchPage']
 }
 </script>
@@ -126,11 +127,12 @@ export default {
 								<div class="bar bar-green" :style="{ width: (10 / 17) * 100 + '%' }"></div>
 								<div class="bar bar-red" :style="{ width: (7 / 17) * 100 + '%' }"></div>
 							</div>
-							<!-- <div class="stats-text">
+							<div class="stats-text">
+								<div>You played : </div>
 								<div>Parties gagnées : 10</div>
 								<div>Parties perdues : 7</div>
 								<div>Moyenne : 58.8%</div>
-							</div> -->
+							</div>
 						</div>
 					</div>
 					<div class="history-container grid-border" style="overflow-y: auto;">
@@ -139,20 +141,11 @@ export default {
 						</div>
 						<div class="child-container">
 							<table class="history-table">
-								<thead>
-									<tr>
-										<th>Joueur 1</th>
-										<th>Score</th>
-										<th>Joueur 2</th>
-										<th>Score</th>
-									</tr>
-								</thead>
 								<tbody>
-									<tr v-for="n in 20">
-										<td>{{ user.username }}</td>
-										<td> 5 </td>
-										<td>Random </td>
-										<td>10</td>
+									<tr v-for="n in 10">
+										<div class="row-tab">
+											<p>{{ user.username }} | 10 | login | 5</p>
+										</div>
 									</tr>
 								</tbody>
 							</table>
@@ -176,47 +169,4 @@ export default {
 	</div>
 </template>
 
-<style lang="scss" scoped src="../styles/profil.scss">
-.history-table {
-	width: 100%;
-	max-height: 100%;
-	overflow-y: auto;
-	overflow: scroll;
-}
-
-.history-table th,
-.history-table td {
-	padding: 10px;
-	text-align: center;
-}
-
-.history-table tr:nth-child(even) {
-	background-color: #f2f2f2;
-}
-
-.history-table tr.winner {
-	background-color: gold;
-}
-
-.bar-container {
-  display: flex;
-  flex-direction: row;
-  height: 200px;
-  width: 100%;
-  border-radius: 10px;
-  overflow: hidden;
-  background-color: #ddd;
-}
-
-.bar {
-	height: 20px;
-}
-
-.bar-green {
-	background-color: #4CAF50;
-}
-
-.bar-red {
-	background-color: #f44336;
-}
-</style>
+<style lang="scss" scoped src="../styles/profil.scss"></style>

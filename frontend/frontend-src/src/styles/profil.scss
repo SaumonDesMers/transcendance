@@ -239,3 +239,51 @@
     overflow-wrap: break-word;
 }
 
+.history-table {
+	width: 100%;
+	max-height: 100%;
+	overflow-y: auto;
+	overflow: scroll;
+}
+
+.history-table th,
+.history-table td {
+	// padding: 10px;
+	text-align: center;
+}
+
+.row-tab {
+	background-color: rgba(125, 125, 125, 0.5);
+	width: 100%;
+	height: 20px;
+}
+
+.history-table tr:nth-child(even) {
+	background-color: #f2f2f2;
+}
+
+.history-table tr.winner {
+	background-color: gold;
+}
+
+.bar-container {
+	display: flex;
+	flex-direction: row;
+	height: 20px;
+	width: 100%;
+	border-radius: 10px;
+	overflow: hidden;
+	background-color: #ddd;
+}
+
+.bar {
+	height: 20px;
+}
+
+.bar-green {
+	background-color: #4CAF50;
+}
+
+.bar-red {
+	background-color: #f44336;
+}
