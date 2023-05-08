@@ -6,7 +6,8 @@ import {
 	Message,
 	Mute,
 	GroupChannel,
-	ChanType } from "@prisma/client";
+	ChanType, 
+	User} from "@prisma/client";
 import { MessageRepository } from "./Message.repository";
 import { ChannelRepository } from "./Channel.repository";
 import {
@@ -172,19 +173,19 @@ export class ChatService {
 		let channel = await this.prisma.dMChannel.findFirst({
 			where: {
 				channel: {
-					users: {
-						some: {
-							userId: callerUserId
+					AND: [
+						{
+							users: { some: { user: {
+								username: targetUserName
+							}}}
 						},
-					},
-					AND: {users: {some: {
-								user: {
-									username: targetUserName
-								}
-							}
-						}
-					}
-				}
+						{
+							users: { some: {
+								userId: callerUserId
+							}}
+						}					
+					],
+				},
 			},
 			include: {channel: includeMembersAndLast10Messages}
 		});
@@ -565,7 +566,12 @@ export class ChatService {
 			where: {userId},
 			include: {
 				user: true,
-				invites: true
+				invites: true,
+				blocked: {
+					select: {
+						userId : true
+					}
+				}
 			}
 		});
 
@@ -1058,6 +1064,84 @@ export class ChatService {
 		await this.leaveGroupChannel(channel, target.id);
 
 		return {channelId, callerUserId:authorUserId, targetUserId:target.id, action:true};
+	}
+
+	async blockUser(callerUserId: number, data: {targetUserName: string, action: boolean}): Promise<{targetId: number, dmId: number | undefined}>
+	{
+		//find target
+		let target: User;
+		const {targetUserName, action} = data;
+
+		try {
+			target = await this.prisma.user.findUniqueOrThrow({
+				where: {
+					username:targetUserName
+				}
+			});
+		} catch (e: any) {
+			throw new ValidationError("No such user");
+		}
+
+		if (target.id == callerUserId && action)
+			throw new ValidationError("Cant block yourself");
+
+		//if there is a DM channel, find it to delete it
+		const dm = await this.prisma.dMChannel.findFirst({
+			where: {
+				channel: {
+					AND: [
+						{
+							users: { some: { user: {
+								username: targetUserName
+							}}}
+						},
+						{
+							users: { some: {
+								userId: callerUserId
+							}}
+						}					
+					],
+				},
+			},
+		});
+
+		if (action)	{
+			await this.prisma.chatUser.update({
+				where: {
+					userId:callerUserId
+				},
+				data: {
+					blocked: {
+						connect: {
+							userId:target.id
+						}
+					}
+				}
+			});
+		} else {
+			await this.prisma.chatUser.update({
+				where: {
+					userId:callerUserId
+				},
+				data: {
+					blocked: {
+						disconnect: {
+							userId:target.id
+						}
+					}
+				}
+			});
+		}
+
+		if (dm != undefined && action) {
+			await this.prisma.channel.delete({
+				where: {
+					id:dm.channelId
+				}
+			});
+		}
+
+		return {targetId:target.id, dmId:dm?.channelId};
 	}
 
 	//in an invite request there is an username ( for ease of use, its better to remember usernames than userId :p)

@@ -205,15 +205,10 @@ export default defineComponent({
 						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;" @click="displayMP()">Private
 						message</p>
 					<div v-show="showMP" class="chan-can-join">
-						<div v-for="n in 10">
-							<p style="color: white; font-size: 15px; border: none; background-color: transparent;">Channels
-								random<br></p>
-						</div>
 						<div v-for="[channelId, channel] in store.dmChannels">
 							<button @click="selectDMChannel(channelId)"
 								style="color: white; font-size: 15px; border: none; background-color: transparent;">{{
-									channel.channel.users.map(a =>
-										store.getUserName(a.userId))
+									store.getUserName(channel.channel.users[0].userId)
 								}}</button>
 						</div>
 					</div>
@@ -258,12 +253,12 @@ export default defineComponent({
 						</p>
 					</div>
 				</div>
-				<div v-if="currentChannel != undefined && store.isCurrentDM == false">
+				<div v-if="currentChannel != undefined">
 					<!-- <p>Current Channel : {{ currentChannel.name }}</p>
 				<p>Channel Owner: {{ store.getUserName(currentChannel.owner?.userId) }}</p> -->
 					<div class="conversation" style="overflow: scroll; height: 80vh;">
 						<div v-for="message in currentChannel?.channel.messages">
-							<p>
+							<p v-if="!store.isBlocked(message.author.userId)">
 								{{ store.getUserName(message.author.userId) }} : {{ message.content }}
 							<p v-if="message.gameInvite != undefined">
 								Game Invite status: {{ message.gameInvite.status }}
@@ -297,7 +292,7 @@ export default defineComponent({
 				</div>
 			</div>
 			<div class="users" :class="[user.darkMode == true ? 'dark' : 'light']">
-				<div v-if="currentGroupChannel != undefined">
+				<div v-if="currentChannel != undefined">
 					<div style="height: 2rem;">
 						<input id="invite" type="radio" value="KEY" @click="clickInvite()" class="nodisplay visibility ">
 						<label for="invite">
@@ -324,7 +319,8 @@ export default defineComponent({
 							class="fa-solid fa-arrow-right-from-bracket" @click="leaveChannel()"></p>
 					</div>
 					<div v-show="!onInvit">
-						<p>{{ store.getUserName(currentGroupChannel.ownerId) }}
+						<p v-if="currentGroupChannel != undefined">
+							{{ store.getUserName(currentGroupChannel.ownerId) }}
 						<p class="fa-solid fa-crown" style="padding:10px; color: gold"></p>
 						</p>
 						<div v-for="user in currentChannel?.channel.users">
@@ -334,10 +330,19 @@ export default defineComponent({
 							</p>
 							<div :style="[tmpUser == store.getUserName(user.userId) && moderationUser ? '' : 'display:none;']">
 								<p style="margin-top: 1rem;">
-									Block<br>
 									Mute<br>
-									<button @click="store.kick_user(store.getUserName(user.userId))">kick</button>
-									<button @click="store.ban_user(store.getUserName(user.userId), true)">ban</button>
+									<!-- <button @click="store. (store.getUserName(user.userId))">Mute</button> -->
+									<div v-if="currentGroupChannel != undefined">
+										<button v-if="!store.isBlocked(user.userId)" @click="store.startDM(store.getUserName(user.userId))">DM</button>
+										<button v-if="store.isAdmin(store.user.userId)" @click="store.kick_user(store.getUserName(user.userId))">kick</button>
+										<button v-if="store.isAdmin(store.user.userId) && !store.isAdmin(user.userId)" @click="store.ban_user(store.getUserName(user.userId), true)">ban</button>
+										<button v-if="store.isAdmin(store.user.userId) && !store.isAdmin(user.userId)" @click="store.user_admin(store.getUserName(user.userId), true)">Set Admin</button>
+										<button v-if="store.isAdmin(store.user.userId) && store.isAdmin(user.userId) && !store.isOwner(user.userId)" @click="store.user_admin(store.getUserName(user.userId), false)">Set Admin</button>
+									</div>
+
+									<button v-if="!store.isBlocked(user.userId)" @click="store.block_user(store.getUserName(user.userId), true)">Block</button>
+									<button v-else @click="store.block_user(store.getUserName(user.userId), false)">Unblock</button>
+
 								</p>
 							</div>
 						</div>

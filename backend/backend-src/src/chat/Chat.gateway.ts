@@ -41,7 +41,7 @@ import { CreateGroupChannelDto } from "./GroupChannel.create.dto";
 import { Channel, ChatUser, GroupChannel, User } from "@prisma/client";
 import { Public } from "src/auth/public.decorator";
 import { AuthService } from "src/auth/auth.service";
-import { BadRequestException, Inject, Injectable, ParseIntPipe, UseFilters, UsePipes, ValidationPipe, forwardRef } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, ParseBoolPipe, ParseIntPipe, UseFilters, UsePipes, ValidationPipe, forwardRef } from "@nestjs/common";
 
 import { ArgumentsHost, Catch, HttpException } from "@nestjs/common";
 import { IsNumber, validateOrReject } from "class-validator";
@@ -495,6 +495,28 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 			targetSocket.leave(data.channelId.toString());
 		}
+	}
+
+	@SubscribeMessage("block_request")
+	async BlockUser(
+		@ConnectedSocket() socket: chatSocket,
+		@MessageBody() data: {targetUserName: string, action: boolean}
+	)
+	{
+		let update;
+		console.log("trying to block:", data);
+		try {
+			update = await this.chatService.blockUser(socket.data.userId, data);
+		} catch (e: any) {
+			throw new WsException(e.message);
+		}
+
+		console.log(update);
+
+		if (update.dmId != undefined && data.action)
+			this.server.to(update.dmId.toString()).emit('chan_deleted', update.dmId);
+
+		return update.targetId;
 	}
 
 	@SubscribeMessage("start_dm")
