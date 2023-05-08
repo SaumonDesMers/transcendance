@@ -17,7 +17,7 @@ export default defineComponent({
 			SelfUser,
 			displayUser: new User(),
 			userFactory: new UserPrison(),
-			ladder: [] as any, // TODO: type this
+			ladder: [] as {id:number, username:string}[], // TODO: type this
 		}
 	},
 	methods: {
