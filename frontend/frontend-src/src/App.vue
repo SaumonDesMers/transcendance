@@ -116,7 +116,7 @@ export default defineComponent({
 </script>
 
 <template>
-	<div v-if="state == State.LOGIN">
+	<!-- <div v-if="state == State.LOGIN">
 		<loginPage @switchPage="switchPage"></loginPage>
 	</div>
 	<div v-if="state == State.VALIDATE_2FA">
@@ -151,7 +151,8 @@ export default defineComponent({
 	</div>
 	<div v-else-if="state == State.CHATSETTINGS">
 		<chatSettings @switchPage="switchPage"></chatSettings>
-	</div>
+	</div> -->
+	<router-view></router-view>
 </template>
 
 <style scoped></style>
