@@ -550,9 +550,7 @@ export class Chat {
 
 		if (chan == undefined) return false;
 
-		return (chan.admins.find(user => {
-			return user.userId == userId;
-		}) != undefined || this.isOwner(userId))
+		return (chan.ownerId == userId || chan.admins.includes({userId}))
 	}
 
 	isOwner(userId: number) : boolean
@@ -626,7 +624,11 @@ export class Chat {
 		});
 		
 		this.socket.on('user_joined_room', (payload: ChanNotifDTO) => {
-			this._group_channels.get(payload.channelId)?.channel.users.push({userId:payload.targetUserId});
+
+			let chan = this._group_channels.get(payload.channelId);
+
+			if (chan != undefined && !chan.channel.users.includes({userId:payload.targetUserId}))
+				chan.channel.users.push({userId:payload.targetUserId});
 		});
 		
 		this.socket.on('user_left_room', (payload: ChanNotifDTO) => {
