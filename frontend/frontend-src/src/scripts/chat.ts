@@ -23,11 +23,17 @@ import {CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/G
 import { ServerToClientEvents, ClientToServerEvents } from '../../../../backend/backend-src/src/chat/Chat.events'
 import { User } from './user'
 
-enum ChanType{
-	PUBLIC,
-	PRIV,
-	KEY,
-}
+export const ChanType: {
+	PUBLIC: 'PUBLIC',
+	PRIV: 'PRIV',
+	KEY: 'KEY'
+  } = {
+	PUBLIC: 'PUBLIC',
+	PRIV: 'PRIV',
+	KEY: 'KEY'
+  }
+
+  export type ChanType = typeof ChanType[keyof typeof ChanType]
 
 /**
  * 

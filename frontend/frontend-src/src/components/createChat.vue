@@ -1,11 +1,13 @@
-<script>
+<script lang="ts">
 import chat from '../scripts/chat';
 import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto';
 import { State } from '../scripts/state';
 import user from '../scripts/user';
+import { defineComponent } from 'vue';
+import { ChanType } from '../scripts/chat'
 
 
-export default {
+export default defineComponent({
 
 data: function () {
     return {
@@ -16,7 +18,7 @@ data: function () {
         channelNameInput: '',
         channeltype: undefined,
         channelKeyInput: '',
-        picked: 'PUBLIC',
+        picked: ChanType.PUBLIC as ChanType,
       };
 },
 methods: {
@@ -25,23 +27,23 @@ methods: {
             ownerId:user.id,
             name:this.channelNameInput,
             type:this.picked,
-            key: null,
+            key: '',
             usersId: []
         };
 
-            if (newChan.type == 'KEY')
+            if (newChan.type == ChanType.KEY)
                 newChan.key = this.channelKeyInput;
 
             console.log(newChan);
             chat.createChannel(newChan);
             this.switchPage(State.CHAT);
         },
-        switchPage(page) {
-            this.$emit('switchPage', page);
-        },
-        applyTheme(themeClass) {
-            this.editCoa = themeClass;
-        },
+		switchPage(page: State, id?: number) {
+			this.$emit('switchPage', {page, id});
+		},
+        // applyTheme(themeClass: string) {
+        //     this.editCoa = themeClass;
+        // },
         toggleDarkMode() {
             this.user.set({ darkMode: !this.user.darkMode });
             this.user.save();
@@ -50,12 +52,12 @@ methods: {
     },
 
     mounted() {
-        this.editName = this.user.username;
-        this.editBio = this.user.bio;
-        this.editCoa = this.user.coa;
+        // this.editName = this.user.username;
+        // this.editBio = this.user.bio;
+        // this.editCoa = this.user.coa;
     },
     emits: ['switchPage']
-}
+})
 
 </script>
 

@@ -30,14 +30,14 @@ export default defineComponent({
 			}
 			
 			if (data == '')
-				this.$emit('switchPage', State.REGISTER);
+				this.$emit('switchPage', {page:State.REGISTER});
 			else if (data == '2fa')
-				this.$emit('switchPage', State.VALIDATE_2FA);
+				this.$emit('switchPage', {page:State.VALIDATE_2FA});
 			else
-				this.$emit('switchPage', State.MAIN);
+				this.$emit('switchPage', {page:State.MAIN});
 		},
-		switchPage(page: State) {
-			this.$emit('switchPage', page);
+		switchPage(page: State, id?: number) {
+			this.$emit('switchPage', {page, id});
 		},
 	},
 

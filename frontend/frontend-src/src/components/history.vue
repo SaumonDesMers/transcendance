@@ -17,7 +17,7 @@ export default defineComponent({
 			SelfUser,
 			displayUser: new User(),
 			userFactory: new UserPrison(),
-			ladder: [] as any, // TODO: type this
+			ladder: [] as {id:number, username:string}[], // TODO: type this
 		}
 	},
 	methods: {
@@ -25,8 +25,8 @@ export default defineComponent({
 			this.SelfUser.set({ darkMode: !this.SelfUser.darkMode });
 			this.SelfUser.save();
 		},
-		switchPage(page: State) {
-			this.$emit('switchPage', page);
+		switchPage(page: State, id?: number) {
+			this.$emit('switchPage', {page, id});
 		},
 	},
 	mounted() {

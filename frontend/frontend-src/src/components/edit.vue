@@ -41,8 +41,8 @@ export default defineComponent({
 			}
 			this.user.avatar.setFile(imageFile);
 		},
-		switchPage(page: State) {
-			this.$emit('switchPage', page);
+		switchPage(page: State, id?: number) {
+			this.$emit('switchPage', {page, id});
 		},
 		applyTheme(themeClass: string) {
 			this.editCoa = themeClass;

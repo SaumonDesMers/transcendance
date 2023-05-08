@@ -74,14 +74,14 @@ export default defineComponent({
 			.then((res) => {
 					this.user.set(res.data);
 					this.user.uploadAvatar();
-					this.$emit('switchPage', State.MAIN);
+					this.$emit('switchPage', {page:State.MAIN});
 				})
 				.catch((error) => {
 					console.log(error);
 				});
 		},
-		switchPage(page: State) {
-			this.$emit('switchPage', page);
+		switchPage(page: State, id?: number) {
+			this.$emit('switchPage', {page, id});
 		},
 	},
 	emits: ['switchPage', 'user']

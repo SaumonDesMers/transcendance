@@ -66,8 +66,8 @@ export default defineComponent({
 	// 	// debugger
 	// },
 	methods: {
-		switchPage(page: State) {
-			this.$emit('switchPage', page);
+		switchPage(page: State, id?: number) {
+			this.$emit('switchPage', {page, id});
 		},
 		print() {
 			console.log(store);
