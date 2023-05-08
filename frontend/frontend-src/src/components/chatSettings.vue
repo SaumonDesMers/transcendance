@@ -1,43 +1,37 @@
-<script>
+<script lang="ts">
 import chat from '../scripts/chat';
 import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto';
 import { State } from '../scripts/state';
 import user from '../scripts/user';
 import store from "../scripts/chat"
+import { defineComponent } from 'vue';
+import { ChanType } from '../scripts/chat';
 
-export default {
+export default defineComponent({
 
-	data: function () {
-		return {
-			State,
-			user,
-			isProtected: false,
-			chat,
+    data: function () {
+        return {
+            State,
+            user,
+            isProtected: false,
+            chat,
 			store,
-			channelNameInput: '',
+            channelNameInput: '',
 			searchInput: '',
-			searchArray: [],
-			channeltype: undefined,
-			channelKeyInput: '',
-		};
-	},
-	methods: {
-		async saveModifications() {
-			if (this.channeltype == 'KEY')
-				this.key = this.channelKeyInput;
+			searchArray: [] as string[],
+            channeltype: ChanType.PUBLIC as ChanType,
+            channelKeyInput: '',
+        };
+    },
+    methods: {
+        async saveModifications() {
+
 
 			store.setChanType(this.channeltype);
 			this.switchPage(State.CHAT);
 		},
-		switchPage(page) {
-			this.$emit('switchPage', page);
-		},
-		applyTheme(themeClass) {
-			this.editCoa = themeClass;
-		},
-		toggleDarkMode() {
-			this.user.set({ darkMode: !this.user.darkMode });
-			this.user.save();
+		switchPage(page: State, id?: number) {
+			this.$emit('switchPage', {page, id});
 		},
 	},
 	watch: {
@@ -48,17 +42,16 @@ export default {
 		}
 	},
 	computed: {
-		currentChannel() {
-			return store.getCurrentChannel();
+		currentGroupChannel() {
+			return chat.getCurrentGroupChannel();
 		}
 	},
 	mounted() {
-		this.editName = this.user.username;
-		this.editBio = this.user.bio;
-		this.editCoa = this.user.coa;
+		if (this.currentGroupChannel != undefined)
+			this.channeltype = this.currentGroupChannel.type;
 	},
 	emits: ['switchPage']
-}
+})
 
 </script>
 
@@ -72,21 +65,21 @@ export default {
 		<div
 			style="display: flex; justify-content: center; align-items: center; align-content: center; position:absolute; top:10%; left:10%;">
 			<div class="create-chat-container">
-				<div class="title-chan">{{ currentChannel.name.toUpperCase() }} </div><br>
+				<div class="title-chan">{{ currentGroupChannel?.name.toUpperCase() }} </div><br>
 				<p></p>
 				<legend class="title">Change type's channel:</legend>
 				<div class="title">
-					<input v-on:click="isProtected = false; this.channeltype = 'PUBLIC'" type="radio" id="public"
+					<input v-on:click="isProtected = false; channeltype = 'PUBLIC'" type="radio" id="public"
 						name="channel" value="publicChan" checked>
 					<label for="public">Public</label>
 				</div>
 				<div class="title">
-					<input v-on:click=" isProtected = false; this.channeltype = 'PRIV'" type="radio" id="private"
+					<input v-on:click=" isProtected = false; channeltype = 'PRIV'" type="radio" id="private"
 						name="channel" value="privateChan">
 					<label for="private">Private</label>
 				</div>
 				<div class="title">
-					<input v-on:click=" isProtected = true; this.channeltype = 'KEY'" type="radio" id="protected"
+					<input v-on:click=" isProtected = true; channeltype = 'KEY'" type="radio" id="protected"
 						name="channel" value="isProtected">
 					<label for="protected">Protected</label>
 					<div :style="[isProtected ? '' : 'display:none']">
@@ -99,11 +92,11 @@ export default {
 					<input style="font-size: 1vw" type="text" v-model="searchInput" />
 					<div>
 						<p style="display:flex; justify-content: center; color: white;"
-							@click="store.invite_user(username, true)" v-for="username in this.searchArray">{{ username }}
+							@click="store.invite_user(username, true)" v-for="username in searchArray">{{ username }}
+							<button style="" @click="store.user_admin(username, true)">MAKE ADMINISTRATOR</button>
 						</p>
 					</div>
 					<div>
-						<button style="" @click="store.invite_user(username, true)">MADE ADMINISTRATOR</button>
 					</div>
 					<div>
 						<div>

@@ -1,4 +1,4 @@
-import { Vec2, Rect } from './utils';
+import { Vec2, Rect } from './gameData';
 
 export function computeShadowPolygone(rect: Rect, light: Vec2): Array<Vec2> {
 	// cast rays from light to each obstacle corner

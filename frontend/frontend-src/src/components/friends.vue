@@ -1,12 +1,13 @@
-<script>
+<script lang="ts">
 
 import axios from 'axios'
 import { State } from '../scripts/state';
 import usersStatus from '../scripts/status';
 // import Myuser from '../scripts/user';
 import { User } from '../scripts/user';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
 	props: {
 		user: User
 	},
@@ -22,7 +23,7 @@ export default {
 			this.user.set({ darkMode: !this.user.darkMode });
 			this.user.save();
 		},
-		switchPage(page) {
+		switchPage(page: State) {
 			this.$emit('switchPage', page);
 		},
 	},
@@ -31,7 +32,7 @@ export default {
 		usersStatus.fetchUsers(this.user._friendsIdList);
 	},
 	emits: ['switchPage']
-}
+})
 </script>
 
 <template>

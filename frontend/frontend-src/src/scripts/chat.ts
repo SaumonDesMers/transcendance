@@ -23,11 +23,17 @@ import {CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/G
 import { ServerToClientEvents, ClientToServerEvents } from '../../../../backend/backend-src/src/chat/Chat.events'
 import { User } from './user'
 
-enum ChanType{
-	PUBLIC,
-	PRIV,
-	KEY,
-}
+export const ChanType: {
+	PUBLIC: 'PUBLIC',
+	PRIV: 'PRIV',
+	KEY: 'KEY'
+  } = {
+	PUBLIC: 'PUBLIC',
+	PRIV: 'PRIV',
+	KEY: 'KEY'
+  }
+
+  export type ChanType = typeof ChanType[keyof typeof ChanType]
 
 /**
  * 
@@ -44,13 +50,13 @@ export class Chat {
 	private _dm_channels: Map<number, DMChannelDTO>;
 	private _other_users: Map<number, User>;
 	private _channel_invites: Map<number, string>; //channel id and channel names
-	private _user: ChatUserDTO;
+	private _user!: ChatUserDTO;
 	private socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 	error: Ref<string>;
 	// private currentGroupChannelId: number;
 	// private currentDmChannelId: number;
-	private currentChannelId: number;
-	isCurrentDM: boolean;
+	private currentChannelId: number = -1;
+	isCurrentDM: boolean = false;
 	
 	/**
 	 * Pending invites getter, the list is auto updated
@@ -150,6 +156,16 @@ export class Chat {
 			return this._group_channels.get(this.currentChannelId);
 	}
 
+	getCurrentGroupChannel(): GroupChannelDTO | undefined
+	{
+		return this._group_channels.get(this.currentChannelId);
+	}
+
+	getCurrentDM(): DMChannelDTO | undefined
+	{
+		return this._dm_channels.get(this.currentChannelId);
+	}
+
 	selectChannel(id: number, isDMChannel: boolean)
 	{
 		this.currentChannelId = id;
@@ -163,8 +179,13 @@ export class Chat {
 		this._visible_public_channels = reactive(new Map());
 		this._visible_key_channels = reactive(new Map());
 		this._dm_channels = reactive(new Map())
+		this._user = reactive(new ChatUserDTO())
 		this.error = ref<string>("");
-		
+
+		this.socket = io('http://localhost:3001/chat', {
+			autoConnect: false,
+			reconnection: false
+		});	
 		this.initSocket();
 	}
 	
@@ -178,7 +199,7 @@ export class Chat {
 	 * Be carefull, auth must have been completed
 	 * @date 4/24/2023 - 5:26:02 PM
 	 */
-	connect(jwt: string) {
+	async connect(jwt: string) {
 		if (this.socket.connected)
 			return;
 		this.socket.io.opts.extraHeaders = {
@@ -188,12 +209,9 @@ export class Chat {
 		this.socket.connect();
 		
 		this._channel_invites.clear();
-		this.socket.emit("get_my_user", (user: ChatUserDTO) => {
-			this._user = user;
-			user.invites?.forEach(invite => {
-				this.channelInvites.set(invite.channelId, invite.name);
-			})
-		});
+		this._user = await this.socket.emitWithAck("get_my_user");
+		if (this._user.blocked == undefined)
+			this._user.blocked = reactive(new Array());
 		
 		this._group_channels.clear();
 		this.socket.emit("get_groupchannels", (channels: GroupChannelDTO[]) => {
@@ -298,6 +316,7 @@ export class Chat {
 	{
 		this.socket.emit("join_channel", request, (channel: GroupChannelDTO) => {
 			this._group_channels.set(channel.channelId, channel);
+			this.selectChannel(channel.channelId, false);
 		})
 	}
 	
@@ -325,6 +344,7 @@ export class Chat {
 	{
 		this.socket.emit("start_dm", username, (channel: DMChannelDTO) => {
 			this._dm_channels.set(channel.channelId, channel);
+			this.selectChannel(channel.channelId, true);
 		})
 	}
 
@@ -500,7 +520,16 @@ export class Chat {
 		});
 	}
 
-
+	block_user(targetUserName: string, action: boolean)
+	{
+		console.log("targetUser:", targetUserName);
+		this.socket.emitWithAck("block_request", {targetUserName, action}).then(userId => {
+			if (action)
+				this._user.blocked?.push({userId});
+			else if (this._user.blocked != undefined)
+				this.delete_user_from_array(userId, this._user.blocked);
+		}).catch
+	}
 
 	/*******************
 	 * UTILS FUNCTIONS *
@@ -520,19 +549,17 @@ export class Chat {
 		return this.socket.emitWithAck("search_username", username);
 	}
 	
-	isAdmin() : boolean
+	isAdmin(userId: number) : boolean
 	{
 		if (this.isCurrentDM) return false;
 		const chan = this._group_channels.get(this.currentChannelId);
 
 		if (chan == undefined) return false;
 
-		return (chan.admins.find(user => {
-			return user.userId == this.user.userId;
-		}) != undefined)
+		return (chan.ownerId == userId || chan.admins.includes({userId}))
 	}
 
-	isOwner() : boolean
+	isOwner(userId: number) : boolean
 	{
 		if (this.isCurrentDM) return false;
 		const chan = this._group_channels.get(this.currentChannelId);
@@ -540,6 +567,13 @@ export class Chat {
 		if (chan == undefined) return false;
 
 		return (chan.owner.userId == this.user.userId);
+	}
+
+	isBlocked(userId: number) : boolean
+	{
+		return (this._user.blocked?.find(user => {
+			return user.userId == userId;
+		}) != undefined);
 	}
 
 	/******************************
@@ -570,11 +604,16 @@ export class Chat {
 	}
 
 
+	private removeChannel(channelId: number)
+	{
+		if (this._group_channels.delete(channelId) == false)
+			this._dm_channels.delete(channelId);
+		if (channelId == this.currentChannelId)
+			this.currentChannelId = -1;
+	}
+
 	private initSocket() {
-		this.socket = io('http://localhost:3001/chat', {
-			autoConnect: false,
-			reconnection: false
-		});
+		
 
 
 		/******************
@@ -591,22 +630,24 @@ export class Chat {
 		});
 		
 		this.socket.on('user_joined_room', (payload: ChanNotifDTO) => {
-			this._group_channels.get(payload.channelId)?.channel.users.push({userId:payload.targetUserId});
+
+			let chan = this._group_channels.get(payload.channelId);
+
+			if (chan != undefined && !chan.channel.users.includes({userId:payload.targetUserId}))
+				chan.channel.users.push({userId:payload.targetUserId});
 		});
 		
 		this.socket.on('user_left_room', (payload: ChanNotifDTO) => {
 			this.delete_user_from_chan(payload.targetUserId, payload.channelId);
 		});
 
+		this.socket.on("chan_deleted", (channelId: number) => {
+			this.removeChannel(channelId);
+		});
+
 		this.socket.on("user_kicked", (payload: ChanNotifDTO) => {
 			if (payload.targetUserId == this.user.userId)
-			{
-				this.groupChannels.delete(payload.channelId);
-				if (payload.channelId == this.currentChannelId)
-				{
-					this.currentChannelId = -1;
-				}
-			}
+				this.removeChannel(payload.channelId);
 			else
 				this.delete_user_from_chan(payload.targetUserId, payload.channelId);
 
@@ -614,11 +655,7 @@ export class Chat {
 
 		this.socket.on("user_banned", (payload: ChanNotifDTO) => {
 			if (payload.targetUserId == this.user.userId)
-			{
-				this.groupChannels.delete(payload.channelId);
-				if (payload.channelId == this.currentChannelId)
-					this.currentChannelId = -1;
-			}
+				this.removeChannel(payload.channelId);
 			else
 				this.delete_user_from_chan(payload.targetUserId, payload.channelId);
 		});
@@ -734,6 +771,9 @@ export class Chat {
 		})
 
 		this.socket.on("dm_starting", (payload: DMChannelDTO) => {
+			if (payload.channel.users.length > 1)
+				this.delete_user_from_array(this.user.userId, payload.channel.users);
+
 			this._dm_channels.set(payload.channelId, payload);
 		})
 

@@ -46,6 +46,7 @@ export interface GroupChannelDTO{
 	admins: SimpleChatUserDTO[],
 	invited: SimpleChatUserDTO[],
 	owner: SimpleChatUserDTO,
+	ownerId: number,
 	type: ChanType,
 }
 
@@ -94,14 +95,15 @@ export interface SimpleChatUserDTO {
 	userId: number
 }
 
-export interface ChatUserDTO {
-	userId: number,
+export class ChatUserDTO {
+	userId: number;
 	user: {
 		id: number,
 		username: string
-	},
+	};
 	joinedChannels?: ChannelDTO[];
 	invites?: GroupChannelSnippetDTO[];
+	blocked?: SimpleChatUserDTO[];
 }
 
 

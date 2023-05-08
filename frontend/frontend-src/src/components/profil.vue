@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 
 import axios from 'axios'
 import { State } from '../scripts/state';
@@ -6,9 +6,10 @@ import user from '../scripts/user';
 import gameGateway from '../scripts/game';
 import chatGateway from '../scripts/chat';
 import statusGateway from '../scripts/status';
+import { defineComponent } from 'vue';
 import { User, UserPrison } from '../scripts/user';
 
-export default {
+export default defineComponent({
 	data: function () {
 		return {
 			matches: [
@@ -23,21 +24,21 @@ export default {
 			this.user.set({ darkMode: !this.user.darkMode });
 			this.user.save();
 		},
-		switchPage(page) {
-			this.$emit('switchPage', page);
+		switchPage(page: State, id?: number) {
+			this.$emit('switchPage', {page, id});
 		},
 		logout() {
 			gameGateway.disconnect();
 			chatGateway.disconnectFromServer();
 			statusGateway.disconnect();
 			localStorage.removeItem('userId');
-			this.$cookies.remove('jwt');
+			this.$cookie.removeCookie('jwt');
 			this.switchPage(State.LOGIN);
 		},
 	},
 	mounted() {},
 	emits: ['switchPage']
-}
+})
 </script>
 
 <template>
