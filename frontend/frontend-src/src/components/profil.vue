@@ -27,7 +27,7 @@ export default defineComponent({
 			this.SelfUser.save();
 		},
 		switchPage(page: State, id?: number) {
-			this.$emit('switchPage', {page, id});
+			this.$router.push({ name: page, params: { id: id } });
 		},
 		logout() {
 			gameGateway.disconnect();
@@ -35,7 +35,7 @@ export default defineComponent({
 			statusGateway.disconnect();
 			localStorage.removeItem('userId');
 			this.$cookie.removeCookie('jwt');
-			this.switchPage(State.LOGIN);
+			this.$router.push({ name: 'login' });
 		},
 	},
 	watch: {
@@ -60,7 +60,6 @@ export default defineComponent({
 
 		this.userFactory.addUser(this.user);
 	},
-	emits: ['switchPage']
 })
 </script>
 
@@ -103,10 +102,11 @@ export default defineComponent({
 					</div>
 					<div class="friend-container grid-border">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']"
-							@click="switchPage(State.FRIENDS)">friends</div>
+							@click="switchPage(State.FRIENDS, user.id)">friends</div>
 						<div class="grid-friend" style="overflow: scroll;">
 							<div class="friend" v-for="friend in user.friends">
-								<div>{{ friend.username }}</div>
+								<div @click="switchPage(State.USER, friend.id)">{{ friend.username }}</div>
+								<!-- <router-link :to="{ name: 'profile', params: { id: friend.id } }">{{ friend.username }}</router-link> -->
 							</div>
 						</div>
 					</div>
@@ -128,7 +128,7 @@ export default defineComponent({
 					</div>
 					<div class="history-container grid-border" style="overflow-y: auto;">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']"
-							@click="switchPage(State.HISTORY)">history
+							@click="switchPage(State.HISTORY, user.id)">history
 						</div>
 						<div class="child-container">
 							<table class="history-table">

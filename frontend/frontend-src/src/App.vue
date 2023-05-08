@@ -51,10 +51,10 @@ export default defineComponent({
 	},
 
 	methods: {
-		switchPage(state: {page: State, id?: number}) {
-			this.$router.push({ path: state.page, query: { id:state.id } });
-			this.state = state.page;
-		},
+		// switchPage(state: {page: State, id?: number}) {
+		// 	this.$router.push({ path: state.page, query: { id:state.id } });
+		// 	this.state = state.page;
+		// },
 		makeid(length: number) {
 			let result = '';
 			const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -82,25 +82,24 @@ export default defineComponent({
 		if (jwt && localStorage.userId) {
 			axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 			this.user.get();
-			this.state = window.history.state.current;
+			// this.state = window.history.state.current;
 			this.connectToWebsocket();
 		} else {
-			this.state = State.LOGIN;
+			// this.state = State.LOGIN;
+			this.$router.replace({ name: 'login' });
 		}
 
-		onpopstate = (event) => {
-			if (this.user.isLoggedIn && this.$cookie.getCookie('jwt'))
-				this.state = this.$route.path as State;
-			else
-				this.switchPage({ page: State.LOGIN });
-		};
-
-		console.log(this.$route);
+		// onpopstate = (event) => {
+		// 	if (this.user.isLoggedIn && this.$cookie.getCookie('jwt'))
+		// 		this.state = this.$route.path as State;
+		// 	else
+		// 		this.switchPage({ page: State.LOGIN });
+		// };
 	},
 
 	watch: {
 		$route(val, oldVal) {
-			this.state = this.$route.path as State;
+			// this.state = this.$route.path as State;
 		},
 		state(val, oldVal) {
 			if (oldVal == State.LOGIN && val != State.LOGIN)
@@ -108,7 +107,8 @@ export default defineComponent({
 		},
 		'gameGateway.state.value'(val, oldVal) {
 			if (oldVal != 'game' && val == 'game')
-				this.switchPage({ page: State.GAME });
+				this.$router.push({ path: State.GAME });
+				// this.switchPage({ page: State.GAME });
 		},
 	}
 })

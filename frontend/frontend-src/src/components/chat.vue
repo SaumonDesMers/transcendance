@@ -68,7 +68,7 @@ export default defineComponent({
 	// },
 	methods: {
 		switchPage(page: State, id?: number) {
-			this.$emit('switchPage', {page, id});
+			this.$router.push({ name: page, params: { id } });
 		},
 		print() {
 			console.log(store);
@@ -150,9 +150,7 @@ export default defineComponent({
 		}
 	},
 
-	created() {
-	},
-	emits: ['switchPage'],
+	created() {},
 })
 
 </script>
@@ -244,8 +242,8 @@ export default defineComponent({
 				<div
 					style="margin-top:45%; height: 5vh; margin-left: -5px; display: flex; align-items: center; padding-top: 0.5rem; padding-bottom: 0.5rem;">
 					<div class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']"></div>
-					<p style="margin-left: 0.7rem;"
-						:class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">{{ user.username }}</p>
+					<router-link style="margin-left: 0.7rem;" :to="{ name: 'profile', params: { id: user.id } }"
+						:class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">{{ user.username }}</router-link>
 				</div>
 			</div>
 			<div class="chat-box" :class="[user.darkMode == true ? 'dark' : 'light']">

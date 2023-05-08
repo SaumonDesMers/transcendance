@@ -2,6 +2,7 @@ import { createApp, reactive, ref } from 'vue'
 import App from './App.vue'
 import VueCookies from 'vue3-cookies';
 import { createRouter, createWebHistory } from 'vue-router';
+import { VueCookieNext } from 'vue-cookie-next'
 
 import main from './components/mainPage.vue';
 import login from './components/login.vue';
@@ -14,7 +15,6 @@ import game from './components/game.vue';
 import chat from './components/chat.vue';
 import friends from './components/friends.vue';
 import createChat from './components/createChat.vue';
-import { VueCookieNext } from 'vue-cookie-next'
 
 const routes = [
 	{ name: 'main', path: '/', component: main },

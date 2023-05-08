@@ -31,7 +31,7 @@ export default defineComponent({
 			this.user.save();
 		},
 		switchPage(page: State, id?: number) {
-			this.$emit('switchPage', {page, id});
+			this.$router.push({ name: page, params: { id: id } });
 		},
 		logout() {
 			gameGateway.disconnect();
@@ -39,12 +39,11 @@ export default defineComponent({
 			statusGateway.disconnect();
 			localStorage.removeItem('userId');
 			this.$cookie.removeCookie('jwt');
-			this.switchPage(State.LOGIN);
+			this.$router.push({ name: 'login' });
 		}
 	},
 	mounted() {
 	},
-	emits: ['switchPage'],
 })
 </script>
 

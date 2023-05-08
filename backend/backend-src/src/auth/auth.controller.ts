@@ -21,7 +21,7 @@ export class AuthController {
 
 		const jwt: string = await this.authService.generateJwtWith2fa(req.user, false);
 
-		const url = new URL(`${req.protocol}:${req.hostname}`);
+		const url = new URL(`${req.protocol}:${req.hostname}/login`);
 		url.port = `3000`;
 
 		response.cookie('jwt', jwt);

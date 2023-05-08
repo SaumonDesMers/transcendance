@@ -28,7 +28,7 @@ export default defineComponent({
 			this.SelfUser.save();
 		},
 		switchPage(page: State, id?: number) {
-			this.$emit('switchPage', {page, id});
+			this.$router.push({ name: page, params: { id: id } });
 		},
 		fetchData(id: number) {
 			this.userFactory.users.clear();
@@ -53,7 +53,6 @@ export default defineComponent({
 	mounted() {
 		this.fetchData(parseInt(this.$route.params.id as string));
 	},
-	emits: ['switchPage']
 })
 </script>
 
@@ -98,13 +97,13 @@ export default defineComponent({
 								<div class="status"></div>
 							</div>
 							<div class="result-grid" :class="[SelfUser.darkMode ? 'text-color-dark' : 'text-color-light']">
-								<p class="login" @click="switchPage(State.USER)">{{ userFactory.getUser(game.loserId).username }}<br></p>
+								<p class="login" @click="switchPage(State.USER, game.loserId)">{{ userFactory.getUser(game.loserId).username }}<br></p>
 								<p class="fa-solid fa-skull"><br></p>
 								<p class="score">{{ game.LoserScore }}<br></p>
 							</div>
 							<div class="result-grid goldBG goldText"
 								:class="[SelfUser.darkMode ? 'text-color-dark' : 'text-color-light']">
-								<p class="login" @click="switchPage(State.USER)">{{ userFactory.getUser(game.winnerId).username }}<br></p>
+								<p class="login" @click="switchPage(State.USER, game.winnerId)">{{ userFactory.getUser(game.winnerId).username }}<br></p>
 								<p class="fa-solid fa-trophy"><br></p>
 								<p class="score">{{ game.winnerScore }}<br></p>
 							</div>

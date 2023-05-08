@@ -22,7 +22,7 @@ export default defineComponent({
 			.then(res => {
 				// console.log('2fa/authenticate: res:', res);
 				this.user.set(res.data);
-				this.switchPage(State.MAIN);
+				this.$router.push({ name: State.MAIN });
 			})
 			.catch(err => {
 				this.errorMsg = err.message;
@@ -31,15 +31,13 @@ export default defineComponent({
 
 		cancel() {
 			this.$cookie.removeCookie('jwt');
-			this.switchPage(State.LOGIN);
+			this.$router.back();
 		},
 
 		switchPage(page: State, id?: number) {
-			this.$emit('switchPage', {page, id});
+			this.$router.push({ name: page, params: { id: id } });
 		},
 	},
-
-	emits: ['switchPage', 'user'],
 
 	mounted() {	},
 
