@@ -10,6 +10,8 @@ import statusGateway from '../scripts/status';
 export default {
 	data: function () {
 		return {
+			matches: [
+			],
 			State,
 			status: false,
 			user,
@@ -39,9 +41,6 @@ export default {
 
 <template>
 	<head>
-		<meta charset="UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	</head>
 	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
@@ -122,21 +121,42 @@ export default {
 					<div class="stats-container grid-border">
 						<div :class="[user.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">stats
 						</div>
-						<div class="child-container">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non
-							porttitor sem. Vestibulum ac massa tempus, auctor ex ut, lobortis tellus. Phasellus id tortor
-							viverra, dictum diam nec, efficitur dui. Nullam placerat viverra tortor in ultricies. Quisque
-							pellentesque hendrerit vulputate. Aenean dapibus dui lectus, nec dapibus arcu aliquam eget.
-							Aenean dignissim arcu quis iaculis auctor.</div>
+						<div class="child-container">
+							<div class="bar-container">
+								<div class="bar bar-green" :style="{ width: (10 / 17) * 100 + '%' }"></div>
+								<div class="bar bar-red" :style="{ width: (7 / 17) * 100 + '%' }"></div>
+							</div>
+							<!-- <div class="stats-text">
+								<div>Parties gagnées : 10</div>
+								<div>Parties perdues : 7</div>
+								<div>Moyenne : 58.8%</div>
+							</div> -->
+						</div>
 					</div>
-					<div class="history-container grid-border">
+					<div class="history-container grid-border" style="overflow-y: auto;">
 						<div :class="[user.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']"
 							@click="switchPage(State.HISTORY)">history
 						</div>
-						<div class="child-container">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum non
-							porttitor sem. Vestibulum ac massa tempus, auctor ex ut, lobortis tellus. Phasellus id tortor
-							viverra, dictum diam nec, efficitur dui. Nullam placerat viverra tortor in ultricies. Quisque
-							pellentesque hendrerit vulputate. Aenean dapibus dui lectus, nec dapibus arcu aliquam eget.
-							Aenean dignissim arcu quis iaculis auctor.</div>
+						<div class="child-container">
+							<table class="history-table">
+								<thead>
+									<tr>
+										<th>Joueur 1</th>
+										<th>Score</th>
+										<th>Joueur 2</th>
+										<th>Score</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-for="n in 20">
+										<td>{{ user.username }}</td>
+										<td> 5 </td>
+										<td>Random </td>
+										<td>10</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -152,15 +172,51 @@ export default {
 				<div class="stars2"></div>
 				<div class="shooting-stars"></div>
 			</div>
-			<!-- <div v-if="user.darkMode == false">
-			</div>
-			<div v-else>
-				<div class="stars"></div>
-				<div class="stars1"></div>
-				<div class="stars2"></div>
-			</div> -->
 		</div>
 	</div>
 </template>
 
-<style lang="scss" scoped src="../styles/profil.scss"></style>
+<style lang="scss" scoped src="../styles/profil.scss">
+.history-table {
+	width: 100%;
+	max-height: 100%;
+	overflow-y: auto;
+	overflow: scroll;
+}
+
+.history-table th,
+.history-table td {
+	padding: 10px;
+	text-align: center;
+}
+
+.history-table tr:nth-child(even) {
+	background-color: #f2f2f2;
+}
+
+.history-table tr.winner {
+	background-color: gold;
+}
+
+.bar-container {
+  display: flex;
+  flex-direction: row;
+  height: 200px;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #ddd;
+}
+
+.bar {
+	height: 20px;
+}
+
+.bar-green {
+	background-color: #4CAF50;
+}
+
+.bar-red {
+	background-color: #f44336;
+}
+</style>
