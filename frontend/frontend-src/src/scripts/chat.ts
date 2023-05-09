@@ -233,7 +233,7 @@ export class Chat {
 		this._dm_channels.clear();
 		this.socket.emit("get_dmchannels", (channels: DMChannelDTO[]) => {
 			channels.forEach(channel => {
-				this._dm_channels.set(channel.channelId, channel);
+				this.addDmChan(channel);
 			})
 		});
 	}
@@ -343,7 +343,7 @@ export class Chat {
 	startDM(username: string)
 	{
 		this.socket.emit("start_dm", username, (channel: DMChannelDTO) => {
-			this._dm_channels.set(channel.channelId, channel);
+			this.addDmChan(channel);
 			this.selectChannel(channel.channelId, true);
 		})
 	}
@@ -612,6 +612,15 @@ export class Chat {
 			this.currentChannelId = -1;
 	}
 
+	private addDmChan(channel: DMChannelDTO)
+	{
+		if (channel.channel.users.length > 1)
+			this.delete_user_from_array(this.user.userId, channel.channel.users);
+
+		this._dm_channels.set(channel.channelId, channel);
+
+	}
+
 	private initSocket() {
 		
 
@@ -771,10 +780,7 @@ export class Chat {
 		})
 
 		this.socket.on("dm_starting", (payload: DMChannelDTO) => {
-			if (payload.channel.users.length > 1)
-				this.delete_user_from_array(this.user.userId, payload.channel.users);
-
-			this._dm_channels.set(payload.channelId, payload);
+			this.addDmChan(payload);
 		})
 
 	}
