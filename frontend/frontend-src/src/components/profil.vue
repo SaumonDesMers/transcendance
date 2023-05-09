@@ -8,8 +8,14 @@ import chatGateway from '../scripts/chat';
 import statusGateway from '../scripts/status';
 import { defineComponent } from 'vue';
 import { User, UserPrison } from '../scripts/user';
+import searchUser from './searchUser.vue';
 
 export default defineComponent({
+
+	components: {
+		searchUser
+	},
+
 	data: function () {
 		return {
 			matches: [
@@ -18,7 +24,8 @@ export default defineComponent({
 			status: false,
 			SelfUser,
 			user: new User(),
-			userFactory: new UserPrison()
+			userFactory: new UserPrison(),
+			searchUserShow: false as boolean
 		}
 	},
 	methods: {
@@ -57,6 +64,9 @@ export default defineComponent({
 	<head>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	</head>
+	<div v-if="searchUserShow" class="search-bar">
+		<searchUser></searchUser>
+	</div>
 	<div class="main-page" :class="[SelfUser.darkMode == true ? 'dark' : 'light ', SelfUser.coa]">
 		<div style="width: 100vw; height: 100vh;">
 			<div
@@ -81,6 +91,8 @@ export default defineComponent({
 							user.username }} </div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{
 							user.coa }} </div>
+						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
+							@click="searchUserShow = !searchUserShow">search</div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']"
 							@click="$router.push({ name: State.EDIT })"></div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-right-from-bracket' : 'text-nav text-color-light fa-solid fa-right-from-bracket']"
