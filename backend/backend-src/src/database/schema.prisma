@@ -107,7 +107,7 @@ model DMChannel {
 }
 
 model GroupChannel {
-	channel Channel @relation(fields: [channelId], references: [id])
+	channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 	channelId Int @unique @id
 
 	name String @unique
