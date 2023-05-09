@@ -3,35 +3,41 @@
 import axios from 'axios'
 import { State } from '../scripts/state';
 import usersStatus from '../scripts/status';
-// import Myuser from '../scripts/user';
+import SelfUser from '../scripts/user';
 import { User } from '../scripts/user';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-	props: {
-		user: User
-	},
 	data: function () {
 		return {
 			State,
 			status: '',
 			usersStatus,
+			SelfUser,
+			user: new User()
 		}
 	},
 	methods: {
-		toggleDarkMode() {
-			this.user.set({ darkMode: !this.user.darkMode });
-			this.user.save();
-		},
-		switchPage(page: State) {
-			this.$emit('switchPage', page);
-		},
+		// toggleDarkMode() {
+		// 	this.user.set({ darkMode: !this.user.darkMode });
+		// 	this.user.save();
+		// },
+	},
+	watch: {
+		'$route.params'(oldVal, newVal) {
+			this.user.loadUser(parseInt(newVal.id as string)).then(nothing => {
+				this.user.loadFriends();
+				usersStatus.fetchUsers(this.user._friendsIdList);
+			})
+		}
 	},
 	mounted() {
-		this.user.loadFriends();
-		usersStatus.fetchUsers(this.user._friendsIdList);
+		this.user.loadUser(parseInt(this.$route.params.id as string)).then(nothing => {
+			this.user.loadFriends();
+			usersStatus.fetchUsers(this.user._friendsIdList);
+		})
 	},
-	emits: ['switchPage']
+	emits: ['logout']
 })
 </script>
 
@@ -67,10 +73,10 @@ export default defineComponent({
 							</div>
 						</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
-							@click="switchPage(State.USER)">
+							@click="$router.push({ name: State.USER, params: { id: friend.id } })">
 							{{ friend.username }}</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
-							@click="switchPage(State.CHAT)">
+							@click="$router.push({ name: State.CHAT })">
 							message</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
 							block</div>

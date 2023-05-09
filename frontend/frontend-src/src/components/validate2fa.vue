@@ -22,7 +22,7 @@ export default defineComponent({
 			.then(res => {
 				// console.log('2fa/authenticate: res:', res);
 				this.user.set(res.data);
-				this.switchPage(State.MAIN);
+				this.$router.push({ name: State.MAIN });
 			})
 			.catch(err => {
 				this.errorMsg = err.message;
@@ -31,33 +31,28 @@ export default defineComponent({
 
 		cancel() {
 			this.$cookie.removeCookie('jwt');
-			this.switchPage(State.LOGIN);
+			this.$router.back();
 		},
 
-		switchPage(page: State, id?: number) {
-			this.$emit('switchPage', {page, id});
-		},
 	},
 
-	emits: ['switchPage', 'user'],
-
-	mounted() {	},
-
-	created() { }
+	emits: ['logout']
 })
 </script>
 
 <template>
-	<input v-model="twoFactorAuthenticationCode">
-	<p class="error">{{ errorMsg }}</p>
-	<button @click="validate2faCode">Validate</button>
-	<button @click="cancel">Cancel</button>
+	
+	<div style="align-items: center; justify-content: center;">
+		<div class="centered-container">
+			<input v-model="twoFactorAuthenticationCode" style="text-align: center; font-size: 2em;">
+			<p v-if="errorMsg" class="error" style="text-align: center;">Wrong code</p>
+			<div style="display: flex; flex-direction: row;">
+				<button class="btn cancel" @click="cancel">CANCEL</button>
+				<button class="btn validate" @click="validate2faCode">VALIDATE</button>
+			</div>
+		</div>
+	</div>
+
 </template>
 
-<style>
-
-.error {
-	color: red;
-}
-</style>
-
+<style lang="scss" scoped src="../styles/validate2fa.scss"></style>

@@ -25,13 +25,8 @@ export default defineComponent({
     },
     methods: {
         async saveModifications() {
-
-
 			store.setChanType(this.channeltype);
-			this.switchPage(State.CHAT);
-		},
-		switchPage(page: State, id?: number) {
-			this.$emit('switchPage', {page, id});
+			this.$router.back();
 		},
 	},
 	watch: {
@@ -50,7 +45,7 @@ export default defineComponent({
 		if (this.currentGroupChannel != undefined)
 			this.channeltype = this.currentGroupChannel.type;
 	},
-	emits: ['switchPage']
+	emits: ['logout']
 })
 
 </script>
@@ -104,7 +99,7 @@ export default defineComponent({
 								<button style="margin: 1rem;" class="chat-btn"
 									@click=" saveModifications()">Save</button><!-- ne change rien et fait revenir a la page precedente -->
 								<button style="position:relative;" class="chat-btn"
-									@click=" switchPage(State.CHAT)">Cancel</button>
+									@click="$router.back()">Cancel</button>
 							</div>
 						</div>
 					</div>

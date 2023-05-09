@@ -30,21 +30,10 @@ export default defineComponent({
 			this.user.set({ darkMode: !this.user.darkMode });
 			this.user.save();
 		},
-		switchPage(page: State, id?: number) {
-			this.$emit('switchPage', {page, id});
-		},
-		logout() {
-			gameGateway.disconnect();
-			chatGateway.disconnectFromServer();
-			statusGateway.disconnect();
-			localStorage.removeItem('userId');
-			this.$cookie.removeCookie('jwt');
-			this.switchPage(State.LOGIN);
-		}
 	},
 	mounted() {
 	},
-	emits: ['switchPage'],
+	emits: ['logout']
 })
 </script>
 
@@ -85,31 +74,34 @@ export default defineComponent({
 			<li>
 				<a>
 					<span class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']"></span>
-					<span class="title" @click="switchPage(State.USER)">{{ user.username }}</span>
+					<router-link class="title" :to="{name: 'profile', params: {id: user.id}}">{{  user.username }}</router-link>
 				</a>
+			</li>
+			<li>
+
 			</li>
 			<li>
 				<a>
 					<span class="icon"><i class="fa-solid fa-comments"></i></span>
-					<span class="title" @click="switchPage(State.CHAT)">Messages</span>
+					<router-link class="title" :to="{name: 'chat'}">Messages</router-link>
 				</a>
 			</li>
 			<li>
 				<a>
 					<span class="icon"><i class="fa-solid fa-edit"></i></span>
-					<span class="title" @click="switchPage(State.EDIT)">Edit</span>
+					<router-link class="title" :to="{name: 'edit'}">Edit</router-link>
 				</a>
 			</li>
 			<li>
 				<a>
 					<span class="icon"><i class="fa-solid fa-floppy-disk"></i></span>
-					<span class="title" @click="switchPage(State.HISTORY)">Game history</span>
+					<router-link class="title" :to="{name: 'history', params: {id: user.id}}">Game history</router-link>
 				</a>
 			</li>
 			<li>
 				<a>
 					<span class="icon"><i class="fa-solid fa-users"></i></span>
-					<span class="title" @click="switchPage(State.FRIENDS)">Friends</span>
+					<router-link class="title" :to="{name: 'friends', params: {id: user.id}}">Friends</router-link>
 				</a>
 			</li>
 			<li>
@@ -122,13 +114,13 @@ export default defineComponent({
 			<li>
 				<a>
 					<span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span>
-					<span class="title" @click="logout">SignOut</span>
+					<span class="title" @click="$emit('logout')">SignOut</span>
 				</a>
 			</li>
 		</ul>
 	</div>
 	<div class="main-container">
-		<button class="main-button" @click="switchPage(State.GAME)">GAME</button>
+		<router-link class="main-button" :to="{name: 'game'}">GAME</router-link>
 	</div>
 	<div style="overflow: hidden;">
 		<div :class="[user.darkMode ? 'ocean dark' : 'ocean', user.coa]">

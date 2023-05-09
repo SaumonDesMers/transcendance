@@ -22,6 +22,7 @@ export default defineComponent({
 		}
 	},
 
+	emits: ['logout']
 })
 </script>
 

@@ -65,7 +65,6 @@ export default defineComponent({
 			axios
 			.post('http://localhost:3001/users',
 			{
-				"id": 0,
 				"username": this.username,
 				"darkMode": this.isDark,
 				"coa": this.coalition,
@@ -74,17 +73,14 @@ export default defineComponent({
 			.then((res) => {
 					this.user.set(res.data);
 					this.user.uploadAvatar();
-					this.$emit('switchPage', {page:State.MAIN});
+					this.$router.push({ name: 'main' });
 				})
 				.catch((error) => {
 					console.log(error);
 				});
 		},
-		switchPage(page: State, id?: number) {
-			this.$emit('switchPage', {page, id});
-		},
 	},
-	emits: ['switchPage', 'user']
+	emits: ['logout']
 })
 </script>
 

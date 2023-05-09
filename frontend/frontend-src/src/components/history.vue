@@ -7,9 +7,6 @@ import { User, UserPrison } from '../scripts/user';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-	props: {
-		displayUserId: Number
-	},
 	data: function () {
 		return {
 			State,
@@ -20,34 +17,40 @@ export default defineComponent({
 			ladder: [] as {id:number, username:string}[], // TODO: type this
 		}
 	},
+	watch: {
+		'$route.params'(oldVal, newVal) {
+			this.fetchData(parseInt(newVal.id));
+		}
+	},
 	methods: {
 		toggleDarkMode() {
 			this.SelfUser.set({ darkMode: !this.SelfUser.darkMode });
 			this.SelfUser.save();
 		},
-		switchPage(page: State, id?: number) {
-			this.$emit('switchPage', {page, id});
-		},
-	},
-	mounted() {
-		console.log(this.displayUserId);
-		this.displayUser.loadUser(this.displayUserId as number).then(nothin => {
-			this.displayUser.downloadAvatar();
-			this.displayUser.loadHistory();
-		});
-		this.userFactory.addUser(this.displayUser);
+		fetchData(id: number) {
+			this.userFactory.users.clear();
+			this.displayUser.loadUser(parseInt(this.$route.params.id as string))
+			.then(nothing => {
+				this.displayUser.downloadAvatar();
+				this.displayUser.loadHistory();
+			})
 
-		axios.get(`http://localhost:3001/games/ladder`, {
+			this.userFactory.addUser(this.displayUser);
+			axios.get(`http://localhost:3001/games/ladder`, {
 			params: {
 				take: 10
 			}
-		}).then(res => {
-			this.ladder = res.data;
-		}).catch(err => {
-			console.log('err :', err);
-		});
+			}).then(res => {
+				this.ladder = res.data;
+			}).catch(err => {
+				console.log('err :', err);
+			});
+		}
 	},
-	emits: ['switchPage']
+	mounted() {
+		this.fetchData(parseInt(this.$route.params.id as string));
+	},
+	emits: ['logout']
 })
 </script>
 
@@ -92,13 +95,13 @@ export default defineComponent({
 								<div class="status"></div>
 							</div>
 							<div class="result-grid" :class="[SelfUser.darkMode ? 'text-color-dark' : 'text-color-light']">
-								<p class="login" @click="switchPage(State.USER)">{{ userFactory.getUser(game.loserId).username }}<br></p>
+								<p class="login" @click="$router.push({ name: State.USER, params: { id: game.loserId } })">{{ userFactory.getUser(game.loserId).username }}<br></p>
 								<p class="fa-solid fa-skull"><br></p>
 								<p class="score">{{ game.LoserScore }}<br></p>
 							</div>
 							<div class="result-grid goldBG goldText"
 								:class="[SelfUser.darkMode ? 'text-color-dark' : 'text-color-light']">
-								<p class="login" @click="switchPage(State.USER)">{{ userFactory.getUser(game.winnerId).username }}<br></p>
+								<p class="login" @click="$router.push({ name: State.USER, params: { id: game.winnerId } })">{{ userFactory.getUser(game.winnerId).username }}<br></p>
 								<p class="fa-solid fa-trophy"><br></p>
 								<p class="score">{{ game.winnerScore }}<br></p>
 							</div>

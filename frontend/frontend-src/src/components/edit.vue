@@ -29,7 +29,7 @@ export default defineComponent({
 			this.user.coa = this.editCoa;
 			const { success, error } = await this.user.save();
 			if (success) {
-				this.switchPage(State.USER);
+				this.$router.back();
 			} else {
 				this.errorMsg = error;
 			}
@@ -40,9 +40,6 @@ export default defineComponent({
 				return;
 			}
 			this.user.avatar.setFile(imageFile);
-		},
-		switchPage(page: State, id?: number) {
-			this.$emit('switchPage', {page, id});
 		},
 		applyTheme(themeClass: string) {
 			this.editCoa = themeClass;
@@ -70,8 +67,9 @@ export default defineComponent({
 			deep: true
 		}
 	},
+	
+	emits: ['logout']
 
-	emits: ['switchPage']
 })
 </script>
 
@@ -157,13 +155,13 @@ export default defineComponent({
 
 				<div class="edit-buttons">
 					<div class="button-container">
-						<toggle2fa @switchPage="switchPage"></toggle2fa>
+						<toggle2fa></toggle2fa>
 					</div>
 					<div class="button-container">
 						<button class="edit-button" @click="saveModifications()">Enregister les modifications</button>
 					</div>
 					<div class="button-container">
-						<button class="edit-button" @click="switchPage(State.USER)">Cancel</button>
+						<button class="edit-button" @click="$router.back()">Cancel</button>
 					</div>
 				</div>
 			</div>

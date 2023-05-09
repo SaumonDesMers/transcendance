@@ -36,11 +36,8 @@ methods: {
 
             console.log(newChan);
             chat.createChannel(newChan);
-            this.switchPage(State.CHAT);
+			this.$router.back();
         },
-		switchPage(page: State, id?: number) {
-			this.$emit('switchPage', {page, id});
-		},
         // applyTheme(themeClass: string) {
         //     this.editCoa = themeClass;
         // },
@@ -56,7 +53,8 @@ methods: {
         // this.editBio = this.user.bio;
         // this.editCoa = this.user.coa;
     },
-    emits: ['switchPage']
+	
+	emits: ['logout']
 })
 
 </script>
@@ -97,7 +95,7 @@ methods: {
             <!-- enregistre avant de revenir a la page precedente -->
             <button class="chat-btn" @click="saveModifications()">Save</button>
             <!-- ne change rien et fait revenir a la page precedente -->
-            <button class="chat-btn" @click="switchPage(State.CHAT)">Cancel</button>
+            <button class="chat-btn" @click="$router.back()">Cancel</button>
         </div>
     </div>
     </div>

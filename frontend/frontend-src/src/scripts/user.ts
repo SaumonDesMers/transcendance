@@ -238,7 +238,9 @@ export class User {
 		this.StatsLoaded = false;
 		axios.get(`http://localhost:3001/games/user-stat/${this.id}`)
 		.then(res => {
-			this.stats = res.data;
+			this.stats.rank = res.data.rank;
+			this.stats.GamesLost = res.data._count.losingGames;
+			this.stats.GamesWon = res.data._count.winningGames;
 			this.StatsLoaded = true;
 		})
 		.catch(err => {
@@ -311,7 +313,7 @@ export class MyUser extends User
 			this.downloadAvatar();
 		})
 		.catch(err => {
-			console.log('err :', err);
+			throw err;
 		});
 	}
 
