@@ -81,9 +81,9 @@ export default defineComponent({
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
 							@click="switchPage(State.CHAT)">chat</div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{
-							SelfUser.username }} </div>
+							user.username }} </div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{
-							SelfUser.coa }} </div>
+							user.coa }} </div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']"
 							@click="switchPage(State.EDIT)"></div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-right-from-bracket' : 'text-nav text-color-light fa-solid fa-right-from-bracket']"
@@ -91,7 +91,7 @@ export default defineComponent({
 					</div>
 					<div class="bio-container grid-border">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">Bio</div>
-						<div class="child-container"> {{ SelfUser.bio }}</div>
+						<div class="child-container"> {{ user.bio }}</div>
 					</div>
 					<div class="friend-container grid-border">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']"
@@ -112,10 +112,11 @@ export default defineComponent({
 								<div class="bar bar-red" :style="{ width: ( user.stats.GamesLost / 17) * 100 + '%' }"></div>
 							</div>
 							<div class="stats-text">
-								<div>You played : </div>
-								<div>Parties gagnées : {{  user.stats.GamesWon }}</div>
-								<div>Parties perdues : {{ user.stats.GamesLost }}</div>
-								<div>Moyenne : {{ user.stats.GamesWon / (user.stats.GamesLost + user.stats.GamesWon) * 100 }}</div>
+								<div>Rank : {{ user.stats.rank }}</div>
+								<div>Games played : {{  user.stats.GamesWon + user.stats.GamesLost }}</div>
+								<div>Games won : {{  user.stats.GamesWon }}</div>
+								<div>Games lost : {{ user.stats.GamesLost }}</div>
+								<div>Win ratio : {{ user.stats.GamesWon / (user.stats.GamesLost + user.stats.GamesWon) * 100 }}</div>
 							</div>
 						</div>
 					</div>
