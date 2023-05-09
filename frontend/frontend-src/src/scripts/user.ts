@@ -61,6 +61,12 @@ class Avatar {
 		this.imageBase64 = "";
 	}
 
+	clear() {
+		this.fileName = "";
+		this.imageFile = "";
+		this.imageBase64 = "";
+	}
+
 	async setFile(imageFile: any) {
 		this.imageFile = imageFile;
 
@@ -190,6 +196,10 @@ export class User {
 	}
 
 	async loadUser(userId: number) {
+		this.avatar.clear();
+		this._friendsIdList = [];
+		this.friends = [];
+		this.history = [];
 		await axios.get(`http://localhost:3001/users/${userId}`, {
 				params: {
 					includeFriends: true

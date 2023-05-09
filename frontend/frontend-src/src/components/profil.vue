@@ -35,8 +35,10 @@ export default defineComponent({
 		},
 	},
 	watch: {
-		'$route.params'(oldVal, newVal) {
+		'$route.params'(newVal, oldVal) {
+			this.searchUserShow = false;
 			this.user.loadUser(parseInt(newVal.id as string)).then(nothing => {
+				this.user.downloadAvatar().then(value => {this.$forceUpdate()});
 				this.user.loadFriends();
 				this.user.loadHistory();
 				this.user.loadStats();
@@ -49,6 +51,7 @@ export default defineComponent({
 	},
 	mounted() {
 		this.user.loadUser(parseInt(this.$route.params.id as string)).then(nothing => {
+			this.user.downloadAvatar();
 			this.user.loadFriends();
 			this.user.loadHistory();
 			this.user.loadStats();
@@ -67,14 +70,14 @@ export default defineComponent({
 	<div v-if="searchUserShow" class="search-bar">
 		<searchUser></searchUser>
 	</div>
-	<div class="main-page" :class="[SelfUser.darkMode == true ? 'dark' : 'light ', SelfUser.coa]">
+	<div class="main-page" :class="[SelfUser.darkMode == true ? 'dark' : 'light ', user.coa]">
 		<div style="width: 100vw; height: 100vh;">
 			<div
 				:class="[SelfUser.darkMode == true ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
-				<div class="banner-profile" :class=SelfUser.coa>
-					<div class="avatar-profile" :style="['background-image: url(\'' + SelfUser.avatar.imageBase64 + '\')']">
+				<div class="banner-profile" :class=user.coa>
+					<div class="avatar-profile" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']">
 						<div class="status-profile"
-							:style="[SelfUser.id ? 'background-color: green' : 'background-color: gray']"></div>
+							:style="[user.id ? 'background-color: green' : 'background-color: gray']"></div>
 					</div>
 					<span class="profile-toggle" @click="toggleDarkMode" style="display: flex;">
 						<div :class="[SelfUser.darkMode ? 'fa-solid fa-moon' : 'fa-solid fa-sun']" style="font-size: 1.5vw">
