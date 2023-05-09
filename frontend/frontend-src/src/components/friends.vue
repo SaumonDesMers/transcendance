@@ -1,6 +1,7 @@
 <script lang="ts">
 
 import axios from 'axios'
+import chat from '../scripts/chat'
 import { State } from '../scripts/state';
 import usersStatus from '../scripts/status';
 import SelfUser from '../scripts/user';
@@ -14,7 +15,8 @@ export default defineComponent({
 			status: '',
 			usersStatus,
 			SelfUser,
-			user: new User()
+			user: new User(),
+			chat
 		}
 	},
 	methods: {
@@ -24,6 +26,10 @@ export default defineComponent({
 		// },
 		switchPage(page: State, id?: number) {
 			this.$router.push({ name: page, params: { id: id } });
+		},
+		message(username: string) {
+			this.chat.startDM(username);
+			this.$router.push({ name: State.CHAT });
 		},
 	},
 	watch: {
@@ -78,7 +84,7 @@ export default defineComponent({
 							@click="switchPage(State.USER, friend.id)">
 							{{ friend.username }}</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
-							@click="switchPage(State.CHAT)">
+							@click="message(friend.username)">
 							message</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
 							block</div>
