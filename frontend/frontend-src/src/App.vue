@@ -99,12 +99,10 @@ export default defineComponent({
 			this.$router.replace({ name: State.LOGIN });
 		}
 
-		// onpopstate = (event) => {
-		// 	if (this.user.isLoggedIn && this.$cookie.getCookie('jwt'))
-		// 		this.state = this.$route.path as State;
-		// 	else
-		// 		this.switchPage({ page: State.LOGIN });
-		// };
+		onpopstate = (event) => {
+			if (!this.user.isLoggedIn || !this.$cookie.getCookie('jwt'))
+				this.$router.push({ name: State.LOGIN });
+		};
 	},
 
 	watch: {
