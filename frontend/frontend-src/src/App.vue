@@ -77,10 +77,6 @@ export default defineComponent({
 		}
 	},
 
-	mounted() {
-		this.connectToWebsocket();
-	},
-
 	created() {
 
 		const jwt = this.$cookie.getCookie('jwt');
@@ -102,8 +98,8 @@ export default defineComponent({
 	},
 
 	watch: {
-		state(val, oldVal) {
-			if (oldVal == State.LOGIN && val != State.LOGIN)
+		$route(val, oldVal) {
+			if (oldVal.name == State.LOGIN && val.name != State.LOGIN)
 				this.connectToWebsocket();
 		},
 		'gameGateway.state.value'(val, oldVal) {
