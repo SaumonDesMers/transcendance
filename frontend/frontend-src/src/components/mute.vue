@@ -30,14 +30,14 @@ methods: {
         // save les modifs du user selectionne
             // console.log(this.currentUser());
             // this.user = this.currentUser();
-            this.switchPage(State.CHAT);
+            this.$router.push({name:State.CHAT});
         },
-        switchPage(page: State) {
-            this.$emit('switchPage', page);
-        },
-        // applyTheme(themeClass) {
-        //     this.editCoa = themeClass;
+        // switchPage(page: State) {
+        //     this.$emit('switchPage', page);
         // },
+        applyTheme(themeClass) {
+            this.editCoa = themeClass;
+        },
         toggleDarkMode() {
             this.user.set({ darkMode: !this.user.darkMode });
             this.user.save();
@@ -72,7 +72,7 @@ methods: {
         
         <div style="display: flex; justify-content: center; align-items: center; align-content: center; position:absolute; top:10%; left:10%;">        
         <div class="mute-chat-container">
-            <h1 class="title">{{ currentUser }}</h1>
+            <h1 class="title">Mute {{ currentUser }} for : </h1>
         
         <select v-model="selected">
             <option style="color: white" disabled value="">Please select one mute option</option>
@@ -88,7 +88,7 @@ methods: {
             <!-- enregistre avant de revenir a la page precedente -->
             <button class="chat-btn" @click="saveModifications()">Save</button>
             <!-- ne change rien et fait revenir a la page precedente -->
-            <button class="chat-btn" @click="switchPage(State.CHAT)">Cancel</button>
+            <button class="chat-btn" @click="$router.push({name:State.CHAT})">Cancel</button>
         </div>
     </div>
 </div>
