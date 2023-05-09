@@ -739,14 +739,14 @@ export class Chat {
 
 		this.socket.on('exception', (payload: {
 			status: string,
-			message: string
+			message: string | any
 		}) => {
-			// this.error = '';
+			this.error.value = '';
+				// this.error.value = payload.message;
+			if (typeof payload.message == 'string')
 				this.error.value = payload.message;
-			// if (typeof payload.message == 'string')
-			// 	this.error.value = payload.message;
-			// else
-			// {
+			else if (Array.isArray(payload.message))
+				payload.message.forEach((val: string) => {this.error.value += val + "\n"})
 			// 	console.log(payload.message);
 			// 	this.error.value = payload.message.message;
 			// }
