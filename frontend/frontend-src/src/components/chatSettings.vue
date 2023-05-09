@@ -26,11 +26,7 @@ export default defineComponent({
     methods: {
         async saveModifications() {
 			store.setChanType(this.channeltype);
-			// this.switchPage(State.CHAT);
 			this.$router.back();
-		},
-		switchPage(page: State, id?: number) {
-			this.$router.push({ path: page, params: { id } });
 		},
 	},
 	watch: {

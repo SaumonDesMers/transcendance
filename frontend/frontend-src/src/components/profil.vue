@@ -26,9 +26,6 @@ export default defineComponent({
 			this.SelfUser.set({ darkMode: !this.SelfUser.darkMode });
 			this.SelfUser.save();
 		},
-		switchPage(page: State, id?: number) {
-			this.$router.push({ name: page, params: { id: id } });
-		},
 	},
 	watch: {
 		'$route.params'(oldVal, newVal) {
@@ -77,15 +74,15 @@ export default defineComponent({
 				<div class="profile-grid" style="overflow: scroll;">
 					<div class="information-profile-container">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
-							@click="switchPage(State.GAME)">play</div>
+							@click="$router.push({ name: State.GAME })">play</div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
-							@click="switchPage(State.CHAT)">chat</div>
+							@click="$router.push({ name: State.CHAT })">chat</div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{
 							SelfUser.username }} </div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{
 							SelfUser.coa }} </div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']"
-							@click="switchPage(State.EDIT)"></div>
+							@click="$router.push({ name: State.EDIT })"></div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-right-from-bracket' : 'text-nav text-color-light fa-solid fa-right-from-bracket']"
 							@click="$emit('logout')"></div>
 					</div>
@@ -95,10 +92,10 @@ export default defineComponent({
 					</div>
 					<div class="friend-container grid-border">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']"
-							@click="switchPage(State.FRIENDS, user.id)">friends</div>
+							@click="$router.push({ name: State.FRIENDS, params: { id: user.id } })">friends</div>
 						<div class="grid-friend" style="overflow: scroll;">
 							<div class="friend" v-for="friend in user.friends">
-								<div @click="switchPage(State.USER, friend.id)">{{ friend.username }}</div>
+								<div @click="$router.push({ name: State.USER, params: { id: friend.id } })">{{ friend.username }}</div>
 								<!-- <router-link :to="{ name: 'profile', params: { id: friend.id } }">{{ friend.username }}</router-link> -->
 							</div>
 						</div>
@@ -121,7 +118,7 @@ export default defineComponent({
 					</div>
 					<div class="history-container grid-border" style="overflow-y: auto;">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']"
-							@click="switchPage(State.HISTORY, user.id)">history
+							@click="$router.push({ name: State.HISTORY, params: { id: user.id } })">history
 						</div>
 						<div class="child-container">
 							<table class="history-table">
