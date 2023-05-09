@@ -541,7 +541,7 @@ export class Chat {
 	 *
 	 * @param {string} username the username to search
 	 */
-	async search_user(username: string): Promise<string[]>
+	async search_user(username: string): Promise<{username: string, id:number}[]>
 	{
 		if (username == null || username.length == 0)
 			return [];

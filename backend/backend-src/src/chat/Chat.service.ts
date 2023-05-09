@@ -1311,7 +1311,7 @@ export class ChatService {
 			|| channel.ownerId == userId);
 	}
 
-	async search_user(username: string): Promise<string[]>
+	async search_user(username: string): Promise<{username: string, id: number}[]>
 	{
 		if (username == null || username.length == 0)
 			return [];
@@ -1322,12 +1322,14 @@ export class ChatService {
 					mode: 'insensitive'
 				}
 			},
+			take: 20,
 			select: {
-				username: true
+				username: true,
+				id: true,
 			}
 		});
 
-		return possible_usernames.map(a => a.username);
+		return possible_usernames;
 	}
 
 }

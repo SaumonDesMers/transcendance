@@ -36,7 +36,7 @@ export default defineComponent({
 			dmInputBuffer: '',
 			customGameInvite: false,
 			searchInput: '',
-			searchArray: [] as string[],
+			searchArray: [] as {username: string, id: number}[],
 			store,
 			onInvit: false,
 			showMP: false,
@@ -307,9 +307,9 @@ export default defineComponent({
 								style="width: 9%; position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 2rem; font-size: 1vw"
 								type="text" v-model="searchInput" />
 							<div>
-								<p @click="store.invite_user(username, true)" v-for="username in searchArray">{{
-									username }}
-									<button @click="store.invite_user(username, true)">Invite
+								<p @click="store.invite_user(user.username, true)" v-for="user in searchArray">{{
+									user.username }}
+									<button @click="store.invite_user(user.username, true)">Invite
 										User</button>
 								</p>
 							</div>

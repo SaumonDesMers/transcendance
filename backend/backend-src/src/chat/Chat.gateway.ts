@@ -286,7 +286,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@MessageBody() username: string
 	)
 	{
-		let usernames: string[];
+		let usernames: { username: string, id: number }[];
 		try {
 			usernames = await this.chatService.search_user(username);
 		} catch (e: any) {
