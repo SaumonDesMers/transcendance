@@ -1,4 +1,5 @@
 @import 'all.scss';
+@import 'buttons.scss';
 
 .profile-container {
     position: absolute;
@@ -292,12 +293,30 @@
 .search-container {
 	position: relative;
 	z-index: 100;
-	background-color: #0000ff;
-	width: 30em;
-	height: 40em;
+	background-color: #4f92c9;
+	width: 400px;
+	height: 600px;
+	text-align: center;
+	border-radius: 20px;
+	border:#ffffff solid 1px;
 }
 
 .search-bar {
-	position: relative;
-	margin: auto;
+	text-align: center;
+	margin: 20px;
+	width: 90%;
+	font-size: 30px;
+}
+
+.username {
+	color:#ffffff;
+	font-size: 30px;
+
+	&:hover,
+    &:active {
+        text-shadow:
+            0 0 5px #fff,
+            0 0 10px #777777,
+            0 0 15px #000000,
+    }
 }
