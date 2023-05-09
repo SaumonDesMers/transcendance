@@ -5,11 +5,22 @@ import { State } from '../scripts/state';
 import SelfUser from '../scripts/user';
 import gameGateway from '../scripts/game';
 import chatGateway from '../scripts/chat';
-import statusGateway from '../scripts/status';
+import usersStatus from '../scripts/status';
 import { defineComponent } from 'vue';
 import { User, UserPrison } from '../scripts/user';
+import searchUser from './searchUser.vue';
+// import clickOutSide from "@mahdikhashan/vue3-click-outside";
 
 export default defineComponent({
+
+	components: {
+		searchUser
+	},
+
+	// directives: {
+	// 	clickOutSide
+	// },
+
 	data: function () {
 		return {
 			matches: [
@@ -17,8 +28,10 @@ export default defineComponent({
 			State,
 			status: false,
 			SelfUser,
+			usersStatus,
 			user: new User(),
-			userFactory: new UserPrison()
+			userFactory: new UserPrison(),
+			searchUserShow: false as boolean
 		}
 	},
 	methods: {
@@ -28,8 +41,10 @@ export default defineComponent({
 		},
 	},
 	watch: {
-		'$route.params'(oldVal, newVal) {
+		'$route.params'(newVal, oldVal) {
+			this.searchUserShow = false;
 			this.user.loadUser(parseInt(newVal.id as string)).then(nothing => {
+				this.user.downloadAvatar().then(value => {this.$forceUpdate()});
 				this.user.loadFriends();
 				this.user.loadHistory();
 				this.user.loadStats();
@@ -42,6 +57,7 @@ export default defineComponent({
 	},
 	mounted() {
 		this.user.loadUser(parseInt(this.$route.params.id as string)).then(nothing => {
+			this.user.downloadAvatar();
 			this.user.loadFriends();
 			this.user.loadHistory();
 			this.user.loadStats();
@@ -57,14 +73,21 @@ export default defineComponent({
 	<head>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	</head>
-	<div class="main-page" :class="[SelfUser.darkMode == true ? 'dark' : 'light ', SelfUser.coa]">
+	<div v-if="searchUserShow">
+		<searchUser></searchUser>
+	</div>
+	<div class="main-page" :class="[SelfUser.darkMode == true ? 'dark' : 'light ', user.coa]">
 		<div style="width: 100vw; height: 100vh;">
 			<div
 				:class="[SelfUser.darkMode == true ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
-				<div class="banner-profile" :class=SelfUser.coa>
-					<div class="avatar-profile" :style="['background-image: url(\'' + SelfUser.avatar.imageBase64 + '\')']">
-						<div class="status-profile"
-							:style="[SelfUser.id ? 'background-color: green' : 'background-color: gray']"></div>
+				<div class="banner-profile" :class=user.coa>
+					<div class="avatar-profile" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']">
+						<div v-if="usersStatus.getUserStatus(user.id) == 'ONLINE'" class="status-profile"
+							style="background-color: green"></div>
+						<div v-else-if="usersStatus.getUserStatus(user.id) == 'OFFLINE'" class="status-profile"
+							style="background-color: gray"></div>
+						<div v-else-if="usersStatus.getUserStatus(user.id) == 'IN GAME'" class="status-profile"
+							style="background-color: red"></div>
 					</div>
 					<span class="profile-toggle" @click="toggleDarkMode" style="display: flex;">
 						<div :class="[SelfUser.darkMode ? 'fa-solid fa-moon' : 'fa-solid fa-sun']" style="font-size: 1.5vw">
@@ -81,6 +104,8 @@ export default defineComponent({
 							user.username }} </div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{
 							user.coa }} </div>
+						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
+							@click="searchUserShow = !searchUserShow">search</div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']"
 							@click="$router.push({ name: State.EDIT })"></div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-right-from-bracket' : 'text-nav text-color-light fa-solid fa-right-from-bracket']"
@@ -95,7 +120,7 @@ export default defineComponent({
 							@click="$router.push({ name: State.FRIENDS, params: { id: user.id } })">friends</div>
 						<div class="grid-friend" style="overflow: scroll;">
 							<div class="friend" v-for="friend in user.friends">
-								<div @click="$router.push({ name: State.USER, params: { id: friend.id } })">{{ friend.username }}</div>
+								<div :style="['background-image: url(\'' + friend.avatar.imageBase64 + '\')']" @click="$router.push({ name: State.USER, params: { id: friend.id } })">{{ friend.username }}</div>
 								<!-- <router-link :to="{ name: 'profile', params: { id: friend.id } }">{{ friend.username }}</router-link> -->
 							</div>
 						</div>

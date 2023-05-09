@@ -36,7 +36,7 @@ export default defineComponent({
 			dmInputBuffer: '',
 			customGameInvite: false,
 			searchInput: '',
-			searchArray: [] as string[],
+			searchArray: [] as {username: string, id: number}[],
 			store,
 			onInvit: false,
 			showMP: false,
@@ -232,7 +232,7 @@ export default defineComponent({
 									style="width: 9%; position:absolute; left: 10px; display:flex; justify-content: end;  font-size: 1vw"
 									type="text" v-model="KeyInputBuffer" />
 								<button style="margin-top: 1rem;"
-									@click="store.joinChannel({ channelId, key: KeyInputBuffer });">Join channel</button>
+									@click="store.joinChannel({ channelId, key: KeyInputBuffer }); displayKey= false">Join channel</button>
 							</div>
 						</div>
 					</div>
@@ -250,7 +250,8 @@ export default defineComponent({
 						<p v-if="currentGroupChannel != undefined" class="title-chat" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">
 							{{ currentGroupChannel.name }}
 						</p>
-						<p v-else-if="currentDMChannel != undefined" class="title-chat" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">
+						<p v-else-if="currentDMChannel != undefined" class="title-chat" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
+							@click="$router.push({ name: State.USER, params: { id: currentDMChannel.channel.users[0].userId}})">
 							{{ store.getUserName(currentDMChannel.channel.users[0].userId) }}
 						</p>
 					</div>
@@ -306,9 +307,9 @@ export default defineComponent({
 							style="width: 9%; position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 2rem; font-size: 1vw"
 							type="text" v-model="searchInput" />
 							<div>
-								<p @click="store.invite_user(username, true)" v-for="username in searchArray">{{
-									username }}
-									<button @click="store.invite_user(username, true)">Invite
+								<p v-for="user in searchArray">{{
+									user.username }}
+									<button @click="store.invite_user(user.username, true)">Invite
 										User</button>
 									</p>
 								</div>
@@ -339,7 +340,7 @@ export default defineComponent({
 										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId)" @click="store.kick_user(store.getUserName(user.userId))">kick</button><br>
 										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId) && !store.isAdmin(user.userId)" @click="store.ban_user(store.getUserName(user.userId), true)">ban</button>
 										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId) && !store.isAdmin(user.userId)" @click="store.user_admin(store.getUserName(user.userId), true)">Set Admin</button>
-										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId) && store.isAdmin(user.userId) && !store.isOwner(user.userId)" @click="store.user_admin(store.getUserName(user.userId), false)">Set Admin</button>
+										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId) && store.isAdmin(user.userId) && !store.isOwner(user.userId)" @click="store.user_admin(store.getUserName(user.userId), false)">Unset Admin</button>
 									</div>
 									
 									<button class="nocolor-btn" style="color:white" v-if="!store.isBlocked(user.userId)" @click="store.block_user(store.getUserName(user.userId), true)">Block</button>
