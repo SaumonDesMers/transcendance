@@ -33,17 +33,10 @@ export default defineComponent({
 		switchPage(page: State, id?: number) {
 			this.$router.push({ name: page, params: { id: id } });
 		},
-		logout() {
-			gameGateway.disconnect();
-			chatGateway.disconnectFromServer();
-			statusGateway.disconnect();
-			localStorage.removeItem('userId');
-			this.$cookie.removeCookie('jwt');
-			this.$router.push({ name: 'login' });
-		}
 	},
 	mounted() {
 	},
+	emits: ['logout']
 })
 </script>
 
@@ -129,7 +122,7 @@ export default defineComponent({
 			<li>
 				<a>
 					<span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span>
-					<span class="title" @click="logout">SignOut</span>
+					<span class="title" @click="$emit('logout')">SignOut</span>
 				</a>
 			</li>
 		</ul>

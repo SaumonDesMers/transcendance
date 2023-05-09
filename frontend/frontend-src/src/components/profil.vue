@@ -29,14 +29,6 @@ export default defineComponent({
 		switchPage(page: State, id?: number) {
 			this.$router.push({ name: page, params: { id: id } });
 		},
-		logout() {
-			gameGateway.disconnect();
-			chatGateway.disconnectFromServer();
-			statusGateway.disconnect();
-			localStorage.removeItem('userId');
-			this.$cookie.removeCookie('jwt');
-			this.$router.push({ name: 'login' });
-		},
 	},
 	watch: {
 		'$route.params'(oldVal, newVal) {
@@ -60,6 +52,7 @@ export default defineComponent({
 
 		this.userFactory.addUser(this.user);
 	},
+	emits: ['logout']
 })
 </script>
 
@@ -94,7 +87,7 @@ export default defineComponent({
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']"
 							@click="switchPage(State.EDIT)"></div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-right-from-bracket' : 'text-nav text-color-light fa-solid fa-right-from-bracket']"
-							@click="logout"></div>
+							@click="$emit('logout')"></div>
 					</div>
 					<div class="bio-container grid-border">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">Bio</div>

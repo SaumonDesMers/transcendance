@@ -70,6 +70,14 @@ export default defineComponent({
 			this.gameGateway.connect(jwt);
 			this.statusGateway.connect(jwt);
 			this.chatGateway.connect(jwt);
+		},
+		logout() {
+			gameGateway.disconnect();
+			chatGateway.disconnectFromServer();
+			statusGateway.disconnect();
+			localStorage.removeItem('userId');
+			this.$cookie.removeCookie('jwt');
+			this.$router.push({ name: 'login' });
 		}
 	},
 
@@ -152,7 +160,7 @@ export default defineComponent({
 	<div v-else-if="state == State.CHATSETTINGS">
 		<chatSettings @switchPage="switchPage"></chatSettings>
 	</div> -->
-	<router-view></router-view>
+	<router-view @logout="logout"></router-view>
 </template>
 
 <style scoped></style>
