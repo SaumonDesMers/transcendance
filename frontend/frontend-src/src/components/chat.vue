@@ -250,7 +250,8 @@ export default defineComponent({
 						<p v-if="currentGroupChannel != undefined" class="title-chat" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">
 							{{ currentGroupChannel.name }}
 						</p>
-						<p v-else-if="currentDMChannel != undefined" class="title-chat" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">
+						<p v-else-if="currentDMChannel != undefined" class="title-chat" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
+							@click="$router.push({ name: State.USER, params: { id: currentDMChannel.channel.users[0].userId}})">
 							{{ store.getUserName(currentDMChannel.channel.users[0].userId) }}
 						</p>
 					</div>
