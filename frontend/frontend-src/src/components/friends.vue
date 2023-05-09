@@ -90,6 +90,7 @@ export default defineComponent({
 							@click="message(friend.username)">
 							message</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
+							v-if="SelfUser.id != friend.id"
 							@click="block(friend)">
 							block</div>
 						<p class="bio" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">{{ friend.bio }}
