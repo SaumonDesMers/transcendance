@@ -28,6 +28,9 @@ export default defineComponent({
 			this.chat.startDM(username);
 			this.$router.push({ name: State.CHAT });
 		},
+		block(friend: User) {
+			this.chat.block_user(friend.username, true);
+		},
 	},
 	watch: {
 		'$route.params'(oldVal, newVal) {
@@ -38,6 +41,8 @@ export default defineComponent({
 		}
 	},
 	mounted() {
+		if (parseInt(this.$route.params.id as string) == this.SelfUser.id)
+			this.user = this.SelfUser;
 		this.user.loadUser(parseInt(this.$route.params.id as string)).then(nothing => {
 			this.user.loadFriends();
 			usersStatus.fetchUsers(this.user._friendsIdList);
@@ -84,7 +89,8 @@ export default defineComponent({
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
 							@click="message(friend.username)">
 							message</div>
-						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
+						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
+							@click="block(friend)">
 							block</div>
 						<p class="bio" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">{{ friend.bio }}
 						</p>

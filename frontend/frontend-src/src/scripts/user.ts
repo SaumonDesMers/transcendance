@@ -397,7 +397,7 @@ export class MyUser extends User
 	async addFriend(username: string) {
 		axios.post(`http://localhost:3001/users/${this.id}/friends`, {username})
 		.then(res => {
-			console.log('res :', res);
+			this.loadFriends();
 		})
 		.catch(err => {
 			console.log('err :', err);
@@ -407,6 +407,7 @@ export class MyUser extends User
 	async removeFriend(userId: number) {
 		axios.delete(`http://localhost:3001/users/${this.id}/friends/${userId}`)
 		.then(res => {
+			this.loadFriends();
 		})
 		.catch(err => {
 			console.log('err :', err);
