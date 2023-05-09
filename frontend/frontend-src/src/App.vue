@@ -77,7 +77,9 @@ export default defineComponent({
 		}
 	},
 
-	mounted() {},
+	mounted() {
+		this.connectToWebsocket();
+	},
 
 	created() {
 
