@@ -115,7 +115,7 @@ export default defineComponent({
 							@click="$router.push({ name: State.FRIENDS, params: { id: user.id } })">friends</div>
 						<div class="grid-friend" style="overflow: scroll;">
 							<div class="friend" v-for="friend in user.friends">
-								<div @click="$router.push({ name: State.USER, params: { id: friend.id } })">{{ friend.username }}</div>
+								<div :style="['background-image: url(\'' + friend.avatar.imageBase64 + '\')']" @click="$router.push({ name: State.USER, params: { id: friend.id } })">{{ friend.username }}</div>
 								<!-- <router-link :to="{ name: 'profile', params: { id: friend.id } }">{{ friend.username }}</router-link> -->
 							</div>
 						</div>
