@@ -218,7 +218,7 @@ export class User {
 
 	async downloadAvatar() {
 		if (!this.avatar.fileName) {
-			console.log('downloadAvatar: no avatar to download')
+			// console.log('downloadAvatar: no avatar to download')
 			return;
 		}
 
@@ -260,7 +260,6 @@ export class User {
 			}
 		})
 		.then(res => {
-			console.log(res.data);
 			this.history = res.data;
 			this.HistoryLoaded = true;
 		})
