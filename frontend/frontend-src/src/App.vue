@@ -51,10 +51,10 @@ export default defineComponent({
 	},
 
 	methods: {
-		switchPage(state: {page: State, id?: number}) {
-			this.$router.push({ path: state.page, query: { id:state.id } });
-			this.state = state.page;
-		},
+		// switchPage(state: {page: State, id?: number}) {
+		// 	this.$router.push({ path: state.page, query: { id:state.id } });
+		// 	this.state = state.page;
+		// },
 		makeid(length: number) {
 			let result = '';
 			const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -70,6 +70,14 @@ export default defineComponent({
 			this.gameGateway.connect(jwt);
 			this.statusGateway.connect(jwt);
 			this.chatGateway.connect(jwt);
+		},
+		logout() {
+			gameGateway.disconnect();
+			chatGateway.disconnectFromServer();
+			statusGateway.disconnect();
+			localStorage.removeItem('userId');
+			this.$cookie.removeCookie('jwt');
+			this.$router.push({ name: 'login' });
 		}
 	},
 
@@ -81,26 +89,27 @@ export default defineComponent({
 
 		if (jwt && localStorage.userId) {
 			axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
-			this.user.get();
-			this.state = window.history.state.current;
+			this.user.get().catch(() => {
+				this.logout();
+			});
+			// this.state = window.history.state.current;
 			this.connectToWebsocket();
 		} else {
-			this.state = State.LOGIN;
+			// this.state = State.LOGIN;
+			this.$router.replace({ name: State.LOGIN });
 		}
 
-		onpopstate = (event) => {
-			if (this.user.isLoggedIn && this.$cookie.getCookie('jwt'))
-				this.state = this.$route.path as State;
-			else
-				this.switchPage({ page: State.LOGIN });
-		};
-
-		console.log(this.$route);
+		// onpopstate = (event) => {
+		// 	if (this.user.isLoggedIn && this.$cookie.getCookie('jwt'))
+		// 		this.state = this.$route.path as State;
+		// 	else
+		// 		this.switchPage({ page: State.LOGIN });
+		// };
 	},
 
 	watch: {
 		$route(val, oldVal) {
-			this.state = this.$route.path as State;
+			// this.state = this.$route.path as State;
 		},
 		state(val, oldVal) {
 			if (oldVal == State.LOGIN && val != State.LOGIN)
@@ -108,7 +117,8 @@ export default defineComponent({
 		},
 		'gameGateway.state.value'(val, oldVal) {
 			if (oldVal != 'game' && val == 'game')
-				this.switchPage({ page: State.GAME });
+				this.$router.push({ name: State.GAME });
+				// this.switchPage({ page: State.GAME });
 		},
 	}
 })
@@ -116,7 +126,7 @@ export default defineComponent({
 </script>
 
 <template>
-	<div v-if="state == State.LOGIN">
+	<!-- <div v-if="state == State.LOGIN">
 		<loginPage @switchPage="switchPage"></loginPage>
 	</div>
 	<div v-if="state == State.VALIDATE_2FA">
@@ -151,7 +161,8 @@ export default defineComponent({
 	</div>
 	<div v-else-if="state == State.CHATSETTINGS">
 		<chatSettings @switchPage="switchPage"></chatSettings>
-	</div>
+	</div> -->
+	<router-view @logout="logout"></router-view>
 </template>
 
 <style scoped></style>

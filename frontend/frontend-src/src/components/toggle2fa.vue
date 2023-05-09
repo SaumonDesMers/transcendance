@@ -39,13 +39,7 @@ export default defineComponent({
 					// console.log('2fa/turn-on: err:', err);
 				})
 		},
-
-		switchPage(page: State, id?: number) {
-			this.$emit('switchPage', {page, id});
-		},
 	},
-
-	emits: ['switchPage'],
 
 	mounted() {	},
 

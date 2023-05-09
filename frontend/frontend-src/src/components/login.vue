@@ -28,20 +28,15 @@ export default defineComponent({
 				this.login();
 				return;
 			}
-			
+
 			if (data == '')
-				this.$emit('switchPage', {page:State.REGISTER});
+				this.$router.push({ name: 'register' });
 			else if (data == '2fa')
-				this.$emit('switchPage', {page:State.VALIDATE_2FA});
+				this.$router.push({ name: 'validate-2fa' });
 			else
-				this.$emit('switchPage', {page:State.MAIN});
-		},
-		switchPage(page: State, id?: number) {
-			this.$emit('switchPage', {page, id});
+				this.$router.push({ name: 'main' });
 		},
 	},
-
-	emits: ['switchPage', 'user'],
 
 	mounted() {
 		let jwt = this.$cookie.getCookie('jwt');
