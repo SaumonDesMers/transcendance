@@ -67,9 +67,6 @@ export default defineComponent({
 	// 	// debugger
 	// },
 	methods: {
-		switchPage(page: State, id?: number) {
-			this.$router.push({ name: page, params: { id } });
-		},
 		print() {
 			console.log(store);
 		},
@@ -151,6 +148,7 @@ export default defineComponent({
 	},
 
 	created() {},
+	emits: ['logout']
 })
 
 </script>
@@ -184,7 +182,7 @@ export default defineComponent({
 			<div class="chat-list" :class="[user.darkMode == true ? 'dark' : 'light']">
 				<div style="height: 4vh;">
 					<p style="position:relative; margin-left: 8.5rem; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 2vw;"
-						class="fa-solid fa-plus" @click="switchPage(State.CREATECHAT)"></p>
+						class="fa-solid fa-plus" @click="$router.push({ name: State.CREATECHAT })"></p>
 					<!-- <p class="fa-solid fa-plus" style="position:fixed; font-size: 1.5vw; margin-top: 0.2rem; color:black"></p> -->
 				</div>
 				<div>
@@ -318,7 +316,7 @@ export default defineComponent({
 						</div>
 						<p v-show="!onInvit"
 							style="position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 1vw; margin-right: 2rem;"
-							class="fa-solid fa-gear" @click="switchPage(State.CHATSETTINGS)"></p>
+							class="fa-solid fa-gear" @click="$router.push({ name: State.CHATSETTINGS })"></p>
 						<p v-show="!onInvit"
 							style="position:absolute; right: 40px; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 1vw; margin-right: 2rem;"
 							class="fa-solid fa-arrow-right-from-bracket" @click="leaveChannel()"></p>

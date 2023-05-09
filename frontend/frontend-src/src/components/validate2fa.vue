@@ -34,14 +34,9 @@ export default defineComponent({
 			this.$router.back();
 		},
 
-		switchPage(page: State, id?: number) {
-			this.$router.push({ name: page, params: { id: id } });
-		},
 	},
 
-	mounted() {	},
-
-	created() { }
+	emits: ['logout']
 })
 </script>
 

@@ -30,9 +30,6 @@ export default defineComponent({
 			this.user.set({ darkMode: !this.user.darkMode });
 			this.user.save();
 		},
-		switchPage(page: State, id?: number) {
-			this.$router.push({ name: page, params: { id: id } });
-		},
 	},
 	mounted() {
 	},
@@ -77,7 +74,6 @@ export default defineComponent({
 			<li>
 				<a>
 					<span class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']"></span>
-					<!-- <span class="title" @click="switchPage(State.USER)">{{ user.username }}</span> -->
 					<router-link class="title" :to="{name: 'profile', params: {id: user.id}}">{{  user.username }}</router-link>
 				</a>
 			</li>
@@ -87,28 +83,24 @@ export default defineComponent({
 			<li>
 				<a>
 					<span class="icon"><i class="fa-solid fa-comments"></i></span>
-					<!-- <span class="title" @click="switchPage(State.CHAT)">Messages</span> -->
 					<router-link class="title" :to="{name: 'chat'}">Messages</router-link>
 				</a>
 			</li>
 			<li>
 				<a>
 					<span class="icon"><i class="fa-solid fa-edit"></i></span>
-					<!-- <span class="title" @click="switchPage(State.EDIT)">Edit</span> -->
 					<router-link class="title" :to="{name: 'edit'}">Edit</router-link>
 				</a>
 			</li>
 			<li>
 				<a>
 					<span class="icon"><i class="fa-solid fa-floppy-disk"></i></span>
-					<!-- <span class="title" @click="switchPage(State.HISTORY)">Game history</span> -->
 					<router-link class="title" :to="{name: 'history', params: {id: user.id}}">Game history</router-link>
 				</a>
 			</li>
 			<li>
 				<a>
 					<span class="icon"><i class="fa-solid fa-users"></i></span>
-					<!-- <span class="title" @click="switchPage(State.FRIENDS, user.id)">Friends</span> -->
 					<router-link class="title" :to="{name: 'friends', params: {id: user.id}}">Friends</router-link>
 				</a>
 			</li>
@@ -128,7 +120,6 @@ export default defineComponent({
 		</ul>
 	</div>
 	<div class="main-container">
-		<!-- <button class="main-button" @click="switchPage(State.GAME)">GAME</button> -->
 		<router-link class="main-button" :to="{name: 'game'}">GAME</router-link>
 	</div>
 	<div style="overflow: hidden;">

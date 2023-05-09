@@ -79,10 +79,8 @@ export default defineComponent({
 					console.log(error);
 				});
 		},
-		switchPage(page: State, id?: number) {
-			this.$router.push({ name: page, params: { id: id } });
-		},
 	},
+	emits: ['logout']
 })
 </script>
 

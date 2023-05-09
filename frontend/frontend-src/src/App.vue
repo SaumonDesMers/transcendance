@@ -51,10 +51,6 @@ export default defineComponent({
 	},
 
 	methods: {
-		// switchPage(state: {page: State, id?: number}) {
-		// 	this.$router.push({ path: state.page, query: { id:state.id } });
-		// 	this.state = state.page;
-		// },
 		makeid(length: number) {
 			let result = '';
 			const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -92,25 +88,18 @@ export default defineComponent({
 			this.user.get().catch(() => {
 				this.logout();
 			});
-			// this.state = window.history.state.current;
 			this.connectToWebsocket();
 		} else {
-			// this.state = State.LOGIN;
 			this.$router.replace({ name: State.LOGIN });
 		}
 
-		// onpopstate = (event) => {
-		// 	if (this.user.isLoggedIn && this.$cookie.getCookie('jwt'))
-		// 		this.state = this.$route.path as State;
-		// 	else
-		// 		this.switchPage({ page: State.LOGIN });
-		// };
+		onpopstate = (event) => {
+			if (!this.user.isLoggedIn || !this.$cookie.getCookie('jwt'))
+				this.$router.push({ name: State.LOGIN });
+		};
 	},
 
 	watch: {
-		$route(val, oldVal) {
-			// this.state = this.$route.path as State;
-		},
 		state(val, oldVal) {
 			if (oldVal == State.LOGIN && val != State.LOGIN)
 				this.connectToWebsocket();
@@ -118,7 +107,6 @@ export default defineComponent({
 		'gameGateway.state.value'(val, oldVal) {
 			if (oldVal != 'game' && val == 'game')
 				this.$router.push({ name: State.GAME });
-				// this.switchPage({ page: State.GAME });
 		},
 	}
 })
@@ -126,42 +114,6 @@ export default defineComponent({
 </script>
 
 <template>
-	<!-- <div v-if="state == State.LOGIN">
-		<loginPage @switchPage="switchPage"></loginPage>
-	</div>
-	<div v-if="state == State.VALIDATE_2FA">
-		<validate2fa @switchPage="switchPage"></validate2fa>
-	</div>
-	<div v-else-if="state == State.REGISTER">
-		<register @switchPage="switchPage"></register>
-	</div>
-	<div v-else-if="state == State.MAIN">
-		<mainPage @switchPage="switchPage"></mainPage>
-	</div>
-	<div v-else-if="state == State.USER">
-		<profil @switchPage="switchPage"></profil>
-	</div>
-	<div v-else-if="state == State.FRIENDS">
-		<friends @switchPage="switchPage" :user="user"></friends>
-	</div>
-	<div v-else-if="state == State.GAME">
-		<game @switchPage="switchPage"></game>
-	</div>
-	<div v-else-if="state == State.CHAT">
-		<chat @switchPage="switchPage"></chat>
-	</div>
-	<div v-else-if="state == State.EDIT">
-		<edit @switchPage="switchPage"></edit>
-	</div>
-	<div v-else-if="state == State.HISTORY">
-		<history @switchPage="switchPage" :display-user-id="user.id"></history>
-	</div>
-	<div v-else-if="state == State.CREATECHAT">
-		<createChat @switchPage="switchPage"></createChat>
-	</div>
-	<div v-else-if="state == State.CHATSETTINGS">
-		<chatSettings @switchPage="switchPage"></chatSettings>
-	</div> -->
 	<router-view @logout="logout"></router-view>
 </template>
 

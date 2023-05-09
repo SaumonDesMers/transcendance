@@ -24,9 +24,6 @@ export default defineComponent({
 		// 	this.user.set({ darkMode: !this.user.darkMode });
 		// 	this.user.save();
 		// },
-		switchPage(page: State, id?: number) {
-			this.$router.push({ name: page, params: { id: id } });
-		},
 		message(username: string) {
 			this.chat.startDM(username);
 			this.$router.push({ name: State.CHAT });
@@ -46,6 +43,7 @@ export default defineComponent({
 			usersStatus.fetchUsers(this.user._friendsIdList);
 		})
 	},
+	emits: ['logout']
 })
 </script>
 
@@ -81,7 +79,7 @@ export default defineComponent({
 							</div>
 						</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
-							@click="switchPage(State.USER, friend.id)">
+							@click="$router.push({ name: State.USER, params: { id: friend.id } })">
 							{{ friend.username }}</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
 							@click="message(friend.username)">

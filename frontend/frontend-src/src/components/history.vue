@@ -27,9 +27,6 @@ export default defineComponent({
 			this.SelfUser.set({ darkMode: !this.SelfUser.darkMode });
 			this.SelfUser.save();
 		},
-		switchPage(page: State, id?: number) {
-			this.$router.push({ name: page, params: { id: id } });
-		},
 		fetchData(id: number) {
 			this.userFactory.users.clear();
 			this.displayUser.loadUser(parseInt(this.$route.params.id as string))
@@ -53,6 +50,7 @@ export default defineComponent({
 	mounted() {
 		this.fetchData(parseInt(this.$route.params.id as string));
 	},
+	emits: ['logout']
 })
 </script>
 
@@ -97,13 +95,13 @@ export default defineComponent({
 								<div class="status"></div>
 							</div>
 							<div class="result-grid" :class="[SelfUser.darkMode ? 'text-color-dark' : 'text-color-light']">
-								<p class="login" @click="switchPage(State.USER, game.loserId)">{{ userFactory.getUser(game.loserId).username }}<br></p>
+								<p class="login" @click="$router.push({ name: State.USER, params: { id: game.loserId } })">{{ userFactory.getUser(game.loserId).username }}<br></p>
 								<p class="fa-solid fa-skull"><br></p>
 								<p class="score">{{ game.LoserScore }}<br></p>
 							</div>
 							<div class="result-grid goldBG goldText"
 								:class="[SelfUser.darkMode ? 'text-color-dark' : 'text-color-light']">
-								<p class="login" @click="switchPage(State.USER, game.winnerId)">{{ userFactory.getUser(game.winnerId).username }}<br></p>
+								<p class="login" @click="$router.push({ name: State.USER, params: { id: game.winnerId } })">{{ userFactory.getUser(game.winnerId).username }}<br></p>
 								<p class="fa-solid fa-trophy"><br></p>
 								<p class="score">{{ game.winnerScore }}<br></p>
 							</div>
