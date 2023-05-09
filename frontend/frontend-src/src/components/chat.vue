@@ -232,7 +232,7 @@ export default defineComponent({
 									style="width: 9%; position:absolute; left: 10px; display:flex; justify-content: end;  font-size: 1vw"
 									type="text" v-model="KeyInputBuffer" />
 								<button style="margin-top: 1rem;"
-									@click="store.joinChannel({ channelId, key: KeyInputBuffer });">Join channel</button>
+									@click="store.joinChannel({ channelId, key: KeyInputBuffer }); displayKey= false">Join channel</button>
 							</div>
 						</div>
 					</div>
