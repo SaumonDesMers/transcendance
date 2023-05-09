@@ -395,7 +395,7 @@ export class MyUser extends User
 	}
 
 	async addFriend(username: string) {
-		axios.post(`http://localhost:3001/users/${this.id}/friends`, {username})
+		axios.post(`http://localhost:3001/users/${this.id}/friends`, {friendUserName: username})
 		.then(res => {
 			this.loadFriends();
 		})
@@ -414,6 +414,11 @@ export class MyUser extends User
 		});
 	}
 
+	isFriend(userId: number): boolean {
+		return this._friendsIdList.find(user => {
+			return user.id == userId;
+		}) != undefined;
+	}
 }
 
 export default reactive<MyUser>(new MyUser());

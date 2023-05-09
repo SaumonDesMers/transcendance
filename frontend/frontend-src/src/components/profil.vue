@@ -9,6 +9,7 @@ import usersStatus from '../scripts/status';
 import { defineComponent } from 'vue';
 import { User, UserPrison } from '../scripts/user';
 import searchUser from './searchUser.vue';
+import chat from '../scripts/chat';
 // import clickOutSide from "@mahdikhashan/vue3-click-outside";
 
 export default defineComponent({
@@ -26,6 +27,7 @@ export default defineComponent({
 			matches: [
 			],
 			State,
+			chat,
 			status: false,
 			SelfUser,
 			usersStatus,
@@ -54,6 +56,9 @@ export default defineComponent({
 		}
 	},
 	computed: {
+		isBlocked() {
+			return chat.isBlocked(this.user.id);
+		},
 	},
 	mounted() {
 		this.user.loadUser(parseInt(this.$route.params.id as string)).then(nothing => {
@@ -62,7 +67,7 @@ export default defineComponent({
 			this.user.loadHistory();
 			this.user.loadStats();
 		})
-
+		this.SelfUser.loadFriends();
 		this.userFactory.addUser(this.user);
 	},
 	emits: ['logout']
@@ -107,9 +112,17 @@ export default defineComponent({
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
 							@click="searchUserShow = !searchUserShow">search</div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']"
+							v-if="SelfUser.id == user.id"
 							@click="$router.push({ name: State.EDIT })"></div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-right-from-bracket' : 'text-nav text-color-light fa-solid fa-right-from-bracket']"
+							v-if="SelfUser.id == user.id"
 							@click="$emit('logout')"></div>
+						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
+							v-if="SelfUser.id != user.id && !isBlocked"
+							@click="SelfUser.isFriend(user.id) ? SelfUser.removeFriend(user.id) : SelfUser.addFriend(user.username)">{{ SelfUser.isFriend(user.id) ? 'Unfollow' : 'Follow' }}</div>
+						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
+							v-if="SelfUser.id != user.id"
+							@click="chat.block_user(user.username, !isBlocked)">{{ isBlocked ? 'Unblock' : 'Block' }}</div>
 					</div>
 					<div class="bio-container grid-border">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">Bio</div>
