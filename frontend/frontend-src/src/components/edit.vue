@@ -67,6 +67,8 @@ export default defineComponent({
 			deep: true
 		}
 	},
+	
+	emits: ['logout']
 
 })
 </script>

@@ -53,6 +53,7 @@ export default defineComponent({
 	mounted() {
 		this.fetchData(parseInt(this.$route.params.id as string));
 	},
+	emits: ['logout']
 })
 </script>
 

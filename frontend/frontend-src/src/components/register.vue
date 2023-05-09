@@ -83,6 +83,7 @@ export default defineComponent({
 			this.$router.push({ name: page, params: { id: id } });
 		},
 	},
+	emits: ['logout']
 })
 </script>
 

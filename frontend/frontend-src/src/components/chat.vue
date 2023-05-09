@@ -151,6 +151,7 @@ export default defineComponent({
 	},
 
 	created() {},
+	emits: ['logout']
 })
 
 </script>

@@ -40,6 +40,7 @@ export default defineComponent({
 			usersStatus.fetchUsers(this.user._friendsIdList);
 		})
 	},
+	emits: ['logout']
 })
 </script>
 

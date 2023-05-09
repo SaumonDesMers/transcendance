@@ -49,6 +49,7 @@ export default defineComponent({
 		if (this.currentGroupChannel != undefined)
 			this.channeltype = this.currentGroupChannel.type;
 	},
+	emits: ['logout']
 })
 
 </script>
