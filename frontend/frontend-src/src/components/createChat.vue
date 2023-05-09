@@ -53,6 +53,8 @@ methods: {
         // this.editBio = this.user.bio;
         // this.editCoa = this.user.coa;
     },
+	
+	emits: ['logout']
 })
 
 </script>

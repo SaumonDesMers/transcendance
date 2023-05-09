@@ -44,7 +44,8 @@ export default defineComponent({
 			this.requestUserWithJwt(jwt);
 	},
 
-	created() { }
+	created() {},
+	emits: ['logout']
 })
 </script>
 

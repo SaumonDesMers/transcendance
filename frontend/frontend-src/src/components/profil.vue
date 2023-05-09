@@ -26,17 +26,6 @@ export default defineComponent({
 			this.SelfUser.set({ darkMode: !this.SelfUser.darkMode });
 			this.SelfUser.save();
 		},
-		switchPage(page: State, id?: number) {
-			this.$router.push({ name: page, params: { id: id } });
-		},
-		logout() {
-			gameGateway.disconnect();
-			chatGateway.disconnectFromServer();
-			statusGateway.disconnect();
-			localStorage.removeItem('userId');
-			this.$cookie.removeCookie('jwt');
-			this.$router.push({ name: 'login' });
-		},
 	},
 	watch: {
 		'$route.params'(oldVal, newVal) {
@@ -60,6 +49,7 @@ export default defineComponent({
 
 		this.userFactory.addUser(this.user);
 	},
+	emits: ['logout']
 })
 </script>
 
@@ -84,28 +74,28 @@ export default defineComponent({
 				<div class="profile-grid" style="overflow: scroll;">
 					<div class="information-profile-container">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
-							@click="switchPage(State.GAME)">play</div>
+							@click="$router.push({ name: State.GAME })">play</div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
-							@click="switchPage(State.CHAT)">chat</div>
+							@click="$router.push({ name: State.CHAT })">chat</div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{
-							SelfUser.username }} </div>
+							user.username }} </div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{
-							SelfUser.coa }} </div>
+							user.coa }} </div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']"
-							@click="switchPage(State.EDIT)"></div>
+							@click="$router.push({ name: State.EDIT })"></div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-right-from-bracket' : 'text-nav text-color-light fa-solid fa-right-from-bracket']"
-							@click="logout"></div>
+							@click="$emit('logout')"></div>
 					</div>
 					<div class="bio-container grid-border">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">Bio</div>
-						<div class="child-container"> {{ SelfUser.bio }}</div>
+						<div class="child-container"> {{ user.bio }}</div>
 					</div>
 					<div class="friend-container grid-border">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']"
-							@click="switchPage(State.FRIENDS, user.id)">friends</div>
+							@click="$router.push({ name: State.FRIENDS, params: { id: user.id } })">friends</div>
 						<div class="grid-friend" style="overflow: scroll;">
 							<div class="friend" v-for="friend in user.friends">
-								<div @click="switchPage(State.USER, friend.id)">{{ friend.username }}</div>
+								<div @click="$router.push({ name: State.USER, params: { id: friend.id } })">{{ friend.username }}</div>
 								<!-- <router-link :to="{ name: 'profile', params: { id: friend.id } }">{{ friend.username }}</router-link> -->
 							</div>
 						</div>
@@ -119,16 +109,17 @@ export default defineComponent({
 								<div class="bar bar-red" :style="{ width: ( user.stats.GamesLost / 17) * 100 + '%' }"></div>
 							</div>
 							<div class="stats-text">
-								<div>You played : </div>
-								<div>Parties gagnées : {{  user.stats.GamesWon }}</div>
-								<div>Parties perdues : {{ user.stats.GamesLost }}</div>
-								<div>Moyenne : {{ user.stats.GamesWon / (user.stats.GamesLost + user.stats.GamesWon) * 100 }}</div>
+								<div>Rank : {{ user.stats.rank }}</div>
+								<div>Games played : {{  user.stats.GamesWon + user.stats.GamesLost }}</div>
+								<div>Games won : {{  user.stats.GamesWon }}</div>
+								<div>Games lost : {{ user.stats.GamesLost }}</div>
+								<div>Win ratio : {{ user.stats.GamesWon / (user.stats.GamesLost + user.stats.GamesWon) * 100 }}</div>
 							</div>
 						</div>
 					</div>
 					<div class="history-container grid-border" style="overflow-y: auto;">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']"
-							@click="switchPage(State.HISTORY, user.id)">history
+							@click="$router.push({ name: State.HISTORY, params: { id: user.id } })">history
 						</div>
 						<div class="child-container">
 							<table class="history-table">

@@ -41,9 +41,7 @@ export default defineComponent({
 		},
 	},
 
-	mounted() {	},
-
-	created() { }
+	emits: ['logout']
 })
 </script>
 
