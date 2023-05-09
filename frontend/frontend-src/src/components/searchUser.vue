@@ -29,11 +29,11 @@ export default defineComponent({
 	<div class="search-container">
 		<input class="search-bar" type="text" placeholder="Search.." v-model="searchInput">
 		<div v-for="user in searchArray">
-			<div class="username" @click="$router.push({ name: State.USER, params: { id: user.id } })">
-				<p>{{user.username}}</p>
+			<div @click="$router.push({ name: State.USER, params: { id: user.id } })">
+				<p class="username">{{user.username}}</p>
 			</div>
 		</div>
 	</div>
 </template>
 
-<style scoped></style>
+<style lang="scss" scoped src="../styles/profil.scss"></style>

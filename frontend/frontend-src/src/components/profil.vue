@@ -9,12 +9,17 @@ import statusGateway from '../scripts/status';
 import { defineComponent } from 'vue';
 import { User, UserPrison } from '../scripts/user';
 import searchUser from './searchUser.vue';
+// import clickOutSide from "@mahdikhashan/vue3-click-outside";
 
 export default defineComponent({
 
 	components: {
 		searchUser
 	},
+
+	// directives: {
+	// 	clickOutSide
+	// },
 
 	data: function () {
 		return {
@@ -64,7 +69,7 @@ export default defineComponent({
 	<head>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	</head>
-	<div v-if="searchUserShow" class="search-bar">
+	<div v-if="searchUserShow">
 		<searchUser></searchUser>
 	</div>
 	<div class="main-page" :class="[SelfUser.darkMode == true ? 'dark' : 'light ', SelfUser.coa]">
