@@ -5,7 +5,7 @@ import { State } from '../scripts/state';
 import SelfUser from '../scripts/user';
 import gameGateway from '../scripts/game';
 import chatGateway from '../scripts/chat';
-import statusGateway from '../scripts/status';
+import usersStatus from '../scripts/status';
 import { defineComponent } from 'vue';
 import { User, UserPrison } from '../scripts/user';
 import searchUser from './searchUser.vue';
@@ -23,6 +23,7 @@ export default defineComponent({
 			State,
 			status: false,
 			SelfUser,
+			usersStatus,
 			user: new User(),
 			userFactory: new UserPrison(),
 			searchUserShow: false as boolean
@@ -76,8 +77,12 @@ export default defineComponent({
 				:class="[SelfUser.darkMode == true ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
 				<div class="banner-profile" :class=user.coa>
 					<div class="avatar-profile" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']">
-						<div class="status-profile"
-							:style="[user.id ? 'background-color: green' : 'background-color: gray']"></div>
+						<div v-if="usersStatus.getUserStatus(user.id) == 'ONLINE'" class="status-profile"
+							style="background-color: green"></div>
+						<div v-else-if="usersStatus.getUserStatus(user.id) == 'OFFLINE'" class="status-profile"
+							style="background-color: gray"></div>
+						<div v-else-if="usersStatus.getUserStatus(user.id) == 'IN GAME'" class="status-profile"
+							style="background-color: red"></div>
 					</div>
 					<span class="profile-toggle" @click="toggleDarkMode" style="display: flex;">
 						<div :class="[SelfUser.darkMode ? 'fa-solid fa-moon' : 'fa-solid fa-sun']" style="font-size: 1.5vw">
