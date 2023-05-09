@@ -89,12 +89,14 @@ export default defineComponent({
 
 		if (jwt && localStorage.userId) {
 			axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
-			this.user.get();
+			this.user.get().catch(() => {
+				this.logout();
+			});
 			// this.state = window.history.state.current;
 			this.connectToWebsocket();
 		} else {
 			// this.state = State.LOGIN;
-			this.$router.replace({ name: 'login' });
+			this.$router.replace({ name: State.LOGIN });
 		}
 
 		// onpopstate = (event) => {
@@ -115,7 +117,7 @@ export default defineComponent({
 		},
 		'gameGateway.state.value'(val, oldVal) {
 			if (oldVal != 'game' && val == 'game')
-				this.$router.push({ path: State.GAME });
+				this.$router.push({ name: State.GAME });
 				// this.switchPage({ page: State.GAME });
 		},
 	}

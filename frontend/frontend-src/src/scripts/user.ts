@@ -313,7 +313,7 @@ export class MyUser extends User
 			this.downloadAvatar();
 		})
 		.catch(err => {
-			console.log('err :', err);
+			throw err;
 		});
 	}
 
