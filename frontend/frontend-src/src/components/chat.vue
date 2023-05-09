@@ -308,7 +308,7 @@ export default defineComponent({
 								style="width: 9%; position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 2rem; font-size: 1vw"
 								type="text" v-model="searchInput" />
 							<div>
-								<p @click="store.invite_user(user.username, true)" v-for="user in searchArray">{{
+								<p v-for="user in searchArray">{{
 									user.username }}
 									<button @click="store.invite_user(user.username, true)">Invite
 										User</button>
@@ -342,7 +342,7 @@ export default defineComponent({
 										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId)" @click="store.kick_user(store.getUserName(user.userId))">kick</button><br>
 										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId) && !store.isAdmin(user.userId)" @click="store.ban_user(store.getUserName(user.userId), true)">ban</button>
 										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId) && !store.isAdmin(user.userId)" @click="store.user_admin(store.getUserName(user.userId), true)">Set Admin</button>
-										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId) && store.isAdmin(user.userId) && !store.isOwner(user.userId)" @click="store.user_admin(store.getUserName(user.userId), false)">Set Admin</button>
+										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId) && store.isAdmin(user.userId) && !store.isOwner(user.userId)" @click="store.user_admin(store.getUserName(user.userId), false)">Unset Admin</button>
 									</div>
 
 									<button class="nocolor-btn" style="color:white" v-if="!store.isBlocked(user.userId)" @click="store.block_user(store.getUserName(user.userId), true)">Block</button>

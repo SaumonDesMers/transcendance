@@ -522,7 +522,6 @@ export class Chat {
 
 	block_user(targetUserName: string, action: boolean)
 	{
-		console.log("targetUser:", targetUserName);
 		this.socket.emitWithAck("block_request", {targetUserName, action}).then(userId => {
 			if (action)
 				this._user.blocked?.push({userId});
@@ -556,7 +555,9 @@ export class Chat {
 
 		if (chan == undefined) return false;
 
-		return (chan.ownerId == userId || chan.admins.includes({userId}))
+		return (chan.ownerId == userId || chan.admins.find(user => {
+			return user.userId == userId;
+		}) != undefined);
 	}
 
 	isOwner(userId: number) : boolean
@@ -630,7 +631,6 @@ export class Chat {
 		 ******************/
 
 		this.socket.on('message', (message: MessageDTO) => {
-			console.log("received message:", message);
 
 			if(this._group_channels.has(message.channelId))
 				this.groupChannels.get(message.channelId)?.channel.messages.push(message);
@@ -639,7 +639,6 @@ export class Chat {
 		});
 		
 		this.socket.on('user_joined_room', (payload: ChanNotifDTO) => {
-
 			let chan = this._group_channels.get(payload.channelId);
 
 			if (chan != undefined && !chan.channel.users.includes({userId:payload.targetUserId}))
@@ -742,9 +741,16 @@ export class Chat {
 			status: string,
 			message: string
 		}) => {
-			console.log(payload);
 			// this.error = '';
-			this.error.value = payload.message;
+				this.error.value = payload.message;
+			// if (typeof payload.message == 'string')
+			// 	this.error.value = payload.message;
+			// else
+			// {
+			// 	console.log(payload.message);
+			// 	this.error.value = payload.message.message;
+			// }
+			console.log(this.error.value);
 		})
 
 		this.socket.on("user_update", (userId: number) => {
