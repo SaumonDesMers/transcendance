@@ -10,6 +10,15 @@ class UserData {
 	isTwoFactorAuthenticationEnabled: boolean;
 	coa: string;
 	bio: string;
+
+	constructor() {
+		this.id = -1;
+		this.username = "";
+		this.darkMode = false;
+		this.isTwoFactorAuthenticationEnabled = false;
+		this.coa = "";
+		this.bio = "";
+	}
 }
 
 class GameData {
@@ -18,6 +27,13 @@ class GameData {
 
 	winnerId: number;
 	loserId: number;
+
+	constructor() {
+		this.winnerScore = 0;
+		this.LoserScore = 0;
+		this.winnerId = 0;
+		this.loserId = 0;
+	}
 }
 
 class StatsData {
@@ -25,6 +41,12 @@ class StatsData {
 	GamesLost: number;
 
 	rank: number;
+
+	constructor() {
+		this.GamesWon = 0;
+		this.GamesLost = 0;
+		this.rank = 0;
+	}
 }
 
 class Avatar {
@@ -32,6 +54,12 @@ class Avatar {
 	fileName: string;
 	imageFile: any;
 	imageBase64: any;
+
+	constructor() {
+		this.fileName = "";
+		this.imageFile = null;
+		this.imageBase64 = "";
+	}
 
 	async setFile(imageFile: any) {
 		this.imageFile = imageFile;
@@ -114,6 +142,8 @@ export class UserPrison {
 
 export class User {
 
+	[key: string]: any;
+
 	_data: UserData;
 	_friendsIdList: {id: number}[];
 	friends: User[];
@@ -132,12 +162,12 @@ export class User {
 	get coa() { return this._data.coa; }
 	get bio() { return this._data.bio; }
 
-	set id(arg) { this._data.id = arg; }
-	set username(arg) { this._data.username = arg; }
-	set darkMode(arg) { this._data.darkMode = arg; }
-	set isTwoFactorAuthenticationEnabled(arg) { this._data.isTwoFactorAuthenticationEnabled = arg; }
-	set coa(arg) { this._data.coa = arg; }
-	set bio(arg) { this._data.bio = arg; }
+	set id(arg: number) { this._data.id = arg; }
+	set username(arg: string) { this._data.username = arg; }
+	set darkMode(arg: boolean) { this._data.darkMode = arg; }
+	set isTwoFactorAuthenticationEnabled(arg: boolean) { this._data.isTwoFactorAuthenticationEnabled = arg; }
+	set coa(arg: string) { this._data.coa = arg; }
+	set bio(arg: string) { this._data.bio = arg; }
 
 	constructor() {
 		this._data = new UserData();
