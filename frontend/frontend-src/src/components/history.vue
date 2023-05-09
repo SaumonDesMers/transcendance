@@ -74,7 +74,7 @@ export default defineComponent({
 				<div class="best-players">
 					<h1 class="text-color-dark"><p class="fa-solid fa-ranking-star"></p> BEST PLAYERS <p class="fa-solid fa-ranking-star"></p><br></h1>
 					<div v-for="(user, rank) in ladder">
-						<p class="text-color-dark">{{ rank + 1 }} : {{ user.username }}<br></p>
+						<p class="text-color-dark" @click="$router.push({ name: State.USER, params: { id: user.id }})">{{ rank + 1 }} : {{ user.username }}<br></p>
 					</div>
 				</div>
 				<div class="friends-grid">
