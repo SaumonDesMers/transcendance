@@ -41,6 +41,10 @@ export default defineComponent({
 			this.SelfUser.set({ darkMode: !this.SelfUser.darkMode });
 			this.SelfUser.save();
 		},
+		message(username: string) {
+			this.chat.startDM(username);
+			this.$router.push({ name: State.CHAT });
+		},
 	},
 	watch: {
 		'$route.params'(newVal, oldVal) {
@@ -103,8 +107,10 @@ export default defineComponent({
 					<div class="information-profile-container">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
 							@click="$router.push({ name: State.GAME })">play</div>
-						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
+						<div v-if="SelfUser.id == user.id" :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
 							@click="$router.push({ name: State.CHAT })">chat</div>
+						<div v-else :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
+							@click="message(user.username)">chat</div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{
 							user.username }} </div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{
