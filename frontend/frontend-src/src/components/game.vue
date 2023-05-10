@@ -3,7 +3,7 @@ import axios from 'axios'
 import io from "socket.io-client"
 import gameCanvas from './gameCanvas.vue'
 import game from '../scripts/game'
-import user from '../scripts/user';
+import user, { User } from '../scripts/user';
 import { State } from '../scripts/state';
 import { defineComponent } from 'vue';
 
@@ -18,6 +18,35 @@ export default defineComponent({
 			game,
 			shadow: false,
 			user,
+			leftPlayer: new User(),
+			rightPlayer: new User(),
+		}
+	},
+
+	methods: {
+		loadPlayers() {
+			console.log('loading players');
+			console.log(this.game.data.side[0].playerId);
+			console.log(this.game.data.side[1].playerId);
+			this.leftPlayer.loadUser(this.game.data.side[0].playerId);
+			this.rightPlayer.loadUser(this.game.data.side[1].playerId);
+		}
+	},
+
+	mounted() {
+		if (this.game.data.loaded) {
+			this.loadPlayers();
+		}
+	},
+
+	watch: {
+		'game.data.loaded': {
+				handler: function (loaded) {
+				if (loaded) {
+					this.loadPlayers();
+				}
+			},
+			deep: true
 		}
 	},
 
@@ -72,13 +101,13 @@ export default defineComponent({
 				<div v-else>
 					<div class="player">
 						<div class="player-info">
-							<div class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']">
+							<div class="avatar" :style="['background-image: url(\'' + leftPlayer.avatar.imageBase64 + '\')']">
 							</div>
-							<div class="login-player">LOGIN 1</div>
+							<div class="login-player">{{ leftPlayer.username }}</div>
 						</div>
 						<div class="player-info">
-							<div class="login-player">LOGIN 2</div>
-							<div class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']">
+							<div class="login-player">{{ rightPlayer.username }}</div>
+							<div class="avatar" :style="['background-image: url(\'' + rightPlayer.avatar.imageBase64 + '\')']">
 							</div>
 						</div>
 					</div>

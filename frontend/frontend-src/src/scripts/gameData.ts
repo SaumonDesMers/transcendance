@@ -78,6 +78,8 @@ export class GameData {
 	points: Vec2[];
 	lines: Line[];
 
+	loaded: boolean = false;
+
 	constructor() {
 		this.arena = { width: 800, height: 500 };
 		this.side = [
@@ -115,5 +117,7 @@ export class GameData {
 		this.points = newData.points;
 		this.lines = newData.lines;
 		this.obstacles = newData.obstacles;
+
+		this.loaded = true;
 	}
 }
