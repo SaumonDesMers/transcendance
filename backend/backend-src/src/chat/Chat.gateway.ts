@@ -32,7 +32,8 @@ import {
 	DMChannelDTO,
 	CreateMessageDto,
 	GroupChannelSnippetDTO,
-	ChanNotifDTO
+	ChanNotifDTO,
+	searchQueryDTO
 } from './Chat.entities'
 
 import { Server, Socket } from 'socket.io';
@@ -283,12 +284,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	@SubscribeMessage("search_username")
 	async handleSearch(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() username: string
+		@MessageBody() query: searchQueryDTO
 	)
 	{
 		let usernames: { username: string, id: number }[];
 		try {
-			usernames = await this.chatService.search_user(username);
+			usernames = await this.chatService.search_user(query);
 		} catch (e: any) {
 			console.log(e);
 			throw new WsException(e.message);

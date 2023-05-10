@@ -267,6 +267,16 @@ export class MuteDTO {
 	endDate: Date;
 }
 
+export class searchQueryDTO {
+	@IsDefined()
+	username: string;
+
+	@IsOptional()
+	@IsNumber()
+	@IsPositive()
+	channelId?: number;
+}
+
 // export interface GroupChannelUpdateDTO {
 // 	name?: string,
 // 	admins?: SimpleChatUserDTO[],

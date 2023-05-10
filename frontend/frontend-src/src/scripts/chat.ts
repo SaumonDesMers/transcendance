@@ -545,13 +545,14 @@ export class Chat {
 	 * @date 5/6/2023 - 5:39:50 PM
 	 *
 	 * @param {string} username the username to search
+	 * @param {number} channelId limit the search to a given channel
 	 */
-	async search_user(username: string): Promise<{username: string, id:number}[]>
+	async search_user(username: string, channelId?: number): Promise<{username: string, id:number}[]>
 	{
 		if (username == null || username.length == 0)
 			return [];
 
-		return this.socket.emitWithAck("search_username", username);
+		return this.socket.emitWithAck("search_username", {username, channelId});
 	}
 	
 	isAdmin(userId: number) : boolean
