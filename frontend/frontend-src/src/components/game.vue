@@ -193,10 +193,10 @@ $federation: #205295;
 	$dot-size: 0.8vw;
 	width: $dot-size;
 	height: $dot-size;
-	border: ($dot-size / 5) solid white;
+	border: calc($dot-size / 5) solid white;
 	border-radius: 50%;
 	float: left;
-	margin: 0 ($dot-size / 5);
+	margin: 0 calc($dot-size / 5);
 	transform: scale(0);
 	@include animation;
 
@@ -211,7 +211,7 @@ $federation: #205295;
 
 .dots.dark>* {
 	$dot-size: 0.8vw;
-	border: ($dot-size / 5) solid black;
+	border: calc($dot-size / 5) solid black;
 }
 
 .classic-button {
