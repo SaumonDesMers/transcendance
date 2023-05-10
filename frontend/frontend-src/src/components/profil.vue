@@ -24,7 +24,6 @@ export default defineComponent({
 			matches: [
 			],
 			State,
-			chat,
 			status: false,
 			SelfUser,
 			usersStatus,
@@ -39,8 +38,11 @@ export default defineComponent({
 			this.SelfUser.save();
 		},
 		message(username: string) {
-			this.chat.startDM(username);
+			chat.startDM(username);
 			this.$router.push({ name: State.CHAT });
+		},
+		blockUser(userId: number, action: boolean) {
+			chat.block_user(userId, action);
 		},
 	},
 	watch: {
@@ -130,7 +132,7 @@ export default defineComponent({
 							@click="SelfUser.isFriend(user.id) ? SelfUser.removeFriend(user.id) : SelfUser.addFriend(user.username)">{{ SelfUser.isFriend(user.id) ? 'Unfollow' : 'Follow' }}</div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
 							v-if="SelfUser.id != user.id"
-							@click="chat.block_user(user.id, !isBlocked)">{{ isBlocked ? 'Unblock' : 'Block' }}</div>
+							@click="blockUser(user.id, !isBlocked)">{{ isBlocked ? 'Unblock' : 'Block' }}</div>
 					</div>
 					<div class="bio-container grid-border">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">Bio</div>

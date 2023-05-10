@@ -20,7 +20,7 @@ export default defineComponent({
 			usersStatus,
 			SelfUser,
 			user: new User(),
-			chat
+			// chat
 		}
 	},
 	methods: {
@@ -29,11 +29,11 @@ export default defineComponent({
 		// 	this.user.save();
 		// },
 		message(username: string) {
-			this.chat.startDM(username);
+			chat.startDM(username);
 			this.$router.push({ name: State.CHAT });
 		},
 		block(friend: User) {
-			this.chat.block_user(friend.id, true);
+			chat.block_user(friend.id, true);
 		},
 	},
 	watch: {
