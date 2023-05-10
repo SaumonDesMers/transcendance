@@ -23,8 +23,13 @@ import { State } from '../scripts/state';
 import { defineComponent, reactive } from 'vue';
 import Mute from './mute.vue';
 import moment from 'moment';
+import homepagebtn from './homepagebtn.vue';
+import Homepagebtn from './homepagebtn.vue';
 
 export default defineComponent({
+	component: {
+		homepagebtn
+	},
 	data() {
 		return {
 			State,
@@ -148,7 +153,7 @@ export default defineComponent({
 	},
 	created() { },
 	emits: ["logout"],
-	components: { Mute }
+	components: { Mute, Homepagebtn }
 })
 
 </script>
@@ -188,10 +193,12 @@ export default defineComponent({
 		</div>
 		<div class="chat-container">
 			<div class="chat-list" :class="[user.darkMode == true ? 'dark' : 'light']">
+				<homepagebtn style="position:relative; margin-left: 8.5rem; display:flex; justify-content: end; margin-top: 1.5rem; font-size: 2vw;"></homepagebtn>
 				<div style="height: 4vh;">
 					<p style="position:relative; margin-left: 8.5rem; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 2vw;"
 						class="fa-solid fa-plus" @click="$router.push({ name: State.CREATECHAT })"></p>
 					<!-- <p class="fa-solid fa-plus" style="position:fixed; font-size: 1.5vw; margin-top: 0.2rem; color:black"></p> -->
+					
 				</div>
 				<div>
 					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"

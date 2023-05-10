@@ -5,8 +5,13 @@ import { State } from '../scripts/state';
 import SelfUser from '../scripts/user';
 import { User, UserPrison } from '../scripts/user';
 import { defineComponent } from 'vue';
+import homepagebtn from './homepagebtn.vue';
+// import Homepagebtn from './homepagebtn.vue';
 
 export default defineComponent({
+	component: {
+		homepagebtn
+	},
 	data: function () {
 		return {
 			State,
@@ -50,7 +55,8 @@ export default defineComponent({
 	mounted() {
 		this.fetchData(parseInt(this.$route.params.id as string));
 	},
-	emits: ['logout']
+	emits: ['logout'],
+	components: { homepagebtn }
 })
 </script>
 
@@ -69,6 +75,7 @@ export default defineComponent({
 			<div class="stars1"></div>
 			<div class="stars2"></div>
 		</div>
+		<homepagebtn style="position:relative; margin-left: 8.5rem; display:flex; justify-content: end; margin-top: 1.5rem; font-size: 2vw;"></homepagebtn>
 		<div style="height: 100vh; overflow: scroll;">
 			<div class="grid-history">
 				<div class="best-players">

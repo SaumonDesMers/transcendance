@@ -1,12 +1,22 @@
-import { ChanType } from "@prisma/client"
+import { ChanType, GameType } from "@prisma/client"
 import { Type } from "class-transformer";
 import { IsBase64, IsBoolean, IsDate, IsDefined, IsEnum, IsNegative, IsNotEmpty, IsNumber, IsObject, IsOptional, IsPositive, IsString, IsUUID, MaxLength, ValidateIf, ValidateNested, isBase64, isDefined } from "class-validator";
 
-export enum gameType {
-	NORMAL,
-	CUSTOM,
+// export enum gameType {
+// 	NORMAL,
+// 	CUSTOM,
+// }
+
+
+export const gameType: {
+	NORMAL: 'NORMAL',
+	CUSTOM: 'CUSTOM'
+} = {
+	NORMAL: 'NORMAL',
+	CUSTOM: 'CUSTOM'
 }
 
+export type gameType = typeof gameType[keyof typeof gameType]
 /**
  * TRANSFER OBJECTS
  * 
