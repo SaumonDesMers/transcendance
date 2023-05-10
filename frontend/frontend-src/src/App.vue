@@ -76,9 +76,20 @@ export default defineComponent({
 			this.$router.push({ name: 'login' });
 		}
 	},
+	mounted() {
 
-	mounted() {},
+		const jwt = this.$cookie.getCookie('jwt');
 
+		if (jwt && localStorage.userId) {
+			axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
+			this.user.get().catch(() => {
+				this.logout();
+			});
+			this.connectToWebsocket();
+		} else {
+			this.$router.replace({ name: State.LOGIN });
+		}
+	},
 	created() {
 
 		const jwt = this.$cookie.getCookie('jwt');
@@ -100,8 +111,8 @@ export default defineComponent({
 	},
 
 	watch: {
-		state(val, oldVal) {
-			if (oldVal == State.LOGIN && val != State.LOGIN)
+		$route(val, oldVal) {
+			if (oldVal.name == State.LOGIN && val.name != State.LOGIN)
 				this.connectToWebsocket();
 		},
 		'gameGateway.state.value'(val, oldVal) {

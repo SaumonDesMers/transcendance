@@ -7,8 +7,12 @@ import usersStatus from '../scripts/status';
 import SelfUser from '../scripts/user';
 import { User } from '../scripts/user';
 import { defineComponent } from 'vue';
+import homepagebtn from './homepagebtn.vue';
 
 export default defineComponent({
+	component: {
+		homepagebtn
+	},
 	data: function () {
 		return {
 			State,
@@ -16,7 +20,7 @@ export default defineComponent({
 			usersStatus,
 			SelfUser,
 			user: new User(),
-			chat
+			// chat
 		}
 	},
 	methods: {
@@ -25,18 +29,19 @@ export default defineComponent({
 		// 	this.user.save();
 		// },
 		message(username: string) {
-			this.chat.startDM(username);
+			chat.startDM(username);
 			this.$router.push({ name: State.CHAT });
 		},
 		block(friend: User) {
-			this.chat.block_user(friend.username, true);
+			chat.block_user(friend.id, true);
 		},
 	},
 	watch: {
 		'$route.params'(oldVal, newVal) {
 			this.user.loadUser(parseInt(newVal.id as string)).then(nothing => {
-				this.user.loadFriends();
-				usersStatus.fetchUsers(this.user._friendsIdList);
+				this.user.loadFriends().then(value => {
+					usersStatus.fetchUsers(this.user._friendsIdList);
+				});
 			})
 		}
 	},
@@ -44,11 +49,12 @@ export default defineComponent({
 		if (parseInt(this.$route.params.id as string) == this.SelfUser.id)
 			this.user = this.SelfUser;
 		this.user.loadUser(parseInt(this.$route.params.id as string)).then(nothing => {
-			this.user.loadFriends();
-			usersStatus.fetchUsers(this.user._friendsIdList);
+			this.user.loadFriends().then(value => {
+				usersStatus.fetchUsers(this.user._friendsIdList);
+			});
 		})
 	},
-	emits: ['logout']
+	emits: ['logout'],
 })
 </script>
 
@@ -63,7 +69,11 @@ export default defineComponent({
 			<div class="stars1"></div>
 			<div class="stars2"></div>
 		</div>
+		<div style="color: aliceblue;">
+			<homepagebtn></homepagebtn>
+		</div>
 		<div style="height: 100vh; overflow: scroll;">
+
 			<div class="friends-grid">
 				<div class="friend" v-for="friend in user.friends">
 					<div class="friend">

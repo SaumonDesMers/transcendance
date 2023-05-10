@@ -21,7 +21,7 @@ import { UserEntity } from "./User.entity";
 import { ApiTags, ApiCreatedResponse, ApiOkResponse, ApiQuery, ApiParam, ApiBody, ApiConsumes, ApiResponse, ApiProperty } from "@nestjs/swagger";
 import { CreateUserDto } from "./User.create-dto";
 import { UpdateUserDto } from "./User.update-dto";
-import { UserWithoutSecret } from "./User.module";
+import { UserWithoutSecret, defaultPicture } from "./User.module";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { use } from "passport";
 import { extname, join } from "path";
@@ -132,13 +132,15 @@ export class UserController {
 		if (id != req.user.id)
 			throw new HttpException("Forbidden", HttpStatus.FORBIDDEN);
 			
-			const user = await this.userService.getOneUser(id);
+		const user = await this.userService.getOneUser(id);
+		if (user.picture == defaultPicture)
+			return user;
 			
 		unlink(join("./pictures", user.picture), (err) => {
 			if (err)
 			throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR)
 		})
-		user.picture = null;
+		user.picture = defaultPicture;
 		await this.userService.updateUser(id, user);
 		return user;
 	}

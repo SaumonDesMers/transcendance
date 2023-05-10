@@ -17,6 +17,8 @@ import friends from './components/friends.vue';
 import createChat from './components/createChat.vue';
 import chatSettings from './components/chatSettings.vue';
 
+import mute from './components/mute.vue'
+import { VueCookieNext } from 'vue-cookie-next'
 
 const routes = [
 	{ name: 'main', path: '/', component: main },
@@ -31,6 +33,7 @@ const routes = [
 	{ name: 'friends', path: '/friends/:id', component: friends },
 	{ name: 'create-chat', path: '/create-chat', component: createChat },
 	{ name: 'chat-settings', path: '/chat-settings', component: chatSettings },
+	{ name: 'mute', path: '/mute', component: mute },
 ];
 
 const router = createRouter({

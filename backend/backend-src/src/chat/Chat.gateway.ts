@@ -32,7 +32,8 @@ import {
 	DMChannelDTO,
 	CreateMessageDto,
 	GroupChannelSnippetDTO,
-	ChanNotifDTO
+	ChanNotifDTO,
+	searchQueryDTO
 } from './Chat.entities'
 
 import { Server, Socket } from 'socket.io';
@@ -116,7 +117,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 		catch (e) {
 			console.log("ERROR WHILE CONNECTING");
-			console.log(e);
 			socket.disconnect(true);
 			return;
 		}
@@ -146,7 +146,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		try {
 			channel = await this.chatService.createGroupChannel(data);
 		} catch (e: any) {
-			console.log(e);
 			throw new WsException(e);
 		}
 
@@ -180,7 +179,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
 			channelWithMessage = await this.chatService.joinGroupChannel(channelId, socket.data.userId, data.key);
 		} catch (e: any) {
-			console.log(e);
 			throw new WsException(e.message);
 		}
 
@@ -208,7 +206,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			channel = await this.chatService.leaveGroupChannel(channel,
 				socket.data.userId);
 		} catch (e: any) {
-			console.log(e);
 			throw new WsException(e.message);
 		}
 
@@ -283,14 +280,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	@SubscribeMessage("search_username")
 	async handleSearch(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() username: string
+		@MessageBody() query: searchQueryDTO
 	)
 	{
 		let usernames: { username: string, id: number }[];
 		try {
-			usernames = await this.chatService.search_user(username);
+			usernames = await this.chatService.search_user(query);
 		} catch (e: any) {
-			console.log(e);
 			throw new WsException(e.message);
 		}
 
@@ -309,7 +305,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			message = await this.chatService.sendMessage(data);
 		}
 		catch (e: any) {
-			console.log(e);
 			// throw WsException;
 			throw new WsException(e.message);
 		}
@@ -352,7 +347,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 				targetSocket.join(channel.channelId.toString());
 			}
 		} catch (e: any) {
-			console.log(e);
 			throw new WsException(e.message);
 		}
 
@@ -427,7 +421,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			update = await this.chatService.setUserAdmin(data)
 		} catch (e: any) {
 			console.log(e);
-			throw new WsException(e);
+			throw new WsException(e.message);
 		}
 
 		this.server.to(data.channelId.toString()).emit("admin_update", update);
@@ -441,8 +435,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		try {
 			await this.chatService.muteUser(data);
 		} catch (e: any) {
-			console.log(e);
-			throw new WsException(e);
+			throw new WsException(e.message);
 		}
 
 		this.server.to(data.groupChannelId.toString()).emit("user_muted", data);
@@ -500,7 +493,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	@SubscribeMessage("block_request")
 	async BlockUser(
 		@ConnectedSocket() socket: chatSocket,
-		@MessageBody() data: {targetUserName: string, action: boolean}
+		@MessageBody() data: {targetUserId: number, action: boolean}
 	)
 	{
 		let update;

@@ -10,24 +10,20 @@ import { defineComponent } from 'vue';
 import { User, UserPrison } from '../scripts/user';
 import searchUser from './searchUser.vue';
 import chat from '../scripts/chat';
-// import clickOutSide from "@mahdikhashan/vue3-click-outside";
+import homepagebtn from './homepagebtn.vue';
 
 export default defineComponent({
 
 	components: {
-		searchUser
+		searchUser,
+		homepagebtn
 	},
-
-	// directives: {
-	// 	clickOutSide
-	// },
 
 	data: function () {
 		return {
 			matches: [
 			],
 			State,
-			chat,
 			status: false,
 			SelfUser,
 			usersStatus,
@@ -42,8 +38,11 @@ export default defineComponent({
 			this.SelfUser.save();
 		},
 		message(username: string) {
-			this.chat.startDM(username);
+			chat.startDM(username);
 			this.$router.push({ name: State.CHAT });
+		},
+		blockUser(userId: number, action: boolean) {
+			chat.block_user(userId, action);
 		},
 	},
 	watch: {
@@ -54,6 +53,7 @@ export default defineComponent({
 				this.user.loadFriends();
 				this.user.loadHistory();
 				this.user.loadStats();
+				this.usersStatus.fetchUsers([this.user]);
 			})
 
 			this.userFactory.addUser(this.user);
@@ -70,6 +70,7 @@ export default defineComponent({
 			this.user.loadFriends();
 			this.user.loadHistory();
 			this.user.loadStats();
+			this.usersStatus.fetchUsers([this.user]);
 		})
 		this.SelfUser.loadFriends();
 		this.userFactory.addUser(this.user);
@@ -86,8 +87,11 @@ export default defineComponent({
 	<div class="main-page" :class="[SelfUser.darkMode == true ? 'dark' : 'light ', user.coa]">
 		<div style="width: 100vw; height: 100vh;">
 			<div
-				:class="[SelfUser.darkMode == true ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
+			:class="[SelfUser.darkMode == true ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
 				<div class="banner-profile" :class=user.coa>
+					<div style="color:aliceblue">
+						<homepagebtn></homepagebtn>
+					</div>
 					<div class="avatar-profile" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']">
 						<div v-if="usersStatus.getUserStatus(user.id) == 'ONLINE'" class="status-profile"
 							style="background-color: green"></div>
@@ -126,7 +130,7 @@ export default defineComponent({
 							@click="SelfUser.isFriend(user.id) ? SelfUser.removeFriend(user.id) : SelfUser.addFriend(user.username)">{{ SelfUser.isFriend(user.id) ? 'Unfollow' : 'Follow' }}</div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
 							v-if="SelfUser.id != user.id"
-							@click="chat.block_user(user.username, !isBlocked)">{{ isBlocked ? 'Unblock' : 'Block' }}</div>
+							@click="blockUser(user.id, !isBlocked)">{{ isBlocked ? 'Unblock' : 'Block' }}</div>
 					</div>
 					<div class="bio-container grid-border">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">Bio</div>
@@ -137,7 +141,8 @@ export default defineComponent({
 							@click="$router.push({ name: State.FRIENDS, params: { id: user.id } })">friends</div>
 						<div class="grid-friend" style="overflow: scroll;">
 							<div class="friend" v-for="friend in user.friends">
-								<div :style="['background-image: url(\'' + friend.avatar.imageBase64 + '\')']" @click="$router.push({ name: State.USER, params: { id: friend.id } })">{{ friend.username }}</div>
+								<div :style="['background-image: url(\'' + friend.avatar.imageBase64 + '\'); background-size: cover; background-position: center center; background-opacity: 0.8']"
+								@click="$router.push({ name: State.USER, params: { id: friend.id } })">{{ friend.username }}</div>
 								<!-- <router-link :to="{ name: 'profile', params: { id: friend.id } }">{{ friend.username }}</router-link> -->
 							</div>
 						</div>

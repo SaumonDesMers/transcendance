@@ -5,6 +5,7 @@ import { State } from '../scripts/state';
 import SelfUser from '../scripts/user';
 import { User, UserPrison } from '../scripts/user';
 import { defineComponent } from 'vue';
+import homepagebtn from './homepagebtn.vue';
 
 export default defineComponent({
 	data: function () {
@@ -50,7 +51,8 @@ export default defineComponent({
 	mounted() {
 		this.fetchData(parseInt(this.$route.params.id as string));
 	},
-	emits: ['logout']
+	emits: ['logout'],
+	components: { homepagebtn }
 })
 </script>
 
@@ -63,6 +65,9 @@ export default defineComponent({
 			<div class="stars"></div>
 			<div class="stars1"></div>
 			<div class="stars2"></div>
+		</div>
+		<div style="color:aliceblue">
+			<homepagebtn></homepagebtn>
 		</div>
 		<div style="height: 100vh; overflow: scroll;">
 			<div class="grid-history">

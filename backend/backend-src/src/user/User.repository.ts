@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma, User } from "@prisma/client";
 import { PrismaService } from "src/database/prisma.service";
+import { defaultPicture } from "./User.module";
 
 @Injectable()
 export class UserRepository {
@@ -8,6 +9,7 @@ export class UserRepository {
 
 	async createUser(params: { data: Prisma.UserCreateInput }): Promise<User> {
 		const { data } = params;
+		data.picture = defaultPicture;
 		const user = await this.prisma.user.create({ data });
 
 		await this.prisma.chatUser.create({

@@ -155,7 +155,7 @@ class Collider {
 class Ball extends Collider {
 
 	initialPos: Vec2;
-	initialSpeedNorme: number = 7;
+	initialSpeedNorme: number = 10;
 
 	speed = new Vec2(0, 0);
 
@@ -209,6 +209,7 @@ class Ball extends Collider {
 	reset() {
 		this.pos = this.initialPos.copy();
 		this.speed.set(this.initialSpeedNorme, this.newStartingOrientation());
+		this.lastCollision = null;
 	}
 
 	newStartingOrientation(): number {
@@ -230,10 +231,10 @@ class Paddle extends Collider {
 		super(x, y, width, height, 'rect');
 	}
 
-	move() {
-		if (this.moving == "up") {
+	move(min: number, max: number) {
+		if (this.moving == "up" && this.top > min) {
 			this.y = this.y - this.speed / 50 * updateInterval
-		} else if (this.moving == "down") {
+		} else if (this.moving == "down" && this.bottom < max) {
 			this.y = this.y + this.speed / 50 * updateInterval
 		}
 	}
@@ -396,8 +397,8 @@ export class GameEntity {
 
 	private updatePhysics() {
 		// update paddles
-		this.side[LEFT].paddle.move();
-		this.side[RIGHT].paddle.move();
+		this.side[LEFT].paddle.move(0, this.arena.height);
+		this.side[RIGHT].paddle.move(0, this.arena.height);
 
 		// update ball
 		this.ball.move();
@@ -501,7 +502,8 @@ export class GameEntity {
 		this.eventEmitter.emit("endgame", this.side[1].player.id);
 		this.eventEmitter.emit("endgame", this.side[0].player.id);
 		this.gameService.games = this.gameService.games.filter(g => g.UID != this.UID);
-		this.gameService.saveGame(parseInt(winnerSide.player.id), parseInt(loserSide.player.id), winnerSide.score, loserSide.score);
+		if (winnerSide.player.id != loserSide.player.id)
+			this.gameService.saveGame(parseInt(winnerSide.player.id), parseInt(loserSide.player.id), winnerSide.score, loserSide.score);
 
 	}
 	

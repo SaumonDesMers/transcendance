@@ -7,7 +7,8 @@ import {
 	Mute,
 	GroupChannel,
 	ChanType, 
-	User} from "@prisma/client";
+	User,
+	inviteStatus} from "@prisma/client";
 import { MessageRepository } from "./Message.repository";
 import { ChannelRepository } from "./Channel.repository";
 import {
@@ -34,13 +35,18 @@ import {
 	CreateMessageDto,
 	MessageDTO,
 	SimpleChatUserDTO,
-	ChanNotifDTO } from "./Chat.entities";
+	ChanNotifDTO, 
+	ChatUserDTO,
+	DMChannelDTO,
+	searchQueryDTO,
+	gameType} from "./Chat.entities";
 import { WsException } from "@nestjs/websockets";
 import { error } from "console";
 import { ValidationError } from "./Chat.error";
 import { type, userInfo } from "os";
 import { GameService } from "src/game/game.service";
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcrypt';
+import * as moment from 'moment';
 
 
 const includeMembers = {
@@ -64,7 +70,8 @@ const includeMembersAndLast10Messages = Prisma.validator<Prisma.ChannelArgs>()({
 			orderBy: {postedAt: 'asc'},
 			take: 10,
 			include: {
-				author: true
+				author: true,
+				gameInvite: true
 			}
 		}
 	},
@@ -98,7 +105,14 @@ export class ChatService {
 	constructor(private channelRepository: ChannelRepository,
 				private messageRepository: MessageRepository,
 				private gameService: GameService,
-				private prisma: PrismaService) {}
+				private prisma: PrismaService)
+	{
+		this.prisma.invite.updateMany({
+			data: {
+				status: inviteStatus.EXPIRED
+			}
+		}).then(nothing => {});
+	}
 
 	async createGroupChannel(newGroupChannel: CreateGroupChannelDto): Promise<GroupChannelDTO> {
 		//im sorry for these ugly things i dont know how to do this any other way
@@ -173,58 +187,80 @@ export class ChatService {
 
 		//add a check to see if caller isnt blocked by targetUser
 
-		//try to find an existing channel
-		let channel = await this.prisma.dMChannel.findFirst({
-			where: {
-				channel: {
-					AND: [
-						{
-							users: { some: { user: {
-								username: targetUserName
-							}}}
-						},
-						{
-							users: { some: {
-								userId: callerUserId
-							}}
-						}					
-					],
+		let user: any;
+		let channel: DMChannelDTO;
+
+		try {
+			user = await this.prisma.user.findUniqueOrThrow({ where: {username: targetUserName}, include: {
+				chatUser: {
+					include: {
+						blocked: true,
+						blockedBy: true,
+					}
+				}
+			}});
+		} catch (e: any) {
+			throw new ValidationError("Target User not found");
+		}
+
+		if (user.chatUser.blocked.find(chatuser => {
+			return chatuser.userId == callerUserId
+		}) != undefined)
+			throw new ValidationError("Cannot start DM, this user has blocked you");
+		
+		if (user.chatUser.blockedBy.find(chatuser => {
+			return chatuser.userId == callerUserId
+		}) != undefined)
+			throw new ValidationError("Cannot start DM, you have blocked this user");
+
+		if (user.id == callerUserId)
+		{
+			channel = await this.prisma.dMChannel.findFirst({
+				where: {
+					channel: {
+						users: {
+							every: {
+								userId:callerUserId
+							}
+						}
+					}
 				},
-			},
-			include: {channel: includeMembersAndLast10Messages}
-		});
+				include: {channel: includeMembersAndLast10Messages}
+			});
+		} else {
+			//try to find an existing channel
+			channel = await this.prisma.dMChannel.findFirst({
+				where: {
+					channel: {
+						AND: [
+							{
+								users: { some: { user: {
+									username: targetUserName
+								}}}
+							},
+							{
+								users: { some: {
+									userId: callerUserId
+								}}
+							}					
+						],
+					},
+				},
+				include: {channel: includeMembersAndLast10Messages}
+			});
+		}
 
 		//if no channel exists create one
 		if (channel == undefined)
 		{
-			const other_user = await this.prisma.user.findUnique({
-				where: {
-					username:targetUserName
-				},
-				include: {
-					chatUser: {
-						include: {
-							blocked : true
-						}
-					}
-				}
-			});
-			if (other_user == undefined)
-				throw new ValidationError("User not found");
-
-			if (other_user.chatUser.blocked.find(chatuser => {
-				chatuser.userId == callerUserId
-			}) != undefined)
-				throw new ValidationError("Cannot start DM, this user has blocked you");
-
 			console.log("awaiting dm channel creation");
-			channel = await this.createDMChannel([callerUserId, other_user.id]);
+			channel = await this.createDMChannel([callerUserId, user.id]);
 		}
 		
 		return channel;
 	}
 
-	async sendMessage(newMessage: CreateMessageDto) {
+	async sendMessage(newMessage: CreateMessageDto, invite?: Prisma.inviteCreateWithoutBaseMsgInput) {
 		// is user muted
 		if (await this.isMuted(newMessage.authorId, newMessage.ChannelId) == true)
 			throw new ValidationError("The user is muted and can't send a message");
@@ -258,18 +294,21 @@ export class ChatService {
 			{
 				content: newMessage.content,
 				channel: {
-				connect: {id: newMessage.ChannelId}},
-			author: {
-				connect: {userId: newMessage.authorId}},
+					connect: {id: newMessage.ChannelId}},
+				author: {
+					connect: {userId: newMessage.authorId}},
 				postedAt: new Date,
+				gameInvite: invite != undefined ? {
+					create: invite
+				} : {}
 			},
 			include: {
 				channel: true,
-				author: true
+				author: true,
+				gameInvite: true
 			},
 		});
 		
-
 		//if the user wants to embed a game invite in the message
 		
 		
@@ -290,16 +329,16 @@ export class ChatService {
 	
 	async createGameInvite(newInvite: CreateMessageDto, sessionId: string) {
 		
-		if (await this.isMuted(newInvite.authorId, newInvite.ChannelId) == true)
-			throw new ValidationError("The user is muted and can't send a message");
+		// if (await this.isMuted(newInvite.authorId, newInvite.ChannelId) == true)
+		// 	throw new ValidationError("The user is muted and can't send a message");
 		
-		if (newInvite.gameInvite == undefined)
-			throw new ValidationError("Invalid Invite message");
+		// if (newInvite.gameInvite == undefined)
+		// 	throw new ValidationError("Invalid Invite message");
 		
 		
 		// INSERT GAME BACK CALL TO GENERATE UID HERE
-		
-		const { success, error, uid } = await this.gameService.createUniqueQueue(newInvite.gameInvite.gameType.toString(), sessionId);
+		const type = newInvite.gameInvite.gameType == gameType.CUSTOM ? 'CUSTOM' : 'NORMAL';
+		const { success, error, uid } = await this.gameService.createUniqueQueue(type, sessionId);
 		
 		// ID OF USER INVITING IS newMessage.authorId
 		
@@ -310,6 +349,7 @@ export class ChatService {
 		if (!success)
 		throw new ValidationError(error);
 
+		return this.sendMessage(newInvite, {uid, status: 'PENDING', type});
 		
 		let message: MessageDTO = {
 			id: 0,
@@ -334,6 +374,15 @@ export class ChatService {
 		/*
 			throw new ValidationError("Game invite expired or Invalid")
 		*/
+		await this.prisma.invite.update({
+			where: {
+				messageId: invite_message.id
+			},
+			data: {
+				status: inviteStatus.EXPIRED
+			}
+		});
+
 		const { success, error } = await this.gameService.joinUniqueQueue(invite_message.gameInvite.uid, sessionId);
 
 		if (!success) {
@@ -742,7 +791,7 @@ export class ChatService {
 		console.log(request);
 		const target = await this.prisma.user.findUniqueOrThrow({
 			where: {
-				username: request.targetUserName
+				id: request.targetUserId
 			},
 			select: {
 				id: true
@@ -771,6 +820,9 @@ export class ChatService {
 		//if author isnt admin
 		if (this.isAdmin(request.authorUserId, channel) == false)
 			throw new ValidationError("You don't have the rights to set an admin");
+
+		if (request.targetUserId == channel.ownerId)
+			throw new ValidationError("You dont have the rights to do that");
 
 		//and presence of target in channel
 		if (channel.channel.users.find(user => {
@@ -825,7 +877,7 @@ export class ChatService {
 	async muteUser(request: MuteDTO)
 	{
 		//add logic here checking admin rights from author
-
+		console.log("MUTING USER");
 		// does the channel exist?
 		const channel = await this.prisma.groupChannel.findUniqueOrThrow({
 			where: { 
@@ -843,7 +895,7 @@ export class ChatService {
 
 		const target = await this.prisma.user.findUniqueOrThrow({
 			where: {
-				username: request.targetUserName
+				id: request.targetUserId
 			},
 			select: {
 				id: true
@@ -855,17 +907,17 @@ export class ChatService {
 			throw new ValidationError("The owner can't be mute");
 
 		//if author isnt admin
-		if (channel.admins.find(user => {
-			user.userId == request.authorUserId;
-		}) === undefined)
+		if (!this.isAdmin(request.authorUserId, channel))
 			throw new ValidationError("You don't have the rights to mute a user");
 
 		//and presence of target in channel
 		if (channel.channel.users.find(user => {
-			user.userId == target.id;
+			return user.userId == target.id;
 		}) === undefined)
 			throw new ValidationError("This user isn't on channel");
 		
+		let endDate = moment().add(request.durationInMinutes, 'minutes');
+
 		await this.prisma.mute.create({
 			data: {
 				author: {
@@ -877,18 +929,18 @@ export class ChatService {
 				groupChannel: {
 					connect: {channelId:request.groupChannelId}
 				},
-				endDate: request.endDate
+				endDate: endDate.toDate()
 			}
 		});
 	}
 
 	async banUser(request: ChanRequestDTO): Promise<ChanNotifDTO> {
 
-		const {authorUserId, targetUserName, channelId, action } = request;
+		const {authorUserId, targetUserId, channelId, action } = request;
 
 		const target = await this.prisma.user.findUnique({
 			where: {
-				username: targetUserName
+				id: request.targetUserId
 			},
 			select: {
 				id: true
@@ -1030,11 +1082,11 @@ export class ChatService {
 
 	async kickUser(request: basicChanRequestDTO): Promise<ChanNotifDTO> {
 
-		const {channelId, authorUserId, targetUserName} = request;
+		const {channelId, authorUserId, targetUserId} = request;
 
 		const target = await this.prisma.user.findUnique({
 			where: {
-				username: targetUserName
+				id: request.targetUserId
 			},
 			select: {
 				id: true,
@@ -1057,6 +1109,8 @@ export class ChatService {
 
 		if (!this.isAdmin(authorUserId, channel))
 			throw new ValidationError("Permission denied, you cant kick another user");
+		if (this.isAdmin(targetUserId, channel) && authorUserId != channel.ownerId)
+			throw new ValidationError("Permission denied you cant kick another admin");
 
 		if (channel.channel.users.find(user =>
 			{return user.userId == target.id}) == undefined)
@@ -1070,16 +1124,16 @@ export class ChatService {
 		return {channelId, callerUserId:authorUserId, targetUserId:target.id, action:true};
 	}
 
-	async blockUser(callerUserId: number, data: {targetUserName: string, action: boolean}): Promise<{targetId: number, dmId: number | undefined}>
+	async blockUser(callerUserId: number, data: {targetUserId: number, action: boolean}): Promise<{targetId: number, dmId: number | undefined}>
 	{
 		//find target
 		let target: User;
-		const {targetUserName, action} = data;
+		const {targetUserId, action} = data;
 
 		try {
 			target = await this.prisma.user.findUniqueOrThrow({
 				where: {
-					username:targetUserName
+					id:targetUserId
 				}
 			});
 		} catch (e: any) {
@@ -1095,9 +1149,9 @@ export class ChatService {
 				channel: {
 					AND: [
 						{
-							users: { some: { user: {
-								username: targetUserName
-							}}}
+							users: { some: {
+								userId: targetUserId
+							}}
 						},
 						{
 							users: { some: {
@@ -1154,7 +1208,7 @@ export class ChatService {
 	{
 		const user = await this.prisma.user.findUniqueOrThrow({
 			where: {
-				username:request.targetUserName
+				id: request.targetUserId
 			},
 			include: {
 				chatUser: true
@@ -1315,23 +1369,52 @@ export class ChatService {
 			|| channel.ownerId == userId);
 	}
 
-	async search_user(username: string): Promise<{username: string, id: number}[]>
+	async search_user(query: searchQueryDTO): Promise<{username: string, id: number}[]>
 	{
+		const {channelId, username} = query;
+
 		if (username == null || username.length == 0)
 			return [];
-		const possible_usernames = await this.prisma.user.findMany({
-			where: {
-				username: {
-					contains: username,
-					mode: 'insensitive'
+
+		let possible_usernames: {username: string, id:number}[];
+
+		if (channelId == undefined)
+		{
+			possible_usernames = await this.prisma.user.findMany({
+				where: {
+					username: {
+						contains: username,
+						mode: 'insensitive'
+					}
+				},
+				take: 20,
+				select: {
+					username: true,
+					id: true,
 				}
-			},
-			take: 20,
-			select: {
-				username: true,
-				id: true,
-			}
-		});
+			});
+		} else {
+			possible_usernames = await this.prisma.user.findMany({
+				where: {
+					chatUser: {
+						joinedChannels: {
+							some: {
+								id: channelId
+							}
+						}
+					},
+					username: {
+						contains: username,
+						mode: 'insensitive'
+					}
+				},
+				take: 20,
+				select: {
+					username: true,
+					id: true,
+				}
+			});
+		}
 
 		return possible_usernames;
 	}

@@ -29,6 +29,10 @@
     z-index: 10;
     text-decoration: none;
 
+	&:link {
+		text-decoration: none;
+	}
+
     &:hover,
     &:active {
         text-shadow:

@@ -2,7 +2,7 @@
 // import axios from 'axios'
 import "./profil.vue"
 import { State } from '../scripts/state';
-import user from '../scripts/user';
+import user, { Avatar } from '../scripts/user';
 import toggle2fa from "./toggle2fa.vue";
 import { defineComponent } from "vue";
 
@@ -20,10 +20,20 @@ export default defineComponent({
 			editName: '',
 			editBio: '',
 			editCoa: '',
+			editAvatar: new Avatar(),
 		};
 	},
 	methods: {
 		async saveModifications() {
+			if (this.editAvatar.imageFile) {
+				this.user.avatar.setFile(this.editAvatar.imageFile);
+				this.user.uploadAvatar();
+			}
+			else {
+				this.user.avatar.clear();
+				this.user.deleteAvatar();
+			}
+
 			this.user.username = this.editName;
 			this.user.bio = this.editBio;
 			this.user.coa = this.editCoa;
@@ -39,7 +49,7 @@ export default defineComponent({
 			if (imageFile.type.indexOf('image/') < 0) {
 				return;
 			}
-			this.user.avatar.setFile(imageFile);
+			this.editAvatar.setFile(imageFile);
 		},
 		applyTheme(themeClass: string) {
 			this.editCoa = themeClass;
@@ -52,6 +62,8 @@ export default defineComponent({
 			this.editName = this.user.username;
 			this.editBio = this.user.bio;
 			this.editCoa = this.user.coa;
+			if (this.user.avatar.imageFile)
+				this.editAvatar.setFile(this.user.avatar.imageFile);
 		},
 	},
 
@@ -93,21 +105,19 @@ export default defineComponent({
 				<div class="grid" style="overflow: scroll; width: 100%; padding: 2rem 25% 2rem 25%;">
 					<div class="form-group">
 						<label>LOGIN</label>
-						<input class="input" v-model='editName' type="text" @click="editName = ''" />
+						<input class="input" v-model='editName' type="text" />
 					</div>
 					<div class="form-group">
 						<label>AVATAR</label>
-						<img v-bind:src="user.avatar.imageBase64" />
+						<img v-bind:src="editAvatar.imageBase64" />
 						<input type="file" id="uploadmyfile" @change="requestUploadFile"/>
-						<div>
-							<button @click="user.uploadAvatar()">Upload</button>
-							<button @click="user.downloadAvatar()">Download</button>
-							<button @click="user.deleteAvatar()">Delete</button>
+						<div class="button-container" v-if="editAvatar.imageFile">
+							<button class="edit-button" @click="editAvatar.clear()">Delete avatar</button>
 						</div>
 					</div>
 					<div class="form-group">
 						<label>BIO</label>
-						<textarea v-model='editBio' style="height: 150px; width: 100%; text-align: justify;" type="text" @click="editBio = ''" />
+						<textarea v-model='editBio' style="height: 150px; width: 100%; text-align: justify;" type="text" />
 					</div>
 
 					<div style="display: flex; justify-content: space-between; gap: 4px">
@@ -158,7 +168,7 @@ export default defineComponent({
 						<toggle2fa></toggle2fa>
 					</div>
 					<div class="button-container">
-						<button class="edit-button" @click="saveModifications()">Enregister les modifications</button>
+						<button class="edit-button" @click="saveModifications()">Save</button>
 					</div>
 					<div class="button-container">
 						<button class="edit-button" @click="$router.back()">Cancel</button>

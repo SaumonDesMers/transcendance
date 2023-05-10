@@ -17,7 +17,6 @@ export default defineComponent({
 		searchInput() {
 			store.search_user(this.searchInput).then((arr) => {
 				this.searchArray = arr;
-				console.log(this.searchArray);
 			});
 		}
 	},

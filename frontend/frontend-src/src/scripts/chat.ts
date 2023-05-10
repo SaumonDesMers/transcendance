@@ -17,10 +17,10 @@ import {
 	DMChannelDTO,
 	CreateMessageDto,
 	gameInviteArgs,
-	ChanNotifDTO
-} from '../../../../backend/backend-src/src/chat/Chat.entities'
-import {CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto'
-import { ServerToClientEvents, ClientToServerEvents } from '../../../../backend/backend-src/src/chat/Chat.events'
+	ChanNotifDTO,
+	CreateGroupChannelDto
+} from '../entities/Chat.entities'
+import { ServerToClientEvents, ClientToServerEvents } from '../entities/Chat.events'
 import { User } from './user'
 import SelfUser from './user'
 
@@ -436,29 +436,32 @@ export class Chat {
 	}
 
 	/**
-	 * Function to mute a user
-	 * Info about the DTO in chat.entities
-	 * @date 4/24/2023 - 5:20:41 PM
-	*
-	 * @param {MuteDTO} request
-	*/
-	mute_user(request: MuteDTO)
+	 * 
+	 * @param targetUserId 
+	 * @param durationInMinutes 
+	 */
+	mute_user(targetUserId: number, durationInMinutes: number)
 	{
-		this.socket.emit('mute_request', request);
+		this.socket.emit('mute_request', {
+			targetUserId,
+			durationInMinutes,
+			authorUserId:this.user.userId,
+			groupChannelId:this.currentChannelId
+		});
 	}
 	
 	/**
 	 * Kick a user from the current channel
 	 * @date 4/28/2023 - 2:55:14 PM
 	 *
-	 * @param {string} targetUserName username of the user to kick
+	 * @param {string} targetUserId id of the user to kick
 	 */
-	kick_user(targetUserName: string)
+	kick_user(targetUserId: number)
 	{
 		if (this.isCurrentDM || this.currentChannelId == -1)
 			return;
 		this.socket.emit("kick_request", {
-			targetUserName,
+			targetUserId,
 			channelId:this.currentChannelId,
 			authorUserId: this.user.userId
 		});
@@ -468,10 +471,10 @@ export class Chat {
 	 * Set or Unset a user as admin in the current channel
 	 * @date 4/28/2023 - 2:56:11 PM
 	 *
-	 * @param {string} targetUserName name of the targeted user
+	 * @param {number} targetUserId id of the targeted user
 	 * @param {boolean} action `true` to set as admin, `false` to unset
 	 */
-	user_admin(targetUserName: string, action: boolean)
+	user_admin(targetUserId: number, action: boolean)
 	{
 
 		if (this.isCurrentDM || this.currentChannelId == -1)
@@ -479,7 +482,7 @@ export class Chat {
 		this.socket.emit('admin_request', 
 		{
 			authorUserId:this.user.userId,
-			targetUserName,
+			targetUserId,
 			channelId:this.currentChannelId,
 			action,
 		});
@@ -489,16 +492,16 @@ export class Chat {
 	 * Ban or Unban user from the current channel
 	 * @date 4/28/2023 - 2:59:36 PM
 	 *
-	 * @param {string} targetUserName name of the targeted user
+	 * @param {number} targetUserId id of the targeted user
 	 * @param {boolean} action `true` to ban, `false` to unban
 	 */
-	ban_user(targetUserName: string, action: boolean)
+	ban_user(targetUserId: number, action: boolean)
 	{
 		if (this.isCurrentDM || this.currentChannelId == -1)
 			return;
 		this.socket.emit("ban_request", {
 			authorUserId:this.user.userId,
-			targetUserName,
+			targetUserId,
 			channelId:this.currentChannelId,
 			action,
 		});
@@ -508,24 +511,24 @@ export class Chat {
 	 * Invite or uninvite user to the current channel
 	 * @date 4/28/2023 - 3:00:48 PM
 	 *
-	 * @param {string} targetUserName
+	 * @param {number} targetUserId
 	 * @param {boolean} action
 	 */
-	invite_user(targetUserName: string, action: boolean)
+	invite_user(targetUserId: number, action: boolean)
 	{
 		if (this.isCurrentDM || this.currentChannelId == -1)
 			return;
 		this.socket.emit("invite_request", {
 			authorUserId:this.user.userId,
-			targetUserName,
+			targetUserId,
 			channelId:this.currentChannelId,
 			action,
 		});
 	}
 
-	block_user(targetUserName: string, action: boolean)
+	block_user(targetUserId: number, action: boolean)
 	{
-		this.socket.emitWithAck("block_request", {targetUserName, action}).then(userId => {
+		this.socket.emitWithAck("block_request", {targetUserId, action}).then(userId => {
 			if (action)
 			{
 				SelfUser.removeFriend(userId);
@@ -545,13 +548,14 @@ export class Chat {
 	 * @date 5/6/2023 - 5:39:50 PM
 	 *
 	 * @param {string} username the username to search
+	 * @param {number} channelId limit the search to a given channel
 	 */
-	async search_user(username: string): Promise<{username: string, id:number}[]>
+	async search_user(username: string, channelId?: number): Promise<{username: string, id:number}[]>
 	{
 		if (username == null || username.length == 0)
 			return [];
 
-		return this.socket.emitWithAck("search_username", username);
+		return this.socket.emitWithAck("search_username", {username, channelId});
 	}
 	
 	isAdmin(userId: number) : boolean

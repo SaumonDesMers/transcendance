@@ -1,4 +1,3 @@
-import { Channel, DMChannel, Mute } from '@prisma/client';
 import { MessageDTO,
 	joinRequestDTO,
 	ChannelDTO,
@@ -17,8 +16,8 @@ import { MessageDTO,
 	CreateMessageDto,
 	ChanNotifDTO,
 	searchQueryDTO,
+	CreateGroupChannelDto,
  } from './Chat.entities'
-import { CreateGroupChannelDto } from './GroupChannel.create.dto';
 
 export interface InterServerEvents {
 	ping: () => void;
