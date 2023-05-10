@@ -28,6 +28,10 @@
     margin-top: 2%;
     z-index: 10;
 
+	&:link {
+		text-decoration: none;
+	}
+
     &:hover,
     &:active {
         text-shadow:
