@@ -11,9 +11,12 @@ import { State } from '../scripts/state';
 import user from '../scripts/user';
 import store from "../scripts/chat"
 import { defineComponent } from 'vue';
+import moment from 'moment';
 
 export default defineComponent({
-
+props: {
+    targetId: Number
+},
 data: function () {
     return {
         State,
@@ -23,6 +26,7 @@ data: function () {
         channelNameInput: '',
         channeltype: undefined,
         channelKeyInput: '',
+        selected: 0 as number
       };
 },
 methods: {
@@ -30,14 +34,18 @@ methods: {
         // save les modifs du user selectionne
             // console.log(this.currentUser());
             // this.user = this.currentUser();
+            let endDate = moment().add(this.selected, 'minutes');
+
+            if (this.targetId != undefined)
+                this.chat.mute_user(this.targetId, endDate.toDate());
             this.$router.push({name:State.CHAT});
         },
         // switchPage(page: State) {
         //     this.$emit('switchPage', page);
         // },
-        applyTheme(themeClass) {
-            this.editCoa = themeClass;
-        },
+        // applyTheme(themeClass) {
+        //     this.editCoa = themeClass;
+        // },
         toggleDarkMode() {
             this.user.set({ darkMode: !this.user.darkMode });
             this.user.save();
@@ -53,8 +61,11 @@ methods: {
     computed: {
         currentUser() {
             // recuperer le user (a verifier pour l'argument)
-            console.log(store.getUserName(user.id));
-            return (store.getUserName(user.id));
+            if (this.targetId != undefined)
+            {
+                console.log(store.getUserName(this.targetId));
+                return (store.getUserName(this.targetId));
+            }
         }
     },
     emits: ['switchPage']
@@ -75,12 +86,12 @@ methods: {
             <h1 class="title">Mute {{ currentUser }} for : </h1>
         
         <select v-model="selected">
-            <option style="color: white" disabled value="">Please select one mute option</option>
-            <option>10 minutes</option>
-            <option>30 minutes</option>
-            <option>1 hour</option>
-            <option>3 hours</option>
-            <option>24 hours</option>
+            <option style="color: white" disabled>Please select one mute option</option>
+            <option value="10">10 minutes</option>
+            <option value="30">30 minutes</option>
+            <option value ="60">1 hour</option>
+            <option value = "180">3 hours</option>
+            <option value = "1440">24 hours</option>
         </select>
         <span>Selected: {{ selected }}</span>
         

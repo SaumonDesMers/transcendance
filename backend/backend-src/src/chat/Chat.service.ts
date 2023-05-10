@@ -43,7 +43,9 @@ import { error } from "console";
 import { ValidationError } from "./Chat.error";
 import { type, userInfo } from "os";
 import { GameService } from "src/game/game.service";
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcrypt';
+
+import moment from "moment";
 
 
 const includeMembers = {
@@ -853,7 +855,7 @@ export class ChatService {
 	async muteUser(request: MuteDTO)
 	{
 		//add logic here checking admin rights from author
-
+		console.log("MUTING USER");
 		// does the channel exist?
 		const channel = await this.prisma.groupChannel.findUniqueOrThrow({
 			where: { 
@@ -871,7 +873,7 @@ export class ChatService {
 
 		const target = await this.prisma.user.findUniqueOrThrow({
 			where: {
-				username: request.targetUserName
+				id: request.targetUserId
 			},
 			select: {
 				id: true
@@ -883,17 +885,17 @@ export class ChatService {
 			throw new ValidationError("The owner can't be mute");
 
 		//if author isnt admin
-		if (channel.admins.find(user => {
-			user.userId == request.authorUserId;
-		}) === undefined)
+		if (!this.isAdmin(request.authorUserId, channel))
 			throw new ValidationError("You don't have the rights to mute a user");
 
 		//and presence of target in channel
 		if (channel.channel.users.find(user => {
-			user.userId == target.id;
+			return user.userId == target.id;
 		}) === undefined)
 			throw new ValidationError("This user isn't on channel");
 		
+		let endDate = moment().add(request.durationInMinutes, 'minutes');
+
 		await this.prisma.mute.create({
 			data: {
 				author: {
@@ -905,7 +907,7 @@ export class ChatService {
 				groupChannel: {
 					connect: {channelId:request.groupChannelId}
 				},
-				endDate: request.endDate
+				endDate: endDate.toDate()
 			}
 		});
 	}

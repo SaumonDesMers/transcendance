@@ -436,15 +436,18 @@ export class Chat {
 	}
 
 	/**
-	 * Function to mute a user
-	 * Info about the DTO in chat.entities
-	 * @date 4/24/2023 - 5:20:41 PM
-	*
-	 * @param {MuteDTO} request
-	*/
-	mute_user(request: MuteDTO)
+	 * 
+	 * @param targetUserId 
+	 * @param durationInMinutes 
+	 */
+	mute_user(targetUserId: number, durationInMinutes: number)
 	{
-		this.socket.emit('mute_request', request);
+		this.socket.emit('mute_request', {
+			targetUserId,
+			durationInMinutes,
+			authorUserId:this.user.userId,
+			groupChannelId:this.currentChannelId
+		});
 	}
 	
 	/**

@@ -255,16 +255,16 @@ export class MuteDTO {
 	authorUserId: number;
 
 	@IsDefined()
-	@IsString()
-	targetUserName: string;
+	@IsNumber()
+	targetUserId: number;
 
 	@IsDefined()
 	@IsNumber()
 	@IsPositive()
 	groupChannelId: number;
 
-	@IsDate()
-	endDate: Date;
+	// @IsDate()
+	durationInMinutes: number;
 }
 
 export class searchQueryDTO {

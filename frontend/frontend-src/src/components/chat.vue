@@ -21,134 +21,135 @@ import store from "../scripts/chat"
 import user from '../scripts/user';
 import { State } from '../scripts/state';
 import { defineComponent, reactive } from 'vue';
+import mute from './mute.vue';
+import Mute from './mute.vue';
+import moment from 'moment';
 
 export default defineComponent({
-
-	data() {
-		return {
-			State,
-			user,
-			messageInputBuffer: '',
-			channelInputBuffer: '',
-			keyInputBuffer: '',
-			setKeyInputBuffer: '',
-			userNameInputBuffer: '',
-			dmInputBuffer: '',
-			customGameInvite: false,
-			searchInput: '',
-			searchArray: [] as {username: string, id: number}[],
-			store,
-			onInvit: false,
-			showMP: false,
-			showChannel: false,
-			yourChan: false,
-			displayKey: false,
-			tmpChannel: 0,
-			KeyInputBuffer: '',
-			moderationUser: false,
-			tmpUser: '',
+    data() {
+        return {
+            State,
+            user,
+            messageInputBuffer: "",
+            channelInputBuffer: "",
+            keyInputBuffer: "",
+            setKeyInputBuffer: "",
+            userNameInputBuffer: "",
+            dmInputBuffer: "",
+            customGameInvite: false,
+            searchInput: "",
+            searchArray: [] as {
+                username: string;
+                id: number;
+            }[],
+            store,
+            onInvit: false,
+            showMP: false,
+            showChannel: false,
+            yourChan: false,
+            displayKey: false,
+            tmpChannel: 0,
+            KeyInputBuffer: "",
+            moderationUser: false,
+            tmpUser: "",
+			showMute: false,
+			selectedMute: 0 as number,
+        };
+    },
+    mounted() {
+    },
+    computed: {
+        currentChannel() {
+            return store.getCurrentChannel();
+        },
+        currentGroupChannel() {
+            return store.getCurrentGroupChannel();
+        },
+        currentDMChannel() {
+            return store.getCurrentDM();
+        }
+    },
+    // renderTriggered(event) {
+    // 	// console.log(event);
+    // 	// debugger
+    // },
+    methods: {
+        print() {
+            console.log(store);
+        },
+        connectToServer() {
+            store.connect(this.$cookie.getCookie("jwt"));
+        },
+        disconnectFromServer() {
+            // this.socket.disconnect();
+            store.disconnectFromServer();
+        },
+        selectChannel(id: number) {
+            store.selectChannel(id, false);
+        },
+        clickInvite() {
+            this.onInvit = !this.onInvit;
+        },
+        selectDMChannel(id: number) {
+            store.selectChannel(id, true);
+        },
+        displayJoinChannel() {
+            this.showChannel = !this.showChannel;
+        },
+        displayYourChan() {
+            this.yourChan = !this.yourChan;
+        },
+        displayMP() {
+            this.showMP = !this.showMP;
+        },
+        async createChannel() {
+            console.log("creating channel:", user.id);
+            console.log("creating channel:", store.user.userId);
+            const channel: CreateGroupChannelDto = {
+                ownerId: store.user.userId,
+                name: this.channelInputBuffer,
+                type: "PUBLIC",
+                usersId: [],
+                key: this.keyInputBuffer
+            };
+            store.createChannel(channel);
+        },
+        async joinChannel() {
+            store.joinChannel({
+                channelName: this.channelInputBuffer,
+                key: this.keyInputBuffer
+            });
+            this.channelInputBuffer = "";
+        },
+        async leaveChannel() {
+            store.leaveChannel();
+        },
+        async SendMessage() {
+            store.sendMessage(this.messageInputBuffer);
+            this.messageInputBuffer = "";
+        },
+        async sendInvite() {
+            const invite: gameInviteArgs = {
+                gameType: this.customGameInvite ? gameType.CUSTOM : gameType.NORMAL
+            };
+            store.sendGameInvite(invite, this.messageInputBuffer);
+            this.messageInputBuffer = "";
+        },
+		async muteUser(targetId: number) {
+			
+			store.mute_user(targetId, this.selectedMute);
 		}
-	},
-	mounted() {
-	},
-	computed: {
-		currentChannel() {
-			return store.getCurrentChannel();
-		},
-		currentGroupChannel() {
-			return store.getCurrentGroupChannel();
-		},
-		currentDMChannel() {
-			return store.getCurrentDM();
-		}
-	},
-	// renderTriggered(event) {
-	// 	// console.log(event);
-	// 	// debugger
-	// },
-	methods: {
-		print() {
-			console.log(store);
-		},
-
-		connectToServer() {
-			store.connect(this.$cookie.getCookie('jwt'));
-		},
-
-		disconnectFromServer() {
-			// this.socket.disconnect();
-			store.disconnectFromServer();
-		},
-
-		selectChannel(id: number) {
-			store.selectChannel(id, false);
-		},
-		clickInvite() {
-			this.onInvit = !this.onInvit;
-		},
-		selectDMChannel(id: number) {
-			store.selectChannel(id, true);
-		},
-		displayJoinChannel() {
-			this.showChannel = !this.showChannel;
-		},
-		displayYourChan() {
-			this.yourChan = !this.yourChan;
-		},
-		displayMP() {
-			this.showMP = !this.showMP;
-		},
-
-		async createChannel() {
-			console.log("creating channel:", user.id);
-			console.log("creating channel:", store.user.userId);
-			const channel: CreateGroupChannelDto = {
-				ownerId: store.user.userId,
-				name: this.channelInputBuffer,
-				type: 'PUBLIC',
-				usersId: [],
-				key: this.keyInputBuffer
-			}
-
-			store.createChannel(channel);
-		},
-
-		async joinChannel() {
-			store.joinChannel({
-				channelName: this.channelInputBuffer,
-				key: this.keyInputBuffer
-			});
-			this.channelInputBuffer = "";
-		},
-
-		async leaveChannel() {
-			store.leaveChannel();
-		},
-
-		async SendMessage() {
-			store.sendMessage(this.messageInputBuffer);
-			this.messageInputBuffer = "";
-		},
-
-		async sendInvite() {
-			const invite: gameInviteArgs = {
-				gameType: this.customGameInvite ? gameType.CUSTOM : gameType.NORMAL
-			};
-			store.sendGameInvite(invite, this.messageInputBuffer);
-			this.messageInputBuffer = "";
-		},
-
-	},
-	watch: {
-		searchInput() {
-			store.search_user(this.searchInput).then((arr) => {
-				this.searchArray = arr;
-			});
-		}
-	},
-
-	created() {},
-	emits: ['logout']
+    },
+    watch: {
+        searchInput() {
+            store.search_user(this.searchInput).then((arr) => {
+                this.searchArray = arr;
+            });
+        }
+    },
+    created() { },
+    emits: ["logout"],
+    components: { Mute }
 })
 
 </script>
@@ -335,7 +336,47 @@ export default defineComponent({
 								:style="[tmpUser == store.getUserName(user.userId) && moderationUser ? '' : 'display:none;']">
 								<p style="margin-top: 1rem;">
 									<div v-if="currentGroupChannel != undefined">
-										<button class="nocolor-btn" style="color:white" @click="$router.push({name:State.MUTE})">Mute</button>
+										<button class="nocolor-btn" style="color:white" @click="showMute = !showMute">Mute</button>
+										<!-- <mute v-if="showMute" :target-id="user.userId"></mute> -->
+
+
+
+
+
+										<div v-if="showMute" class="main-page" :class="['dark']">
+											<div style="width: 0; height: 0;">
+												<div class="stars"></div>
+												<div class="stars1"></div>
+												<div class="stars2"></div>
+											</div>
+											
+											<div style="display: flex; justify-content: center; align-items: center; align-content: center; position:absolute; top:10%; left:10%;">        
+												<div class="mute-chat-container">
+													<h1 class="title">Mute {{ store.getUserName(user.userId) }} for : </h1>
+												
+													<select v-model="selectedMute">
+														<option style="color: white" disabled>Please select one mute option</option>
+														<option value="1">10 minutes</option>
+														<option value="30">30 minutes</option>
+														<option value ="60">1 hour</option>
+														<option value = "180">3 hours</option>
+														<option value = "1440">24 hours</option>
+													</select>
+													<!-- enregistre avant de revenir a la page precedente -->
+													<button class="chat-btn" @click="muteUser(user.userId); showMute = false">Save</button>
+													<!-- ne change rien et fait revenir a la page precedente -->
+													<button class="chat-btn" @click="showMute = false">Cancel</button>
+													
+												</div>
+											</div>
+										</div>
+
+
+
+
+
+
+
 										<button class="nocolor-btn" style="color:white" v-if="!store.isBlocked(user.userId)" @click="store.startDM(store.getUserName(user.userId))">DM</button>
 										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId)" @click="store.kick_user(user.userId)">kick</button><br>
 										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId) && !store.isAdmin(user.userId)" @click="store.ban_user(user.userId, true)">ban</button>
