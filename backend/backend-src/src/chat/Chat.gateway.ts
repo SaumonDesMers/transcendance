@@ -561,12 +561,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		console.log("An User accepted the game invite", data);
 	}
 
-	@OnEvent("user_update")
-	updateUser(userId: number)
-	{
-		this.server.emit("user_update", userId);
-	}
-
+	
 	private async findSocket(userId: number)
 	{
 		const sockets = await this.server.fetchSockets();

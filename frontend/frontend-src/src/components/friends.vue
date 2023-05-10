@@ -5,6 +5,7 @@ import chat from '../scripts/chat'
 import { State } from '../scripts/state';
 import usersStatus from '../scripts/status';
 import SelfUser from '../scripts/user';
+import userLoader from '@/scripts/user.loader';
 import { User } from '../scripts/user';
 import { defineComponent } from 'vue';
 import homepagebtn from './homepagebtn.vue';
@@ -19,6 +20,7 @@ export default defineComponent({
 			status: '',
 			usersStatus,
 			SelfUser,
+			userLoader,
 			user: new User(),
 			// chat
 		}
@@ -32,16 +34,15 @@ export default defineComponent({
 			chat.startDM(username);
 			this.$router.push({ name: State.CHAT });
 		},
-		block(friend: User) {
-			chat.block_user(friend.id, true);
+		block(id: number) {
+			chat.block_user(id, true);
 		},
 	},
 	watch: {
 		'$route.params'(oldVal, newVal) {
 			this.user.loadUser(parseInt(newVal.id as string)).then(nothing => {
-				this.user.loadFriends().then(value => {
-					usersStatus.fetchUsers(this.user._friendsIdList);
-				});
+				usersStatus.fetchUsers(this.user._friendsIdList);
+				userLoader.addUserIds(this.user._friendsIdList.map(o => o.id));
 			})
 		}
 	},
@@ -49,9 +50,8 @@ export default defineComponent({
 		if (parseInt(this.$route.params.id as string) == this.SelfUser.id)
 			this.user = this.SelfUser;
 		this.user.loadUser(parseInt(this.$route.params.id as string)).then(nothing => {
-			this.user.loadFriends().then(value => {
 				usersStatus.fetchUsers(this.user._friendsIdList);
-			});
+				userLoader.addUserIds(this.user._friendsIdList.map(o => o.id));
 		})
 	},
 	emits: ['logout'],
@@ -75,11 +75,11 @@ export default defineComponent({
 		<div style="height: 100vh; overflow: scroll;">
 
 			<div class="friends-grid">
-				<div class="friend" v-for="friend in user.friends">
+				<div class="friend" v-for="friend in user._friendsIdList">
 					<div class="friend">
 						<div class="avatar">
 							<div class="avatar-style"
-								:style="['background-image: url(\'' + friend.avatar.imageBase64 + '\')']">
+								:style="['background-image: url(\'' + userLoader.getUser(friend.id).avatar.imageBase64 + '\')']">
 								<div v-if="usersStatus.getUserStatus(friend.id) == 'ONLINE'" class="status-friend"
 									style="background-color: green"></div>
 								<div v-if="usersStatus.getUserStatus(friend.id) == 'OFFLINE'" class="status-friend"
@@ -90,15 +90,15 @@ export default defineComponent({
 						</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
 							@click="$router.push({ name: State.USER, params: { id: friend.id } })">
-							{{ friend.username }}</div>
+							{{ userLoader.getUserName(friend.id) }}</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
-							@click="message(friend.username)">
+							@click="message(userLoader.getUserName(friend.id))">
 							message</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
 							v-if="SelfUser.id != friend.id"
-							@click="block(friend)">
+							@click="block(friend.id)">
 							block</div>
-						<p class="bio" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">{{ friend.bio }}
+						<p class="bio" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">{{ userLoader.getUser(friend.id).bio }}
 						</p>
 					</div>
 				</div>

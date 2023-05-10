@@ -3,7 +3,8 @@
 import axios from 'axios'
 import { State } from '../scripts/state';
 import SelfUser from '../scripts/user';
-import { User, UserPrison } from '../scripts/user';
+import { User } from '../scripts/user';
+import userLoader from '@/scripts/user.loader';
 import { defineComponent } from 'vue';
 import homepagebtn from './homepagebtn.vue';
 
@@ -14,7 +15,7 @@ export default defineComponent({
 			status: false,
 			SelfUser,
 			displayUser: new User(),
-			userFactory: new UserPrison(),
+			userLoader,
 			ladder: [] as {id:number, username:string}[], // TODO: type this
 		}
 	},
@@ -29,14 +30,14 @@ export default defineComponent({
 			this.SelfUser.save();
 		},
 		fetchData(id: number) {
-			this.userFactory.users.clear();
+			this.userLoader.users.clear();
 			this.displayUser.loadUser(parseInt(this.$route.params.id as string))
 			.then(nothing => {
 				this.displayUser.downloadAvatar();
 				this.displayUser.loadHistory();
 			})
 
-			this.userFactory.addUser(this.displayUser);
+			this.userLoader.addUser(this.displayUser);
 			axios.get(`http://localhost:3001/games/ladder`, {
 			params: {
 				take: 10
@@ -81,27 +82,27 @@ export default defineComponent({
 					<div v-for="game in displayUser.history">
 						<div class="friend">
 							<div class="avatar">	
-								<div class="avatar-style" :style="['background-image: url(\'' + userFactory.getUser(game.loserId).avatar.imageBase64 + '\')']">
+								<div class="avatar-style" :style="['background-image: url(\'' + userLoader.getUser(game.loserId).avatar.imageBase64 + '\')']">
 									<div class="status-profile"
 										:style="[SelfUser.id ? 'background-color: green' : 'background-color: gray']"></div>
 								</div>
 								<div class="status"></div>
 							</div>
 							<div class="avatar">
-								<div class="avatar-style" :style="['background-image: url(\'' + userFactory.getUser(game.winnerId).avatar.imageBase64 + '\')']">
+								<div class="avatar-style" :style="['background-image: url(\'' + userLoader.getUser(game.winnerId).avatar.imageBase64 + '\')']">
 									<div class="status-profile"
 										:style="[SelfUser.id ? 'background-color: green' : 'background-color: gray']"></div>
 								</div>
 								<div class="status"></div>
 							</div>
 							<div class="result-grid" :class="[SelfUser.darkMode ? 'text-color-dark' : 'text-color-light']">
-								<p class="login" @click="$router.push({ name: State.USER, params: { id: game.loserId } })">{{ userFactory.getUser(game.loserId).username }}<br></p>
+								<p class="login" @click="$router.push({ name: State.USER, params: { id: game.loserId } })">{{ userLoader.getUser(game.loserId).username }}<br></p>
 								<p class="fa-solid fa-skull"><br></p>
 								<p class="score">{{ game.LoserScore }}<br></p>
 							</div>
 							<div class="result-grid goldBG goldText"
 								:class="[SelfUser.darkMode ? 'text-color-dark' : 'text-color-light']">
-								<p class="login" @click="$router.push({ name: State.USER, params: { id: game.winnerId } })">{{ userFactory.getUser(game.winnerId).username }}<br></p>
+								<p class="login" @click="$router.push({ name: State.USER, params: { id: game.winnerId } })">{{ userLoader.getUser(game.winnerId).username }}<br></p>
 								<p class="fa-solid fa-trophy"><br></p>
 								<p class="score">{{ game.winnerScore }}<br></p>
 							</div>

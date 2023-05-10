@@ -7,7 +7,8 @@ import gameGateway from '../scripts/game';
 import chatGateway from '../scripts/chat';
 import usersStatus from '../scripts/status';
 import { defineComponent } from 'vue';
-import { User, UserPrison } from '../scripts/user';
+import { User } from '../scripts/user';
+import userLoader from '@/scripts/user.loader';
 import searchUser from './searchUser.vue';
 import chat from '../scripts/chat';
 import homepagebtn from './homepagebtn.vue';
@@ -28,7 +29,7 @@ export default defineComponent({
 			SelfUser,
 			usersStatus,
 			user: new User(),
-			userFactory: new UserPrison(),
+			userLoader,
 			searchUserShow: false as boolean
 		}
 	},
@@ -50,13 +51,13 @@ export default defineComponent({
 			this.searchUserShow = false;
 			this.user.loadUser(parseInt(newVal.id as string)).then(nothing => {
 				this.user.downloadAvatar().then(value => {this.$forceUpdate()});
-				this.user.loadFriends();
 				this.user.loadHistory();
 				this.user.loadStats();
+				this.userLoader.addUserIds(this.user._friendsIdList.map(o => o.id))
 				this.usersStatus.fetchUsers([this.user]);
 			})
 
-			this.userFactory.addUser(this.user);
+			this.userLoader.addUser(this.user);
 		}
 	},
 	computed: {
@@ -67,13 +68,12 @@ export default defineComponent({
 	mounted() {
 		this.user.loadUser(parseInt(this.$route.params.id as string)).then(nothing => {
 			this.user.downloadAvatar();
-			this.user.loadFriends();
+			this.userLoader.addUserIds(this.user._friendsIdList.map(o => o.id))
 			this.user.loadHistory();
 			this.user.loadStats();
 			this.usersStatus.fetchUsers([this.user]);
 		})
-		this.SelfUser.loadFriends();
-		this.userFactory.addUser(this.user);
+		this.userLoader.addUser(this.user);
 	},
 	emits: ['logout']
 })
@@ -140,9 +140,9 @@ export default defineComponent({
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']"
 							@click="$router.push({ name: State.FRIENDS, params: { id: user.id } })">friends</div>
 						<div class="grid-friend" style="overflow: scroll;">
-							<div class="friend" v-for="friend in user.friends">
-								<div :style="['background-image: url(\'' + friend.avatar.imageBase64 + '\'); background-size: cover; background-position: center center; background-opacity: 0.8']"
-								@click="$router.push({ name: State.USER, params: { id: friend.id } })">{{ friend.username }}</div>
+							<div class="friend" v-for="friend in user._friendsIdList">
+								<div :style="['background-image: url(\'' + userLoader.getUser(friend.id).avatar.imageBase64 + '\'); background-size: cover; background-position: center center; background-opacity: 0.8']"
+								@click="$router.push({ name: State.USER, params: { id: friend.id } })">{{ userLoader.getUserName(friend.id) }}</div>
 								<!-- <router-link :to="{ name: 'profile', params: { id: friend.id } }">{{ friend.username }}</router-link> -->
 							</div>
 						</div>
@@ -173,7 +173,7 @@ export default defineComponent({
 								<tbody>
 									<tr v-for="game in user.history">
 										<div class="row-tab">
-											<p>{{ userFactory.getUser(game.winnerId).username }} | {{ game.winnerScore }} | {{ userFactory.getUser(game.loserId).username }} | {{ game.LoserScore }}</p>
+											<p>{{ userLoader.getUser(game.winnerId).username }} | {{ game.winnerScore }} | {{ userLoader.getUser(game.loserId).username }} | {{ game.LoserScore }}</p>
 										</div>
 									</tr>
 								</tbody>

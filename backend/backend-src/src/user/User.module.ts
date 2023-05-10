@@ -4,6 +4,7 @@ import { UserRepository } from "./User.repository";
 import { UserService } from "./User.service";
 import { UserController } from "./User.controller";
 import { GameStatController } from "./User.stats.controller";
+import { UpdateGateway } from "./User.update.gateway";
 import { Prisma, User } from "@prisma/client";
 
 export type UserWithoutSecret = Omit<User, "twoFactorAuthenticationSecret">
@@ -11,7 +12,7 @@ export type UserWithoutSecret = Omit<User, "twoFactorAuthenticationSecret">
 export const defaultPicture = 'default.png'
 @Module({
 	imports: [PrismaModule],
-	providers: [UserRepository, UserService],
+	providers: [UserRepository, UserService, UpdateGateway],
 	exports: [UserService],
 	controllers: [UserController, GameStatController],
 })

@@ -118,33 +118,7 @@ export class Avatar {
 	}
 }
 
-export class UserPrison {
-	users: Map<number, User>;
 
-	constructor()
-	{
-		this.users = reactive(new Map())
-	}
-
-	getUser(id: number): User
-	{
-		const ret = this.users.get(id);
-
-		if (ret != undefined)
-			return ret;
-		let new_user = reactive(new User());
-		this.users.set(id, new_user);
-		new_user.loadUser(id).then( nothing => {
-			new_user.downloadAvatar();
-		});
-		return new_user;
-	}
-
-	addUser(user: User)
-	{
-		this.users.set(user.id, user);
-	}
-}
 
 export class User {
 
@@ -231,20 +205,6 @@ export class User {
 		.catch(err => {
 			console.log('err :', err);
 		});
-	}
-
-	async loadFriends() {
-		if (this.id != null) {
-			await this.loadUser(this.id);
-			this.friends = [];
-			this._friendsIdList.forEach((user: {id: number}) => {
-				let friend: User;
-
-				friend = reactive(new User());
-				friend.loadUser(user.id);
-				this.friends.push(friend);
-			})
-		}
 	}
 
 	async loadHistory() {
@@ -396,7 +356,7 @@ export class MyUser extends User
 	async addFriend(username: string) {
 		axios.post(`http://localhost:3001/users/${this.id}/friends`, {friendUserName: username})
 		.then(res => {
-			this.loadFriends();
+			this.loadUser(this.id);
 		})
 		.catch(err => {
 			console.log('err :', err);
@@ -406,7 +366,7 @@ export class MyUser extends User
 	async removeFriend(userId: number) {
 		axios.delete(`http://localhost:3001/users/${this.id}/friends/${userId}`)
 		.then(res => {
-			this.loadFriends();
+			this.loadUser(this.id);
 		})
 		.catch(err => {
 			console.log('err :', err);

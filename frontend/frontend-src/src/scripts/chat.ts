@@ -49,7 +49,7 @@ export class Chat {
 	private _visible_public_channels: Map<number, GroupChannelSnippetDTO>;
 	private _visible_key_channels: Map<number, GroupChannelSnippetDTO>;
 	private _dm_channels: Map<number, DMChannelDTO>;
-	private _other_users: Map<number, User>;
+	// private _other_users: Map<number, User>;
 	private _channel_invites: Map<number, string>; //channel id and channel names
 	private _user!: ChatUserDTO;
 	private socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -176,7 +176,7 @@ export class Chat {
 	constructor() {
 		this._group_channels = reactive(new Map());
 		this._channel_invites = reactive (new Map());
-		this._other_users = reactive(new Map());
+		// this._other_users = reactive(new Map());
 		this._visible_public_channels = reactive(new Map());
 		this._visible_key_channels = reactive(new Map());
 		this._dm_channels = reactive(new Map())
@@ -247,34 +247,34 @@ export class Chat {
 		this.socket.disconnect();
 	}
 
-	/**
-	 * 
-	 * @param id the id of the user you want to get the username of
-	 * @returns the username of the user
-	 */
-	getUserName(id: number): string {
-		if (id == undefined || id == 0)
-			return "unkown";
+	// /**
+	//  * 
+	//  * @param id the id of the user you want to get the username of
+	//  * @returns the username of the user
+	//  */
+	// getUserName(id: number): string {
+	// 	if (id == undefined || id == 0)
+	// 		return "unkown";
 
-		const ret = this.getUser(id)?.username;
+	// 	const ret = this.getUser(id)?.username;
 
-		if (ret == undefined)
-			return "loading...";
-		return ret;
-	}
+	// 	if (ret == undefined)
+	// 		return "loading...";
+	// 	return ret;
+	// }
 
-	getUser(id: number): User | undefined{
-		let obj = this._other_users.get(id);
+	// getUser(id: number): User | undefined{
+	// 	let obj = this._other_users.get(id);
 
-		if (obj == undefined)
-		{
-			let user = reactive(new User());
-			user.loadUser(id);
-			this._other_users.set(id, user);
-		}
+	// 	if (obj == undefined)
+	// 	{
+	// 		let user = reactive(new User());
+	// 		user.loadUser(id);
+	// 		this._other_users.set(id, user);
+	// 	}
 
-		return obj;
-	}
+	// 	return obj;
+	// }
 	
 	
 	/**********************
@@ -763,12 +763,12 @@ export class Chat {
 			console.log(this.error.value);
 		})
 
-		this.socket.on("user_update", (userId: number) => {
-			if (this._other_users.has(userId))
-			{
-				this._other_users.get(userId)?.loadUser(userId);
-			}
-		})
+		// this.socket.on("user_update", (userId: number) => {
+		// 	if (this._other_users.has(userId))
+		// 	{
+		// 		this._other_users.get(userId)?.loadUser(userId);
+		// 	}
+		// })
 
 		this.socket.on("public_chans", (payload: {channels: GroupChannelSnippetDTO[], add: boolean}) => {
 

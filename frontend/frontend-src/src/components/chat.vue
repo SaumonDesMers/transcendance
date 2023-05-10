@@ -23,6 +23,7 @@ import { State } from '../scripts/state';
 import { defineComponent, reactive } from 'vue';
 import Mute from './mute.vue';
 import moment from 'moment';
+import userLoader from '@/scripts/user.loader';
 import homepagebtn from './homepagebtn.vue';
 
 export default defineComponent({
@@ -30,6 +31,7 @@ export default defineComponent({
 		return {
 			State,
 			user,
+			userLoader,
 			messageInputBuffer: "",
 			channelInputBuffer: "",
 			keyInputBuffer: "",
@@ -223,7 +225,7 @@ export default defineComponent({
 						<div v-for="[channelId, channel] in store.dmChannels">
 							<button @click="selectDMChannel(channelId)"
 								style="color: white; font-size: 15px; border: none; background-color: transparent;">{{
-									store.getUserName(channel.channel.users[0].userId)
+									userLoader.getUserName(channel.channel.users[0].userId)
 								}}</button>
 						</div>
 					</div>
@@ -272,13 +274,13 @@ export default defineComponent({
 						<p v-else-if="currentDMChannel != undefined" class="title-chat"
 							:class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
 							@click="$router.push({ name: State.USER, params: { id: currentDMChannel.channel.users[0].userId } })">
-							{{ store.getUserName(currentDMChannel.channel.users[0].userId) }}
+							{{ userLoader.getUserName(currentDMChannel.channel.users[0].userId) }}
 						</p>
 					</div>
 				</div>
 				<div v-if="currentChannel != undefined">
 					<!-- <p>Current Channel : {{ currentChannel.name }}</p>
-						<p>Channel Owner: {{ store.getUserName(currentChannel.owner?.userId) }}</p> -->
+						<p>Channel Owner: {{ userLoader.getUserName(currentChannel.owner?.userId) }}</p> -->
 					<div class="conversation" style="overflow: scroll; height: 80vh;">
 						<div v-for="message in currentChannel?.channel.messages">
 							<div v-if="!store.isBlocked(message.author.userId) && message.author.userId == user.id"
@@ -289,7 +291,7 @@ export default defineComponent({
 							</div>
 							<div v-else-if="!store.isBlocked(message.author.userId) && message.author.userId != user.id"
 								class="left-bubble-msg">
-								<div class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']">
+								<div class="avatar" :style="['background-image: url(\'' + userLoader.getUser(message.author.userId).avatar.imageBase64 + '\')']">
 								</div>
 								<p>{{ message.content }}</p>
 							</div>
@@ -300,7 +302,7 @@ export default defineComponent({
 							</p>
 						</div>
 						<!-- <div v-for="user in currentChannel?.channel.users"> -->
-						<!-- <p>{{ store.getUserName(user.userId) }}</p>
+						<!-- <p>{{ userLoader.getUserName(user.userId) }}</p>
 									<button @click="store.kick_user(user.userId)">kick</button>
 									<button @click="store.ban_user(user.userId, true)">ban</button>
 								</div> -->
@@ -340,7 +342,7 @@ export default defineComponent({
 								<div>
 									<p v-for="user in searchArray">{{
 										user.username }}
-										<button @click="store.invite_user(user.username, true)">Invite
+										<button @click="store.invite_user(user.id, true)">Invite
 											User</button>
 									</p>
 								</div>
@@ -355,16 +357,16 @@ export default defineComponent({
 					</div>
 					<div v-show="!onInvit">
 						<p v-if="currentGroupChannel != undefined">
-							{{ store.getUserName(currentGroupChannel.ownerId) }}
+							{{ userLoader.getUserName(currentGroupChannel.ownerId) }}
 						<p class="fa-solid fa-crown" style="padding:10px; color: gold"></p>
 						</p>
 						<div v-for="user in currentChannel?.channel.users">
-							<p @click="moderationUser = !moderationUser; tmpUser = store.getUserName(user.userId)">
-								{{ store.getUserName(user.userId) }}
+							<p @click="moderationUser = !moderationUser; tmpUser = userLoader.getUserName(user.userId)">
+								{{ userLoader.getUserName(user.userId) }}
 							<p class="fa-solid fa-ellipsis-v" style="padding:10px; color: rgb(255, 255, 255)"></p>
 							</p>
 							<div
-								:style="[tmpUser == store.getUserName(user.userId) && moderationUser ? '' : 'display:none;']">
+								:style="[tmpUser == userLoader.getUserName(user.userId) && moderationUser ? '' : 'display:none;']">
 								<p style="margin-top: 1rem;">
 								<div v-if="currentGroupChannel != undefined">
 									<button class="nocolor-btn" style="color:white"
@@ -385,7 +387,7 @@ export default defineComponent({
 										<div
 											style="display: flex; justify-content: center; align-items: center; align-content: center; position:absolute; top:10%; left:10%;">
 											<div class="mute-chat-container">
-												<h1 class="title">Mute {{ store.getUserName(user.userId) }} for : </h1>
+												<h1 class="title">Mute {{ userLoader.getUserName(user.userId) }} for : </h1>
 
 												<select v-model="selectedMute">
 													<option style="color: white" disabled>Please select one mute option
@@ -413,7 +415,7 @@ export default defineComponent({
 
 
 									<button class="nocolor-btn" style="color:white" v-if="!store.isBlocked(user.userId)"
-										@click="store.startDM(store.getUserName(user.userId))">DM</button>
+										@click="store.startDM(userLoader.getUserName(user.userId))">DM</button>
 									<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId)"
 										@click="store.kick_user(user.userId)">kick</button><br>
 									<button class="nocolor-btn" style="color:white"

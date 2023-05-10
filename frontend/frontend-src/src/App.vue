@@ -12,6 +12,7 @@ import { State } from './scripts/state'
 import validate2fa from './components/validate2fa.vue'
 import toggle2fa from './components/toggle2fa.vue'
 import user from './scripts/user'
+import userLoader from './scripts/user.loader'
 import statusGateway from './scripts/status'
 import gameGateway from './scripts/game'
 import chatGateway from './scripts/chat'
@@ -46,7 +47,8 @@ export default defineComponent({
 			user,
 			statusGateway,
 			gameGateway,
-			chatGateway
+			chatGateway,
+			userLoader,
 		}
 	},
 
@@ -66,11 +68,13 @@ export default defineComponent({
 			this.gameGateway.connect(jwt);
 			this.statusGateway.connect(jwt);
 			this.chatGateway.connect(jwt);
+			this.userLoader.connect(jwt);
 		},
 		logout() {
 			gameGateway.disconnect();
 			chatGateway.disconnectFromServer();
 			statusGateway.disconnect();
+			userLoader.disconnect();
 			localStorage.removeItem('userId');
 			this.$cookie.removeCookie('jwt');
 			this.$router.push({ name: 'login' });
