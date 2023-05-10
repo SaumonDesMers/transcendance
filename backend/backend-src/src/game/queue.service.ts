@@ -134,11 +134,11 @@ export class QueueService {
 		const state = this.playerInQueue.get(player);
 		console.log('queue.service: leaveCurrentQueue: user.state:', state);
 
-		if (state.type != 'UNIQUE') {
+		if (state.type == 'NORMAL' || state.type == 'CUSTOM') {
 
 			this.queues[state.type] = this.queues[state.type].filter((p: PlayerEntity) => p != player);
 
-		} else {
+		} else if (state.type == 'UNIQUE') {
 
 			if (!this.queueUnique.has(state.uid)) {
 				console.log('queue.service: leaveCurrentQueue: queueUnique does not have uid:', state.uid);
