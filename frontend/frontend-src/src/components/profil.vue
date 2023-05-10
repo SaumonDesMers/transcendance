@@ -10,17 +10,14 @@ import { defineComponent } from 'vue';
 import { User, UserPrison } from '../scripts/user';
 import searchUser from './searchUser.vue';
 import chat from '../scripts/chat';
-// import clickOutSide from "@mahdikhashan/vue3-click-outside";
+import homepagebtn from './homepagebtn.vue';
 
 export default defineComponent({
 
 	components: {
-		searchUser
+		searchUser,
+		homepagebtn
 	},
-
-	// directives: {
-	// 	clickOutSide
-	// },
 
 	data: function () {
 		return {
@@ -90,8 +87,11 @@ export default defineComponent({
 	<div class="main-page" :class="[SelfUser.darkMode == true ? 'dark' : 'light ', user.coa]">
 		<div style="width: 100vw; height: 100vh;">
 			<div
-				:class="[SelfUser.darkMode == true ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
+			:class="[SelfUser.darkMode == true ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
 				<div class="banner-profile" :class=user.coa>
+					<div style="color:aliceblue">
+						<homepagebtn></homepagebtn>
+					</div>
 					<div class="avatar-profile" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']">
 						<div v-if="usersStatus.getUserStatus(user.id) == 'ONLINE'" class="status-profile"
 							style="background-color: green"></div>

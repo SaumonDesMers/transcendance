@@ -8,7 +8,6 @@ import SelfUser from '../scripts/user';
 import { User } from '../scripts/user';
 import { defineComponent } from 'vue';
 import homepagebtn from './homepagebtn.vue';
-import homepagebtn from './homepagebtn.vue';
 
 export default defineComponent({
 	component: {
@@ -56,7 +55,6 @@ export default defineComponent({
 		})
 	},
 	emits: ['logout'],
-	components: { homepagebtn }
 })
 </script>
 
@@ -76,8 +74,10 @@ export default defineComponent({
 			<div class="stars1"></div>
 			<div class="stars2"></div>
 		</div>
+		<div style="color: aliceblue;">
+			<homepagebtn></homepagebtn>
+		</div>
 		<div style="height: 100vh; overflow: scroll;">
-			<homepagebtn style="position:relative; margin-left: 8.5rem; display:flex; justify-content: end; margin-top: 1.5rem; font-size: 2vw;"></homepagebtn>
 
 			<div class="friends-grid">
 				<div class="friend" v-for="friend in user.friends">
