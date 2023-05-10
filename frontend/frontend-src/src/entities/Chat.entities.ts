@@ -1,7 +1,13 @@
-export enum gameType {
-	NORMAL,
-	CUSTOM,
+
+export const gameType: {
+	NORMAL: 'NORMAL',
+	CUSTOM: 'CUSTOM'
+} = {
+	NORMAL: 'NORMAL',
+	CUSTOM: 'CUSTOM'
 }
+
+export type gameType = typeof gameType[keyof typeof gameType]
 
 export const ChanType: {
 	PUBLIC: 'PUBLIC',

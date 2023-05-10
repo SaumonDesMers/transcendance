@@ -7,7 +7,8 @@ import {
 	Mute,
 	GroupChannel,
 	ChanType, 
-	User} from "@prisma/client";
+	User,
+	inviteStatus} from "@prisma/client";
 import { MessageRepository } from "./Message.repository";
 import { ChannelRepository } from "./Channel.repository";
 import {
@@ -69,7 +70,8 @@ const includeMembersAndLast10Messages = Prisma.validator<Prisma.ChannelArgs>()({
 			orderBy: {postedAt: 'asc'},
 			take: 10,
 			include: {
-				author: true
+				author: true,
+				gameInvite: true
 			}
 		}
 	},
@@ -103,7 +105,14 @@ export class ChatService {
 	constructor(private channelRepository: ChannelRepository,
 				private messageRepository: MessageRepository,
 				private gameService: GameService,
-				private prisma: PrismaService) {}
+				private prisma: PrismaService)
+	{
+		this.prisma.invite.updateMany({
+			data: {
+				status: inviteStatus.EXPIRED
+			}
+		}).then(nothing => {});
+	}
 
 	async createGroupChannel(newGroupChannel: CreateGroupChannelDto): Promise<GroupChannelDTO> {
 		//im sorry for these ugly things i dont know how to do this any other way
@@ -251,7 +260,7 @@ export class ChatService {
 		return channel;
 	}
 
-	async sendMessage(newMessage: CreateMessageDto) {
+	async sendMessage(newMessage: CreateMessageDto, invite?: Prisma.inviteCreateWithoutBaseMsgInput) {
 		// is user muted
 		if (await this.isMuted(newMessage.authorId, newMessage.ChannelId) == true)
 			throw new ValidationError("The user is muted and can't send a message");
@@ -285,18 +294,21 @@ export class ChatService {
 			{
 				content: newMessage.content,
 				channel: {
-				connect: {id: newMessage.ChannelId}},
-			author: {
-				connect: {userId: newMessage.authorId}},
+					connect: {id: newMessage.ChannelId}},
+				author: {
+					connect: {userId: newMessage.authorId}},
 				postedAt: new Date,
+				gameInvite: invite != undefined ? {
+					create: invite
+				} : {}
 			},
 			include: {
 				channel: true,
-				author: true
+				author: true,
+				gameInvite: true
 			},
 		});
 		
-
 		//if the user wants to embed a game invite in the message
 		
 		
@@ -317,11 +329,11 @@ export class ChatService {
 	
 	async createGameInvite(newInvite: CreateMessageDto, sessionId: string) {
 		
-		if (await this.isMuted(newInvite.authorId, newInvite.ChannelId) == true)
-			throw new ValidationError("The user is muted and can't send a message");
+		// if (await this.isMuted(newInvite.authorId, newInvite.ChannelId) == true)
+		// 	throw new ValidationError("The user is muted and can't send a message");
 		
-		if (newInvite.gameInvite == undefined)
-			throw new ValidationError("Invalid Invite message");
+		// if (newInvite.gameInvite == undefined)
+		// 	throw new ValidationError("Invalid Invite message");
 		
 		
 		// INSERT GAME BACK CALL TO GENERATE UID HERE
@@ -337,6 +349,7 @@ export class ChatService {
 		if (!success)
 		throw new ValidationError(error);
 
+		return this.sendMessage(newInvite, {uid, status: 'PENDING', type});
 		
 		let message: MessageDTO = {
 			id: 0,
@@ -361,6 +374,15 @@ export class ChatService {
 		/*
 			throw new ValidationError("Game invite expired or Invalid")
 		*/
+		await this.prisma.invite.update({
+			where: {
+				messageId: invite_message.id
+			},
+			data: {
+				status: inviteStatus.EXPIRED
+			}
+		});
+
 		const { success, error } = await this.gameService.joinUniqueQueue(invite_message.gameInvite.uid, sessionId);
 
 		if (!success) {

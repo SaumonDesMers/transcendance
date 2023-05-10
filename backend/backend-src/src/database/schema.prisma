@@ -24,6 +24,16 @@ enum ChanType {
 	KEY
 }
 
+enum inviteStatus {
+	PENDING
+	EXPIRED
+}
+
+enum GameType {
+	NORMAL
+	CUSTOM
+}
+
 model User {
 	id Int	@id
 	username String @unique
@@ -64,6 +74,15 @@ model ChatUser {
 	receivedMutes Mute[] @relation("MuteTarget")
 }
 
+model invite {
+	messageId Int @id
+	baseMsg Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+	type GameType
+	uid String
+	status inviteStatus
+}
+
 model Message {
 	id Int @id @default(autoincrement())
 	content String
@@ -72,6 +91,8 @@ model Message {
 	chatUserId Int
 	channelId Int
 	postedAt DateTime
+
+	gameInvite invite?
 }
 
 // The objective for channels is to have some kind of hierarchy
