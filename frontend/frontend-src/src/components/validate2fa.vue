@@ -44,11 +44,11 @@ export default defineComponent({
 	
 	<div style="align-items: center; justify-content: center;">
 		<div class="centered-container">
-			<input v-model="twoFactorAuthenticationCode" style="text-align: center; font-size: 2em;">
+			<input v-model="twoFactorAuthenticationCode" style="text-align: center; font-size: 2em; margin-bottom: 1rem; padding: 10px">
 			<p v-if="errorMsg" class="error" style="text-align: center;">Wrong code</p>
 			<div style="display: flex; flex-direction: row;">
-				<button class="btn cancel" @click="cancel">CANCEL</button>
-				<button class="btn validate" @click="validate2faCode">VALIDATE</button>
+				<button class="btn cancel" @click="cancel"><span>CANCEL</span></button>
+				<button class="btn validate" @click="validate2faCode"><span>VALIDATE</span></button>
 			</div>
 		</div>
 	</div>
