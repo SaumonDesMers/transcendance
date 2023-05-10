@@ -62,7 +62,6 @@ export default defineComponent({
 			<div class="create-chat-container">
 				<div class="title-chan">{{ currentGroupChannel?.name.toUpperCase() }} </div><br>
 				<p></p>
-				<legend class="title">Change type's channel:</legend>
 				<div class="title">
 					<input v-on:click="isProtected = false; channeltype = 'PUBLIC'" type="radio" id="public"
 						name="channel" value="publicChan" checked>
