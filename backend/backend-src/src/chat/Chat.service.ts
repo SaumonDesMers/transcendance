@@ -44,8 +44,7 @@ import { ValidationError } from "./Chat.error";
 import { type, userInfo } from "os";
 import { GameService } from "src/game/game.service";
 import * as bcrypt from 'bcrypt';
-
-import moment from "moment";
+import * as moment from 'moment';
 
 
 const includeMembers = {

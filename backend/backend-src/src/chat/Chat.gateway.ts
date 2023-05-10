@@ -428,7 +428,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			update = await this.chatService.setUserAdmin(data)
 		} catch (e: any) {
 			console.log(e);
-			throw new WsException(e);
+			throw new WsException(e.message);
 		}
 
 		this.server.to(data.channelId.toString()).emit("admin_update", update);
@@ -442,8 +442,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		try {
 			await this.chatService.muteUser(data);
 		} catch (e: any) {
-			console.log(e);
-			throw new WsException(e);
+			throw new WsException(e.message);
 		}
 
 		this.server.to(data.groupChannelId.toString()).emit("user_muted", data);
