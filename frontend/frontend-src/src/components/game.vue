@@ -123,7 +123,7 @@ export default defineComponent({
 	</div>
 </template>
 
-<style lang="scss" src="../styles/profil.scss"></style>
+<!-- <style lang="scss" src="../styles/profil.scss" scoped></style> -->
 <style lang="scss" scoped>
 $alliance: #5F8D4E;
 $order: #911F27;
