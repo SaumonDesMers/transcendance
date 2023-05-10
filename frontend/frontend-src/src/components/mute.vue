@@ -6,7 +6,6 @@ affichage du user qui va se faire mute
 
 <script lang="ts">
 import chat from '../scripts/chat';
-// import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto';
 import { State } from '../scripts/state';
 import user from '../scripts/user';
 import store from "../scripts/chat"

@@ -11,17 +11,16 @@ import {
 	CreateMessageDto,
 	gameInviteArgs,
 	gameType,
-} from '../../../../backend/backend-src/src/chat/Chat.entities';
+	CreateGroupChannelDto,
+} from '../entities/Chat.entities';
 import {
 	ServerToClientEvents,
 	ClientToServerEvents,
-} from '../../../../backend/backend-src/src/chat/Chat.events';
-import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto';
+} from '../entities/Chat.events';
 import store from "../scripts/chat"
 import user from '../scripts/user';
 import { State } from '../scripts/state';
 import { defineComponent, reactive } from 'vue';
-import mute from './mute.vue';
 import Mute from './mute.vue';
 import moment from 'moment';
 import homepagebtn from './homepagebtn.vue';

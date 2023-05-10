@@ -49,7 +49,7 @@ class StatsData {
 	}
 }
 
-class Avatar {
+export class Avatar {
 
 	fileName: string;
 	imageFile: any;

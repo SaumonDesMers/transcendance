@@ -17,10 +17,10 @@ import {
 	DMChannelDTO,
 	CreateMessageDto,
 	gameInviteArgs,
-	ChanNotifDTO
-} from '../../../../backend/backend-src/src/chat/Chat.entities'
-import {CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto'
-import { ServerToClientEvents, ClientToServerEvents } from '../../../../backend/backend-src/src/chat/Chat.events'
+	ChanNotifDTO,
+	CreateGroupChannelDto
+} from '../entities/Chat.entities'
+import { ServerToClientEvents, ClientToServerEvents } from '../entities/Chat.events'
 import { User } from './user'
 import SelfUser from './user'
 

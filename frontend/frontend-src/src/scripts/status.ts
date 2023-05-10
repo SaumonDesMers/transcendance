@@ -5,7 +5,7 @@ import {
 	ClientToServerEvents,
 	playerStatus,
 	updateDTO,
-} from '../../../../backend/backend-src/src/status/status.events';
+} from '../entities/status.events';
 
 class statusClient {
 	private _usersStatus: Map<number, playerStatus>;
