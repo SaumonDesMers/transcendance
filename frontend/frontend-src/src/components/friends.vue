@@ -35,8 +35,9 @@ export default defineComponent({
 	watch: {
 		'$route.params'(oldVal, newVal) {
 			this.user.loadUser(parseInt(newVal.id as string)).then(nothing => {
-				this.user.loadFriends();
-				usersStatus.fetchUsers(this.user._friendsIdList);
+				this.user.loadFriends().then(value => {
+					usersStatus.fetchUsers(this.user._friendsIdList);
+				});
 			})
 		}
 	},
@@ -44,8 +45,9 @@ export default defineComponent({
 		if (parseInt(this.$route.params.id as string) == this.SelfUser.id)
 			this.user = this.SelfUser;
 		this.user.loadUser(parseInt(this.$route.params.id as string)).then(nothing => {
-			this.user.loadFriends();
-			usersStatus.fetchUsers(this.user._friendsIdList);
+			this.user.loadFriends().then(value => {
+				usersStatus.fetchUsers(this.user._friendsIdList);
+			});
 		})
 	},
 	emits: ['logout']

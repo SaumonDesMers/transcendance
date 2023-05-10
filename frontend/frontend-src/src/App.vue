@@ -76,7 +76,20 @@ export default defineComponent({
 			this.$router.push({ name: 'login' });
 		}
 	},
+	mounted() {
 
+		const jwt = this.$cookie.getCookie('jwt');
+
+		if (jwt && localStorage.userId) {
+			axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
+			this.user.get().catch(() => {
+				this.logout();
+			});
+			this.connectToWebsocket();
+		} else {
+			this.$router.replace({ name: State.LOGIN });
+		}
+	},
 	created() {
 
 		const jwt = this.$cookie.getCookie('jwt');

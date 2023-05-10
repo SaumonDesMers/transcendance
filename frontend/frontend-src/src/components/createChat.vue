@@ -1,6 +1,6 @@
 <script lang="ts">
 import chat from '../scripts/chat';
-import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto';
+import { CreateGroupChannelDto } from '../entities/Chat.entities';
 import { State } from '../scripts/state';
 import user from '../scripts/user';
 import { defineComponent } from 'vue';

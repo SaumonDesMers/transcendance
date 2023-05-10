@@ -37,7 +37,8 @@ import {
 	ChanNotifDTO, 
 	ChatUserDTO,
 	DMChannelDTO,
-	searchQueryDTO} from "./Chat.entities";
+	searchQueryDTO,
+	gameType} from "./Chat.entities";
 import { WsException } from "@nestjs/websockets";
 import { error } from "console";
 import { ValidationError } from "./Chat.error";
@@ -181,10 +182,27 @@ export class ChatService {
 		let channel: DMChannelDTO;
 
 		try {
-			user = await this.prisma.user.findUniqueOrThrow({ where: {username: targetUserName}});
+			user = await this.prisma.user.findUniqueOrThrow({ where: {username: targetUserName}, include: {
+				chatUser: {
+					include: {
+						blocked: true,
+						blockedBy: true,
+					}
+				}
+			}});
 		} catch (e: any) {
 			throw new ValidationError("Target User not found");
 		}
+
+		if (user.chatUser.blocked.find(chatuser => {
+			return chatuser.userId == callerUserId
+		}) != undefined)
+			throw new ValidationError("Cannot start DM, this user has blocked you");
+		
+		if (user.chatUser.blockedBy.find(chatuser => {
+			return chatuser.userId == callerUserId
+		}) != undefined)
+			throw new ValidationError("Cannot start DM, you have blocked this user");
 
 		if (user.id == callerUserId)
 		{
@@ -226,28 +244,8 @@ export class ChatService {
 		//if no channel exists create one
 		if (channel == undefined)
 		{
-			const other_user = await this.prisma.user.findUnique({
-				where: {
-					username:targetUserName
-				},
-				include: {
-					chatUser: {
-						include: {
-							blocked : true
-						}
-					}
-				}
-			});
-			if (other_user == undefined)
-				throw new ValidationError("User not found");
-
-			if (other_user.chatUser.blocked.find(chatuser => {
-				chatuser.userId == callerUserId
-			}) != undefined)
-				throw new ValidationError("Cannot start DM, this user has blocked you");
-
 			console.log("awaiting dm channel creation");
-			channel = await this.createDMChannel([callerUserId, other_user.id]);
+			channel = await this.createDMChannel([callerUserId, user.id]);
 		}
 		
 		return channel;
@@ -327,8 +325,8 @@ export class ChatService {
 		
 		
 		// INSERT GAME BACK CALL TO GENERATE UID HERE
-		
-		const { success, error, uid } = await this.gameService.createUniqueQueue(newInvite.gameInvite.gameType.toString(), sessionId);
+		const type = newInvite.gameInvite.gameType == gameType.CUSTOM ? 'CUSTOM' : 'NORMAL';
+		const { success, error, uid } = await this.gameService.createUniqueQueue(type, sessionId);
 		
 		// ID OF USER INVITING IS newMessage.authorId
 		
@@ -801,6 +799,9 @@ export class ChatService {
 		if (this.isAdmin(request.authorUserId, channel) == false)
 			throw new ValidationError("You don't have the rights to set an admin");
 
+		if (request.targetUserId == channel.ownerId)
+			throw new ValidationError("You dont have the rights to do that");
+
 		//and presence of target in channel
 		if (channel.channel.users.find(user => {
 			return user.userId == target.id;
@@ -1086,6 +1087,8 @@ export class ChatService {
 
 		if (!this.isAdmin(authorUserId, channel))
 			throw new ValidationError("Permission denied, you cant kick another user");
+		if (this.isAdmin(targetUserId, channel) && authorUserId != channel.ownerId)
+			throw new ValidationError("Permission denied you cant kick another admin");
 
 		if (channel.channel.users.find(user =>
 			{return user.userId == target.id}) == undefined)
@@ -1099,16 +1102,16 @@ export class ChatService {
 		return {channelId, callerUserId:authorUserId, targetUserId:target.id, action:true};
 	}
 
-	async blockUser(callerUserId: number, data: {targetUserName: string, action: boolean}): Promise<{targetId: number, dmId: number | undefined}>
+	async blockUser(callerUserId: number, data: {targetUserId: number, action: boolean}): Promise<{targetId: number, dmId: number | undefined}>
 	{
 		//find target
 		let target: User;
-		const {targetUserName, action} = data;
+		const {targetUserId, action} = data;
 
 		try {
 			target = await this.prisma.user.findUniqueOrThrow({
 				where: {
-					username:targetUserName
+					id:targetUserId
 				}
 			});
 		} catch (e: any) {
@@ -1124,9 +1127,9 @@ export class ChatService {
 				channel: {
 					AND: [
 						{
-							users: { some: { user: {
-								username: targetUserName
-							}}}
+							users: { some: {
+								userId: targetUserId
+							}}
 						},
 						{
 							users: { some: {

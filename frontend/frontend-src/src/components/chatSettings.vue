@@ -1,6 +1,6 @@
 <script lang="ts">
 import chat from '../scripts/chat';
-import { CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto';
+import { CreateGroupChannelDto } from '../entities/Chat.entities';
 import { State } from '../scripts/state';
 import user from '../scripts/user';
 import store from "../scripts/chat"
@@ -87,8 +87,8 @@ export default defineComponent({
 					<input style="font-size: 1vw" type="text" v-model="searchInput" />
 					<div>
 						<p style="display:flex; justify-content: center; color: white;"
-							@click="store.invite_user(user.username, true)" v-for="username in searchArray">{{ username }}
-							<button style="" @click="store.user_admin(user.username, true)">MAKE ADMINISTRATOR</button>
+							@click="store.invite_user(user.id, true)" v-for="username in searchArray">{{ username }}
+							<button style="" @click="store.user_admin(user.id, true)">MAKE ADMINISTRATOR</button>
 						</p>
 					</div>
 					<div>

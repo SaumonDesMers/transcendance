@@ -1,11 +1,19 @@
-import { ChanType } from "@prisma/client"
-import { Type } from "class-transformer";
-import { IsBase64, IsBoolean, IsDate, IsDefined, IsEnum, IsNegative, IsNotEmpty, IsNumber, IsObject, IsOptional, IsPositive, IsString, IsUUID, MaxLength, ValidateIf, ValidateNested, isBase64, isDefined } from "class-validator";
-
 export enum gameType {
 	NORMAL,
 	CUSTOM,
 }
+
+export const ChanType: {
+	PUBLIC: 'PUBLIC',
+	PRIV: 'PRIV',
+	KEY: 'KEY'
+} = {
+	PUBLIC: 'PUBLIC',
+	PRIV: 'PRIV',
+	KEY: 'KEY'
+}
+
+export type ChanType = typeof ChanType[keyof typeof ChanType]
 
 /**
  * TRANSFER OBJECTS
@@ -15,7 +23,7 @@ export enum gameType {
  * and stored in the client
  */
 
-export class GameInvite {
+export interface GameInvite {
 
 	status: 'PENDING' | 'EXPIRED';
 	type: gameType;
@@ -62,27 +70,30 @@ export interface GroupChannelSnippetDTO{
 }
 
 
-export class gameInviteArgs {
-	@IsNotEmpty()
-	@IsDefined()
-	@IsEnum(gameType)
+export interface gameInviteArgs {
 	gameType: gameType;
 }
 
-export class CreateMessageDto {
-	@IsNumber()
+export interface CreateMessageDto {
 	authorId: number;
 
-	@IsNumber()
 	ChannelId: number;
 
-	@IsString()
 	content: string;
 
-	@IsOptional()
-	// @ValidateNested()
-	// @Type(() => gameInviteArgs)
 	gameInvite?: gameInviteArgs;
+}
+
+export interface CreateGroupChannelDto {
+	ownerId: number;
+
+	name: string;
+
+	usersId: number[];
+
+	type: ChanType;
+
+	key? :string;
 }
 
 //there are two different ChatUserDTOs
@@ -95,7 +106,7 @@ export interface SimpleChatUserDTO {
 }
 
 export class ChatUserDTO {
-	userId: number;
+	userId: number = 0;
 	user: {
 		id: number,
 		username: string
@@ -103,6 +114,8 @@ export class ChatUserDTO {
 	joinedChannels?: ChannelDTO[];
 	invites?: GroupChannelSnippetDTO[];
 	blocked?: SimpleChatUserDTO[];
+
+	constructor() {this.user = {id: 0, username:'loading'}}
 }
 
 
@@ -137,142 +150,75 @@ export interface ChanNotifDTO {
  * All those interfaces are used to send a request to the server
  * and sometimes used by the serer as updates when possible
 *****************/
-export class joinRequestDTO {
+export interface joinRequestDTO {
 
-	@ValidateIf(o => o.channelId == undefined)
-	@IsNotEmpty()
 	channelName?: string;
 
-	@ValidateIf(o => o.channelName == undefined)
-	@IsNotEmpty()
-	@IsNumber()
-	@IsPositive()
 	channelId?: number;
 
-	@IsString()
-	@MaxLength(72)
-	@IsOptional()
 	key?: string;
 }
 
-export class basicChanRequestDTO {
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
+export interface basicChanRequestDTO {
 	authorUserId: number;
 	
-	@IsDefined()
 	// @IsString()
-	@IsNumber()
-	@IsPositive()
 	targetUserId: number;
 	
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
 	channelId: number;
 }
 
-export class ChanRequestDTO {
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
+export interface ChanRequestDTO {
 	authorUserId: number;
 	
-	@IsDefined()
-	// @IsString()
-	@IsNumber()
-	@IsPositive()
 	targetUserId: number;
 	
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
 	channelId: number;
 	
-	@IsDefined()
-	@IsBoolean()
 	action: boolean; //true means set/do action, false means undo/unset
 }
 
-export class ChanTypeRequestDTO {
+export interface ChanTypeRequestDTO {
 
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
 	authorUserId: number;
 	
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
 	channelId: number;
 
-	@IsEnum(ChanType)
-	@IsDefined()
 	type: ChanType;
 
-	@IsOptional()
-	@IsString()
-	@MaxLength(72) //because bcrypt hash have a limit of 72 for the pass
 	key?: string
 }
 
-export class ChanKeyRequestDTO {
+export interface ChanKeyRequestDTO {
 
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
 	authorUserId: number;
 
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
 	channelId: number;
 
-	@IsDefined()
-	@IsString()
-	@MaxLength(72)
 	key: string
 }
 
-export class DMRequestDTO {
-	@IsDefined()
-	@IsNumber()
+export interface DMRequestDTO {
 	callerUserId: number;
 
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
 	targetUserId: number;
 }
 
-export class MuteDTO {
+export interface MuteDTO {
 
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
 	authorUserId: number;
 
-	@IsDefined()
-	@IsNumber()
 	targetUserId: number;
 
-	@IsDefined()
-	@IsNumber()
-	@IsPositive()
 	groupChannelId: number;
 
 	// @IsDate()
 	durationInMinutes: number;
 }
 
-export class searchQueryDTO {
-	@IsDefined()
+export interface searchQueryDTO {
 	username: string;
 
-	@IsOptional()
-	@IsNumber()
-	@IsPositive()
 	channelId?: number;
 }
 
