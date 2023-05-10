@@ -63,58 +63,56 @@ export default defineComponent({
 			</div>
 		</div>
 	</div>
-	<div class="navigation">
+	<nav class="navigation">
 		<ul>
 			<li>
-				<a>
+				<router-link class="title" :to="{ name: 'profile', params: { id: user.id } }">
 					<span class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']"></span>
-					<router-link class="title" :to="{name: 'profile', params: {id: user.id}}">{{  user.username }}</router-link>
-				</a>
+					{{ user.username }}
+				</router-link>
 			</li>
 			<li>
-
-			</li>
-			<li>
-				<a>
+				<router-link class="title" :to="{ name: 'chat' }">
 					<span class="icon"><i class="fa-solid fa-comments"></i></span>
-					<router-link class="title" :to="{name: 'chat'}">Messages</router-link>
-				</a>
+					Messages
+				</router-link>
 			</li>
 			<li>
-				<a>
+				<router-link class="title" :to="{ name: 'edit' }">
 					<span class="icon"><i class="fa-solid fa-edit"></i></span>
-					<router-link class="title" :to="{name: 'edit'}">Edit</router-link>
-				</a>
+					Edit
+				</router-link>
 			</li>
 			<li>
-				<a>
+				<router-link class="title" :to="{ name: 'history', params: { id: user.id } }">
 					<span class="icon"><i class="fa-solid fa-floppy-disk"></i></span>
-					<router-link class="title" :to="{name: 'history', params: {id: user.id}}">Game history</router-link>
-				</a>
+					Game history
+				</router-link>
 			</li>
 			<li>
-				<a>
+				<router-link class="title" :to="{ name: 'friends', params: { id: user.id } }">
 					<span class="icon"><i class="fa-solid fa-users"></i></span>
-					<router-link class="title" :to="{name: 'friends', params: {id: user.id}}">Friends</router-link>
+					Friends
+				</router-link>
+			</li>
+			<li>
+				<a  @click="toggleDarkMode" class="title">
+					<span class="icon">
+						<i :class="[user.darkMode ? 'fa-solid fa-moon' : 'fa-solid fa-sun']"></i>
+					</span>
+					<span>Theme</span>
 				</a>
 			</li>
 			<li>
-				<a>
-					<span class="icon" @click="toggleDarkMode"><i
-							:class="[user.darkMode ? 'fa-solid fa-moon' : 'fa-solid fa-sun']"></i></span>
-					<span class="title" @click="toggleDarkMode">Theme</span>
-				</a>
-			</li>
-			<li>
-				<a>
+				<a class="title" @click="$emit('logout')">
 					<span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span>
-					<span class="title" @click="$emit('logout')">SignOut</span>
+					<span>SignOut</span>
 				</a>
 			</li>
 		</ul>
-	</div>
+	</nav>
 	<div class="main-container">
-		<router-link class="main-button" :to="{name: 'game'}">GAME</router-link>
+		<router-link class="main-button" :to="{ name: 'game' }">GAME</router-link>
 	</div>
 	<div style="overflow: hidden;">
 		<div :class="[user.darkMode ? 'ocean dark' : 'ocean', user.coa]">
