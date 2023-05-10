@@ -26,12 +26,14 @@ export default defineComponent({
 </script>
 
 <template>
-	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]" style="justify-content: center;">
-		<div v-show="user.darkMode == true">
+	<!-- class="main-page" :class="[user.darkMode == true ? '' : 'light ', user.coa]" -->
+	<div  
+		:style="[user.darkMode == true ? 'background-color: black' : 'background-color: whitesmoke']" style="justify-content: center;">
+		<!-- <div v-show="user.darkMode == true">
 			<div class="stars"></div>
 			<div class="stars1"></div>
 			<div class="stars2"></div>
-		</div>
+		</div> -->
 		<div
 			style="width: 100vw; height: 100vh; display:flex; flex-direction: column; justify-content: center; align-items: center;">
 			<!-- <h4>Game (state: {{ game.state.value }}) :</h4> -->
@@ -43,20 +45,29 @@ export default defineComponent({
 			<div v-else>
 				<div style="display: flex;" v-if="game.state.value == 'none'">
 					<div class="button-container">
-						<div class="classic-block">
+						<div class="classic-block" :class="[user.darkMode ? 'dark' : '']">
 							<button class="classic-button" @click="game.joinQueue('NORMAL')">CLASSIC</button>
 						</div>
 					</div>
 					<div class="button-container">
-						<div class="block">
-							<button class="custom-button" :class="[user.darkMode ? '' : 'light-cu']" @click="game.joinQueue('CUSTOM')">CUSTOM</button>
+						<div class="custom-block" :class="[user.darkMode ? 'dark' : '']">
+							<button class="custom-button" :class="[user.darkMode ? '' : 'light-cu']"
+								@click="game.joinQueue('CUSTOM')">CUSTOM</button>
 						</div>
 					</div>
 
 				</div>
 				<div v-else-if="game.state.value == 'queue'">
-					<p>Waiting for another player...</p>
-					<button @click="game.leaveQueue">Leave queue</button>
+					<div style="display: flex; align-items: baseline;"
+						:style="[!user.darkMode ? 'color: black' : 'color: white']">
+						<p style="font-size: 4vw;">Waiting for another player</p>
+						<div :class="[!user.darkMode ? 'dots dark' : 'dots']">
+							<div></div>
+							<div></div>
+							<div></div>
+						</div>
+						<button :class="[user.darkMode ? 'dark' : '', user.coa + '-ornot-btn']" class="ornot-btn" @click="game.leaveQueue">OR NOT</button>
+					</div>
 				</div>
 				<div v-else>
 					<div class="player">
@@ -82,6 +93,98 @@ export default defineComponent({
 
 <style lang="scss" src="../styles/profil.scss"></style>
 <style lang="scss" scoped>
+
+$alliance: #5F8D4E;
+$order: #911F27;
+$assembly: #674188;
+$federation: #205295;
+
+.ornot-btn {
+    margin-left: 1rem;
+    padding: 0 1rem 0 1rem;
+	color: white;
+    background-color: black;
+    border: none;
+    font-size: 3vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2%;
+    margin-top: 2%;
+    z-index: 10;
+    text-decoration: none;
+}
+
+.ornot-btn.dark {
+    background-color: rgba(125, 125, 125, 0.5);
+}
+
+.ALLIANCE-ornot-btn {
+	&:hover, &:active {
+		background-color: $alliance;
+	}
+}
+
+.ASSEMBLY-ornot-btn {
+	&:hover, &:active {
+		background-color: $assembly;
+	}
+}
+
+.FEDERATION-ornot-btn {
+	&:hover, &:active {
+		background-color: $federation;
+	}
+}
+
+.ORDER-ornot-btn {
+	&:hover, &:active {
+		background-color: $order;
+	}
+}
+
+@keyframes fx {
+	50% {
+		transform: scale(1);
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0;
+	}
+}
+
+@mixin animation($delay: 0ms) {
+	$animation-speed: 1000ms;
+	animation: fx $animation-speed ease infinite $delay;
+}
+
+.dots>* {
+	$animation-speed: 1000ms;
+	$dot-size: 0.8vw;
+	width: $dot-size;
+	height: $dot-size;
+	border: ($dot-size / 5) solid white;
+	border-radius: 50%;
+	float: left;
+	margin: 0 ($dot-size / 5);
+	transform: scale(0);
+	@include animation;
+
+	&:nth-child(2) {
+		@include animation($animation-speed * 0.33);
+	}
+
+	&:nth-child(3) {
+		@include animation($animation-speed * 0.66);
+	}
+}
+
+.dots.dark>* {
+	$dot-size: 0.8vw;
+	border: ($dot-size / 5) solid black;
+}
+
 .classic-button {
 	font-size: 2rem;
 	position: relative;
@@ -114,7 +217,7 @@ export default defineComponent({
 	background-color: rgba(200, 200, 200, 0.5);
 }
 
-.block,
+.custom-block,
 .classic-block {
 	position: relative;
 }
@@ -128,18 +231,18 @@ export default defineComponent({
 	left: -2px;
 	top: -2px;
 	background: linear-gradient(45deg,
-		rgba(255, 255, 255, 1), rgba(0, 0, 0, 1),
-		rgba(255, 255, 255, 1), rgba(0, 0, 0, 1),
-		rgba(255, 255, 255, 1), rgba(0, 0, 0, 1),
-		rgba(255, 255, 255, 1));
+			rgba(255, 255, 255, 1), rgba(0, 0, 0, 1),
+			rgba(255, 255, 255, 1), rgba(0, 0, 0, 1),
+			rgba(255, 255, 255, 1), rgba(0, 0, 0, 1),
+			rgba(255, 255, 255, 1));
 	background-size: 400%;
 	width: calc(100% + 4px);
 	height: calc(100% + 4px);
 	animation: steam 20s linear infinite;
 }
 
-.block:before,
-.block:after {
+.custom-block:before,
+.custom-block:after {
 	border-radius: 300px;
 	transform: rotate(90deg);
 	content: '';
@@ -168,9 +271,14 @@ export default defineComponent({
 	}
 }
 
-.block:after,
+.custom-block:after,
 .classic-block:after {
-	filter: blur(50px);
+	filter: blur(0px);
+}
+
+.dark.custom-block:after,
+.dark.classic-block:after {
+	filter: blur(20px);
 }
 
 .player {
@@ -261,6 +369,4 @@ export default defineComponent({
 	}
 }
 
-.block:after {
-	filter: blur(50px);
-}</style>
+</style>
