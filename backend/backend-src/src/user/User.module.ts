@@ -7,6 +7,8 @@ import { GameStatController } from "./User.stats.controller";
 import { Prisma, User } from "@prisma/client";
 
 export type UserWithoutSecret = Omit<User, "twoFactorAuthenticationSecret">
+
+export const defaultPicture = 'default.png'
 @Module({
 	imports: [PrismaModule],
 	providers: [UserRepository, UserService],
