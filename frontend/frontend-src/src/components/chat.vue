@@ -159,7 +159,7 @@ export default defineComponent({
 <template>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 
-	
+
 	<div class="error-box" v-if="store.error">
 		<div :class="[user.darkMode == true ? 'dark' : 'light']" v-if="store.error != ''">
 			{{ store.error }} </div>
@@ -199,7 +199,7 @@ export default defineComponent({
 						<p style="position:relative; margin-left: 8.5rem; display:flex; justify-content: end; margin-top: 1.5rem; font-size: 2vw;"
 							class="fa-solid fa-plus" @click="$router.push({ name: State.CREATECHAT })"></p>
 						<!-- <p class="fa-solid fa-plus" style="position:fixed; font-size: 1.5vw; margin-top: 0.2rem; color:black"></p> -->
-						
+
 					</div>
 				</div>
 				<div>
@@ -310,7 +310,7 @@ export default defineComponent({
 				</div>
 
 				<div v-if="currentChannel != undefined" class="send-message">
-					<textarea class="input-message" type="text" v-model="messageInputBuffer"></textarea>
+					<textarea class="input-message" type="text" @keydown.enter="SendMessage()" v-model="messageInputBuffer"></textarea>
 					<div style="display: flex; flex-direction: column; justify-content: space-between;">
 						<button class="fa-solid fa-paper-plane text-color-dark"
 							style="font-size: 1.5vw; color: white; padding: 0.5rem; background-color: transparent; border: none;"
@@ -372,11 +372,6 @@ export default defineComponent({
 									<button class="nocolor-btn" style="color:white"
 										@click="showMute = !showMute">Mute</button>
 									<!-- <mute v-if="showMute" :target-id="user.userId"></mute> -->
-
-
-
-
-
 									<div v-if="showMute" class="main-page" :class="['dark']">
 										<div style="width: 0; height: 0;">
 											<div class="stars"></div>
@@ -407,13 +402,6 @@ export default defineComponent({
 											</div>
 										</div>
 									</div>
-
-
-
-
-
-
-
 									<button class="nocolor-btn" style="color:white" v-if="!store.isBlocked(user.userId)"
 										@click="store.startDM(userLoader.getUserName(user.userId))">DM</button>
 									<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId)"
@@ -428,12 +416,10 @@ export default defineComponent({
 										v-if="store.isAdmin(store.user.userId) && store.isAdmin(user.userId) && !store.isOwner(user.userId)"
 										@click="store.user_admin(user.userId, false)">Unset Admin</button>
 								</div>
-
 								<button class="nocolor-btn" style="color:white" v-if="!store.isBlocked(user.userId)"
 									@click="store.block_user(user.userId, true)">Block</button>
 								<button class="nocolor-btn" style="color:white" v-else
 									@click="store.block_user(user.userId, false)">Unblock</button>
-
 								</p>
 							</div>
 						</div>
@@ -589,6 +575,17 @@ export default defineComponent({
 </template>
 
 <style lang="scss" scoped>
+* {
+	-ms-overflow-style: none;
+	/* IE and Edge */
+	scrollbar-width: none;
+	/* Firefox */
+}
+
+*::-webkit-scrollbar {
+	display: none;
+}
+
 .chat {
 	display: flex;
 	top: 0;
