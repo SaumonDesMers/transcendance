@@ -34,7 +34,9 @@ import {
 	CreateMessageDto,
 	MessageDTO,
 	SimpleChatUserDTO,
-	ChanNotifDTO } from "./Chat.entities";
+	ChanNotifDTO, 
+	ChatUserDTO,
+	DMChannelDTO} from "./Chat.entities";
 import { WsException } from "@nestjs/websockets";
 import { error } from "console";
 import { ValidationError } from "./Chat.error";
@@ -173,26 +175,51 @@ export class ChatService {
 
 		//add a check to see if caller isnt blocked by targetUser
 
-		//try to find an existing channel
-		let channel = await this.prisma.dMChannel.findFirst({
-			where: {
-				channel: {
-					AND: [
-						{
-							users: { some: { user: {
-								username: targetUserName
-							}}}
-						},
-						{
-							users: { some: {
-								userId: callerUserId
-							}}
-						}					
-					],
+		let user: any;
+		let channel: DMChannelDTO;
+
+		try {
+			user = await this.prisma.user.findUniqueOrThrow({ where: {username: targetUserName}});
+		} catch (e: any) {
+			throw new ValidationError("Target User not found");
+		}
+
+		if (user.id == callerUserId)
+		{
+			channel = await this.prisma.dMChannel.findFirst({
+				where: {
+					channel: {
+						users: {
+							every: {
+								userId:callerUserId
+							}
+						}
+					}
 				},
-			},
-			include: {channel: includeMembersAndLast10Messages}
-		});
+				include: {channel: includeMembersAndLast10Messages}
+			});
+		} else {
+			//try to find an existing channel
+			channel = await this.prisma.dMChannel.findFirst({
+				where: {
+					channel: {
+						AND: [
+							{
+								users: { some: { user: {
+									username: targetUserName
+								}}}
+							},
+							{
+								users: { some: {
+									userId: callerUserId
+								}}
+							}					
+						],
+					},
+				},
+				include: {channel: includeMembersAndLast10Messages}
+			});
+		}
 
 		//if no channel exists create one
 		if (channel == undefined)

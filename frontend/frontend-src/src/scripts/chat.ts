@@ -22,6 +22,7 @@ import {
 import {CreateGroupChannelDto } from '../../../../backend/backend-src/src/chat/GroupChannel.create.dto'
 import { ServerToClientEvents, ClientToServerEvents } from '../../../../backend/backend-src/src/chat/Chat.events'
 import { User } from './user'
+import SelfUser from './user'
 
 export const ChanType: {
 	PUBLIC: 'PUBLIC',
@@ -342,7 +343,9 @@ export class Chat {
 	 */
 	startDM(username: string)
 	{
+		
 		this.socket.emit("start_dm", username, (channel: DMChannelDTO) => {
+			console.log("channel");
 			this.addDmChan(channel);
 			this.selectChannel(channel.channelId, true);
 		})
@@ -524,7 +527,10 @@ export class Chat {
 	{
 		this.socket.emitWithAck("block_request", {targetUserName, action}).then(userId => {
 			if (action)
+			{
+				SelfUser.removeFriend(userId);
 				this._user.blocked?.push({userId});
+			}
 			else if (this._user.blocked != undefined)
 				this.delete_user_from_array(userId, this._user.blocked);
 		}).catch

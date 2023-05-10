@@ -218,7 +218,7 @@ export class User {
 
 	async downloadAvatar() {
 		if (!this.avatar.fileName) {
-			console.log('downloadAvatar: no avatar to download')
+			// console.log('downloadAvatar: no avatar to download')
 			return;
 		}
 
@@ -260,7 +260,6 @@ export class User {
 			}
 		})
 		.then(res => {
-			console.log(res.data);
 			this.history = res.data;
 			this.HistoryLoaded = true;
 		})
@@ -395,9 +394,9 @@ export class MyUser extends User
 	}
 
 	async addFriend(username: string) {
-		axios.post(`http://localhost:3001/users/${this.id}/friends`, {username})
+		axios.post(`http://localhost:3001/users/${this.id}/friends`, {friendUserName: username})
 		.then(res => {
-			console.log('res :', res);
+			this.loadFriends();
 		})
 		.catch(err => {
 			console.log('err :', err);
@@ -407,12 +406,18 @@ export class MyUser extends User
 	async removeFriend(userId: number) {
 		axios.delete(`http://localhost:3001/users/${this.id}/friends/${userId}`)
 		.then(res => {
+			this.loadFriends();
 		})
 		.catch(err => {
 			console.log('err :', err);
 		});
 	}
 
+	isFriend(userId: number): boolean {
+		return this._friendsIdList.find(user => {
+			return user.id == userId;
+		}) != undefined;
+	}
 }
 
 export default reactive<MyUser>(new MyUser());

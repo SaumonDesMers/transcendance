@@ -9,6 +9,7 @@ import usersStatus from '../scripts/status';
 import { defineComponent } from 'vue';
 import { User, UserPrison } from '../scripts/user';
 import searchUser from './searchUser.vue';
+import chat from '../scripts/chat';
 // import clickOutSide from "@mahdikhashan/vue3-click-outside";
 
 export default defineComponent({
@@ -26,6 +27,7 @@ export default defineComponent({
 			matches: [
 			],
 			State,
+			chat,
 			status: false,
 			SelfUser,
 			usersStatus,
@@ -38,6 +40,10 @@ export default defineComponent({
 		toggleDarkMode() {
 			this.SelfUser.set({ darkMode: !this.SelfUser.darkMode });
 			this.SelfUser.save();
+		},
+		message(username: string) {
+			this.chat.startDM(username);
+			this.$router.push({ name: State.CHAT });
 		},
 	},
 	watch: {
@@ -54,6 +60,9 @@ export default defineComponent({
 		}
 	},
 	computed: {
+		isBlocked() {
+			return chat.isBlocked(this.user.id);
+		},
 	},
 	mounted() {
 		this.user.loadUser(parseInt(this.$route.params.id as string)).then(nothing => {
@@ -62,7 +71,7 @@ export default defineComponent({
 			this.user.loadHistory();
 			this.user.loadStats();
 		})
-
+		this.SelfUser.loadFriends();
 		this.userFactory.addUser(this.user);
 	},
 	emits: ['logout']
@@ -98,8 +107,10 @@ export default defineComponent({
 					<div class="information-profile-container">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
 							@click="$router.push({ name: State.GAME })">play</div>
-						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
+						<div v-if="SelfUser.id == user.id" :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
 							@click="$router.push({ name: State.CHAT })">chat</div>
+						<div v-else :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
+							@click="message(user.username)">chat</div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{
 							user.username }} </div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{
@@ -107,9 +118,17 @@ export default defineComponent({
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
 							@click="searchUserShow = !searchUserShow">search</div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']"
+							v-if="SelfUser.id == user.id"
 							@click="$router.push({ name: State.EDIT })"></div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-right-from-bracket' : 'text-nav text-color-light fa-solid fa-right-from-bracket']"
+							v-if="SelfUser.id == user.id"
 							@click="$emit('logout')"></div>
+						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
+							v-if="SelfUser.id != user.id && !isBlocked"
+							@click="SelfUser.isFriend(user.id) ? SelfUser.removeFriend(user.id) : SelfUser.addFriend(user.username)">{{ SelfUser.isFriend(user.id) ? 'Unfollow' : 'Follow' }}</div>
+						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
+							v-if="SelfUser.id != user.id"
+							@click="chat.block_user(user.username, !isBlocked)">{{ isBlocked ? 'Unblock' : 'Block' }}</div>
 					</div>
 					<div class="bio-container grid-border">
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark ' : 'text-nav text-color-light']">Bio</div>
@@ -120,7 +139,8 @@ export default defineComponent({
 							@click="$router.push({ name: State.FRIENDS, params: { id: user.id } })">friends</div>
 						<div class="grid-friend" style="overflow: scroll;">
 							<div class="friend" v-for="friend in user.friends">
-								<div :style="['background-image: url(\'' + friend.avatar.imageBase64 + '\')']" @click="$router.push({ name: State.USER, params: { id: friend.id } })">{{ friend.username }}</div>
+								<div :style="['background-image: url(\'' + friend.avatar.imageBase64 + '\'); background-size: cover; background-position: center center; background-opacity: 0.8']"
+								@click="$router.push({ name: State.USER, params: { id: friend.id } })">{{ friend.username }}</div>
 								<!-- <router-link :to="{ name: 'profile', params: { id: friend.id } }">{{ friend.username }}</router-link> -->
 							</div>
 						</div>
