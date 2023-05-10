@@ -25,9 +25,6 @@ export default defineComponent({
 
 	methods: {
 		loadPlayers() {
-			console.log('loading players');
-			console.log(this.game.data.side[0].playerId);
-			console.log(this.game.data.side[1].playerId);
 			this.leftPlayer.loadUser(this.game.data.side[0].playerId);
 			this.rightPlayer.loadUser(this.game.data.side[1].playerId);
 		}

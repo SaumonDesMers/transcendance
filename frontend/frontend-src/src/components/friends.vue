@@ -10,7 +10,7 @@ import { defineComponent } from 'vue';
 import homepagebtn from './homepagebtn.vue';
 
 export default defineComponent({
-	component: {
+	components: {
 		homepagebtn
 	},
 	data: function () {
