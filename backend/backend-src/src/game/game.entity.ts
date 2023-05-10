@@ -502,7 +502,8 @@ export class GameEntity {
 		this.eventEmitter.emit("endgame", this.side[1].player.id);
 		this.eventEmitter.emit("endgame", this.side[0].player.id);
 		this.gameService.games = this.gameService.games.filter(g => g.UID != this.UID);
-		this.gameService.saveGame(parseInt(winnerSide.player.id), parseInt(loserSide.player.id), winnerSide.score, loserSide.score);
+		if (winnerSide.player.id != loserSide.player.id)
+			this.gameService.saveGame(parseInt(winnerSide.player.id), parseInt(loserSide.player.id), winnerSide.score, loserSide.score);
 
 	}
 	
