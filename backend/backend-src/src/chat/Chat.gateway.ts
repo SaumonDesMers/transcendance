@@ -286,7 +286,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		@MessageBody() username: string
 	)
 	{
-		let usernames: string[];
+		let usernames: { username: string, id: number }[];
 		try {
 			usernames = await this.chatService.search_user(username);
 		} catch (e: any) {
@@ -314,7 +314,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 			throw new WsException(e.message);
 		}
 		
-		console.log("sending message:", message);
 		this.server.to(message.channelId.toString()).emit("message", message);
 	}
 
@@ -418,7 +417,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		}
 	}
 
-	@SubscribeMessage("admin")
+	@SubscribeMessage("admin_request")
 	async setAdmin(
 		@ConnectedSocket() socket: chatSocket,
 		@MessageBody() data: ChanRequestDTO)
@@ -493,7 +492,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		{
 			const targetSocket = await this.findSocket(update.targetUserId);
 
-			targetSocket.leave(data.channelId.toString());
+			if (targetSocket != undefined)
+				targetSocket.leave(data.channelId.toString());
 		}
 	}
 

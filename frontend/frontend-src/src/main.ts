@@ -15,6 +15,8 @@ import game from './components/game.vue';
 import chat from './components/chat.vue';
 import friends from './components/friends.vue';
 import createChat from './components/createChat.vue';
+import chatSettings from './components/chatSettings.vue';
+
 
 const routes = [
 	{ name: 'main', path: '/', component: main },
@@ -28,7 +30,7 @@ const routes = [
 	{ name: 'chat', path: '/chat', component: chat },
 	{ name: 'friends', path: '/friends/:id', component: friends },
 	{ name: 'create-chat', path: '/create-chat', component: createChat },
-	{ name: 'chat-settings', path: '/chat-settings', component: createChat },
+	{ name: 'chat-settings', path: '/chat-settings', component: chatSettings },
 ];
 
 const router = createRouter({

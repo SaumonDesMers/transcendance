@@ -18,7 +18,7 @@ export default defineComponent({
 			store,
             channelNameInput: '',
 			searchInput: '',
-			searchArray: [] as string[],
+			searchArray: [] as {username: string, id: number}[],
             channeltype: ChanType.PUBLIC as ChanType,
             channelKeyInput: '',
         };
@@ -87,8 +87,8 @@ export default defineComponent({
 					<input style="font-size: 1vw" type="text" v-model="searchInput" />
 					<div>
 						<p style="display:flex; justify-content: center; color: white;"
-							@click="store.invite_user(username, true)" v-for="username in searchArray">{{ username }}
-							<button style="" @click="store.user_admin(username, true)">MAKE ADMINISTRATOR</button>
+							@click="store.invite_user(user.username, true)" v-for="username in searchArray">{{ username }}
+							<button style="" @click="store.user_admin(user.username, true)">MAKE ADMINISTRATOR</button>
 						</p>
 					</div>
 					<div>

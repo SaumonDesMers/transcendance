@@ -55,12 +55,7 @@ export default defineComponent({
 </script>
 
 <template>
-	<head>
-		<meta charset="UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
-	</head>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	<div class="main-page" :class="[SelfUser.darkMode == true ? 'dark' : 'light ', SelfUser.coa]">
 		<div v-if="SelfUser.darkMode == false">
 		</div>
@@ -74,7 +69,7 @@ export default defineComponent({
 				<div class="best-players">
 					<h1 class="text-color-dark"><p class="fa-solid fa-ranking-star"></p> BEST PLAYERS <p class="fa-solid fa-ranking-star"></p><br></h1>
 					<div v-for="(user, rank) in ladder">
-						<p class="text-color-dark">{{ rank + 1 }} : {{ user.username }}<br></p>
+						<p class="text-color-dark" @click="$router.push({ name: State.USER, params: { id: user.id }})">{{ rank + 1 }} : {{ user.username }}<br></p>
 					</div>
 				</div>
 				<div class="friends-grid">

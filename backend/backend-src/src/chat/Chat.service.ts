@@ -55,7 +55,11 @@ const includeMembers = {
 
 const includeMembersAndLast10Messages = Prisma.validator<Prisma.ChannelArgs>()({
 	include: {
-		users: true,
+		users: {
+			select: {
+				userId: true
+			}
+		},
 		messages: {
 			orderBy: {postedAt: 'asc'},
 			take: 10,
@@ -660,9 +664,9 @@ export class ChatService {
 			},
 			include:{
 				channel: includeMembersAndLast10Messages,
-				admins: {include: {user: true}},
-				owner: {include: {user:true }},
-				invited: {include: {user:true}}
+				admins: true,
+				owner: true,
+				invited: true
 			}
 		});
 
@@ -735,7 +739,7 @@ export class ChatService {
 	async setUserAdmin(request: ChanRequestDTO): Promise<ChanNotifDTO>
 	{
 		// const groupChannel = this.channelRepository.getSingleGroupChannel({channelId:GroupChannelId}, true);
-
+		console.log(request);
 		const target = await this.prisma.user.findUniqueOrThrow({
 			where: {
 				username: request.targetUserName
@@ -770,12 +774,12 @@ export class ChatService {
 
 		//and presence of target in channel
 		if (channel.channel.users.find(user => {
-			user.userId == target.id;
+			return user.userId == target.id;
 		}) === undefined)
 			throw new ValidationError("This user isn't on channel");
 
 		//if we want to demote an admin
-		if (request.action == false && channel.admins.find(user => {user.userId == target.id}) == undefined)
+		if (request.action == false && channel.admins.find(user => {return user.userId == target.id}) == undefined)
 			throw new ValidationError("This user is not an admin");
 
 		if (request.action)
@@ -800,7 +804,7 @@ export class ChatService {
 			},
 			data: {
 				admins: {
-					connect: {
+					disconnect: {
 						userId: target.id
 					}
 				}
@@ -1311,7 +1315,7 @@ export class ChatService {
 			|| channel.ownerId == userId);
 	}
 
-	async search_user(username: string): Promise<string[]>
+	async search_user(username: string): Promise<{username: string, id: number}[]>
 	{
 		if (username == null || username.length == 0)
 			return [];
@@ -1322,12 +1326,14 @@ export class ChatService {
 					mode: 'insensitive'
 				}
 			},
+			take: 20,
 			select: {
-				username: true
+				username: true,
+				id: true,
 			}
 		});
 
-		return possible_usernames.map(a => a.username);
+		return possible_usernames;
 	}
 
 }

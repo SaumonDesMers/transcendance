@@ -1,6 +1,6 @@
 @import 'all.scss';
-@import 'buttons.scss';
-@import 'themes.scss';
+// @import 'buttons.scss';
+// @import 'themes.scss';
 
 .centered-container {
     background: $whitesmoke;
@@ -18,8 +18,40 @@
 	width: 45%;
 	padding: 0.5rem 1rem;
 
+	&:before {
+		background-color: $white;
+		content: "";
+		display: flex;
+		transform: scale(1, 0);
+		transition: transform .25s ease;
+		transform-origin: 50% 100%;
+		position: absolute;
+		overflow: hidden;
+		border-radius: 1px;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 0;
+	}
+
+	span {
+		display: flex;
+		position: relative;
+		z-index: 1;
+		font-size: 1.5rem;
+	}
+
 	&.validate {
 		margin-left: 5%;
+		&:hover,
+		&:active {
+			color: $sem-black;
+	
+			&:before {
+				transform: scale(1, 1);
+			}
+		}
 	}
 
 	&.cancel {
@@ -29,5 +61,9 @@
 	&:hover,
 	&:active {
 		color: $sem-black;
+
+		&:before {
+			transform: scale(1, 1);
+		}
 	}
 }

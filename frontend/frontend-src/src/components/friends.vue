@@ -1,6 +1,7 @@
 <script lang="ts">
 
 import axios from 'axios'
+import chat from '../scripts/chat'
 import { State } from '../scripts/state';
 import usersStatus from '../scripts/status';
 import SelfUser from '../scripts/user';
@@ -14,7 +15,8 @@ export default defineComponent({
 			status: '',
 			usersStatus,
 			SelfUser,
-			user: new User()
+			user: new User(),
+			chat
 		}
 	},
 	methods: {
@@ -22,6 +24,13 @@ export default defineComponent({
 		// 	this.user.set({ darkMode: !this.user.darkMode });
 		// 	this.user.save();
 		// },
+		message(username: string) {
+			this.chat.startDM(username);
+			this.$router.push({ name: State.CHAT });
+		},
+		block(friend: User) {
+			this.chat.block_user(friend.username, true);
+		},
 	},
 	watch: {
 		'$route.params'(oldVal, newVal) {
@@ -32,6 +41,8 @@ export default defineComponent({
 		}
 	},
 	mounted() {
+		if (parseInt(this.$route.params.id as string) == this.SelfUser.id)
+			this.user = this.SelfUser;
 		this.user.loadUser(parseInt(this.$route.params.id as string)).then(nothing => {
 			this.user.loadFriends();
 			usersStatus.fetchUsers(this.user._friendsIdList);
@@ -42,12 +53,7 @@ export default defineComponent({
 </script>
 
 <template>
-	<head>
-		<meta charset="UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
-	</head>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
 		<div v-show="user.darkMode == false">
 				<div class="sun"></div>
@@ -76,9 +82,11 @@ export default defineComponent({
 							@click="$router.push({ name: State.USER, params: { id: friend.id } })">
 							{{ friend.username }}</div>
 						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
-							@click="$router.push({ name: State.CHAT })">
+							@click="message(friend.username)">
 							message</div>
-						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">
+						<div :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']"
+							v-if="SelfUser.id != friend.id"
+							@click="block(friend)">
 							block</div>
 						<p class="bio" :class="[user.darkMode ? 'text-color-dark' : 'text-color-light']">{{ friend.bio }}
 						</p>
