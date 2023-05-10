@@ -216,7 +216,7 @@ export interface ClientToServerEvents {
 	 */
 	accept_game_invite: (msg: MessageDTO) => void;
 
-	block_request: (data: {targetUserName: string, action: boolean}, callback: (userId: number) => void) => void;
+	block_request: (data: {targetUserId: number, action: boolean}, callback: (userId: number) => void) => void;
 }
 
 

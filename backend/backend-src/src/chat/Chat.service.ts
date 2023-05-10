@@ -769,7 +769,7 @@ export class ChatService {
 		console.log(request);
 		const target = await this.prisma.user.findUniqueOrThrow({
 			where: {
-				username: request.targetUserName
+				id: request.targetUserId
 			},
 			select: {
 				id: true
@@ -911,11 +911,11 @@ export class ChatService {
 
 	async banUser(request: ChanRequestDTO): Promise<ChanNotifDTO> {
 
-		const {authorUserId, targetUserName, channelId, action } = request;
+		const {authorUserId, targetUserId, channelId, action } = request;
 
 		const target = await this.prisma.user.findUnique({
 			where: {
-				username: targetUserName
+				id: request.targetUserId
 			},
 			select: {
 				id: true
@@ -1057,11 +1057,11 @@ export class ChatService {
 
 	async kickUser(request: basicChanRequestDTO): Promise<ChanNotifDTO> {
 
-		const {channelId, authorUserId, targetUserName} = request;
+		const {channelId, authorUserId, targetUserId} = request;
 
 		const target = await this.prisma.user.findUnique({
 			where: {
-				username: targetUserName
+				id: request.targetUserId
 			},
 			select: {
 				id: true,
@@ -1181,7 +1181,7 @@ export class ChatService {
 	{
 		const user = await this.prisma.user.findUniqueOrThrow({
 			where: {
-				username:request.targetUserName
+				id: request.targetUserId
 			},
 			include: {
 				chatUser: true

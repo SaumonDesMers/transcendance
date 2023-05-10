@@ -310,7 +310,7 @@ export default defineComponent({
 							<div>
 								<p v-for="user in searchArray">{{
 									user.username }}
-									<button @click="store.invite_user(user.username, true)">Invite
+									<button @click="store.invite_user(user.id, true)">Invite
 										User</button>
 								</p>
 							</div>
@@ -339,14 +339,14 @@ export default defineComponent({
 									<!-- <button class="nocolor-btn" style="color:white" @click="store. (store.getUserName(user.userId))">Mute</button> -->
 									<div v-if="currentGroupChannel != undefined">
 										<button class="nocolor-btn" style="color:white" v-if="!store.isBlocked(user.userId)" @click="store.startDM(store.getUserName(user.userId))">DM</button>
-										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId)" @click="store.kick_user(store.getUserName(user.userId))">kick</button><br>
-										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId) && !store.isAdmin(user.userId)" @click="store.ban_user(store.getUserName(user.userId), true)">ban</button>
-										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId) && !store.isAdmin(user.userId)" @click="store.user_admin(store.getUserName(user.userId), true)">Set Admin</button>
-										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId) && store.isAdmin(user.userId) && !store.isOwner(user.userId)" @click="store.user_admin(store.getUserName(user.userId), false)">Unset Admin</button>
+										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId)" @click="store.kick_user(user.userId)">kick</button><br>
+										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId) && !store.isAdmin(user.userId)" @click="store.ban_user(user.userId, true)">ban</button>
+										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId) && !store.isAdmin(user.userId)" @click="store.user_admin(user.userId, true)">Set Admin</button>
+										<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(store.user.userId) && store.isAdmin(user.userId) && !store.isOwner(user.userId)" @click="store.user_admin(user.userId, false)">Unset Admin</button>
 									</div>
 
-									<button class="nocolor-btn" style="color:white" v-if="!store.isBlocked(user.userId)" @click="store.block_user(store.getUserName(user.userId), true)">Block</button>
-									<button class="nocolor-btn" style="color:white" v-else @click="store.block_user(store.getUserName(user.userId), false)">Unblock</button>
+									<button class="nocolor-btn" style="color:white" v-if="!store.isBlocked(user.userId)" @click="store.block_user(user.userId, true)">Block</button>
+									<button class="nocolor-btn" style="color:white" v-else @click="store.block_user(user.userId, false)">Unblock</button>
 
 								</p>
 							</div>
