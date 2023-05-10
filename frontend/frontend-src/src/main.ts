@@ -18,7 +18,6 @@ import createChat from './components/createChat.vue';
 import chatSettings from './components/chatSettings.vue';
 
 import mute from './components/mute.vue'
-import { VueCookieNext } from 'vue-cookie-next'
 
 const routes = [
 	{ name: 'main', path: '/', component: main },
