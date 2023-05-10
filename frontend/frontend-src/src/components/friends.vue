@@ -7,8 +7,13 @@ import usersStatus from '../scripts/status';
 import SelfUser from '../scripts/user';
 import { User } from '../scripts/user';
 import { defineComponent } from 'vue';
+import homepagebtn from './homepagebtn.vue';
+import homepagebtn from './homepagebtn.vue';
 
 export default defineComponent({
+	component: {
+		homepagebtn
+	},
 	data: function () {
 		return {
 			State,
@@ -50,7 +55,8 @@ export default defineComponent({
 			});
 		})
 	},
-	emits: ['logout']
+	emits: ['logout'],
+	components: { homepagebtn }
 })
 </script>
 
@@ -71,6 +77,8 @@ export default defineComponent({
 			<div class="stars2"></div>
 		</div>
 		<div style="height: 100vh; overflow: scroll;">
+			<homepagebtn style="position:relative; margin-left: 8.5rem; display:flex; justify-content: end; margin-top: 1.5rem; font-size: 2vw;"></homepagebtn>
+
 			<div class="friends-grid">
 				<div class="friend" v-for="friend in user.friends">
 					<div class="friend">
