@@ -54,6 +54,7 @@ export default defineComponent({
 				this.user.loadFriends();
 				this.user.loadHistory();
 				this.user.loadStats();
+				this.usersStatus.fetchUsers([this.user]);
 			})
 
 			this.userFactory.addUser(this.user);
@@ -70,6 +71,7 @@ export default defineComponent({
 			this.user.loadFriends();
 			this.user.loadHistory();
 			this.user.loadStats();
+			this.usersStatus.fetchUsers([this.user]);
 		})
 		this.SelfUser.loadFriends();
 		this.userFactory.addUser(this.user);

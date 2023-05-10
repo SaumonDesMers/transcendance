@@ -13,6 +13,11 @@ class statusClient {
 
 	constructor() {
 		this._usersStatus = reactive (new Map());
+		this._socket = io('http://localhost:3001/status', {
+			autoConnect: false,
+			reconnection: false
+		});
+
 		this.initSocket();
 	}
 
@@ -33,7 +38,10 @@ class statusClient {
 	getUserStatus(userId: number){
 		let status = this._usersStatus.get(userId);
 		if (status == undefined)
+		{
+			// this.fetchUsers([{id: userId}]);
 			return 'OFFLINE';
+		}
 		switch (status)
 		{
 		case playerStatus.ONLINE:
@@ -47,11 +55,9 @@ class statusClient {
 
 	fetchUsers(users: {id: number}[])
 	{
+		console.log("fetching users ", users);
 		users.forEach((user: {id: number}) => {
 			this._socket.emit('getStatus', user.id, (status: playerStatus) => {
-				if (status == playerStatus.OFFLINE)
-					this._usersStatus.delete(user.id);
-				else
 					this._usersStatus.set(user.id, status);
 			})
 		})
@@ -61,10 +67,7 @@ class statusClient {
 
 	private initSocket()
 	{
-		this._socket = io('http://localhost:3001/status', {
-			autoConnect: false,
-			reconnection: false
-		});
+		
 
 		this._socket.on('update', (payload: updateDTO) => {
 			if (payload.status == playerStatus.OFFLINE)
