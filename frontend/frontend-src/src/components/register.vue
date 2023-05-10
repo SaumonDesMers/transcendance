@@ -58,10 +58,10 @@ export default defineComponent({
 				alert("Please select a coalition.")
 				return;
 			}
-			if (!this.user.avatar.imageBase64) {
-				alert("Please upload an avatar.")
-				return;
-			}
+			// if (!this.user.avatar.imageBase64) {
+			// 	alert("Please upload an avatar.")
+			// 	return;
+			// }
 			axios
 			.post('http://localhost:3001/users',
 			{
@@ -72,7 +72,9 @@ export default defineComponent({
 			})
 			.then((res) => {
 					this.user.set(res.data);
-					this.user.uploadAvatar();
+					this.user.uploadAvatar().then(nothing => {
+						this.user.downloadAvatar();
+					})
 					this.$router.push({ name: 'main' });
 				})
 				.catch((error) => {
