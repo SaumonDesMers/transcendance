@@ -38,7 +38,7 @@ export default defineComponent({
 
 	watch: {
 		'game.data.loaded': {
-				handler: function (loaded) {
+			handler: function (loaded) {
 				if (loaded) {
 					this.loadPlayers();
 				}
@@ -53,8 +53,8 @@ export default defineComponent({
 
 <template>
 	<!-- class="main-page" :class="[user.darkMode == true ? '' : 'light ', user.coa]" -->
-	<div  
-		:style="[user.darkMode == true ? 'background-color: black' : 'background-color: whitesmoke']" style="justify-content: center;">
+	<div :style="[user.darkMode == true ? 'background-color: black' : 'background-color: whitesmoke']"
+		style="justify-content: center;">
 		<!-- <div v-show="user.darkMode == true">
 			<div class="stars"></div>
 			<div class="stars1"></div>
@@ -92,25 +92,31 @@ export default defineComponent({
 							<div></div>
 							<div></div>
 						</div>
-						<button :class="[user.darkMode ? 'dark' : '', user.coa + '-ornot-btn']" class="ornot-btn" @click="game.leaveQueue">OR NOT</button>
+						<button :class="[user.darkMode ? 'dark' : '', user.coa + '-ornot-btn']" class="ornot-btn"
+							@click="game.leaveQueue">OR NOT</button>
 					</div>
 				</div>
-				<div v-else>
-					<div class="player">
-						<div class="player-info">
-							<div class="avatar" :style="['background-image: url(\'' + leftPlayer.avatar.imageBase64 + '\')']">
+				<div v-else :class="[user.coa, user.darkMode ? 'dark' : '']"
+					style="width: 100vw; height: 100vh; display:flex; flex-direction: column; justify-content: center; align-items: center;">
+					<div>
+						<div class="player">
+							<div class="player-info">
+								<div class="avatar"
+									:style="['background-image: url(\'' + leftPlayer.avatar.imageBase64 + '\')']">
+								</div>
+								<div class="login-player">{{ leftPlayer.username }}</div>
 							</div>
-							<div class="login-player">{{ leftPlayer.username }}</div>
-						</div>
-						<div class="player-info">
-							<div class="login-player">{{ rightPlayer.username }}</div>
-							<div class="avatar" :style="['background-image: url(\'' + rightPlayer.avatar.imageBase64 + '\')']">
+							<div class="player-info">
+								<div class="login-player">{{ rightPlayer.username }}</div>
+								<div class="avatar"
+									:style="['background-image: url(\'' + rightPlayer.avatar.imageBase64 + '\')']">
+								</div>
 							</div>
 						</div>
+						<gameCanvas :game="game.data" :shadow="shadow"></gameCanvas>
+						<button style="z-index: 2;" @click="shadow = !shadow">shadows {{ shadow ? "off" : "on" }}</button>
+						<button style="z-index: 2;" @click="game.surrender">Surrender</button>
 					</div>
-					<gameCanvas :game="game.data" :shadow="shadow"></gameCanvas>
-					<button style="z-index: 2;" @click="shadow = !shadow">shadows {{ shadow ? "off" : "on" }}</button>
-					<button style="z-index: 2;" @click="game.surrender">Surrender</button>
 				</div>
 			</div>
 		</div>
@@ -119,52 +125,59 @@ export default defineComponent({
 
 <style lang="scss" src="../styles/profil.scss"></style>
 <style lang="scss" scoped>
-
 $alliance: #5F8D4E;
 $order: #911F27;
 $assembly: #674188;
 $federation: #205295;
 
 .ornot-btn {
-    margin-left: 1rem;
-    padding: 0 1rem 0 1rem;
+	margin-left: 1rem;
+	padding: 0 1rem 0 1rem;
 	color: white;
-    background-color: black;
-    border: none;
-    font-size: 3vw;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 2%;
-    margin-top: 2%;
-    z-index: 10;
-    text-decoration: none;
+	background-color: black;
+	border: none;
+	font-size: 3vw;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-bottom: 2%;
+	margin-top: 2%;
+	z-index: 10;
+	text-decoration: none;
 }
 
 .ornot-btn.dark {
-    background-color: rgba(125, 125, 125, 0.5);
+	background-color: rgba(125, 125, 125, 0.5);
 }
 
 .ALLIANCE-ornot-btn {
-	&:hover, &:active {
+
+	&:hover,
+	&:active {
 		background-color: $alliance;
 	}
 }
 
 .ASSEMBLY-ornot-btn {
-	&:hover, &:active {
+
+	&:hover,
+	&:active {
 		background-color: $assembly;
 	}
 }
 
 .FEDERATION-ornot-btn {
-	&:hover, &:active {
+
+	&:hover,
+	&:active {
 		background-color: $federation;
 	}
 }
 
 .ORDER-ornot-btn {
-	&:hover, &:active {
+
+	&:hover,
+	&:active {
 		background-color: $order;
 	}
 }
@@ -394,5 +407,4 @@ $federation: #205295;
 		background-position: 0 0;
 	}
 }
-
 </style>
