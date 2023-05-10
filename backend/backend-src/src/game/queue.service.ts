@@ -131,6 +131,11 @@ export class QueueService {
 	
 	leaveCurrentQueue(player: PlayerEntity) {
 
+		if (!this.playerInQueue.has(player)) {
+			console.log('queue.service: leaveCurrentQueue: player not in queue');
+			return;
+		}
+
 		const state = this.playerInQueue.get(player);
 		console.log('queue.service: leaveCurrentQueue: user.state:', state);
 
