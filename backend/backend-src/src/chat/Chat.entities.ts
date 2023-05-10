@@ -163,8 +163,10 @@ export class basicChanRequestDTO {
 	authorUserId: number;
 	
 	@IsDefined()
-	@IsString()
-	targetUserName: string;
+	// @IsString()
+	@IsNumber()
+	@IsPositive()
+	targetUserId: number;
 	
 	@IsDefined()
 	@IsNumber()
@@ -179,8 +181,10 @@ export class ChanRequestDTO {
 	authorUserId: number;
 	
 	@IsDefined()
-	@IsString()
-	targetUserName: string;
+	// @IsString()
+	@IsNumber()
+	@IsPositive()
+	targetUserId: number;
 	
 	@IsDefined()
 	@IsNumber()
@@ -261,6 +265,16 @@ export class MuteDTO {
 
 	@IsDate()
 	endDate: Date;
+}
+
+export class searchQueryDTO {
+	@IsDefined()
+	username: string;
+
+	@IsOptional()
+	@IsNumber()
+	@IsPositive()
+	channelId?: number;
 }
 
 // export interface GroupChannelUpdateDTO {

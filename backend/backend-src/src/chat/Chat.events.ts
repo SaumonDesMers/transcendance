@@ -16,6 +16,7 @@ import { MessageDTO,
 	DMChannelDTO,
 	CreateMessageDto,
 	ChanNotifDTO,
+	searchQueryDTO,
  } from './Chat.entities'
 import { CreateGroupChannelDto } from './GroupChannel.create.dto';
 
@@ -165,7 +166,7 @@ export interface ClientToServerEvents {
 	 */
 	get_public_channels: (callback: (channels: GroupChannelSnippetDTO[]) => void) => void;
 
-	search_username: (username: string, callback: (users: {username: string, id: number}[]) => void ) => void;
+	search_username: (query: searchQueryDTO, callback: (users: {username: string, id: number}[]) => void ) => void;
 
 	// get_invites: (callback: (invites: inviteUpdateDTO[]) => void) => void;
 
@@ -216,7 +217,7 @@ export interface ClientToServerEvents {
 	 */
 	accept_game_invite: (msg: MessageDTO) => void;
 
-	block_request: (data: {targetUserName: string, action: boolean}, callback: (userId: number) => void) => void;
+	block_request: (data: {targetUserId: number, action: boolean}, callback: (userId: number) => void) => void;
 }
 
 

@@ -36,7 +36,8 @@ import {
 	SimpleChatUserDTO,
 	ChanNotifDTO, 
 	ChatUserDTO,
-	DMChannelDTO} from "./Chat.entities";
+	DMChannelDTO,
+	searchQueryDTO} from "./Chat.entities";
 import { WsException } from "@nestjs/websockets";
 import { error } from "console";
 import { ValidationError } from "./Chat.error";
@@ -769,7 +770,7 @@ export class ChatService {
 		console.log(request);
 		const target = await this.prisma.user.findUniqueOrThrow({
 			where: {
-				username: request.targetUserName
+				id: request.targetUserId
 			},
 			select: {
 				id: true
@@ -911,11 +912,11 @@ export class ChatService {
 
 	async banUser(request: ChanRequestDTO): Promise<ChanNotifDTO> {
 
-		const {authorUserId, targetUserName, channelId, action } = request;
+		const {authorUserId, targetUserId, channelId, action } = request;
 
 		const target = await this.prisma.user.findUnique({
 			where: {
-				username: targetUserName
+				id: request.targetUserId
 			},
 			select: {
 				id: true
@@ -1057,11 +1058,11 @@ export class ChatService {
 
 	async kickUser(request: basicChanRequestDTO): Promise<ChanNotifDTO> {
 
-		const {channelId, authorUserId, targetUserName} = request;
+		const {channelId, authorUserId, targetUserId} = request;
 
 		const target = await this.prisma.user.findUnique({
 			where: {
-				username: targetUserName
+				id: request.targetUserId
 			},
 			select: {
 				id: true,
@@ -1181,7 +1182,7 @@ export class ChatService {
 	{
 		const user = await this.prisma.user.findUniqueOrThrow({
 			where: {
-				username:request.targetUserName
+				id: request.targetUserId
 			},
 			include: {
 				chatUser: true
@@ -1342,23 +1343,52 @@ export class ChatService {
 			|| channel.ownerId == userId);
 	}
 
-	async search_user(username: string): Promise<{username: string, id: number}[]>
+	async search_user(query: searchQueryDTO): Promise<{username: string, id: number}[]>
 	{
+		const {channelId, username} = query;
+
 		if (username == null || username.length == 0)
 			return [];
-		const possible_usernames = await this.prisma.user.findMany({
-			where: {
-				username: {
-					contains: username,
-					mode: 'insensitive'
+
+		let possible_usernames: {username: string, id:number}[];
+
+		if (channelId == undefined)
+		{
+			possible_usernames = await this.prisma.user.findMany({
+				where: {
+					username: {
+						contains: username,
+						mode: 'insensitive'
+					}
+				},
+				take: 20,
+				select: {
+					username: true,
+					id: true,
 				}
-			},
-			take: 20,
-			select: {
-				username: true,
-				id: true,
-			}
-		});
+			});
+		} else {
+			possible_usernames = await this.prisma.user.findMany({
+				where: {
+					chatUser: {
+						joinedChannels: {
+							some: {
+								id: channelId
+							}
+						}
+					},
+					username: {
+						contains: username,
+						mode: 'insensitive'
+					}
+				},
+				take: 20,
+				select: {
+					username: true,
+					id: true,
+				}
+			});
+		}
 
 		return possible_usernames;
 	}

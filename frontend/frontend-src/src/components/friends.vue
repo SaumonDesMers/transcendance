@@ -29,7 +29,7 @@ export default defineComponent({
 			this.$router.push({ name: State.CHAT });
 		},
 		block(friend: User) {
-			this.chat.block_user(friend.username, true);
+			this.chat.block_user(friend.id, true);
 		},
 	},
 	watch: {
