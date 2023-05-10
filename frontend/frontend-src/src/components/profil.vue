@@ -89,8 +89,14 @@ export default defineComponent({
 			<div
 			:class="[SelfUser.darkMode == true ? 'profile-container profile-container-dark' : 'profile-container profile-container-light']">
 				<div class="banner-profile" :class=user.coa>
-					<div style="color:aliceblue">
+					<div style="display:flex; flex-direction: column; justify-content: space-between;">
+					<div style="color:aliceblue;">
 						<homepagebtn></homepagebtn>
+					</div>
+					<div style="">
+						{{ user.username }} <br>
+						{{ user.coa }}
+					</div>
 					</div>
 					<div class="avatar-profile" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']">
 						<div v-if="usersStatus.getUserStatus(user.id) == 'ONLINE'" class="status-profile"
@@ -113,10 +119,10 @@ export default defineComponent({
 							@click="$router.push({ name: State.CHAT })">chat</div>
 						<div v-else :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
 							@click="message(user.username)">chat</div>
-						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{
+						<!-- <div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{
 							user.username }} </div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"> {{
-							user.coa }} </div>
+							user.coa }} </div> -->
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark' : 'text-nav text-color-light']"
 							@click="searchUserShow = !searchUserShow">search</div>
 						<div :class="[SelfUser.darkMode ? 'text-nav text-color-dark fa-solid fa-edit' : 'text-nav text-color-light fa-solid fa-edit']"

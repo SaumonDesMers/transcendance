@@ -2,11 +2,13 @@
 import { defineComponent } from 'vue';
 import store from '../scripts/chat';
 import { State } from '../scripts/state';
+import user from '../scripts/user';
 
 export default defineComponent({
 	data: function () {
 		return {
 			State,
+			user,
 			searchInput: '',
 			searchArray: [] as {username: string, id: number}[]
 		}
@@ -25,7 +27,7 @@ export default defineComponent({
 </script>
 
 <template>
-	<div class="search-container">
+	<div :class="[user.darkMode ? 'search-container dark' : 'search-container']">
 		<input class="search-bar" type="text" placeholder="Search.." v-model="searchInput">
 		<div v-for="user in searchArray">
 			<div @click="$router.push({ name: State.USER, params: { id: user.id } })">
