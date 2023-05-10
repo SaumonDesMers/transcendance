@@ -209,6 +209,7 @@ class Ball extends Collider {
 	reset() {
 		this.pos = this.initialPos.copy();
 		this.speed.set(this.initialSpeedNorme, this.newStartingOrientation());
+		this.lastCollision = null;
 	}
 
 	newStartingOrientation(): number {
@@ -230,10 +231,10 @@ class Paddle extends Collider {
 		super(x, y, width, height, 'rect');
 	}
 
-	move() {
-		if (this.moving == "up") {
+	move(min: number, max: number) {
+		if (this.moving == "up" && this.top > min) {
 			this.y = this.y - this.speed / 50 * updateInterval
-		} else if (this.moving == "down") {
+		} else if (this.moving == "down" && this.bottom < max) {
 			this.y = this.y + this.speed / 50 * updateInterval
 		}
 	}
@@ -396,8 +397,8 @@ export class GameEntity {
 
 	private updatePhysics() {
 		// update paddles
-		this.side[LEFT].paddle.move();
-		this.side[RIGHT].paddle.move();
+		this.side[LEFT].paddle.move(0, this.arena.height);
+		this.side[RIGHT].paddle.move(0, this.arena.height);
 
 		// update ball
 		this.ball.move();
