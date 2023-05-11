@@ -166,7 +166,7 @@ export default defineComponent({
 									<p style="text-align: center; width: 100;" class="fa-solid fa-ranking-star"> :: {{ user.stats.rank }} :: <p class="fa-solid fa-ranking-star"></p> </p>
 								</div>
 								<div class="main-stat">
-									<div>Games played {{ user.stats.GamesWon + user.stats.GamesLost }}</div>
+									<div>Games played : {{ user.stats.GamesWon + user.stats.GamesLost }}</div>
 									<div>Win ratio : {{ Math.trunc(user.stats.GamesWon / (user.stats.GamesLost + user.stats.GamesWon) * 100) }}</div>
 									<div>Games won : {{ user.stats.GamesWon }}</div>
 									<div>Games lost : {{ user.stats.GamesLost }}</div>
