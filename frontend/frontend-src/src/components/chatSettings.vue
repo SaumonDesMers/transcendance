@@ -131,7 +131,7 @@ export default defineComponent({
 .create-chat-container {
 	width: 80vw;
 	height: 80vh;
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: rgba(255, 255, 255, 0.1);
 }
 
 .title {
@@ -140,16 +140,11 @@ export default defineComponent({
 }
 
 .title-chan {
+	color:white;
 	text-align: center;
 	font-size: 5em;
-	background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5));
+	background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1));
 	padding: 10px;
-	text-shadow:
-    0 0 5px #fff,
-    0 0 10px #fff,
-    0 0 20px #fff,
-    0 0 40px rgb(0, 0, 0),
-    0 0 80px rgb(0, 0, 0);
 }
 
 .chat-btn {

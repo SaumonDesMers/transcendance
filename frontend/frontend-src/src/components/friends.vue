@@ -69,7 +69,7 @@ export default defineComponent({
 			<div class="stars1"></div>
 			<div class="stars2"></div>
 		</div>
-		<div style="color: aliceblue;">
+		<div style="color: aliceblue; z-index:10">
 			<homepagebtn></homepagebtn>
 		</div>
 		<div style="height: 100vh; overflow: scroll;">
@@ -119,7 +119,7 @@ export default defineComponent({
 }
 
 .friend {
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: rgba(255, 255, 255, 0.1);
 	display: grid;
 	padding: 0.5rem;
 	border-radius: 4px;
@@ -147,6 +147,10 @@ export default defineComponent({
 
 .text-color-light {
 	color: white;
+	font-size: 20px;
+	text-transform: uppercase;
+	text-align: center;
+	padding: 0.2rem;
 
 	&:hover,
 	&:active {

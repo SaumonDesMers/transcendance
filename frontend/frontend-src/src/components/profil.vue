@@ -162,12 +162,15 @@ export default defineComponent({
 								<div class="bar bar-red" :style="{ width: (user.stats.GamesLost / 17) * 100 + '%' }"></div>
 							</div>
 							<div class="stats-text">
-								<p class="fa-solid fa-ranking-star"> : {{ user.stats.rank }} </p>
-								<div>Games played : {{ user.stats.GamesWon + user.stats.GamesLost }}</div>
-								<div>Games won : {{ user.stats.GamesWon }}</div>
-								<div>Games lost : {{ user.stats.GamesLost }}</div>
-								<div>Win ratio : {{ user.stats.GamesWon / (user.stats.GamesLost + user.stats.GamesWon) * 100
-								}}</div>
+								<div style="text-align: center;">
+									<p style="text-align: center; width: 100;" class="fa-solid fa-ranking-star"> :: {{ user.stats.rank }} :: <p class="fa-solid fa-ranking-star"></p> </p>
+								</div>
+								<div class="main-stat">
+									<div>Games played {{ user.stats.GamesWon + user.stats.GamesLost }}</div>
+									<div>Win ratio : {{ Math.trunc(user.stats.GamesWon / (user.stats.GamesLost + user.stats.GamesWon) * 100) }}</div>
+									<div>Games won : {{ user.stats.GamesWon }}</div>
+									<div>Games lost : {{ user.stats.GamesLost }}</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -180,7 +183,7 @@ export default defineComponent({
 								<tbody>
 									<tr v-for="game in user.history">
 										<div class="row-tab">
-											<div style="text-shadow: 0 0 10px #fff, 0 0 15px #777777, 0 0 25px #000000;"> {{ userLoader.getUser(game.winnerId).username }} </div>
+											<div> {{ userLoader.getUser(game.winnerId).username }} </div>
 											<div> {{ game.winnerScore }} </div>
 											<div> {{ userLoader.getUser(game.loserId).username }} </div>
 											<div> {{ game.LoserScore }} </div>
