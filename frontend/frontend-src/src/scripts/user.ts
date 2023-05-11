@@ -196,7 +196,7 @@ export class User {
 			return;
 		}
 
-		axios.get(`http://localhost:3001/${this.avatar.fileName}`, {
+		await axios.get(`http://localhost:3001/${this.avatar.fileName}`, {
 			responseType: 'blob'
 		})
 		.then(res => {
@@ -294,6 +294,7 @@ export class MyUser extends User
 
 		await axios.patch(`http://localhost:3001/users/${this.id}`, this._data)
 		.then(res => {
+			this.set(res.data);
 			success = true;
 		})
 		.catch(err => {
@@ -324,7 +325,7 @@ export class MyUser extends User
 
 		var formData = new FormData();
 		formData.append("image", this.avatar.imageFile);
-		axios.put(`http://localhost:3001/users/${this.id}/image`, formData, {
+		await axios.put(`http://localhost:3001/users/${this.id}/image`, formData, {
 			headers: {
 				'Content-Type': 'multipart/form-data'
 			}
