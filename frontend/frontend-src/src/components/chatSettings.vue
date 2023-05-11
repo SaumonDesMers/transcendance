@@ -2,8 +2,8 @@
 import chat from '../scripts/chat';
 import { CreateGroupChannelDto } from '../entities/Chat.entities';
 import { State } from '../scripts/state';
-import user from '../scripts/user';
-import store from "../scripts/chat"
+import SelfUser from '../scripts/user';
+import store from "../scripts/chat";
 import { defineComponent } from 'vue';
 import { ChanType } from '../scripts/chat';
 
@@ -12,7 +12,7 @@ export default defineComponent({
     data: function () {
         return {
             State,
-            user,
+            SelfUser,
             isProtected: false,
             chat,
 			store,
@@ -25,13 +25,13 @@ export default defineComponent({
     },
     methods: {
         async saveModifications() {
-			store.setChanType(this.channeltype);
+			store.setChanType(this.channeltype, this.channelKeyInput);
 			this.$router.back();
 		},
 	},
 	watch: {
 		searchInput() {
-			store.search_user(this.searchInput).then((arr) => {
+			store.search_user(this.searchInput, this.currentGroupChannel?.channelId).then((arr) => {
 				this.searchArray = arr;
 			});
 		}
@@ -51,8 +51,9 @@ export default defineComponent({
 </script>
 
 <template>
-	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
-		<div v-if="user.darkMode == true" style="width: 0; height: 0;">
+	<div class="main-page" :class="[SelfUser.darkMode == true ? 'dark' : 'light ', SelfUser.coa]"
+		v-if="currentGroupChannel != undefined">
+		<div v-if="SelfUser.darkMode == true" style="width: 0; height: 0;">
 			<div class="stars"></div>
 			<div class="stars1"></div>
 			<div class="stars2"></div>
@@ -63,20 +64,17 @@ export default defineComponent({
 				<div class="title-chan">{{ currentGroupChannel?.name.toUpperCase() }} </div><br>
 				<p></p>
 				<div class="title">
-					<input v-on:click="isProtected = false; channeltype = 'PUBLIC'" type="radio" id="public"
-						name="channel" value="publicChan" checked>
+					<input type="radio" id="public" name="channel" value="PUBLIC" checked v-model="channeltype">
 					<label for="public">Public</label>
 				</div>
 				<div class="title">
-					<input v-on:click=" isProtected = false; channeltype = 'PRIV'" type="radio" id="private"
-						name="channel" value="privateChan">
+					<input type="radio" id="private" name="channel" value="PRIV" v-model="channeltype">
 					<label for="private">Private</label>
 				</div>
 				<div class="title">
-					<input v-on:click=" isProtected = true; channeltype = 'KEY'" type="radio" id="protected"
-						name="channel" value="isProtected">
+					<input type="radio" id="protected" name="channel" value="KEY" v-model="channeltype">
 					<label for="protected">Protected</label>
-					<div :style="[isProtected ? '' : 'display:none']">
+					<div :style="[channeltype == 'KEY' ? '' : 'display:none']">
 						<p style="color: white">ENTER PASSWORD</p>
 						<input type="text" id="name" name="channel" required size="15" v-model="channelKeyInput">
 					</div>
@@ -85,9 +83,19 @@ export default defineComponent({
 					<p>Manage administrator</p>
 					<input style="font-size: 1vw" type="text" v-model="searchInput" />
 					<div>
-						<p style="display:flex; justify-content: center; color: white;"
-							@click="store.invite_user(user.id, true)" v-for="username in searchArray">{{ username }}
-							<button style="" @click="store.user_admin(user.id, true)">MAKE ADMINISTRATOR</button>
+						<p style="display:flex; justify-content: center; color: white;" v-for="user in searchArray">{{ user.username }}
+							<button class="nocolor-btn" style="color:white" v-if="store.isAdmin(SelfUser.id)"
+								@click="store.kick_user(user.id)">kick</button><br>
+							<button class="nocolor-btn" style="color:white"
+								v-if="store.isAdmin(SelfUser.id) && !store.isAdmin(user.id)"
+								@click="store.ban_user(user.id, true)">ban</button>
+							<button class="nocolor-btn" style="color:white"
+								v-if="store.isAdmin(SelfUser.id) && !store.isAdmin(user.id)"
+								@click="store.user_admin(user.id, true)">Set Admin</button>
+							<button class="nocolor-btn" style="color:white"
+								v-if="store.isAdmin(SelfUser.id) && store.isAdmin(user.id) && !store.isOwner(user.id)"
+								@click="store.user_admin(user.id, false)">Unset Admin</button>
+							<!-- <button class="nocolor-btn" style="color: white;" @click="store.user_admin(user.id, true)">MAKE ADMINISTRATOR</button> -->
 						</p>
 					</div>
 					<div>
@@ -105,6 +113,10 @@ export default defineComponent({
 				</div>
 			</div>
 		</div>
+	</div>
+	<div class="main-page" :class="[SelfUser.darkMode == true ? 'dark' : 'light ', SelfUser.coa]"
+		v-else>
+		<p style="color: red;">Please select a channel</p>
 	</div>
 </template>
 

@@ -380,6 +380,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		//GLOBAL NOTIFICATIONS
 		if (oldChan.type != data.type)
 		{
+			oldChan.type = data.type;
 			//if new channel is priv then it was visible before so send notif
 			if (data.type == 'PRIV')
 				this.server.emit("public_chans", {channels:[oldChan], add: false});

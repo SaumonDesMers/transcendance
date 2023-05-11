@@ -576,7 +576,7 @@ export class Chat {
 
 		if (chan == undefined) return false;
 
-		return (chan.owner.userId == this.user.userId);
+		return (chan.owner.userId == userId);
 	}
 
 	isBlocked(userId: number) : boolean
