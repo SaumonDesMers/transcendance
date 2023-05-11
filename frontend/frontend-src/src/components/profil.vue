@@ -45,19 +45,23 @@ export default defineComponent({
 		blockUser(userId: number, action: boolean) {
 			chat.block_user(userId, action);
 		},
+		fetchUser(userId: number)
+		{
+			this.userLoader.clear();
+			this.user.loadUser(userId).then(() => {
+				this.user.downloadAvatar().then(value => { this.$forceUpdate() });
+				this.user.loadHistory();
+				this.user.loadStats();
+				this.usersStatus.fetchUsers([this.user]);
+				this.userLoader.addUser(this.user);
+				this.userLoader.addUserIds(this.user._friendsIdList.map(o => o.id))
+			})
+		}
 	},
 	watch: {
 		'$route.params'(newVal, oldVal) {
 			this.searchUserShow = false;
-			this.user.loadUser(parseInt(newVal.id as string)).then(() => {
-				this.user.downloadAvatar().then(value => { this.$forceUpdate() });
-				this.user.loadHistory();
-				this.user.loadStats();
-				this.userLoader.addUserIds(this.user._friendsIdList.map(o => o.id))
-				this.usersStatus.fetchUsers([this.user]);
-			})
-
-			this.userLoader.addUser(this.user);
+			this.fetchUser(parseInt(newVal.id as string));
 		}
 	},
 	computed: {
@@ -66,14 +70,8 @@ export default defineComponent({
 		},
 	},
 	mounted() {
-		this.user.loadUser(parseInt(this.$route.params.id as string)).then(nothing => {
-			this.user.downloadAvatar();
-			this.userLoader.addUserIds(this.user._friendsIdList.map(o => o.id))
-			this.user.loadHistory();
-			this.user.loadStats();
-			this.usersStatus.fetchUsers([this.user]);
-		})
-		this.userLoader.addUser(this.user);
+		this.userLoader.clear();
+		this.fetchUser(parseInt(this.$route.params.id as string));
 	},
 	emits: ['logout']
 })
