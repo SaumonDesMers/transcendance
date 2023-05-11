@@ -69,7 +69,7 @@ export default defineComponent({
 			<div class="stars1"></div>
 			<div class="stars2"></div>
 		</div>
-		<div style="color: aliceblue;">
+		<div style="color: aliceblue; z-index:10">
 			<homepagebtn></homepagebtn>
 		</div>
 		<div style="height: 100vh; overflow: scroll;">
