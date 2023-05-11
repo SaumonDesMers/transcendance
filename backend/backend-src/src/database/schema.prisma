@@ -86,7 +86,7 @@ model invite {
 model Message {
 	id Int @id @default(autoincrement())
 	content String
-	author ChatUser? @relation(fields: [chatUserId], references: [userId])
+	author ChatUser? @relation(fields: [chatUserId], references: [userId], onDelete: Cascade)
 	channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 	chatUserId Int
 	channelId Int
@@ -149,9 +149,9 @@ model Game {
 	winnerScore Int
 	LoserScore Int
 
-	winner User @relation("winner", fields: [winnerId], references: [id])
+	winner User @relation("winner", fields: [winnerId], references: [id], onDelete: Cascade)
 	winnerId Int 
 
-	loser User @relation("loser", fields: [loserId], references: [id])
+	loser User @relation("loser", fields: [loserId], references: [id], onDelete: Cascade)
 	loserId Int
 }
