@@ -339,15 +339,11 @@ export class MyUser extends User
 	}
 
 	async deleteAvatar() {
-		if (!this.avatar.fileName) {
-			console.log('deleteAvatar: no avatar to delete')
-			return;
-		}
 
 		axios.delete(`http://localhost:3001/users/${this.id}/image`)
 		.then(res => {
-			console.log('res :', res);
-			this.avatar.fileName = '';
+			this.set(res.data);
+			this.downloadAvatar();
 		})
 		.catch(err => {
 			console.log('err :', err);
