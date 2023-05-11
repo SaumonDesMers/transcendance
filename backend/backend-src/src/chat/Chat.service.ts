@@ -111,7 +111,7 @@ export class ChatService {
 			data: {
 				status: inviteStatus.EXPIRED
 			}
-		}).then(nothing => {});
+		}).then(() => {});
 	}
 
 	async createGroupChannel(newGroupChannel: CreateGroupChannelDto): Promise<GroupChannelDTO> {

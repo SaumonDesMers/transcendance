@@ -56,7 +56,7 @@ export class UserPrison {
 	{
 		let new_user = reactive(new User());
 		this.users.set(id, new_user);
-		new_user.loadUser(id).then( nothing => {
+		new_user.loadUser(id).then( () => {
 			new_user.downloadAvatar();
 		});
 		return new_user;
@@ -83,7 +83,7 @@ export class UserPrison {
 			let user = this.users.get(id);
 			if (user != undefined)
 			{
-				user.loadUser(user.id).then ( nothing => {
+				user.loadUser(user.id).then ( () => {
 					user?.downloadAvatar();
 				});
 			}

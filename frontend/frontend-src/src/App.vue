@@ -77,7 +77,7 @@ export default defineComponent({
 			userLoader.disconnect();
 			localStorage.removeItem('userId');
 			this.$cookie.removeCookie('jwt');
-			this.$router.push({ name: 'login' });
+			this.$router.push({ name: State.LOGIN });
 		}
 	},
 	mounted() {

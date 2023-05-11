@@ -32,7 +32,7 @@ export default defineComponent({
 		fetchData(id: number) {
 			this.userLoader.users.clear();
 			this.displayUser.loadUser(parseInt(this.$route.params.id as string))
-				.then(nothing => {
+				.then(() => {
 					this.displayUser.downloadAvatar();
 					this.displayUser.loadHistory();
 				})
