@@ -72,7 +72,7 @@ export default defineComponent({
 			})
 			.then((res) => {
 					this.user.set(res.data);
-					this.user.uploadAvatar().then(nothing => {
+					this.user.uploadAvatar().then(() => {
 						this.user.downloadAvatar();
 					})
 					this.$router.push({ name: 'main' });

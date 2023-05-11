@@ -49,7 +49,7 @@ export default defineComponent({
 	watch: {
 		'$route.params'(newVal, oldVal) {
 			this.searchUserShow = false;
-			this.user.loadUser(parseInt(newVal.id as string)).then(nothing => {
+			this.user.loadUser(parseInt(newVal.id as string)).then(() => {
 				this.user.downloadAvatar().then(value => { this.$forceUpdate() });
 				this.user.loadHistory();
 				this.user.loadStats();
