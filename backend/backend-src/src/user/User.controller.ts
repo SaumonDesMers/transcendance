@@ -132,7 +132,7 @@ export class UserController {
 		if (id != req.user.id)
 			throw new HttpException("Forbidden", HttpStatus.FORBIDDEN);
 			
-		const user = await this.userService.getOneUser(id);
+		let user = await this.userService.getOneUser(id);
 		if (user.picture == defaultPicture)
 			return user;
 			
@@ -141,7 +141,7 @@ export class UserController {
 			throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR)
 		})
 		user.picture = defaultPicture;
-		await this.userService.updateUser(id, user);
+		user = await this.userService.updateUser(id, user);
 		return user;
 	}
 

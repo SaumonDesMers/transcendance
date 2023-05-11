@@ -281,7 +281,7 @@ export class ChatService {
 	async sendMessage(newMessage: CreateMessageDto, invite?: Prisma.inviteCreateWithoutBaseMsgInput) {
 		// is user muted
 		if (await this.isMuted(newMessage.authorId, newMessage.ChannelId) == true)
-			throw new ValidationError("The user is muted and can't send a message");
+			throw new ValidationError("You are muted and can't send a message, try again later");
 		
 		const channel = await this.prisma.channel.findUnique({
 			where: {
