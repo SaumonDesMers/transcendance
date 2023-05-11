@@ -10,6 +10,7 @@ import { defineComponent } from 'vue'
 export default defineComponent({
 	data() {
 		return {
+			State,
 			errorMsg: '',
 			user,
 		}
@@ -30,11 +31,11 @@ export default defineComponent({
 			}
 
 			if (data == '')
-				this.$router.push({ name: 'register' });
+				this.$router.push({ name: State.REGISTER });
 			else if (data == '2fa')
-				this.$router.push({ name: 'validate-2fa' });
+				this.$router.push({ name: State.VALIDATE_2FA });
 			else
-				this.$router.push({ name: 'main' });
+				this.$router.push({ name: State.MAIN });
 		},
 	},
 
