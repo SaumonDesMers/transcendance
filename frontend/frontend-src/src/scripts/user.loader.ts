@@ -77,7 +77,12 @@ export class UserPrison {
 		})
 	}
 
-	initSocket()
+	clear()
+	{
+		this.users.clear();
+	}
+
+	private initSocket()
 	{
 		this._socket.on("user_update", (id: number ) => {
 			let user = this.users.get(id);

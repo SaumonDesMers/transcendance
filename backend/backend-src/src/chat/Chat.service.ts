@@ -125,8 +125,11 @@ export class ChatService {
 		{
 			new_key = await bcrypt.hash(newGroupChannel.key, saltRounds);
 		}
+		
+		let channel: GroupChannelDTO;
 
-		const channel: GroupChannelDTO = await this.prisma.groupChannel.create({
+		try {
+		channel = await this.prisma.groupChannel.create({
 			data: {
 				name: newGroupChannel.name,
 				key: new_key,
@@ -151,6 +154,9 @@ export class ChatService {
 			},
 			include: includeAllGroupChannel.include
 		});
+		} catch (e: any) {
+			throw new ValidationError("Chan creation error, try different channel name");
+		}
 
 		return channel;
 	}
@@ -234,9 +240,9 @@ export class ChatService {
 					channel: {
 						AND: [
 							{
-								users: { some: { user: {
-									username: targetUserName
-								}}}
+								users: { some: {
+									userId: user.id
+								}}
 							},
 							{
 								users: { some: {
@@ -254,7 +260,7 @@ export class ChatService {
 		if (channel == undefined)
 		{
 			console.log("awaiting dm channel creation");
-			channel = await this.createDMChannel([callerUserId, user.id]);
+			return this.createDMChannel([callerUserId, user.id]);
 		}
 		
 		return channel;

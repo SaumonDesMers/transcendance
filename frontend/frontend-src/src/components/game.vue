@@ -6,11 +6,13 @@ import game from '../scripts/game'
 import user, { User } from '../scripts/user';
 import { State } from '../scripts/state';
 import { defineComponent } from 'vue';
+import homepagebtn from './homepagebtn.vue';
 
 export default defineComponent({
 
 	components: {
-		gameCanvas
+		gameCanvas,
+		homepagebtn
 	},
 
 	data() {
@@ -54,16 +56,19 @@ export default defineComponent({
 <template>
 	<!-- class="main-page" :class="[user.darkMode == true ? '' : 'light ', user.coa]" -->
 	<div :style="[user.darkMode == true ? 'background-color: black' : 'background-color: whitesmoke']"
-		style="justify-content: center;">
-		<!-- <div v-show="user.darkMode == true">
-			<div class="stars"></div>
-			<div class="stars1"></div>
-			<div class="stars2"></div>
-		</div> -->
+	style="justify-content: center;">
+	<!-- <div v-show="user.darkMode == true">
+		<div class="stars"></div>
+		<div class="stars1"></div>
+		<div class="stars2"></div>
+	</div> -->
+		<div :style="[user.darkMode == true ? 'color: whitesmoke' : 'color: black']" style="position: absolute;">
+			<homepagebtn></homepagebtn>
+		</div>
 		<div
-			style="width: 100vw; height: 100vh; display:flex; flex-direction: column; justify-content: center; align-items: center;">
-			<!-- <h4>Game (state: {{ game.state.value }}) :</h4> -->
-			<!-- <p>{{ game.data }}</p> -->
+		style="width: 100vw; height: 100vh; display:flex; flex-direction: column; justify-content: center; align-items: center;">
+		<!-- <h4>Game (state: {{ game.state.value }}) :</h4> -->
+		<!-- <p>{{ game.data }}</p> -->
 
 			<div v-if="game.socket.disconnected">
 				<p class="error">You are disconnected !</p>
