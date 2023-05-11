@@ -286,16 +286,19 @@ export default defineComponent({
 							<div v-if="message.gameInvite != undefined">
 								<div v-if="!store.isBlocked(message.author.userId) && message.author.userId == user.id"
 									class="right-bubble-msg">
-									<p> Invite sent, waiting
-									<div style="display:inline-block" :class="[!user.darkMode ? 'dots dark' : 'dots']">
-										<div></div>
-										<div></div>
-										<div></div>
-									</div>
+									<p v-if="message.gameInvite.status == 'PENDING'"> Invite sent, waiting
+										<div style="display:inline-block" :class="[!user.darkMode ? 'dots dark' : 'dots']">
+											<div></div>
+											<div></div>
+											<div></div>
+										</div>
 									<!-- {{ message.gameInvite.status }} -->
 									<!-- <button v-if="message.gameInvite.status == 'PENDING'"
 											@click="store.acceptGameInvite(message)">Join</button> -->
 									</p>
+									<p v-if="message.gameInvite.status == 'EXPIRED'">
+										Invitation expired...
+									</p> 
 									<div class="avatar"
 										:style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']">
 									</div>
