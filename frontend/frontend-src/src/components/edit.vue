@@ -5,6 +5,7 @@ import { State } from '../scripts/state';
 import user, { Avatar } from '../scripts/user';
 import toggle2fa from "./toggle2fa.vue";
 import { defineComponent } from "vue";
+import { faRupiahSign } from "@fortawesome/free-solid-svg-icons";
 
 export default defineComponent({
 
@@ -25,13 +26,14 @@ export default defineComponent({
 	},
 	methods: {
 		async saveModifications() {
-			if (this.editAvatar.imageFile) {
-				this.user.avatar.setFile(this.editAvatar.imageFile);
-				this.user.uploadAvatar();
-			}
-			else {
-				this.user.avatar.clear();
-				this.user.deleteAvatar();
+			if (this.editAvatar.imageFile != this.user.avatar.imageFile) {
+				if (this.editAvatar.imageFile) {
+					this.user.avatar.setFile(this.editAvatar.imageFile);
+					this.user.uploadAvatar();
+				} else {
+					this.user.avatar.clear();
+					this.user.deleteAvatar();
+				}
 			}
 
 			this.user.username = this.editName;

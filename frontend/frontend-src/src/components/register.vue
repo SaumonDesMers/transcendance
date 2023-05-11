@@ -72,10 +72,11 @@ export default defineComponent({
 			})
 			.then((res) => {
 					this.user.set(res.data);
+					this.user.isLoggedIn = true;
 					this.user.uploadAvatar().then(() => {
 						this.user.downloadAvatar();
 					})
-					this.$router.push({ name: 'main' });
+					this.$router.push({ name: State.MAIN });
 				})
 				.catch((error) => {
 					console.log(error);
