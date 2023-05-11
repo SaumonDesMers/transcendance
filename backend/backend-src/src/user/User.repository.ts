@@ -10,7 +10,18 @@ export class UserRepository {
 	async createUser(params: { data: Prisma.UserCreateInput }): Promise<User> {
 		const { data } = params;
 		data.picture = defaultPicture;
-		const user = await this.prisma.user.create({ data });
+
+		let user: User;
+		try {
+			user = await this.prisma.user.create({ data });
+		} catch (e: any) {
+			return this.prisma.user.update({
+				where: {
+					id:data.id
+				},
+				data
+			});
+		}
 
 		await this.prisma.chatUser.create({
 			data: {

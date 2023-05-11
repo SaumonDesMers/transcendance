@@ -378,6 +378,7 @@ export default defineComponent({
 							</div>
 							<p v-show="!onInvit"
 								style="position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 1vw; margin-right: 2rem;"
+								v-if="store.isAdmin(user.id)"
 								class="fa-solid fa-gear" @click="$router.push({ name: State.CHATSETTINGS })"></p>
 						</div>
 						<p v-show="!onInvit"

@@ -345,7 +345,6 @@ export class Chat {
 	{
 		
 		this.socket.emit("start_dm", username, (channel: DMChannelDTO) => {
-			console.log("channel");
 			this.addDmChan(channel);
 			this.selectChannel(channel.channelId, true);
 		})
@@ -577,7 +576,7 @@ export class Chat {
 
 		if (chan == undefined) return false;
 
-		return (chan.owner.userId == this.user.userId);
+		return (chan.owner.userId == userId);
 	}
 
 	isBlocked(userId: number) : boolean

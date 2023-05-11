@@ -60,11 +60,11 @@ export default defineComponent({
 
 <template>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
-	<div class="main-page" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
-		<div v-show="user.darkMode == false">
+	<div class="main-page" :class="[SelfUser.darkMode == true ? 'dark' : 'light ', user.coa]">
+		<div v-show="SelfUser.darkMode == false">
 				<div class="sun"></div>
 			</div>
-		<div v-show="user.darkMode == true">
+		<div v-show="SelfUser.darkMode == true">
 			<div class="stars"></div>
 			<div class="stars1"></div>
 			<div class="stars2"></div>
