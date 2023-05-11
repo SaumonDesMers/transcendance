@@ -163,15 +163,12 @@ export default defineComponent({
 	<div class="error-box" v-if="store.error">
 		<div :class="[user.darkMode == true ? 'dark' : 'light']" v-if="store.error != ''">
 			{{ store.error }} </div>
-		<button @click="store.error = ''">clear Error</button>
+		<button @click="store.error = ''">Close Error</button>
 	</div>
 
 	<div class="chat" :class="[user.darkMode == true ? 'dark' : 'light ', user.coa]">
 		<div v-if="user.darkMode == false">
 			<div class="sun"></div>
-			<!-- <div class="cloud cloud0"></div>
-				<div class="cloud cloud1"></div>
-				<div class="cloud cloud2"></div> -->
 		</div>
 		<div v-else="user.darkMode == true">
 			<div style="width: 0;">
@@ -463,152 +460,8 @@ export default defineComponent({
 					</div>
 				</div>
 			</div>
-			<!-- <div>
-				<input type='test' v-model="keyInputBuffer">
-				<button @click="joinChannel">Join Channel</button>
-					<button @click="leaveChannel">Leave Channel</button>
-				<button @click="store.startDM(channelInputBuffer)">Start DM</button>
-			</div> -->
-			<!-- <p class="text-color-dark">Invites:</p> -->
-			<!-- Ici on affiche tout les channels pour lesquels on est invité -->
-			<!-- en crééant un bouton qui permet de rejoindre le channel concerné -->
-			<!-- <div v-for="[channelId, name] in store.channelInvites">
-				<button @click="store.acceptInvite(channelId)">{{ name }}</button>
-			</div> -->
-			<!-- Ici on affiche tout les channels publics que l'ont peu rejoindre en cliquant -->
-
-
-			<!-- ici on affiche tout les channels actuellement rejoints -->
-			<!-- <p class="text-color-dark">Joined Channels:</p>
-				<div v-for="[channelId, channel] in store.groupChannels">
-					<button @click="selectChannel(channelId)">{{ channel.name }}</button>
-				</div> -->
-
-			<!-- <div v-if="currentChannel != undefined"> -->
-			<!-- <div> -->
-			<!-- <input type="text" v-model="messageInputBuffer">
-							<button @click="SendMessage">Send</button>
-							<button @click="sendInvite">Send Game Invite</button>
-							<input type="checkbox" id="checkbox" v-model="customGameInvite">
-							<label for="checkbox">Custom Game</label>
-						</div> -->
-
-			<!-- ici on affiche tout les DM ouverts -->
-			<!-- <div v-for="[channelId, channel] in store.dmChannels">
-							<button @click="selectDMChannel(channelId)">{{ channel.channel.users.map(a =>
-								store.getUserName(a.userId))
-							}}</button>
-						</div> -->
-
-			<!-- Ici on affiche un channel de groupe avec les messages et les options... -->
-			<!-- <div v-if="currentChannel != undefined && store.isCurrentDM == false"> -->
-			<!-- <p>Current Channel : {{ currentChannel.name }}</p>
-								<p>Channel Owner: {{ store.getUserName(currentChannel.owner?.userId) }}</p>
-				<div v-for="message in currentChannel?.channel.messages">
-					<p>
-						{{ store.getUserName(message.author.userId) }} : {{ message.content }}
-						<p v-if="message.gameInvite != undefined">
-							Game Invite status: {{ message.gameInvite.status }}
-							<button v-if="message.gameInvite.status == 'PENDING'"
-							@click="store.acceptGameInvite(message)">Join</button>
-						</p>
-					</p>
-				</div> -->
-			<!-- <div v-for="user in currentChannel?.channel.users"> -->
-			<!-- <button @click="">ban</button> -->
-			<!-- <p>{{ store.getUserName(user.userId) }}</p>
-						<button @click="store.kick_user(user.userId)">kick</button>
-						<button @click="store.ban_user(user.userId, true)">ban</button>
-					</div> -->
-
-			<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PRIVÉ -->
-			<!-- <div v-if="currentChannel?.type == 'PRIV' || currentChannel?.type == 'PUBLIC'">
-						<p>Invited Users:</p>
-						<div v-for="user in currentChannel?.invited">
-							<p> {{ store.getUserName(user.userId) }}</p>
-						</div>
-						<div v-for="user in currentChannel?.channel.users"> -->
-			<!-- <button @click="">ban</button> -->
-			<!-- <p>{{ store.getUserName(user.userId) }}</p>
-								<button @click="store.kick_user(user.userId)">kick</button>
-								<button @click="store.ban_user(user.userId, true)">ban</button>
-							</div> -->
-
-			<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PRIVÉ -->
-			<!-- <div v-if="currentChannel?.type == 'PRIV' || currentChannel?.type == 'PUBLIC'">
-								<p>Invited Users:</p>
-								<div v-for="user in currentChannel?.invited">
-									<p> {{ store.getUserName(user.userId) }}</p>
-								</div>
-								<input type="text" v-model="userNameInputBuffer"> -->
-			<!-- Exemple d'un appel a la fonction Pour invite et uninvite un user -->
-			<!-- <button @click="store.invite_user(userNameInputBuffer, true)">Invite User</button>
-									<button @click="store.invite_user(userNameInputBuffer, false)">Uninvite User</button> -->
-			<!-- </div> -->
-
-			<!-- Exemple d'un appel a la fonction Pour invite et uninvite un user -->
-			<!-- <button @click="store.invite_user(userNameInputBuffer, true)">Invite
-										User</button>
-										<button @click="store.invite_user(userNameInputBuffer, false)">Uninvite
-											User</button>
-				</div> -->
-
-			<!-- AFFICHAGE SPECIFIQUE A UN CHANNEL PROTEGE PAR CLÉ -->
-			<!-- <div v-if="currentChannel?.type == 'KEY'">
-					<input type="text" v-model="setKeyInputBuffer">
-					
-					<button @click="store.setChanKey(setKeyInputBuffer)">Set Chan Key</button>
-				</div> -->
-
-			<!-- un exemple d'un ensemble de boutons pour changer le type du channel actuellement selectionné -->
-
-			<!-- <button @click="store.setChanType('PUBLIC')">Set Channel Public</button> -->
-			<!-- <button @click="store.setChanType('PRIV')">Set Channel Private</button> -->
-
-			<!-- ça c'est à l'arrache faut pas faire ça ( j'ai la même var d'input que le champ du dessus) -->
-			<!-- <input type="text" v-model="setKeyInputBuffer"> -->
-
-			<!-- <button @click="store.setChanKey(setKeyInputBuffer)">Set Chan Key</button> -->
-			<!-- </div> -->
-
-			<!-- un exemple d'un ensemble de boutons pour changer le type du channel actuellement selectionné -->
-
-			<!-- <button @click="store.setChanType('PUBLIC')">Set Channel Public</button> -->
-			<!-- <button @click="store.setChanType('PRIV')">Set Channel Private</button> -->
-
-			<!-- ça c'est à l'arrache faut pas faire ça ( j'ai la même var d'input que le champ du dessus) -->
-			<!-- <input type="text" v-model="setKeyInputBuffer"> -->
-
-			<!-- <button @click="store.setChanType('KEY', setKeyInputBuffer)">Set Channel KeyProtected</button> -->
-			<!-- </div> -->
-
-			<!-- <div v-if="currentChannel != undefined && store.isCurrentDM == true"> -->
-			<!-- <p>Chat With -->
-			<!-- <p v-for="user in currentChannel?.channel.users">{{ store.getUserName(user.userId) }}</p> -->
-			<!-- </p> -->
-
-			<!-- <div v-for="message in currentChannel?.channel.messages"> -->
-			<!-- <p> -->
-			<!-- {{ store.getUserName(message.author.userId) }} : {{ message.content }} -->
-			<!-- <p v-if="message.gameInvite != undefined"> -->
-			<!-- Game Invite status: {{ message.gameInvite.status }}
-										<button v-if="message.gameInvite.status == 'PENDING'"
-										@click="store.acceptGameInvite(message)">Join</button>
-									</p>
-								</p>
-							</div>
-						</div> -->
-
 		</div>
-		<!-- <button @click="">ban</button> -->
-
-
-		<!-- affichage de la dernière erreur reçue -->
-		<!-- avec un bouton pour reset -->
-		<!-- pb : a decaler au centre de la page (mais je n'y arrive pas acyuellement deso) -->
 	</div>
-
-	<!-- <button @click="print()">click me</button> -->
 </template>
 
 <style lang="scss" scoped>
