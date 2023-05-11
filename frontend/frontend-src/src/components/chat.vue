@@ -426,12 +426,12 @@ export default defineComponent({
 					</div>
 				</div>
 			</div>
-			<div>
+			<!-- <div>
 				<input type='test' v-model="keyInputBuffer">
-				<!-- <button @click="joinChannel">Join Channel</button>
-					<button @click="leaveChannel">Leave Channel</button> -->
+				<button @click="joinChannel">Join Channel</button>
+					<button @click="leaveChannel">Leave Channel</button>
 				<button @click="store.startDM(channelInputBuffer)">Start DM</button>
-			</div>
+			</div> -->
 			<!-- <p class="text-color-dark">Invites:</p> -->
 			<!-- Ici on affiche tout les channels pour lesquels on est invité -->
 			<!-- en crééant un bouton qui permet de rejoindre le channel concerné -->
@@ -771,8 +771,7 @@ export default defineComponent({
 	z-index: 5;
 	border: 1px solid;
 	height: 100vh;
-	min-width: 6rem;
-	width: 100%;
+	width: 15vw;
 	display: flex;
 	flex-direction: column;
 	color: white;
@@ -795,15 +794,5 @@ export default defineComponent({
 	border-bottom: 1px solid;
 	border-image: linear-gradient(0.25turn, rgb(66, 66, 66, 0), rgb(158, 158, 158, 10), rgb(255, 255, 255), rgb(158, 158, 158, 10), rgb(66, 66, 66, 0));
 	border-image-slice: 1;
-}
-
-@media screen and (max-width: 600px) {
-	.chat-list {
-		display: none;
-	}
-
-	.users {
-		display: none;
-	}
 }
 </style>
