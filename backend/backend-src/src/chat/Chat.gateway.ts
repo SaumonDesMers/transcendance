@@ -146,7 +146,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 		try {
 			channel = await this.chatService.createGroupChannel(data);
 		} catch (e: any) {
-			throw new WsException(e);
+			throw new WsException(e.message);
 		}
 
 		socket.join(channel.channel.id.toString());
