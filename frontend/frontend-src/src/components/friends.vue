@@ -146,11 +146,11 @@ export default defineComponent({
 }
 
 .text-color-light {
-	color: rgb(0, 0, 0, 0.6);
+	color: white;
 
 	&:hover,
 	&:active {
-		color: rgb(0, 0, 0, 1);
+		color: white;
 	}
 }
 
@@ -168,6 +168,7 @@ export default defineComponent({
 
 	.friends-grid {
 		margin-top: 2rem;
+		margin-bottom: 2rem;
 		gap: 5rem;
 	}
 }
