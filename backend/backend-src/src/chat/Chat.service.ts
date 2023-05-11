@@ -224,15 +224,27 @@ export class ChatService {
 			channel = await this.prisma.dMChannel.findFirst({
 				where: {
 					channel: {
-						users: {
-							every: {
-								userId:callerUserId
+						AND: [
+							{
+							users: {
+								every: {
+									userId:callerUserId
+								}
 							}
-						}
+							},
+							{
+								NOT: {
+									users: {
+										none :{}
+									}
+								}
+							}
+						]
 					}
 				},
 				include: {channel: includeMembersAndLast10Messages}
 			});
+			console.log("callerId: %d, found solo channel:", callerUserId, channel);
 		} else {
 			//try to find an existing channel
 			channel = await this.prisma.dMChannel.findFirst({

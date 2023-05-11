@@ -345,7 +345,6 @@ export class Chat {
 	{
 		
 		this.socket.emit("start_dm", username, (channel: DMChannelDTO) => {
-			console.log("channel");
 			this.addDmChan(channel);
 			this.selectChannel(channel.channelId, true);
 		})
