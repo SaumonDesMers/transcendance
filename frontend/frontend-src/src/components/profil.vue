@@ -162,12 +162,15 @@ export default defineComponent({
 								<div class="bar bar-red" :style="{ width: (user.stats.GamesLost / 17) * 100 + '%' }"></div>
 							</div>
 							<div class="stats-text">
-								<p class="fa-solid fa-ranking-star"> : {{ user.stats.rank }} </p>
-								<div>Games played : {{ user.stats.GamesWon + user.stats.GamesLost }}</div>
-								<div>Games won : {{ user.stats.GamesWon }}</div>
-								<div>Games lost : {{ user.stats.GamesLost }}</div>
-								<div>Win ratio : {{ user.stats.GamesWon / (user.stats.GamesLost + user.stats.GamesWon) * 100
-								}}</div>
+								<div style="text-align: center;">
+									<p style="text-align: center; width: 100;" class="fa-solid fa-ranking-star"> :: {{ user.stats.rank }} :: <p class="fa-solid fa-ranking-star"></p> </p>
+								</div>
+								<div class="main-stat">
+									<div>Games played {{ user.stats.GamesWon + user.stats.GamesLost }}</div>
+									<div>Win ratio : {{ Math.trunc(user.stats.GamesWon / (user.stats.GamesLost + user.stats.GamesWon) * 100) }}</div>
+									<div>Games won : {{ user.stats.GamesWon }}</div>
+									<div>Games lost : {{ user.stats.GamesLost }}</div>
+								</div>
 							</div>
 						</div>
 					</div>

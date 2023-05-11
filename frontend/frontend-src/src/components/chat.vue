@@ -283,34 +283,60 @@ export default defineComponent({
 						<p>Channel Owner: {{ userLoader.getUserName(currentChannel.owner?.userId) }}</p> -->
 					<div class="conversation" style="overflow: scroll; height: 80vh;">
 						<div v-for="message in currentChannel?.channel.messages">
-							<div v-if="!store.isBlocked(message.author.userId) && message.author.userId == user.id"
-								class="right-bubble-msg">
-								<p> {{ message.content }} </p>
-								<div class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']">
+							<div v-if="message.gameInvite != undefined">
+								<div v-if="!store.isBlocked(message.author.userId) && message.author.userId == user.id"
+									class="right-bubble-msg">
+									<p> Invite sent, waiting
+									<div style="display:inline-block" :class="[!user.darkMode ? 'dots dark' : 'dots']">
+										<div></div>
+										<div></div>
+										<div></div>
+									</div>
+									<!-- {{ message.gameInvite.status }} -->
+									<!-- <button v-if="message.gameInvite.status == 'PENDING'"
+											@click="store.acceptGameInvite(message)">Join</button> -->
+									</p>
+									<div class="avatar"
+										:style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']">
+									</div>
+								</div>
+								<div v-if="!store.isBlocked(message.author.userId) && message.author.userId != user.id"
+									class="left-bubble-msg">
+									<div class="avatar"
+										:style="['background-image: url(\'' + userLoader.getUser(message.author.userId).avatar.imageBase64 + '\')']">
+									</div>
+									<p> Come play with me :
+										<!-- Game Invite status: {{ message.gameInvite.status }} -->
+										<button v-if="message.gameInvite.status == 'PENDING'"
+											@click="store.acceptGameInvite(message)">JOIN</button>
+										<button v-if="message.gameInvite.status == 'EXPIRED'"
+											@click="store.acceptGameInvite(message)">TOO LATE</button>
+									</p>
 								</div>
 							</div>
-							<div v-else-if="!store.isBlocked(message.author.userId) && message.author.userId != user.id"
-								class="left-bubble-msg">
-								<div class="avatar" :style="['background-image: url(\'' + userLoader.getUser(message.author.userId).avatar.imageBase64 + '\')']">
+							<div v-if="message.gameInvite == undefined">
+								<div v-if="!store.isBlocked(message.author.userId) && message.author.userId == user.id"
+									class="right-bubble-msg">
+									<p> {{ message.content }} </p>
+									<div class="avatar"
+										:style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']">
+									</div>
 								</div>
-								<p>{{ message.content }}</p>
+								<div v-else-if="!store.isBlocked(message.author.userId) && message.author.userId != user.id"
+									class="left-bubble-msg">
+									<div class="avatar"
+										:style="['background-image: url(\'' + userLoader.getUser(message.author.userId).avatar.imageBase64 + '\')']">
+									</div>
+									<p>{{ message.content }}</p>
+								</div>
 							</div>
-							<p v-if="message.gameInvite != undefined">
-								Game Invite status: {{ message.gameInvite.status }}
-								<button v-if="message.gameInvite.status == 'PENDING'"
-									@click="store.acceptGameInvite(message)">Join</button>
-							</p>
 						</div>
-						<!-- <div v-for="user in currentChannel?.channel.users"> -->
-						<!-- <p>{{ userLoader.getUserName(user.userId) }}</p>
-									<button @click="store.kick_user(user.userId)">kick</button>
-									<button @click="store.ban_user(user.userId, true)">ban</button>
-								</div> -->
 					</div>
 				</div>
 
 				<div v-if="currentChannel != undefined" class="send-message">
-					<textarea class="input-message" type="text" @keydown.enter="SendMessage()" v-model="messageInputBuffer"></textarea>
+					<textarea class="input-message" type="text" @keydown.enter="SendMessage()"
+						v-model="messageInputBuffer"></textarea>
 					<div style="display: flex; flex-direction: column; justify-content: space-between;">
 						<button class="fa-solid fa-paper-plane text-color-dark"
 							style="font-size: 1.5vw; color: white; padding: 0.5rem; background-color: transparent; border: none;"
@@ -712,7 +738,7 @@ export default defineComponent({
 .chat-box {
 	z-index: 5;
 	width: 100%;
-	min-width: 70vw;
+	// min-width: 70vw;
 	overflow-wrap: break-word;
 	background-color: rgba(255, 255, 255, 0.1);
 
@@ -798,5 +824,42 @@ export default defineComponent({
 	border-bottom: 1px solid;
 	border-image: linear-gradient(0.25turn, rgb(66, 66, 66, 0), rgb(158, 158, 158, 10), rgb(255, 255, 255), rgb(158, 158, 158, 10), rgb(66, 66, 66, 0));
 	border-image-slice: 1;
+}
+
+@keyframes fx {
+	50% {
+		transform: scale(1);
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0;
+	}
+}
+
+@mixin animation($delay: 0ms) {
+	$animation-speed: 1000ms;
+	animation: fx $animation-speed ease infinite $delay;
+}
+
+.dots>* {
+	$animation-speed: 1000ms;
+	$dot-size: 0.3vw;
+	width: $dot-size;
+	height: $dot-size;
+	border: calc($dot-size / 5) solid white;
+	border-radius: 50%;
+	float: left;
+	margin: 0 calc($dot-size / 5);
+	transform: scale(0);
+	@include animation;
+
+	&:nth-child(2) {
+		@include animation($animation-speed * 0.33);
+	}
+
+	&:nth-child(3) {
+		@include animation($animation-speed * 0.66);
+	}
 }
 </style>

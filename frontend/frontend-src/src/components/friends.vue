@@ -147,6 +147,10 @@ export default defineComponent({
 
 .text-color-light {
 	color: white;
+	font-size: 20px;
+	text-transform: uppercase;
+	text-align: center;
+	padding: 0.2rem;
 
 	&:hover,
 	&:active {
