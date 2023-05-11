@@ -308,12 +308,11 @@ export default defineComponent({
 									<div class="avatar"
 										:style="['background-image: url(\'' + userLoader.getUser(message.author.userId).avatar.imageBase64 + '\')']">
 									</div>
-									<p> Come play with me :
+									<p> {{ message.content }}
 										<!-- Game Invite status: {{ message.gameInvite.status }} -->
 										<button v-if="message.gameInvite.status == 'PENDING'"
 											@click="store.acceptGameInvite(message)">JOIN</button>
-										<button v-if="message.gameInvite.status == 'EXPIRED'"
-											@click="store.acceptGameInvite(message)">TOO LATE</button>
+										<p v-else>Expired</p>
 									</p>
 								</div>
 							</div>
