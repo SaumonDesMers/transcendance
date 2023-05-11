@@ -237,7 +237,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	@SubscribeMessage("get_my_user")
 	async handleGetUser(@ConnectedSocket() socket: chatSocket)
 	{
-		return this.chatService.getChatUserWithInvite(socket.data.userId);
+		try {
+			return this.chatService.getChatUserWithInvite(socket.data.userId);
+		} catch (e) {
+			throw new WsException("No user found");
+		}
 	}
 
 	@SubscribeMessage("chan_key_request")
@@ -255,26 +259,42 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect{
 	async handleGetOtherUser(@ConnectedSocket() socket: chatSocket,
 		@MessageBody() id: number)
 	{
-		return this.chatService.getChatUser(id);
+		try {
+			return this.chatService.getChatUser(id);
+		} catch (e) {
+			throw new WsException("No user found");
+		}
 	}
 
 	@SubscribeMessage("get_groupchannels")
 	async handleGetChannels(@ConnectedSocket() socket: chatSocket)
 	{
-		return this.chatService.getUserGroupChannels(socket.data.userId);
+		try {
+			return this.chatService.getUserGroupChannels(socket.data.userId);
+		} catch (e) {
+			throw new WsException("An error occured while loading, please refresh");
+		}
 	}
 
 	@SubscribeMessage("get_public_channels")
 	async handleGetPublicChannels(
 		@ConnectedSocket() socket: chatSocket)
 	{
-		return this.chatService.getPublicChannels();
+		try {
+			return this.chatService.getPublicChannels();
+		} catch (e) {
+			throw new WsException("An error occured while loading, please refresh");
+		}
 	}
 
 	@SubscribeMessage("get_dmchannels")
 	async handleGetDMs(@ConnectedSocket() socket: chatSocket)
 	{
-		return this.chatService.getUserDMChannels(socket.data.userId);
+		try {
+			return this.chatService.getUserDMChannels(socket.data.userId);
+		} catch (e) {
+			throw new WsException("An error occured while loading, please refresh");
+		}
 	}
 
 	@SubscribeMessage("search_username")
