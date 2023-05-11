@@ -191,18 +191,15 @@ export default defineComponent({
 		</div>
 		<div class="chat-container">
 			<div class="chat-list" :class="[user.darkMode == true ? 'dark' : 'light']">
-				<div style="display: flex; flex-direction: row;">
-					<div style="position:relative; display:flex; margin-top: 1.5rem; font-size: 2vw;">
+					<div style="width: 100%;display: flex; justify-content: space-between; padding:0.5rem;">
+					<div>
 						<homepagebtn></homepagebtn>
 					</div>
-					<div style="height: 4vh;">
-						<p style="position:relative; margin-left: 8.5rem; display:flex; justify-content: end; margin-top: 1.5rem; font-size: 2vw;"
-							class="fa-solid fa-plus" @click="$router.push({ name: State.CREATECHAT })"></p>
-						<!-- <p class="fa-solid fa-plus" style="position:fixed; font-size: 1.5vw; margin-top: 0.2rem; color:black"></p> -->
-
+					<div>
+						<p style="" class="fa-solid fa-plus" @click="$router.push({ name: State.CREATECHAT })"></p>
 					</div>
 				</div>
-				<div>
+				<div style="width: 100%">
 					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
 						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;" @click="displayYourChan()">Your
 						channels </p>
@@ -214,7 +211,19 @@ export default defineComponent({
 						</div>
 					</div>
 				</div>
-				<div>
+				<!-- <div style="width: 100%">
+					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
+						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;" @click="displayYourChan()">Your
+						channels </p>
+					<div v-show="yourChan" class="chan-can-join">
+						<div v-for="[channelId, channel] in store.groupChannels">
+							<button @click="selectChannel(channelId)"
+								style="color: white; font-size: 15px; border: none; background-color: transparent;">{{
+									channel.name }}</button>
+						</div>
+					</div>
+				</div> -->
+				<div style="width: 100%">
 					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
 						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;" @click="displayMP()">Private
 						message</p>
@@ -230,7 +239,7 @@ export default defineComponent({
 						</div>
 					</div>
 				</div>
-				<div>
+				<div style="width: 100%">
 					<p class="grid-border" :class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']"
 						style="overflow:auto; padding-top: 0.5rem; padding-bottom: 0.5rem;" @click="displayJoinChannel()">
 						Join channel</p>
@@ -257,7 +266,7 @@ export default defineComponent({
 					</div>
 				</div>
 				<div
-					style="margin-top:45%; height: 5vh; margin-left: -5px; display: flex; align-items: center; padding-top: 0.5rem; padding-bottom: 0.5rem;">
+					style="width: 100%;margin-top:45%; height: 5vh; margin-left: -5px; display: flex; align-items: center; padding-top: 0.5rem; padding-bottom: 0.5rem;">
 					<div class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']"></div>
 					<router-link style="margin-left: 0.7rem;" :to="{ name: 'profile', params: { id: user.id } }"
 						:class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">{{ user.username
@@ -336,7 +345,6 @@ export default defineComponent({
 						</div>
 					</div>
 				</div>
-
 				<div v-if="currentChannel != undefined" class="send-message">
 					<textarea class="input-message" type="text" @keydown.enter="SendMessage()"
 						v-model="messageInputBuffer"></textarea>
@@ -380,10 +388,10 @@ export default defineComponent({
 								style="position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 1vw; margin-right: 2rem;"
 								v-if="store.isAdmin(user.id)"
 								class="fa-solid fa-gear" @click="$router.push({ name: State.CHATSETTINGS })"></p>
+								<p v-show="!onInvit"
+									style="position:absolute; right: 40px; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 1vw; margin-right: 2rem;"
+									class="fa-solid fa-arrow-right-from-bracket" @click="leaveChannel()"></p>
 						</div>
-						<p v-show="!onInvit"
-							style="position:absolute; right: 40px; display:flex; justify-content: end; margin-top: 0.5rem; font-size: 1vw; margin-right: 2rem;"
-							class="fa-solid fa-arrow-right-from-bracket" @click="leaveChannel()"></p>
 					</div>
 					<div v-show="!onInvit">
 						<p v-if="currentGroupChannel != undefined">
@@ -704,8 +712,6 @@ export default defineComponent({
 
 .light {
 	background-color: rgba(255, 255, 255, 0.1);
-
-	// background-color: rgba(0, 0, 0, 0.5);
 }
 
 .bubble-avatar {
@@ -721,7 +727,7 @@ export default defineComponent({
 	color: white;
 	border: 1px solid;
 	height: 100vh;
-	width: 100%;
+	width: 15vw;
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
@@ -817,6 +823,7 @@ export default defineComponent({
 .avatar {
 	width: 5rem;
 	height: 5rem;
+	margin-left: 0.5rem;
 	border-radius: 50%;
 	background-color: white;
 	background-size: cover;
