@@ -16,7 +16,7 @@ export default defineComponent({
 			SelfUser,
 			displayUser: new User(),
 			userLoader,
-			ladder: [] as {id:number, username:string}[], // TODO: type this
+			ladder: [] as { id: number, username: string }[], // TODO: type this
 		}
 	},
 	watch: {
@@ -32,16 +32,16 @@ export default defineComponent({
 		fetchData(id: number) {
 			this.userLoader.users.clear();
 			this.displayUser.loadUser(parseInt(this.$route.params.id as string))
-			.then(nothing => {
-				this.displayUser.downloadAvatar();
-				this.displayUser.loadHistory();
-			})
+				.then(nothing => {
+					this.displayUser.downloadAvatar();
+					this.displayUser.loadHistory();
+				})
 
 			this.userLoader.addUser(this.displayUser);
 			axios.get(`http://localhost:3001/games/ladder`, {
-			params: {
-				take: 10
-			}
+				params: {
+					take: 10
+				}
 			}).then(res => {
 				this.ladder = res.data;
 			}).catch(err => {
@@ -70,43 +70,47 @@ export default defineComponent({
 		<div style="color:aliceblue">
 			<homepagebtn></homepagebtn>
 		</div>
-		<div style="height: 100vh; overflow: scroll;">
-			<div class="grid-history">
-				<div class="best-players">
-					<h1 class="text-color-dark"><p class="fa-solid fa-ranking-star"></p> BEST PLAYERS <p class="fa-solid fa-ranking-star"></p><br></h1>
-					<div v-for="(user, rank) in ladder">
-						<p class="text-color-dark" @click="$router.push({ name: State.USER, params: { id: user.id }})">{{ rank + 1 }} : {{ user.username }}<br></p>
-					</div>
+		<div class="grid-history">
+			<div class="best-players">
+				<h1 class="text-color-dark">
+					<p class="fa-solid fa-ranking-star"></p> BEST PLAYERS <p class="fa-solid fa-ranking-star"></p><br>
+				</h1>
+				<div v-for="(user, rank) in ladder">
+					<p class="text-color-dark" @click="$router.push({ name: State.USER, params: { id: user.id } })">{{ rank
+						+
+						1 }} : {{ user.username }}<br></p>
 				</div>
-				<div class="friends-grid">
-					<div v-for="game in displayUser.history">
-						<div class="friend">
-							<div class="avatar">	
-								<div class="avatar-style" :style="['background-image: url(\'' + userLoader.getUser(game.loserId).avatar.imageBase64 + '\')']">
-									<div class="status-profile"
-										:style="[SelfUser.id ? 'background-color: green' : 'background-color: gray']"></div>
-								</div>
-								<div class="status"></div>
-							</div>
-							<div class="avatar">
-								<div class="avatar-style" :style="['background-image: url(\'' + userLoader.getUser(game.winnerId).avatar.imageBase64 + '\')']">
-									<div class="status-profile"
-										:style="[SelfUser.id ? 'background-color: green' : 'background-color: gray']"></div>
-								</div>
-								<div class="status"></div>
-							</div>
-							<div class="result-grid" :class="[SelfUser.darkMode ? 'text-color-dark' : 'text-color-light']">
-								<p class="login" @click="$router.push({ name: State.USER, params: { id: game.loserId } })">{{ userLoader.getUser(game.loserId).username }}<br></p>
-								<p class="fa-solid fa-skull"><br></p>
-								<p class="score">{{ game.LoserScore }}<br></p>
-							</div>
-							<div class="result-grid goldBG goldText"
-								:class="[SelfUser.darkMode ? 'text-color-dark' : 'text-color-light']">
-								<p class="login" @click="$router.push({ name: State.USER, params: { id: game.winnerId } })">{{ userLoader.getUser(game.winnerId).username }}<br></p>
-								<p class="fa-solid fa-trophy"><br></p>
-								<p class="score">{{ game.winnerScore }}<br></p>
-							</div>
+			</div>
+			<div class="friends-grid">
+				<div class="friend" v-for="game in displayUser.history">
+					<div class="avatar">
+						<div class="avatar-style"
+							:style="['background-image: url(\'' + userLoader.getUser(game.loserId).avatar.imageBase64 + '\')']">
+							<div class="status-profile"
+								:style="[SelfUser.id ? 'background-color: green' : 'background-color: gray']"></div>
 						</div>
+						<div class="status"></div>
+					</div>
+					<div class="avatar">
+						<div class="avatar-style"
+							:style="['background-image: url(\'' + userLoader.getUser(game.winnerId).avatar.imageBase64 + '\')']">
+							<div class="status-profile"
+								:style="[SelfUser.id ? 'background-color: green' : 'background-color: gray']"></div>
+						</div>
+						<div class="status"></div>
+					</div>
+					<div class="result-grid" :class="[SelfUser.darkMode ? 'text-color-dark' : 'text-color-light']">
+						<p class="login" @click="$router.push({ name: State.USER, params: { id: game.loserId } })">{{
+							userLoader.getUser(game.loserId).username }}<br></p>
+						<p class="fa-solid fa-skull"><br></p>
+						<p class="score">{{ game.LoserScore }}<br></p>
+					</div>
+					<div class="result-grid goldBG goldText"
+						:class="[SelfUser.darkMode ? 'text-color-dark' : 'text-color-light']">
+						<p class="login" @click="$router.push({ name: State.USER, params: { id: game.winnerId } })">{{
+							userLoader.getUser(game.winnerId).username }}<br></p>
+						<p class="fa-solid fa-trophy"><br></p>
+						<p class="score">{{ game.winnerScore }}<br></p>
 					</div>
 				</div>
 			</div>
@@ -116,23 +120,25 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .grid-history {
-	display: grid;
-	grid-template-columns: 1fr 2fr;
-	// grid-template-rows: 1fr 1fr;
+	display: flex;
+	flex-grow: 1;
+	margin: 3rem;
 }
 
 .best-players {
-	display: grid;
+	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: center;
-	width: 100%;
-	height: 95vh;
-	margin-left: 1rem;
+	justify-content: flex-start;
+	padding-top: 2rem;
 	gap: 1rem;
 	background-color: rgba(0, 0, 0, 0.5);
-	margin-top: 1rem;
-	margin-bottom: 0.5rem;
+	overflow: scroll;
+	width: 20vw;
+
+	h1 {
+		margin-bottom: 1rem;
+	}
 }
 
 .title {
@@ -140,13 +146,14 @@ export default defineComponent({
 }
 
 .friends-grid {
+	flex-basis: 0;
+	flex-grow: 1;
 	display: flex;
 	flex-wrap: wrap;
-	margin-top: 0.5rem;
-	margin-bottom: 0.5rem;
-	// gap: 1rem;
+	gap: 1rem;
 	align-items: center;
 	justify-content: center;
+	overflow: scroll; 
 }
 
 .friend {
@@ -194,12 +201,6 @@ export default defineComponent({
 		width: 35rem;
 		height: 15rem;
 	}
-
-	.friends-grid {
-		margin-top: 1rem;
-		margin-bottom: 1rem;
-		gap: 5rem;
-	}
 }
 
 .avatar {
@@ -211,6 +212,7 @@ export default defineComponent({
 .avatar-style {
 	border-radius: 50%;
 	background: url("https://unsplash.it/100/100");
+	background-size: cover;
 	width: 100px;
 	height: 100px;
 }
