@@ -119,7 +119,7 @@ export default defineComponent({
 }
 
 .friend {
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: rgba(255, 255, 255, 0.1);
 	display: grid;
 	padding: 0.5rem;
 	border-radius: 4px;

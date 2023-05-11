@@ -220,12 +220,13 @@
 }
 
 .stats-text {
-    background-color: rgba(125, 125, 125, 0.5);
+    background-color: rgba(255, 255, 255, 0.1);
     margin: 1rem 0 1rem 0;
     border-radius: 10px;
     padding: 0.5rem;
     text-transform: uppercase;
 }
+
 
 .stats-container {
     display: flex;
@@ -271,7 +272,7 @@
 }
 
 .history-table tr:nth-child(even) {
-	background-color: rgb(200, 200, 200, 0.1);
+	background-color: rgb(255, 255, 255, 0.1);
 }
 
 .history-table tr.winner {
@@ -285,13 +286,13 @@
 	width: 100%;
 	border-radius: 10px;
 	overflow: hidden;
-    background-color: rgba(125,125,125, 0.3);
+    background-color: rgba(255,255,255, 0.3);
 
 }
 
 .bar {
 	height: 20px;
-    background-color: rgba(125,125,125, 0.1);
+    background-color: rgba(255,255,255, 0.1);
 }
 
 .bar-green {
@@ -299,7 +300,7 @@
 }
 
 .bar-red {
-    background-color: rgba(125,125,125, 0.3);
+    background-color: rgba(255,255,255, 0.3);
 }
 
 

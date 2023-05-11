@@ -132,7 +132,7 @@ export default defineComponent({
 	justify-content: flex-start;
 	padding-top: 2rem;
 	gap: 1rem;
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: rgba(255, 255, 255, 0.1);
 	overflow: scroll;
 	width: 20vw;
 
@@ -157,7 +157,7 @@ export default defineComponent({
 }
 
 .friend {
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: rgba(255, 255, 255, 0.1);
 	display: grid;
 	// padding: 0.5rem;
 	grid-template-columns: 1fr 1fr;

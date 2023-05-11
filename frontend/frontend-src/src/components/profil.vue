@@ -182,7 +182,7 @@ export default defineComponent({
 								<tbody>
 									<tr v-for="game in user.history">
 										<div class="row-tab">
-											<div style="text-shadow: 0 0 10px #fff, 0 0 15px #777777, 0 0 25px #000000;"> {{ userLoader.getUser(game.winnerId).username }} </div>
+											<div> {{ userLoader.getUser(game.winnerId).username }} </div>
 											<div> {{ game.winnerScore }} </div>
 											<div> {{ userLoader.getUser(game.loserId).username }} </div>
 											<div> {{ game.LoserScore }} </div>

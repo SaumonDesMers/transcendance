@@ -259,7 +259,7 @@ export default defineComponent({
 				<div
 					style="margin-top:45%; height: 5vh; margin-left: -5px; display: flex; align-items: center; padding-top: 0.5rem; padding-bottom: 0.5rem;">
 					<div class="avatar" :style="['background-image: url(\'' + user.avatar.imageBase64 + '\')']"></div>
-					<router-link style="margin-left: 0.7rem; text-decoration: none;" :to="{ name: 'profile', params: { id: user.id } }"
+					<router-link style="margin-left: 0.7rem;" :to="{ name: 'profile', params: { id: user.id } }"
 						:class="[user.darkMode == true ? 'text-color-dark' : 'text-color-light']">{{ user.username
 						}}</router-link>
 				</div>
@@ -340,9 +340,10 @@ export default defineComponent({
 									style="width: 9%; position:absolute; right: 10px; display:flex; justify-content: end; margin-top: 2rem; font-size: 1vw"
 									type="text" v-model="searchInput" />
 								<div>
-									<p v-for="user in searchArray">
-										<button @click="store.invite_user(user.id, true)">{{
-										user.username }}</button>
+									<p v-for="user in searchArray">{{
+										user.username }}
+										<button @click="store.invite_user(user.id, true)">Invite
+											User</button>
 									</p>
 								</div>
 							</div>
@@ -576,7 +577,9 @@ export default defineComponent({
 <style lang="scss" scoped>
 * {
 	-ms-overflow-style: none;
+	/* IE and Edge */
 	scrollbar-width: none;
+	/* Firefox */
 }
 
 *::-webkit-scrollbar {
@@ -670,7 +673,9 @@ export default defineComponent({
 }
 
 .light {
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: rgba(255, 255, 255, 0.1);
+
+	// background-color: rgba(0, 0, 0, 0.5);
 }
 
 .bubble-avatar {
@@ -679,19 +684,6 @@ export default defineComponent({
 	border-radius: 50%;
 	background-color: white;
 	background-size: cover;
-}
-
-.users {
-	z-index: 5;
-	border: 1px solid;
-	height: 100vh;
-	// width: 15vw;
-	display: flex;
-	flex-direction: column;
-	color: white;
-	overflow-wrap: break-word;
-	overflow: scroll;
-	align-items: center;
 }
 
 .chat-list {
@@ -720,8 +712,11 @@ export default defineComponent({
 .chat-box {
 	z-index: 5;
 	width: 100%;
+	min-width: 70vw;
 	overflow-wrap: break-word;
-	background-color: rgba(0, 0, 0, 0.25);
+	background-color: rgba(255, 255, 255, 0.1);
+
+	// background-color: rgba(0, 0, 0, 0.25);
 	border-top: 1px solid;
 	border-bottom: 1px solid;
 	color: white;
@@ -773,6 +768,20 @@ export default defineComponent({
 	padding: 1rem;
 	margin: 1rem;
 	overflow-wrap: break-word;
+}
+
+
+.users {
+	z-index: 5;
+	border: 1px solid;
+	height: 100vh;
+	width: 15vw;
+	display: flex;
+	flex-direction: column;
+	color: white;
+	overflow-wrap: break-word;
+	overflow: scroll;
+	align-items: center;
 }
 
 .avatar {
